@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "Utopia/Application.h"
+#include "Utopia/Log.h"
 
 // ----- Entry Point ------------------------
 
