@@ -10,6 +10,7 @@ namespace Utopia
 	
 	Application::~Application()
 	{
+		
 	}
 
 	void Application::Run()
