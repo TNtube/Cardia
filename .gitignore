@@ -6,3 +6,8 @@ bin-int/
 
 # Files
 *.user
+
+# xmake
+.xmake/
+build/
+vsxmake2019/
