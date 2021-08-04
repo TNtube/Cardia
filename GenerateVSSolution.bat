@@ -1,2 +1,2 @@
 xmake project -k vsxmake
-PAUSE
+@pause
