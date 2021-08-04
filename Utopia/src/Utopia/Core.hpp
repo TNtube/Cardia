@@ -10,6 +10,8 @@
 	#error Utopia is only for Windows !
 #endif
 
+#include <type_traits>
+
 template <typename T>
 constexpr T bit(T x)
 {
