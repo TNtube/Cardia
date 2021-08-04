@@ -31,21 +31,16 @@ namespace Utopia
 		EventCatMouseButton		= bit(4)
 	};
 
-	template <typename T, std::enable_if_t<std::is_enum<T>::value, bool> = true>
-	constexpr auto event_cat_int(T value) {
-		return enum_as_integer(value);
-	}
-
-	template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
-	constexpr auto event_cat_int(T value) {
-		return value;
+	EventCategory operator|(EventCategory a, EventCategory b)
+	{
+		return static_cast<EventCategory>(enum_as_integer(a) | enum_as_integer(b));
 	}
 
 	// Creating bunch of define to easily implement subclasses of the Event class
 #define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return EventType::##type; }\
 								virtual EventType getEventType() const override { return getStaticType(); }\
 								virtual const char* getName() const override { return #type; }
-#define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return event_cat_int(category); }
+#define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return enum_as_integer(category); }
 	
 
 	class UTOPIA_API Event
