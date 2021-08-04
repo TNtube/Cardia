@@ -1,4 +1,7 @@
+#include "utpch.h"
 #include "Application.h"
+#include "Utopia/Event.h"
+#include "Utopia/Log.h"
 
 
 namespace Utopia
@@ -15,6 +18,8 @@ namespace Utopia
 
 	void Application::Run()
 	{
+		KeyDownEvent e(98, 0);
+		UT_TRACE(e);
 		while (true);
 	}
 }

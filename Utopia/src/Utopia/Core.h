@@ -9,3 +9,9 @@
 #else
 	#error Utopia is only for Windows !
 #endif
+
+template <typename T>
+constexpr T bit(T x)
+{
+	return 1 << x;
+}

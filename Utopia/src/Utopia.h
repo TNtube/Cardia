@@ -2,7 +2,6 @@
 
 // Unique for Utopia App
 
-#include <iostream>
 #include "Utopia/Application.h"
 #include "Utopia/Log.h"
 
