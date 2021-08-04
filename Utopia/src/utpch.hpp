@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <type_traits>
 
 #ifdef UT_PLATFORM_WINDOWS
 	#include <Windows.h>
