@@ -2,11 +2,11 @@
 
 // Unique for Utopia App
 
-#include "Utopia/Application.h"
-#include "Utopia/Log.h"
+#include "Utopia/Application.hpp"
+#include "Utopia/Log.hpp"
 
 // ----- Entry Point ------------------------
 
-#include "Utopia/EntryPoint.h"
+#include "Utopia/EntryPoint.hpp"
 
 // ------------------------------------------

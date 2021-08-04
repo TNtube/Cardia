@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "Utopia/Core.h"
+#include "Utopia/Core.hpp"
 
 namespace Utopia
 {
@@ -84,7 +84,7 @@ namespace Utopia
 		// Used to auto format Event to be used by spdlog
 		return os << e.toString();
 	}
-	
+
 
 	// -------------------------------------- Application Events --------------------------------------
 

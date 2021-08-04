@@ -1,4 +1,4 @@
-#include <Utopia.h>
+#include <Utopia.hpp>
 
 class SandBox : public Utopia::Application
 {

@@ -15,10 +15,10 @@ target("Utopia")
     set_targetdir("/build/" .. outputdir .. "/Utopia/bin")
     set_objectdir("/build/" .. outputdir .. "/Utopia/obj")
 
-    set_pcxxheader("Utopia/src/utpch.h")
+    set_pcxxheader("Utopia/src/utpch.hpp")
 
     add_files("Utopia/src/**.cpp")
-    add_headerfiles("Utopia/src/**.h")
+    add_headerfiles("Utopia/src/**.hpp")
     add_includedirs("Utopia/src/", {public = true})
 
     add_packages("spdlog")
@@ -34,7 +34,7 @@ target("Sandbox")
     set_objectdir("/build/" .. outputdir .. "/SandBox/obj")
 
     add_files("Sandbox/src/**.cpp")
-    add_headerfiles("Sandbox/src/**.h")
+    add_headerfiles("Sandbox/src/**.hpp")
 
     add_packages("spdlog")
     add_deps("Utopia")

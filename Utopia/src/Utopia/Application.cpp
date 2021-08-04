@@ -1,7 +1,7 @@
-#include "utpch.h"
-#include "Application.h"
-#include "Utopia/Event.h"
-#include "Utopia/Log.h"
+#include "utpch.hpp"
+#include "Application.hpp"
+#include "Utopia/Event.hpp"
+#include "Utopia/Log.hpp"
 
 
 namespace Utopia
