@@ -21,7 +21,7 @@ namespace Utopia
 		MouseButtonDown, MouseButtonUp, MouseMotion, MouseScrolled
 	};
 
-	enum EventCategory
+	enum class EventCategory
 	{
 		Null = 0,
 		EventCatApplication		= bit(0),
@@ -51,9 +51,9 @@ namespace Utopia
 		
 		virtual std::string toString() const { return getName(); }		// for debugging purpose
 
-		inline bool isInCategory(EventCategory category)
+		inline bool isInCategory(Utopia::EventCategory category)
 		{
-			return getCategoryFlags() & category;
+			return getCategoryFlags() & enum_as_integer(category);
 		}
 	protected:
 		bool m_Handled = false;
@@ -102,7 +102,7 @@ namespace Utopia
 		}
 
 		EVENT_CLASS_TYPE(WinResize)
-		EVENT_CLASS_CATEGORY(EventCatApplication)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 
 	private:
 		unsigned m_Width, m_Height;
@@ -114,7 +114,7 @@ namespace Utopia
 		WinCloseEvent() = default;
 
 		EVENT_CLASS_TYPE(WinClose)
-		EVENT_CLASS_CATEGORY(EventCatApplication)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
 	class UTOPIA_API AppTickEvent : public Event
@@ -123,7 +123,7 @@ namespace Utopia
 		AppTickEvent() = default;
 
 		EVENT_CLASS_TYPE(AppTick)
-		EVENT_CLASS_CATEGORY(EventCatApplication)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
 	class UTOPIA_API AppUpdateEvent : public Event
@@ -132,7 +132,7 @@ namespace Utopia
 		AppUpdateEvent() = default;
 
 		EVENT_CLASS_TYPE(AppUpdate)
-		EVENT_CLASS_CATEGORY(EventCatApplication)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
 	class UTOPIA_API AppRenderEvent : public Event
@@ -141,7 +141,7 @@ namespace Utopia
 		AppRenderEvent() = default;
 
 		EVENT_CLASS_TYPE(AppRender)
-		EVENT_CLASS_CATEGORY(EventCatApplication)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
 
@@ -153,7 +153,7 @@ namespace Utopia
 	public:
 		inline int getKeyCode() const { return m_KeyCode; }
 
-		EVENT_CLASS_CATEGORY(EventCatKeyboard | EventCatInput)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatKeyboard | EventCategory::EventCatInput)
 
 	protected:
 		KeyEvent(int keyCode)
@@ -220,7 +220,7 @@ namespace Utopia
 		}
 
 		EVENT_CLASS_TYPE(MouseMotion)
-		EVENT_CLASS_CATEGORY(EventCatMouse | EventCatInput)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatMouse | EventCategory::EventCatInput)
 
 	private:
 		float m_MouseX, m_MouseY;
@@ -240,7 +240,7 @@ namespace Utopia
 		}
 
 		EVENT_CLASS_TYPE(MouseScrolled)
-		EVENT_CLASS_CATEGORY(EventCatMouse | EventCatInput)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatMouse | EventCategory::EventCatInput)
 	private:
 		float m_OffSetX, m_OffSetY;
 	};
@@ -251,7 +251,7 @@ namespace Utopia
 	public:
 		inline int getButton() const { return m_Button; }
 
-		EVENT_CLASS_CATEGORY(EventCatMouse | EventCatInput)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatMouse | EventCategory::EventCatInput)
 
 	protected:
 		MouseButtonEvent(int button)
