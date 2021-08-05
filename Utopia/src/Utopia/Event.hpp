@@ -72,7 +72,7 @@ namespace Utopia
 		template<typename T>
 		bool dispatch(std::function<bool(T&)> func)
 		{
-			if (m_Event.getEventType() == T::GetStaticType())
+			if (m_Event.getEventType() == T::getStaticType())
 			{
 				m_Event.m_Handled = func(static_cast<T&>(m_Event));
 				return true;
@@ -119,6 +119,26 @@ namespace Utopia
 
 		EVENT_CLASS_TYPE(WinClose)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
+	};
+
+	class UTOPIA_API WinMoveEvent : public Event
+	{
+	public:
+		WinMoveEvent(int x, int y)
+			: m_PosX(x), m_PosY(y) {}
+
+		std::string toString() const override							// for debugging purpose
+		{
+			std::stringstream ss;
+			ss << "WindowMoveEvent: (" << m_PosX << ", " << m_PosY << ")";
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(WinMoved)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
+
+	private:
+		int m_PosX, m_PosY;
 	};
 
 	class UTOPIA_API AppTickEvent : public Event
@@ -230,10 +250,10 @@ namespace Utopia
 		float m_MouseX, m_MouseY;
 	};
 
-	class UTOPIA_API MouseScolledEvent : public Event
+	class UTOPIA_API MouseScrolledEvent : public Event
 	{
 	public:
-		MouseScolledEvent(float x, float y)
+		MouseScrolledEvent(float x, float y)
 			: m_OffSetX(x), m_OffSetY(y) {}
 
 		std::string toString() const override						// for debugging purpose

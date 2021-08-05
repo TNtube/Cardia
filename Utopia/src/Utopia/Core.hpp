@@ -20,14 +20,14 @@
 	template <typename T>
 	constexpr void utAssert(T x, const char* message) 
 	{
-		if (!(x))
+		if (!x)
 			UT_ERROR("Assertion failed: {0}", message);
 		assert(x);
 	}
 	template <typename T>
 	constexpr void utCoreAssert(T x, const char* message)
 	{
-		if (!(x))
+		if (!x)
 			UT_CORE_ERROR("Assertion failed: {0}", message);
 		assert(x);
 	}

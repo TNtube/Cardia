@@ -13,6 +13,8 @@ namespace Utopia
 		virtual ~Application();
 
 		void Run();
+		void onEvent(Event& e);
+		bool onWinClose(WinCloseEvent& e);
 
 	private:
 		std::unique_ptr<Window> m_Window;

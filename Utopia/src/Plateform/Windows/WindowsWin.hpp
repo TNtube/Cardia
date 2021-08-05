@@ -29,7 +29,7 @@ namespace Utopia
 
 
 		inline void setEventCallback(const std::function<void(Event&)>& callback) override { m_Data.eventCallback = callback; }
-		void setVSync(bool enabled) override;
+		void setVSync(bool state) override;
 		bool isVSync() const override;
 
 	private:
