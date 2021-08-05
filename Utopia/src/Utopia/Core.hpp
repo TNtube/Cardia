@@ -11,6 +11,32 @@
 #endif
 
 #include <type_traits>
+#include <cassert>
+#include "Utopia/Log.hpp"
+
+
+
+#ifdef UT_DEBUG
+	template <typename T>
+	constexpr void utAssert(T x, const char* message) 
+	{
+		if (!(x))
+			UT_ERROR("Assertion failed: {0}", message);
+		assert(x);
+	}
+	template <typename T>
+	constexpr void utCoreAssert(T x, const char* message)
+	{
+		if (!(x))
+			UT_CORE_ERROR("Assertion failed: {0}", message);
+		assert(x);
+	}
+#else
+	template <typename T>
+	constexpr void utAssert(T x, const char* message) {}
+	template <typename T>
+	constexpr void utCoreAssert(T x, const char* message) {};
+#endif
 
 template <typename T>
 constexpr T bit(T x)

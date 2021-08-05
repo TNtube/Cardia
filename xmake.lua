@@ -6,6 +6,7 @@ add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx17")
 
 add_requires("spdlog v1.9.0") -- latest version at the time
+add_requires("glfw 3.3.4")   -- latest version at the time
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
@@ -22,9 +23,14 @@ target("Utopia")
     add_includedirs("Utopia/src/", {public = true})
 
     add_packages("spdlog")
+    add_packages("glfw")
 
     if is_plat("windows") then
         add_defines("UT_PLATFORM_WINDOWS", "UT_BUILD_DLL")
+    end
+
+    if is_mode("debug") then
+        add_defines("UT_DEBUG")
     end
 
 target("Sandbox")
@@ -41,6 +47,9 @@ target("Sandbox")
 
     if is_plat("windows") then
         add_defines("UT_PLATFORM_WINDOWS")
+    end
+    if is_mode("debug") then
+        add_defines("UT_DEBUG")
     end
 
     after_build(function (target)

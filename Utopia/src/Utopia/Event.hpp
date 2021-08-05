@@ -31,7 +31,7 @@ namespace Utopia
 		EventCatMouseButton		= bit(4)
 	};
 
-	EventCategory operator|(EventCategory a, EventCategory b)
+	inline EventCategory operator|(EventCategory a, EventCategory b)
 	{
 		return static_cast<EventCategory>(enum_as_integer(a) | enum_as_integer(b));
 	}

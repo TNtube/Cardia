@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core.hpp"
+#include "Utopia/Core.hpp"
+#include "Utopia/Window.hpp"
 
 
 namespace Utopia
@@ -12,6 +13,10 @@ namespace Utopia
 		virtual ~Application();
 
 		void Run();
+
+	private:
+		std::unique_ptr<Window> m_Window;
+		bool m_Running = true;
 	};
 
 	Application* CreateApplication();
