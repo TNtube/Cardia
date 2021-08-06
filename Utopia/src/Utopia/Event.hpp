@@ -55,10 +55,12 @@ namespace Utopia
 		
 		virtual std::string toString() const { return getName(); }		// for debugging purpose
 
-		inline bool isInCategory(Utopia::EventCategory category)
+		inline bool isInCategory(Utopia::EventCategory category) const
 		{
 			return getCategoryFlags() & enum_as_integer(category);
 		}
+
+		inline bool isHandled() const { return m_Handled; }
 	protected:
 		bool m_Handled = false;
 	};
@@ -222,7 +224,7 @@ namespace Utopia
 
 		}
 
-		EVENT_CLASS_TYPE(KeyDown)
+		EVENT_CLASS_TYPE(KeyUp)
 	};
 
 	// -------------------------------------- Mouse Events --------------------------------------

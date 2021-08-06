@@ -77,28 +77,27 @@ namespace Utopia
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* win, int key, int scancode, int action, int mods)
 			{
 				const WinData data = *static_cast<WinData*>(glfwGetWindowUserPointer(win));
-
 				switch (action)
 				{
-				case GLFW_PRESS:
-					{
-						KeyDownEvent event(key, 0);
-						data.eventCallback(event);
-						break;
+					case GLFW_PRESS:
+						{
+							KeyDownEvent event(key, 0);
+							data.eventCallback(event);
+							break;
+						}
+					case GLFW_RELEASE:
+						{
+							KeyUpEvent event(key);
+							data.eventCallback(event);
+							break;
+						}
+					case GLFW_REPEAT:
+						{
+							KeyDownEvent event(key, 1);
+							data.eventCallback(event);
+							break;
+						}
 					}
-				case GLFW_RELEASE:
-					{
-						KeyUpEvent event(key);
-						data.eventCallback(event);
-						break;
-					}
-				case GLFW_REPEAT:
-					{
-						KeyDownEvent event(key, 1);
-						data.eventCallback(event);
-						break;
-					}
-				}
 			});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* win, int button, int action, int mods)

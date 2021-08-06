@@ -3,8 +3,6 @@
 
 #include "Utopia/Log.hpp"
 
-#include <gl/GL.h>
-
 
 namespace Utopia
 {
@@ -21,21 +19,40 @@ namespace Utopia
 
 	}
 
+	void Application::pushLayer(LayerPtr layer)
+	{
+		m_LayerStack.pushLayer(layer);
+	}
+
+	void Application::pushOverlay(LayerPtr overlay)
+	{
+		m_LayerStack.pushOverlay(overlay);
+	}
+
+
+
 
 	void Application::onEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-
 		dispatcher.dispatch<WinCloseEvent>(BIND_EVENT_FN(onWinClose));
-		UT_CORE_TRACE(e);
+
+		for (auto it = m_LayerStack.rbegin(); it < m_LayerStack.rend(); ++it)
+		{
+			(*it)->onEvent(e);
+			if(e.isHandled())
+				break;
+		}
 	}
 	
 	void Application::Run()
 	{
 		while (m_Running)
 		{
-			glClearColor(1, 1, 0, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			for (const LayerPtr& layer : m_LayerStack)
+			{
+				layer->onUpdate();
+			}
 			m_Window->onUpdate();
 		}
 	}
@@ -45,5 +62,6 @@ namespace Utopia
 		m_Running = false;
 		return true;
 	}
+
 
 }

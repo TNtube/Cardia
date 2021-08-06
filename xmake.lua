@@ -33,14 +33,14 @@ target("Utopia")
         add_defines("UT_DEBUG")
     end
 
-target("Sandbox")
+target("SandBox")
     set_kind("binary")
 
     set_targetdir("/build/" .. outputdir .. "/SandBox/bin")
     set_objectdir("/build/" .. outputdir .. "/SandBox/obj")
 
-    add_files("Sandbox/src/**.cpp")
-    add_headerfiles("Sandbox/src/**.hpp")
+    add_files("SandBox/src/**.cpp")
+    add_headerfiles("SandBox/src/**.hpp")
 
     add_packages("spdlog")
     add_deps("Utopia")

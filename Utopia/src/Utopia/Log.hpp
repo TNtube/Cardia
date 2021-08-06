@@ -24,11 +24,9 @@ namespace Utopia
 #define UT_CORE_INFO(...)		::Utopia::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define UT_CORE_WARN(...)		::Utopia::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define UT_CORE_ERROR(...)		::Utopia::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define UT_CORE_FATAL(...)		::Utopia::Log::GetCoreLogger()->fatal(__VA_ARGS__)
 
-// Core Log Macros
+// SandBox Log Macros
 #define UT_TRACE(...)			::Utopia::Log::GetClientLogger()->trace(__VA_ARGS__)
 #define UT_INFO(...)			::Utopia::Log::GetClientLogger()->info(__VA_ARGS__)
 #define UT_WARN(...)			::Utopia::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define UT_ERROR(...)			::Utopia::Log::GetClientLogger()->error(__VA_ARGS__)
-#define UT_FATAL(...)			::Utopia::Log::GetClientLogger()->fatal(__VA_ARGS__)

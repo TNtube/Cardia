@@ -7,7 +7,6 @@
 
 namespace Utopia
 {
-
 	struct WinProperties
 	{
 		unsigned width, height;
