@@ -36,9 +36,9 @@ namespace Utopia
 			isGlfwInit = true;
 		}
 
-		m_Window = glfwCreateWindow(static_cast<int>(properties.width),
-			static_cast<int>(properties.height),
-			properties.title.c_str(),
+		m_Window = glfwCreateWindow(static_cast<int>(properties.width), 
+			static_cast<int>(properties.height), 
+			properties.title.c_str(), 
 			nullptr, nullptr);
 
 		glfwMakeContextCurrent(m_Window);
@@ -68,9 +68,9 @@ namespace Utopia
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 				WinMoveEvent event(x, y);
-				data->eventCallback(event);
+				data->eventCallback(event);			
 			});
-
+		
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* win, int key, int scancode, int action, int mods)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
@@ -78,32 +78,32 @@ namespace Utopia
 				switch (action)
 				{
 				case GLFW_PRESS:
-				{
-					KeyDownEvent event(key, 0);
-					data->eventCallback(event);
-					break;
-				}
+					{
+						KeyDownEvent event(key, 0);
+						data->eventCallback(event);
+						break;
+					}
 				case GLFW_RELEASE:
-				{
-					KeyUpEvent event(key);
-					data->eventCallback(event);
-					break;
-				}
+					{
+						KeyUpEvent event(key);
+						data->eventCallback(event);
+						break;
+					}
 				case GLFW_REPEAT:
-				{
-					KeyDownEvent event(key, 1);
-					data->eventCallback(event);
-					break;
-				}
+					{
+						KeyDownEvent event(key, 1);
+						data->eventCallback(event);
+						break;
+					}
 				}
 			});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* win, int button, int action, int mods)
-			{
-				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
+		{
+			const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 
-				switch (action)
-				{
+			switch (action)
+			{
 				case GLFW_PRESS:
 				{
 					MouseButtonDownEvent event(button);
@@ -116,8 +116,8 @@ namespace Utopia
 					data->eventCallback(event);
 					break;
 				}
-				}
-			});
+			}
+		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* win, double xOffset, double yOffset)
 			{
@@ -152,7 +152,7 @@ namespace Utopia
 		m_Data.vSync = state;
 	}
 
-
+	
 	bool WindowsWin::isVSync() const
 	{
 		return m_Data.vSync;
