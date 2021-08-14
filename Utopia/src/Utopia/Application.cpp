@@ -3,13 +3,21 @@
 
 #include "Utopia/Log.hpp"
 
+#include <glad/glad.h>
+#include <imgui.h>
+
 
 namespace Utopia
 {
-
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+
+	Application* Application::s_Instance = nullptr;
+
 	Application::Application()
 	{
+		utCoreAssert(!s_Instance, "Application already exist");
+		s_Instance = this;
+
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->setEventCallback(BIND_EVENT_FN(onEvent));
 	}
@@ -19,14 +27,16 @@ namespace Utopia
 
 	}
 
-	void Application::pushLayer(LayerPtr layer)
+	void Application::pushLayer(std::shared_ptr<Layer>& layer)
 	{
 		m_LayerStack.pushLayer(layer);
+		layer->onPush();
 	}
 
-	void Application::pushOverlay(LayerPtr overlay)
+	void Application::pushOverlay(std::shared_ptr<Layer>& overlay)
 	{
 		m_LayerStack.pushOverlay(overlay);
+		overlay->onPush();
 	}
 
 
@@ -49,7 +59,9 @@ namespace Utopia
 	{
 		while (m_Running)
 		{
-			for (const LayerPtr& layer : m_LayerStack)
+			glClearColor(1, 1, 0, 1);
+			glClear(GL_COLOR_BUFFER_BIT);
+			for (std::shared_ptr<Layer> layer : m_LayerStack)
 			{
 				layer->onUpdate();
 			}

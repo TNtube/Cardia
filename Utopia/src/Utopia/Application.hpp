@@ -16,14 +16,18 @@ namespace Utopia
 		void Run();
 		void onEvent(Event& e);
 		bool onWinClose(WinCloseEvent& e);
-		void pushLayer(LayerPtr layer);
-		void pushOverlay(LayerPtr overlay);
+		void pushLayer(std::shared_ptr<Layer>& layer);
+		void pushOverlay(std::shared_ptr<Layer>& overlay);
+
+		inline static Application& get() { return *s_Instance; }
+		inline Window& getWindow() const { return *m_Window; }
 
 	private:
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+		static Application* s_Instance;
 	};
 
-	Application* CreateApplication();
+	std::unique_ptr<Application> CreateApplication();
 }

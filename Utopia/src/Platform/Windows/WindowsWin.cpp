@@ -1,5 +1,6 @@
 #include "utpch.hpp"
 #include "WindowsWin.hpp"
+#include <glad/glad.h>
 
 
 namespace Utopia
@@ -30,18 +31,19 @@ namespace Utopia
 
 		if (!isGlfwInit)
 		{
-			int result = glfwInit();
+			const int result = glfwInit();
 			utAssert(result, "Can't initialize glfw3.");
 
 			isGlfwInit = true;
 		}
-
 		m_Window = glfwCreateWindow(static_cast<int>(properties.width), 
 			static_cast<int>(properties.height), 
 			properties.title.c_str(), 
 			nullptr, nullptr);
 
 		glfwMakeContextCurrent(m_Window);
+		const int result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+		utCoreAssert(result, "Could not load Glad");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		setVSync(true);
 

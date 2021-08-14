@@ -1,3 +1,5 @@
+add_repositories("test-repo xmake-repo")
+
 set_project("UtopiaGameEngine")
 set_version("0.0.0")
 
@@ -6,7 +8,9 @@ add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx17")
 
 add_requires("spdlog v1.9.0") -- latest version at the time
-add_requires("glfw 3.3.4")   -- latest version at the time
+add_requires("glfw 3.3.4")    -- latest version at the time
+add_requires("glad v0.1.34")  -- latest version at the time
+add_requires("imgui v1.83-docking")
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
@@ -24,6 +28,8 @@ target("Utopia")
 
     add_packages("spdlog")
     add_packages("glfw")
+    add_packages("glad")
+    add_packages("imgui")
 
     if is_plat("windows") then
         add_defines("UT_PLATFORM_WINDOWS", "UT_BUILD_DLL")

@@ -2,7 +2,7 @@
 
 #ifdef UT_PLATFORM_WINDOWS
 
-extern Utopia::Application* Utopia::CreateApplication();
+extern std::unique_ptr<Utopia::Application> Utopia::CreateApplication();
 
 int main(int argc, char** argv)
 {
@@ -10,7 +10,6 @@ int main(int argc, char** argv)
 	
 	auto app = Utopia::CreateApplication();
 	app->Run();
-	delete app;
 }
 
 #endif

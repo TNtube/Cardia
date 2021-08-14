@@ -5,17 +5,15 @@
 
 namespace Utopia
 {
-	using LayerPtr = std::shared_ptr<Layer>;
 	class UTOPIA_API LayerStack
 	{
 	public:
 		LayerStack();
 		~LayerStack();
-		void pushLayer(LayerPtr layer);
-		void pushOverlay(LayerPtr overlay);
-		void popLayer(LayerPtr layer);
-		void popOverlay(LayerPtr overlay);
-
+		void pushLayer(std::shared_ptr<Layer>& layer);
+		void pushOverlay(std::shared_ptr<Layer>& overlay);
+		void popLayer(const std::shared_ptr<Layer>& layer);
+		void popOverlay(const std::shared_ptr<Layer>& overlay);
 
 		auto begin() { return m_Layers.begin(); }
 		auto end() { return m_Layers.end(); }
@@ -23,7 +21,7 @@ namespace Utopia
 		auto rend() { return m_Layers.rend(); }
 
 	private:
-		std::vector<LayerPtr> m_Layers;
-		std::vector<LayerPtr>::iterator m_LayerInsert;
+		std::vector<std::shared_ptr<Layer>> m_Layers;
+		std::vector<std::shared_ptr<Layer>>::iterator m_LayerInsert;
 	};
 }
