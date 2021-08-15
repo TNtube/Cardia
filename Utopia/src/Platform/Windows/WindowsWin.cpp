@@ -103,7 +103,7 @@ namespace Utopia
 		glfwSetCharCallback(m_Window, [](GLFWwindow* win, unsigned keycode)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
-				KeyTypedEvent event(keycode);
+				KeyTypedEvent event(static_cast<int>(keycode));
 				data->eventCallback(event);
 			});
 

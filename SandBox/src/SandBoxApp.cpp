@@ -29,11 +29,9 @@ public:
 		pushOverlay(imGuiLayer.get());
 	}
 
-	~SandBox()
-	{
+	~SandBox() override = default;
 
-	}
-
+private:
 	std::unique_ptr<Utopia::Layer> layer = std::make_unique<LayerTest>();
 	std::unique_ptr<Utopia::Layer> imGuiLayer = std::make_unique<Utopia::ImGuiLayer>();
 };
