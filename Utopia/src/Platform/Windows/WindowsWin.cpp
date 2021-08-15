@@ -59,7 +59,7 @@ namespace Utopia
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* win, int w, int h)
 			{
-				WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
+				const auto data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 				data->width = w;
 				data->height = h;
 				WinResizeEvent event(w, h);
@@ -76,7 +76,6 @@ namespace Utopia
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* win, int key, int scancode, int action, int mods)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
-
 				switch (action)
 				{
 				case GLFW_PRESS:
@@ -97,6 +96,8 @@ namespace Utopia
 						data->eventCallback(event);
 						break;
 					}
+				default:
+					Log::coreError("Unknown glfw key callback action");
 				}
 			});
 
@@ -125,6 +126,8 @@ namespace Utopia
 					data->eventCallback(event);
 					break;
 				}
+				default:
+					Log::coreError("Unknown glfw mouse callback action");
 			}
 		});
 

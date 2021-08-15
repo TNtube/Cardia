@@ -9,7 +9,7 @@ namespace Utopia
 	{
 	public:
 		LayerStack();
-		~LayerStack();
+		~LayerStack() = default;
 		void pushLayer(Layer* layer);
 		void pushOverlay(Layer* overlay);
 		void popLayer(const Layer* layer);

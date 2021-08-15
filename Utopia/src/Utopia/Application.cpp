@@ -9,22 +9,18 @@
 
 namespace Utopia
 {
-
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
 	{
-		utCoreAssert(!s_Instance, "Application already exist");
+		utCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->setEventCallback(UT_BIND_EVENT_FN(Application::onEvent));
 	}
-	
-	Application::~Application()
-	{
 
-	}
+	Application::~Application() = default;
 
 	void Application::pushLayer(Layer* layer)
 	{
@@ -37,9 +33,6 @@ namespace Utopia
 		m_LayerStack.pushOverlay(overlay);
 		overlay->onPush();
 	}
-
-
-
 
 	void Application::onEvent(Event& e)
 	{
@@ -73,6 +66,4 @@ namespace Utopia
 		m_Running = false;
 		return true;
 	}
-
-
 }

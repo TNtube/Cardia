@@ -49,13 +49,14 @@ namespace Utopia
 		
 		friend class EventDispatcher;
 	public:
+		virtual ~Event() = default;
 		virtual EventType getEventType() const = 0;
 		virtual const char* getName() const = 0;
 		virtual int getCategoryFlags() const = 0; 
 		
 		virtual std::string toString() const { return getName(); }		// for debugging purpose
 
-		inline bool isInCategory(Utopia::EventCategory category) const
+		inline bool isInCategory(EventCategory category) const
 		{
 			return getCategoryFlags() & enum_as_integer(category);
 		}
@@ -99,6 +100,8 @@ namespace Utopia
 	public:
 		WinResizeEvent(unsigned width, unsigned height)
 			: m_Width(width), m_Height(height) {}
+
+		~WinResizeEvent() override = default;
 
 		std::string toString() const override							// for debugging purpose
 		{

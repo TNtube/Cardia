@@ -6,8 +6,10 @@
 
 #include "Utopia/Application.hpp"
 
+// Temporary
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+
 
 namespace Utopia
 {
@@ -20,7 +22,7 @@ namespace Utopia
 	void ImGuiLayer::onPush()
 	{
 		ImGui::CreateContext();
-		ImGui::StyleColorsDark();
+		ImGui::StyleColorsLight();
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
@@ -165,12 +167,8 @@ namespace Utopia
 		io.DisplaySize = ImVec2(w, h);
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
-		glViewport(0, 0, w, h);
+		glViewport(0, 0, w, h); // Temporary
 
 		return false;
 	}
-
-
-
-
 }

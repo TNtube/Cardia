@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Core.hpp"
+
+// TODO: Remove deps to spdlog
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
-
-#include "Core.hpp"
 
 namespace Utopia
 {

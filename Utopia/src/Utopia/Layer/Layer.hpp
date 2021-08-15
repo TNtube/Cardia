@@ -10,16 +10,16 @@ namespace Utopia
 	public:
 		Layer(std::string name = "Layer")
 			: m_Name(std::move(name)) {}
-		virtual ~Layer() {}
+		virtual ~Layer() = default;
 
 		virtual void onPush() {}
 		virtual void onPop() {}
 		virtual void onUpdate() {}
 		virtual void onEvent(Event& event) {}
 
-		inline const std::string& getName() const { return m_Name; }			// for debugging purpose
+		const std::string& getName() const { return m_Name; }			// for debugging purpose
 
 	protected:
-		std::string m_Name;														// For debugging purpose
+		std::string m_Name;												// For debugging purpose
 	};
 }

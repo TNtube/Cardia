@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
 	Utopia::Logger::Init();
 	
-	auto app = Utopia::CreateApplication();
+	const auto app = Utopia::CreateApplication();
 	app->Run();
 }
 
