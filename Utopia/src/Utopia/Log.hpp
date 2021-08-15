@@ -7,26 +7,67 @@
 
 namespace Utopia
 {
-	class UTOPIA_API Log
+	class UTOPIA_API Logger
 	{
 	public:
 		static void Init();
-		static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		static spdlog::logger* GetCoreLogger() { return s_CoreLogger.get(); }
+		static spdlog::logger* GetClientLogger() { return s_ClientLogger.get(); }
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;
 	};
+
+	namespace Log
+	{
+		// Core Log
+		template<typename... Args>
+		constexpr void coreTrace(Args... args)
+		{
+			Logger::GetCoreLogger()->trace(args...);
+		}
+
+		template<typename... Args>
+		constexpr void coreInfo(Args... args)
+		{
+			Logger::GetCoreLogger()->info(args...);
+		}
+
+		template<typename... Args>
+		constexpr void coreWarn(Args... args)
+		{
+			Logger::GetCoreLogger()->warn(args...);
+		}
+
+		template<typename... Args>
+		constexpr void coreError(Args... args)
+		{
+			Logger::GetCoreLogger()->error(args...);
+		}
+
+		// SandBox Log Macros
+		template<typename... Args>
+		constexpr void trace(Args... args)
+		{
+			Logger::GetClientLogger()->trace(args...);
+		}
+
+		template<typename... Args>
+		constexpr void info(Args... args)
+		{
+			Logger::GetClientLogger()->info(args...);
+		}
+
+		template<typename... Args>
+		constexpr void warn(Args... args)
+		{
+			Logger::GetClientLogger()->warn(args...);
+		}
+
+		template<typename... Args>
+		constexpr void error(Args... args)
+		{
+			Logger::GetClientLogger()->error(args...);
+		}
+	}
 }
-
-// Core Log Macros
-#define UT_CORE_TRACE(...)		::Utopia::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define UT_CORE_INFO(...)		::Utopia::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define UT_CORE_WARN(...)		::Utopia::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define UT_CORE_ERROR(...)		::Utopia::Log::GetCoreLogger()->error(__VA_ARGS__)
-
-// SandBox Log Macros
-#define UT_TRACE(...)			::Utopia::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define UT_INFO(...)			::Utopia::Log::GetClientLogger()->info(__VA_ARGS__)
-#define UT_WARN(...)			::Utopia::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define UT_ERROR(...)			::Utopia::Log::GetClientLogger()->error(__VA_ARGS__)

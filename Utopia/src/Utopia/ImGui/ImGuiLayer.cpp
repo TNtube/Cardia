@@ -78,7 +78,7 @@ namespace Utopia
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		UT_CORE_INFO("Updating ImGui");
+		Log::coreInfo("Updating ImGui");
 	}
 
 	void ImGuiLayer::onEvent(Event& event)

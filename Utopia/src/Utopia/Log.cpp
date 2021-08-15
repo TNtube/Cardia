@@ -6,10 +6,10 @@
 
 namespace Utopia
 {
-	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
-	std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
+	std::shared_ptr<spdlog::logger> Logger::s_CoreLogger;
+	std::shared_ptr<spdlog::logger> Logger::s_ClientLogger;
 
-	void Log::Init()
+	void Logger::Init()
 	{
 		spdlog::set_pattern("%^[%T](%l) %n: %v%$");
 

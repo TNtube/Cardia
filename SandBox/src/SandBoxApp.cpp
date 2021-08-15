@@ -9,12 +9,12 @@ public:
 
 	void onUpdate() override
 	{
-		UT_INFO("LayerTest is updating...");
+		Utopia::Log::info("LayerTest is updating...");
 	}
 
 	void onEvent(Utopia::Event& event) override
 	{
-		UT_WARN(event);
+		Utopia::Log::warn(event.toString()); // TODO: Remove toString
 	}
 };
 

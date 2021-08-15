@@ -21,14 +21,14 @@
 	constexpr void utAssert(T x, const char* message) 
 	{
 		if (!x)
-			UT_ERROR("Assertion failed: {0}", message);
+			Utopia::Log::error("Assertion failed: {0}", message);
 		assert(x);
 	}
 	template <typename T>
 	constexpr void utCoreAssert(T x, const char* message)
 	{
 		if (!x)
-			UT_CORE_ERROR("Assertion failed: {0}", message);
+			Utopia::Log::coreError("Assertion failed: {0}", message);
 		assert(x);
 	}
 #else
@@ -44,11 +44,11 @@ constexpr T bit(T x)
 	return 1 << x;
 }
 
-template <typename Enumeration, std::enable_if_t<std::is_enum<Enumeration>::value, bool> = true>
-constexpr auto enum_as_integer(const Enumeration value) -> typename std::underlying_type<Enumeration>::type
+template <typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
+constexpr auto enum_as_integer(const Enumeration value) -> std::underlying_type_t<Enumeration>
 {
-	return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+	return static_cast<std::underlying_type_t<Enumeration>>(value);
 }
 
 
-#define UT_BIND_EVENT_FN(x) std::bind((&x), this, std::placeholders::_1)
+#define UT_BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)

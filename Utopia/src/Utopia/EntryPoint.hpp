@@ -6,7 +6,7 @@ extern std::unique_ptr<Utopia::Application> Utopia::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	Utopia::Log::Init();
+	Utopia::Logger::Init();
 	
 	auto app = Utopia::CreateApplication();
 	app->Run();
