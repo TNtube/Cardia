@@ -100,6 +100,13 @@ namespace Utopia
 				}
 			});
 
+		glfwSetCharCallback(m_Window, [](GLFWwindow* win, unsigned keycode)
+			{
+				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
+				KeyTypedEvent event(keycode);
+				data->eventCallback(event);
+			});
+
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* win, int button, int action, int mods)
 		{
 			const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));

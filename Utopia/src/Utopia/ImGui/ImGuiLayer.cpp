@@ -1,11 +1,13 @@
 #include "utpch.hpp"
 #include "ImGuiLayer.hpp"
 
-#include "imgui.h"
+#include <imgui.h>
 #include "Platform/OpenGL/ImGuiOpenGLRenderer.hpp"
-#include "GLFW/glfw3.h"
 
 #include "Utopia/Application.hpp"
+
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace Utopia
 {
@@ -14,8 +16,6 @@ namespace Utopia
 	{
 		
 	}
-
-	ImGuiLayer::~ImGuiLayer() = default;
 
 	void ImGuiLayer::onPush()
 	{
@@ -61,7 +61,6 @@ namespace Utopia
 
 	void ImGuiLayer::onUpdate()
 	{
-
 		ImGuiIO& io = ImGui::GetIO();
 		auto[w, h] = Application::get().getWindow().getSize();
 		io.DisplaySize = ImVec2(w, h);
@@ -84,7 +83,91 @@ namespace Utopia
 
 	void ImGuiLayer::onEvent(Event& event)
 	{
-		
+		EventDispatcher dispatcher(event);
+		dispatcher.dispatch<MouseButtonDownEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseButtonDownEvent));
+		dispatcher.dispatch<MouseButtonUpEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseButtonUpEvent));
+		dispatcher.dispatch<MouseMotionEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseMotionEvent));
+		dispatcher.dispatch<MouseScrolledEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseScrolledEvent));
+		dispatcher.dispatch<KeyDownEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onKeyDownEvent));
+		dispatcher.dispatch<KeyUpEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onKeyUpEvent));
+		dispatcher.dispatch<KeyTypedEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onKeyTypedEvent));
+		dispatcher.dispatch<WinResizeEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onWinResizeEvent));
+	}
+
+	bool ImGuiLayer::onMouseButtonDownEvent(const MouseButtonDownEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseDown[e.getButton()] = true;
+
+		return false;
+	}
+
+	bool ImGuiLayer::onMouseButtonUpEvent(const MouseButtonUpEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseDown[e.getButton()] = false;
+
+		return false;
+	}
+
+	bool ImGuiLayer::onMouseMotionEvent(const MouseMotionEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		auto [x, y] = e.getPos();
+		io.MousePos = ImVec2(x, y);
+
+		return false;
+	}
+
+	bool ImGuiLayer::onMouseScrolledEvent(const MouseScrolledEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseWheel = e.getOffSetY();
+		io.MouseWheelH = e.getOffSetX();
+
+		return false;
+	}
+
+	bool ImGuiLayer::onKeyDownEvent(const KeyDownEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.KeysDown[e.getKeyCode()] = true;
+
+		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+		return false;
+	}
+
+	bool ImGuiLayer::onKeyUpEvent(const KeyUpEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.KeysDown[e.getKeyCode()] = false;
+		return false;
+	}
+
+	bool ImGuiLayer::onKeyTypedEvent(const KeyTypedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		const int c { e.getKeyCode() };
+		if (c > 0 && c < 0x10000)
+			io.AddInputCharacter(static_cast<unsigned short>(c));
+
+		return false;
+	}
+
+	bool ImGuiLayer::onWinResizeEvent(const WinResizeEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+
+		auto [w, h] = e.getSize();
+		io.DisplaySize = ImVec2(w, h);
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
+		glViewport(0, 0, w, h);
+
+		return false;
 	}
 
 

@@ -13,7 +13,7 @@ namespace Utopia
 		std::string title;
 
 		WinProperties(std::string title = "Utopia",
-			unsigned width = 1080,
+			unsigned width = 1280,
 			unsigned height = 720)
 			: width(width), height(height), title(std::move(title)) {}
 	};

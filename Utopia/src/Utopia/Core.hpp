@@ -49,3 +49,6 @@ constexpr auto enum_as_integer(const Enumeration value) -> typename std::underly
 {
 	return static_cast<typename std::underlying_type<Enumeration>::type>(value);
 }
+
+
+#define UT_BIND_EVENT_FN(x) std::bind((&x), this, std::placeholders::_1)

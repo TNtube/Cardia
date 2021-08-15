@@ -24,18 +24,18 @@ class SandBox : public Utopia::Application
 public:
 	SandBox()
 	{
+		pushLayer(layer.get());
 
-		std::shared_ptr<Utopia::Layer> layer = std::make_unique<LayerTest>();
-		pushLayer(layer);
-
-		std::shared_ptr<Utopia::Layer> imGuiLayer = std::make_unique<Utopia::ImGuiLayer>();
-		pushOverlay(imGuiLayer);
+		pushOverlay(imGuiLayer.get());
 	}
 
 	~SandBox()
 	{
 
 	}
+
+	std::unique_ptr<Utopia::Layer> layer = std::make_unique<LayerTest>();
+	std::unique_ptr<Utopia::Layer> imGuiLayer = std::make_unique<Utopia::ImGuiLayer>();
 };
 
 

@@ -14,13 +14,13 @@ namespace Utopia
 	}
 
 
-	void LayerStack::pushLayer(std::shared_ptr<Layer>& layer)
+	void LayerStack::pushLayer(Layer* layer)
 	{
 		m_Layers.emplace(m_LayerInsert, layer);
 		++m_LayerInsert;
 	}
 
-	void LayerStack::popLayer(const std::shared_ptr<Layer>& layer)
+	void LayerStack::popLayer(const Layer* layer)
 	{
 		const auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
 		if(it != m_Layers.end())
@@ -30,12 +30,12 @@ namespace Utopia
 		}
 	}
 
-	void LayerStack::pushOverlay(std::shared_ptr<Layer>& overlay)
+	void LayerStack::pushOverlay(Layer* overlay)
 	{
 		m_Layers.emplace_back(overlay);
 	}
 
-	void LayerStack::popOverlay(const std::shared_ptr<Layer>& overlay)
+	void LayerStack::popOverlay(const Layer* overlay)
 	{
 		const auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
 		if (it != m_Layers.end())

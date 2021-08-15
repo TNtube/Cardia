@@ -16,7 +16,7 @@ namespace Utopia
 	{
 		Null = 0,
 		WinClose, WinResize, WinFocus, WinLostFocus, WinMoved,
-		KeyDown, KeyUp,
+		KeyDown, KeyUp, KeyTyped,
 		AppTick, AppUpdate, AppRender,
 		MouseButtonDown, MouseButtonUp, MouseMotion, MouseScrolled
 	};
@@ -106,6 +106,10 @@ namespace Utopia
 			ss << "WindowResizeEvent: (" << m_Width << ", " << m_Height << ")";
 			return ss.str();
 		}
+
+		inline float getW() const { return m_Width; }
+		inline float getH() const { return m_Height; }
+		inline std::pair<float, float> getSize() const { return { m_Width, m_Height }; }
 
 		EVENT_CLASS_TYPE(WinResize)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
@@ -227,6 +231,25 @@ namespace Utopia
 		EVENT_CLASS_TYPE(KeyUp)
 	};
 
+
+	class UTOPIA_API KeyTypedEvent : public KeyEvent
+	{
+	public:
+		KeyTypedEvent(int keyCode)
+			: KeyEvent(keyCode) {}
+
+
+		std::string toString() const override						// for debugging purpose
+		{
+			std::stringstream ss;
+			ss << "KeyTypedEvent: " << m_KeyCode;
+			return ss.str();
+
+		}
+
+		EVENT_CLASS_TYPE(KeyTyped)
+	};
+
 	// -------------------------------------- Mouse Events --------------------------------------
 
 	class UTOPIA_API MouseMotionEvent : public Event
@@ -237,6 +260,7 @@ namespace Utopia
 
 		inline float getX() const { return m_MouseX; }
 		inline float getY() const { return m_MouseY; }
+		inline std::pair<float, float> getPos() const { return { m_MouseX, m_MouseY }; }
 
 		std::string toString() const override						// for debugging purpose
 		{
@@ -264,6 +288,10 @@ namespace Utopia
 			ss << "MouseScrolledEvent: (" << m_OffSetX << ", " << m_OffSetY << ")";
 			return ss.str();
 		}
+
+		inline float getOffSetX() const { return m_OffSetX; }
+		inline float getOffSetY() const { return m_OffSetY; }
+
 
 		EVENT_CLASS_TYPE(MouseScrolled)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatMouse | EventCategory::EventCatInput)
