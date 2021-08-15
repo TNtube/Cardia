@@ -2,7 +2,7 @@
 #include "ImGuiLayer.hpp"
 
 #include <imgui.h>
-#include "Platform/OpenGL/ImGuiOpenGLRenderer.hpp"
+#include <imgui_impl_opengl3.h>
 
 #include "Utopia/Application.hpp"
 
