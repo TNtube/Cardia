@@ -1,7 +1,12 @@
+set_xmakever("2.5.6")
+
 add_repositories("test-repo xmake-repo")
 
 set_project("UtopiaGameEngine")
 set_version("0.0.0")
+
+set_allowedplats("windows", "linux", "macosx")
+set_allowedarchs("windows|x64", "linux|x86_64", "macosx|x86_64")
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
