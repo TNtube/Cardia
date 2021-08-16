@@ -14,8 +14,8 @@ jobs:
     - uses: actions/checkout@v2
       name: Checkout
       
-    - name: Short SHA
-      run: echo ${{ github.sha[0:7] }}
+    - name: Get short commit SHA
+      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
     - uses: xmake-io/github-action-setup-xmake@v1
       with:
@@ -30,7 +30,7 @@ jobs:
       
     - uses: actions/upload-artifact@v2
       with:
-        name: utopia-windows-dbg-${{ github.sha }}
+        name: utopia-windows-dbg-${{ steps.vars.outputs.sha_short }}
         path: |
           build/debug-windows-x64/SandBox/bin/SandBox.exe
           build/debug-windows-x64/SandBox/bin/SandBox.pdb
@@ -41,7 +41,7 @@ jobs:
       
     - uses: actions/upload-artifact@v2
       with:
-        name: utopia-windows-rel-${{ github.sha }}
+        name: utopia-windows-rel-${{ steps.vars.outputs.sha_short }}
         path: |
           build/release-windows-x64/SandBox/bin/SandBox.exe
           build/release-windows-x64/SandBox/bin/imgui.ini
