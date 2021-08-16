@@ -14,6 +14,9 @@ jobs:
     - uses: actions/checkout@v2
       name: Checkout
 
+    - name: Print working dir
+      run: pwd
+
     - uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
@@ -24,6 +27,9 @@ jobs:
 
     - name: Build release
       run: xmake f -m release -y
+      
+    - name: List directory
+      run: dir
       
     - uses: actions/upload-artifact@v2
       with:
