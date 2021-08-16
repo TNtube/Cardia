@@ -8,7 +8,7 @@ namespace Utopia
 	class UTOPIA_API Layer
 	{
 	public:
-		Layer(std::string name = "Layer")
+		explicit Layer(std::string name = "Layer")
 			: m_Name(std::move(name)) {}
 		virtual ~Layer() = default;
 

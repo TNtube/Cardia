@@ -37,9 +37,10 @@ namespace Utopia
 	}
 
 	// Creating bunch of define to easily implement subclasses of the Event class
-#define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return EventType::##type; }\
-								virtual EventType getEventType() const override { return getStaticType(); }\
+#define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return type; } \
+								virtual EventType getEventType() const override { return getStaticType(); } \
 								virtual const char* getName() const override { return #type; }
+
 #define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return enum_as_integer(category); }
 	
 
@@ -69,7 +70,7 @@ namespace Utopia
 	class EventDispatcher
 	{
 	public:
-		EventDispatcher(Event& event)
+		explicit EventDispatcher(Event& event)
 			: m_Event(event) {}
 
 		template<typename T>
@@ -110,11 +111,11 @@ namespace Utopia
 			return ss.str();
 		}
 
-		inline float getW() const { return m_Width; }
-		inline float getH() const { return m_Height; }
+		inline unsigned getW() const { return m_Width; }
+		inline unsigned getH() const { return m_Height; }
 		inline std::pair<float, float> getSize() const { return { m_Width, m_Height }; }
 
-		EVENT_CLASS_TYPE(WinResize)
+		EVENT_CLASS_TYPE(EventType::WinResize)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 
 	private:
@@ -126,7 +127,7 @@ namespace Utopia
 	public:
 		WinCloseEvent() = default;
 
-		EVENT_CLASS_TYPE(WinClose)
+		EVENT_CLASS_TYPE(EventType::WinClose)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
@@ -143,7 +144,7 @@ namespace Utopia
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(WinMoved)
+		EVENT_CLASS_TYPE(EventType::WinMoved)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 
 	private:
@@ -155,7 +156,7 @@ namespace Utopia
 	public:
 		AppTickEvent() = default;
 
-		EVENT_CLASS_TYPE(AppTick)
+		EVENT_CLASS_TYPE(EventType::AppTick)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
@@ -164,7 +165,7 @@ namespace Utopia
 	public:
 		AppUpdateEvent() = default;
 
-		EVENT_CLASS_TYPE(AppUpdate)
+		EVENT_CLASS_TYPE(EventType::AppUpdate)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
@@ -173,7 +174,7 @@ namespace Utopia
 	public:
 		AppRenderEvent() = default;
 
-		EVENT_CLASS_TYPE(AppRender)
+		EVENT_CLASS_TYPE(EventType::AppRender)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
@@ -212,7 +213,7 @@ namespace Utopia
 
 		}
 
-		EVENT_CLASS_TYPE(KeyDown)
+		EVENT_CLASS_TYPE(EventType::KeyDown)
 	private:
 		int m_RepeatCount;
 	};
@@ -220,7 +221,7 @@ namespace Utopia
 	class UTOPIA_API KeyUpEvent : public KeyEvent
 	{
 	public:
-		KeyUpEvent(int keyCode)
+		explicit KeyUpEvent(int keyCode)
 			: KeyEvent(keyCode) {}
 
 		std::string toString() const override						// for debugging purpose
@@ -231,14 +232,14 @@ namespace Utopia
 
 		}
 
-		EVENT_CLASS_TYPE(KeyUp)
+		EVENT_CLASS_TYPE(EventType::KeyUp)
 	};
 
 
 	class UTOPIA_API KeyTypedEvent : public KeyEvent
 	{
 	public:
-		KeyTypedEvent(int keyCode)
+		explicit KeyTypedEvent(int keyCode)
 			: KeyEvent(keyCode) {}
 
 
@@ -250,7 +251,7 @@ namespace Utopia
 
 		}
 
-		EVENT_CLASS_TYPE(KeyTyped)
+		EVENT_CLASS_TYPE(EventType::KeyTyped)
 	};
 
 	// -------------------------------------- Mouse Events --------------------------------------
@@ -272,7 +273,7 @@ namespace Utopia
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseMotion)
+		EVENT_CLASS_TYPE(EventType::MouseMotion)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatMouse | EventCategory::EventCatInput)
 
 	private:
@@ -296,7 +297,7 @@ namespace Utopia
 		inline float getOffSetY() const { return m_OffSetY; }
 
 
-		EVENT_CLASS_TYPE(MouseScrolled)
+		EVENT_CLASS_TYPE(EventType::MouseScrolled)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatMouse | EventCategory::EventCatInput)
 	private:
 		float m_OffSetX, m_OffSetY;
@@ -321,7 +322,7 @@ namespace Utopia
 	class UTOPIA_API MouseButtonDownEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonDownEvent(int button)
+		explicit MouseButtonDownEvent(int button)
 			: MouseButtonEvent(button) {}
 
 		std::string toString() const override						// for debugging purpose
@@ -331,13 +332,13 @@ namespace Utopia
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseButtonDown)
+		EVENT_CLASS_TYPE(EventType::MouseButtonDown)
 	};
 
 	class UTOPIA_API MouseButtonUpEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonUpEvent(int button)
+		explicit MouseButtonUpEvent(int button)
 			: MouseButtonEvent(button) {}
 
 		std::string toString() const override						// for debugging purpose
@@ -347,6 +348,6 @@ namespace Utopia
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseButtonUp)
+		EVENT_CLASS_TYPE(EventType::MouseButtonUp)
 	};
 }

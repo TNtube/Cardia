@@ -12,3 +12,7 @@ CMakeLists.txt
 .xmake/
 build/
 vsxmake2019/
+
+# CLion
+.idea/
+cmake-build-debug/

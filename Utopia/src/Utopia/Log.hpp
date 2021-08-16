@@ -23,52 +23,52 @@ namespace Utopia
 	{
 		// Core Log
 		template<typename... Args>
-		constexpr void coreTrace(Args... args)
+		constexpr void coreTrace(Args&&... args)
 		{
-			Logger::GetCoreLogger()->trace(args...);
+			Logger::GetCoreLogger()->trace(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void coreInfo(Args... args)
+		constexpr void coreInfo(Args&&... args)
 		{
-			Logger::GetCoreLogger()->info(args...);
+			Logger::GetCoreLogger()->info(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void coreWarn(Args... args)
+		constexpr void coreWarn(Args&&... args)
 		{
-			Logger::GetCoreLogger()->warn(args...);
+			Logger::GetCoreLogger()->warn(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void coreError(Args... args)
+		constexpr void coreError(Args&&... args)
 		{
-			Logger::GetCoreLogger()->error(args...);
+			Logger::GetCoreLogger()->error(std::forward<Args>(args)...);
 		}
 
 		// SandBox Log Macros
 		template<typename... Args>
-		constexpr void trace(Args... args)
+		constexpr void trace(Args&&... args)
 		{
-			Logger::GetClientLogger()->trace(args...);
+			Logger::GetClientLogger()->trace(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void info(Args... args)
+		constexpr void info(Args&&... args)
 		{
-			Logger::GetClientLogger()->info(args...);
+			Logger::GetClientLogger()->info(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void warn(Args... args)
+		constexpr void warn(Args&&... args)
 		{
-			Logger::GetClientLogger()->warn(args...);
+			Logger::GetClientLogger()->warn(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void error(Args... args)
+		constexpr void error(Args&&... args)
 		{
-			Logger::GetClientLogger()->error(args...);
+			Logger::GetClientLogger()->error(std::forward<Args>(args)...);
 		}
 	}
 }

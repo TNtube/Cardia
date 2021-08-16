@@ -14,9 +14,7 @@ public:
 
 	void onEvent(Utopia::Event& event) override
 	{
-		Utopia::Log::warn(event.toString()); // TODO: Remove toString
-		if(event.getEventType() == Utopia::EventType::KeyDown){
-		}
+		Utopia::Log::trace(event);
 	}
 };
 
