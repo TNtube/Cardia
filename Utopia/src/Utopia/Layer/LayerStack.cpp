@@ -9,8 +9,6 @@ namespace Utopia
 		m_LayerInsert = m_Layers.begin();
 	}
 
-	LayerStack::~LayerStack() = default;
-
 	void LayerStack::pushLayer(Layer* layer)
 	{
 		m_Layers.emplace(m_LayerInsert, layer);
