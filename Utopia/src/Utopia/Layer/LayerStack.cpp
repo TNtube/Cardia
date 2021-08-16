@@ -4,24 +4,20 @@
 
 namespace Utopia
 {
-	LayerStack::LayerStack()
-	{
-		m_LayerInsert = m_Layers.begin();
-	}
-
 	void LayerStack::pushLayer(Layer* layer)
 	{
-		m_Layers.emplace(m_LayerInsert, layer);
-		++m_LayerInsert;
+	    m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
+		++m_LayerInsertIndex;
 	}
 
-	void LayerStack::popLayer(const Layer* layer)
+	void LayerStack::popLayer(Layer* layer)
 	{
-		const auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
-		if(it != m_Layers.end())
+		auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
+		if(it != m_Layers.begin() + m_LayerInsertIndex)
 		{
+		    layer->onPop();
 			m_Layers.erase(it);
-			--m_LayerInsert;
+			--m_LayerInsertIndex;
 		}
 	}
 
@@ -30,13 +26,13 @@ namespace Utopia
 		m_Layers.emplace_back(overlay);
 	}
 
-	void LayerStack::popOverlay(const Layer* overlay)
+	void LayerStack::popOverlay(Layer* overlay)
 	{
 		const auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
 		if (it != m_Layers.end())
 		{
+		    overlay->onPop();
 			m_Layers.erase(it);
-			--m_LayerInsert;
 		}
 	}
 }

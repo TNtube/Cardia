@@ -5,7 +5,7 @@ bin/
 bin-int/
 
 # Files
-CMakeList.txt
+CMakeLists.txt
 *.user
 
 # xmake
