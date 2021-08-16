@@ -2,9 +2,9 @@ name: Utopia for Windows
 
 on:
   push:
-    branches: [ main, actions ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, actions ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
       
     - uses: actions/upload-artifact@v2
       with:
-        name: utopia-windows-dbg-${{ github.run_id }}
+        name: utopia-windows-debug-${{ github.run_id }}
         path: |
           build/debug-windows-x64/SandBox/bin/SandBox.exe
           build/debug-windows-x64/SandBox/bin/SandBox.pdb
@@ -38,7 +38,7 @@ jobs:
       
     - uses: actions/upload-artifact@v2
       with:
-        name: utopia-windows-rel-${{ github.run_id }}
+        name: utopia-windows-release-${{ github.run_id }}
         path: |
           build/release-windows-x64/SandBox/bin/SandBox.exe
           build/release-windows-x64/SandBox/bin/imgui.ini
