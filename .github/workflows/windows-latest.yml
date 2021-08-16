@@ -23,9 +23,11 @@ jobs:
       name: Install xmake
 
     - name: Build debug
+      working-directory: .
       run: xmake f -m debug -y
 
     - name: Build release
+      working-directory: .
       run: xmake f -m release -y
       
     - name: List directory
