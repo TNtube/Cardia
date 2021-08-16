@@ -2,9 +2,9 @@ name: Utopia for Windows
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, actions ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, actions ]
 
 jobs:
   build:
@@ -20,27 +20,37 @@ jobs:
       name: Install xmake
 
     - name: Build debug
-      run: xmake f -m debug -y && xmake -y
+      run: |
+        xmake f -m debug -y
+        xmake
 
     - name: Build release
-      run: xmake f -m release -y && xmake -y
-      
+      run: | 
+        xmake f -m release -y
+        xmake
+    
+    - name: Prepare artifacts
+      run: |
+        mkdir debug-artifact
+        move build/debug-windows-x64/SandBox/bin/SandBox.exe debug-artifact/
+        move build/debug-windows-x64/SandBox/bin/SandBox.pdb debug-artifact/
+        move build/debug-windows-x64/SandBox/bin/imgui.ini debug-artifact/
+        move build/debug-windows-x64/Utopia/bin/Utopia.dll debug-artifact/
+        move build/debug-windows-x64/Utopia/bin/Utopia.pdb debug-artifact/
+        
+        mkdir release-artifact
+        move build/release-windows-x64/SandBox/bin/SandBox.exe release-artifact/
+        move build/release-windows-x64/SandBox/bin/imgui.ini release-artifact/
+        move build/release-windows-x64/Utopia/bin/Utopia.dll release-artifact/
+
     - uses: actions/upload-artifact@v2
       with:
         name: utopia-windows-debug-${{ github.run_id }}
-        path: |
-          build/debug-windows-x64/SandBox/bin/SandBox.exe
-          build/debug-windows-x64/SandBox/bin/SandBox.pdb
-          build/debug-windows-x64/SandBox/bin/imgui.ini
-          build/debug-windows-x64/Utopia/bin/Utopia.dll
-          build/debug-windows-x64/Utopia/bin/Utopia.pdb
+        path: debug-artifact/
       name: Upload debug artifact
       
     - uses: actions/upload-artifact@v2
       with:
         name: utopia-windows-release-${{ github.run_id }}
-        path: |
-          build/release-windows-x64/SandBox/bin/SandBox.exe
-          build/release-windows-x64/SandBox/bin/imgui.ini
-          build/release-windows-x64/Utopia/bin/Utopia.dll
+        path: release-artifact/
       name: Upload release artifact
