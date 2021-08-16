@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Utopia for Windows
 
 on:
   push:
@@ -13,10 +13,34 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       name: Checkout
+
     - uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
       name: Install xmake
-    - name: Build
-      run: xmake -y
-# TODO Upload artifacts
+
+    - name: Build debug
+      run: xmake f -m debug && xmake -y
+
+    - name: Build release
+      run: xmake f -m release && xmake -y
+      
+    - uses: actions/upload-artifact@v2
+      with:
+        name: utopia-windows-dbg-${{ github.sha }}
+        path: |
+          build/debug-windows-x64/SandBox/bin/SandBox.exe
+          build/debug-windows-x64/SandBox/bin/SandBox.pdb
+          build/debug-windows-x64/SandBox/bin/imgui.ini
+          build/debug-windows-x64/Utopia/bin/Utopia.dll
+          build/debug-windows-x64/Utopia/bin/Utopia.pdb
+      name: Upload debug artifact
+      
+    - uses: actions/upload-artifact@v2
+      with:
+        name: utopia-windows-rel-${{ github.sha }}
+        path: |
+          build/release-windows-x64/SandBox/bin/SandBox.exe
+          build/release-windows-x64/SandBox/bin/imgui.ini
+          build/release-windows-x64/Utopia/bin/Utopia.dll
+      name: Upload release artifact
