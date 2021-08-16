@@ -18,5 +18,5 @@ jobs:
         xmake-version: latest
       name: Install xmake
     - name: Build
-      run: ./xmake -y
+      run: xmake -y
 # TODO Upload artifacts
