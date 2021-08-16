@@ -2,9 +2,9 @@ name: Utopia for Windows
 
 on:
   push:
-    branches: [ main, actions ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, actions ]
+    branches: [ main ]
 
 jobs:
   build:
