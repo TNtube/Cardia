@@ -3,14 +3,8 @@ package("imgui")
     set_homepage("https://github.com/ocornut/imgui")
     set_description("Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies")
 
-    -- would be better with a endsWith thing
-    local version = package:version_str()
-    if #version:gsub("-docking") == #version then
-        add_urls("https://github.com/ocornut/imgui/archive/$(version).tar.gz",
-                 "https://github.com/ocornut/imgui.git")
-    else
-        add_urls("https://github.com/ocornut/imgui.git")
-    end
+    add_urls("https://github.com/ocornut/imgui/archive/$(version).tar.gz",
+             "https://github.com/ocornut/imgui.git")
 
     add_versions("v1.83-docking", "80b5fb51edba2fd3dea76ec3e88153e2492243d1")
     add_versions("v1.83", "ccf3e54b8d1fa30dd35682fc4f50f5d2fe340b8e29e08de71287d0452d8cc3ff")
