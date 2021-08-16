@@ -1,0 +1,22 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Checkout
+      run: ./configure
+    - uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: latest
+    - name: Install & run xmake
+      run: ./xmake -y
+    # TODO Upload artifacts
