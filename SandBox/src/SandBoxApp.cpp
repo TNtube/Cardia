@@ -26,9 +26,9 @@ class SandBox : public Utopia::Application
 public:
 	SandBox()
 	{
-	    pushLayer(layer.get());
-	    pushLayer(layer2.get());
-	    pushOverlay(imGuiLayer.get());
+		pushLayer(layer.get());
+		pushLayer(layer2.get());
+		pushOverlay(imGuiLayer.get());
 	}
 
 	~SandBox() override = default;
@@ -43,4 +43,4 @@ private:
 std::unique_ptr<Utopia::Application> Utopia::CreateApplication()
 {
 	return std::make_unique<SandBox>();
-} 
+}

@@ -6,7 +6,7 @@ namespace Utopia
 {
 	void LayerStack::pushLayer(Layer* layer)
 	{
-	    m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
+		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
 		++m_LayerInsertIndex;
 	}
 
