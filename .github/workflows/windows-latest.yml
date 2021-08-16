@@ -20,10 +20,10 @@ jobs:
       name: Install xmake
 
     - name: Build debug
-      run: xmake f -m debug && xmake -y
+      run: xmake f -m debug -y
 
     - name: Build release
-      run: xmake f -m release && xmake -y
+      run: xmake f -m release -y
       
     - uses: actions/upload-artifact@v2
       with:
