@@ -13,10 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Checkout
-      run: ./configure
     - uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
-    - name: Install & run xmake
+      name: Install xmake
+    - name: Build
       run: ./xmake -y
-    # TODO Upload artifacts
+# TODO Upload artifacts
