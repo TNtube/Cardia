@@ -16,7 +16,7 @@ namespace Utopia
 		utCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
 
-		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Window = Window::Create();
 		m_Window->setEventCallback(UT_BIND_EVENT_FN(Application::onEvent));
 	}
 

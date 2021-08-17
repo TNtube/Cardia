@@ -7,9 +7,9 @@ namespace Utopia
 {
 	static bool isGlfwInit = false;					// Can only initialize glfw once.
 
-	Window* Window::Create(const WinProperties& properties)
+	std::unique_ptr<Window> Window::Create(const WinProperties& properties)
 	{
-		return new WindowsWin(properties);
+		return std::make_unique<WindowsWin>(properties);
 	}
 
 	WindowsWin::WindowsWin(const WinProperties& properties)

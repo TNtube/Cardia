@@ -32,8 +32,8 @@ namespace Utopia
 		bool isVSync() const override;
 
 	private:
-		virtual void init(const WinProperties& properties);
-		virtual void quit();
+		void init(const WinProperties& properties);
+		void quit();
 		
 		GLFWwindow* m_Window;
 		WinData m_Data;
