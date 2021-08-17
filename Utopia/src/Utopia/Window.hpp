@@ -32,6 +32,8 @@ namespace Utopia
 		virtual void setVSync(bool state) = 0;
 		virtual bool isVSync() const = 0;
 
+		virtual void* getNativeWin() const = 0;
+
 		static std::unique_ptr<Window> Create(const WinProperties& properties = WinProperties());
 
 	};

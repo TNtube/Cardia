@@ -9,12 +9,15 @@ public:
 
 	void onUpdate() override
 	{
-		Utopia::Log::info(getName());
+		if(Utopia::Input::isKeyPressed(Utopia::Key::Y))
+		{
+			Utopia::Log::info("Key Y is pressed");
+		}
 	}
 
 	void onEvent(Utopia::Event& event) override
 	{
-		Utopia::Log::trace(event);
+		// Utopia::Log::trace(event);
 	}
 };
 

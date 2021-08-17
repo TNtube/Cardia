@@ -37,8 +37,8 @@ namespace Utopia
 			isGlfwInit = true;
 		}
 		m_Window = glfwCreateWindow(static_cast<int>(properties.width), 
-			static_cast<int>(properties.height), 
-			properties.title.c_str(), 
+			static_cast<int>(properties.height),
+			properties.title.c_str(),
 			nullptr, nullptr);
 
 		glfwMakeContextCurrent(m_Window);
@@ -70,7 +70,7 @@ namespace Utopia
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 				WinMoveEvent event(x, y);
-				data->eventCallback(event);			
+				data->eventCallback(event);
 			});
 		
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* win, int key, int scancode, int action, int mods)

@@ -2,6 +2,7 @@
 #include "Application.hpp"
 
 #include "Utopia/Log.hpp"
+#include "Input.hpp"
 
 #include <glad/glad.h>
 #include <imgui.h>

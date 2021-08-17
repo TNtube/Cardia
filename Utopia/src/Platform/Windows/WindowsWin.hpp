@@ -31,6 +31,8 @@ namespace Utopia
 		void setVSync(bool state) override;
 		bool isVSync() const override;
 
+		inline virtual void* getNativeWin() const override { return m_Window; }
+
 	private:
 		void init(const WinProperties& properties);
 		void quit();
