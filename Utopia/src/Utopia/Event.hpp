@@ -113,7 +113,7 @@ namespace Utopia
 
 		inline unsigned getW() const { return m_Width; }
 		inline unsigned getH() const { return m_Height; }
-		inline std::pair<float, float> getSize() const { return { m_Width, m_Height }; }
+		inline std::pair<float, float> getSize() const { return {static_cast<float>(m_Width),static_cast<float>(m_Width) }; }
 
 		EVENT_CLASS_TYPE(EventType::WinResize)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
