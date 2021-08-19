@@ -15,7 +15,7 @@ set_languages("cxx17")
 add_requires("spdlog v1.9.0") -- latest version at the time
 add_requires("glfw 3.3.4")    -- latest version at the time
 add_requires("glad v0.1.34")  -- latest version at the time
-add_requires("imgui v1.80", {configs = {glfw_opengl3 = true, docking = true}})
+add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
