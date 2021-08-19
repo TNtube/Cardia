@@ -35,7 +35,6 @@ jobs:
         move build/debug-windows-x64/SandBox/bin/SandBox.exe debug-artifact/
         move build/debug-windows-x64/SandBox/bin/SandBox.pdb debug-artifact/
         move build/debug-windows-x64/Utopia/bin/Utopia.lib debug-artifact/
-        move build/debug-windows-x64/Utopia/bin/Utopia.pdb debug-artifact/
         
         mkdir release-artifact
         move build/release-windows-x64/SandBox/bin/SandBox.exe release-artifact/
