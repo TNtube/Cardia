@@ -29,6 +29,9 @@ package("imgui")
             package:add("deps", "glfw")
             package:add("defines", "IMGUI_IMPL_OPENGL_LOADER_GLAD")
         end
+        if string.find(package:version_str(), "-docking") ~= nil then
+            package:set("urls", {"https://github.com/ocornut/imgui.git"})
+        end
     end)
 
     on_install("macosx", "linux", "windows", "mingw", "android", "iphoneos", function (package)
