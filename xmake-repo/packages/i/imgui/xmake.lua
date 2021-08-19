@@ -6,7 +6,6 @@ package("imgui")
     add_urls("https://github.com/ocornut/imgui/archive/$(version).tar.gz",
              "https://github.com/ocornut/imgui.git")
 
-    add_versions("v1.83-docking", "80b5fb51edba2fd3dea76ec3e88153e2492243d1")
     add_versions("v1.83", "ccf3e54b8d1fa30dd35682fc4f50f5d2fe340b8e29e08de71287d0452d8cc3ff")
     add_versions("v1.82", "fefa2804bd55f3d25b134af08c0e1f86d4d059ac94cef3ee7bd21e2f194e5ce5")
     add_versions("v1.81", "f7c619e03a06c0f25e8f47262dbc32d61fd033d2c91796812bf0f8c94fca78fb")
@@ -16,6 +15,7 @@ package("imgui")
     
     add_configs("user_config", {description = "Use user config (disables test!)", default = nil, type = "string"})
     add_configs("glfw_opengl3", {description = "Use glfw+opengl3 as backend", default = false, type = "boolean"})
+    add_configs("docking", {description = "Use the docking branch", default = false, type = "boolean"})
 
     add_includedirs("include", "include/imgui")
 
@@ -28,6 +28,14 @@ package("imgui")
             package:add("deps", "glad")
             package:add("deps", "glfw")
             package:add("defines", "IMGUI_IMPL_OPENGL_LOADER_GLAD")
+        end
+        if package:config("docking") then
+            package:set("urls", {"https://github.com/ocornut/imgui.git"})
+            local versions = {}
+            versions["v1.83"] = "80b5fb51edba2fd3dea76ec3e88153e2492243d1"
+
+            package:set("versions", versions)
+            print(package:get("versions"))
         end
     end)
 
