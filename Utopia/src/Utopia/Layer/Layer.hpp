@@ -15,6 +15,7 @@ namespace Utopia
 		virtual void onPush() {}
 		virtual void onPop() {}
 		virtual void onUpdate() {}
+		virtual void onImGuiDraw() {}
 		virtual void onEvent(Event& event) {}
 
 		const std::string& getName() const { return m_Name; }			// for debugging purpose

@@ -12,10 +12,11 @@ add_rules("mode.debug", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx17")
 
-add_requires("spdlog v1.9.0") -- latest version at the time
-add_requires("glfw 3.3.4")    -- latest version at the time
-add_requires("glad v0.1.34")  -- latest version at the time
-add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})
+add_requires("spdlog v1.9.0")                                               -- latest version at the time
+add_requires("glfw 3.3.4")                                                  -- latest version at the time
+add_requires("glad v0.1.34")                                                -- latest version at the time
+add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})      -- latest version at the time
+add_requires("glm 0.9.9+8")                                                 -- latest version at the time
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
@@ -35,6 +36,7 @@ target("Utopia")
     add_packages("glfw")
     add_packages("glad")
     add_packages("imgui")
+    add_packages("glm")
 
     if is_plat("windows") then
         add_defines("UT_PLATFORM_WINDOWS", "UT_BUILD_DLL")
@@ -54,6 +56,8 @@ target("SandBox")
     add_headerfiles("SandBox/src/**.hpp")
 
     add_packages("spdlog")
+    add_packages("imgui")
+    add_packages("glm")
     add_deps("Utopia")
 
     if is_plat("windows") then

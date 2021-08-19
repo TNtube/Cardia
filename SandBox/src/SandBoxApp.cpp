@@ -1,4 +1,5 @@
 #include <Utopia.hpp>
+#include <imgui.h>
 
 
 class LayerTest : public Utopia::Layer
@@ -19,6 +20,10 @@ public:
 	{
 		// Utopia::Log::trace(event);
 	}
+
+	void onImGuiDraw() override
+	{
+	}
 };
 
 
@@ -29,7 +34,6 @@ public:
 	{
 		pushLayer(layer.get());
 		pushLayer(layer2.get());
-		pushOverlay(imGuiLayer.get());
 	}
 
 	~SandBox() override = default;
@@ -37,7 +41,6 @@ public:
 private:
 	std::unique_ptr<Utopia::Layer> layer = std::make_unique<LayerTest>("First Layer");
 	std::unique_ptr<Utopia::Layer> layer2 = std::make_unique<LayerTest>("Second Layer");
-	std::unique_ptr<Utopia::Layer> imGuiLayer = std::make_unique<Utopia::ImGuiLayer>();
 };
 
 

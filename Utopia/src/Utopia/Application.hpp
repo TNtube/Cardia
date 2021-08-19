@@ -3,6 +3,7 @@
 #include "Utopia/Core.hpp"
 #include "Utopia/Window.hpp"
 #include "Utopia/Layer/LayerStack.hpp"
+#include "Utopia/ImGui/ImGuiLayer.hpp"
 
 
 namespace Utopia
@@ -11,7 +12,7 @@ namespace Utopia
 	{
 	public:
 		Application();
-		virtual ~Application();
+		virtual ~Application() = default;
 
 		void Run();
 		void onEvent(Event& e);
@@ -24,6 +25,7 @@ namespace Utopia
 
 	private:
 		std::unique_ptr<Window> m_Window;
+		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 		static Application* s_Instance;

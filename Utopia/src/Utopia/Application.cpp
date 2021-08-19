@@ -1,11 +1,7 @@
 #include "utpch.hpp"
 #include "Application.hpp"
 
-#include "Utopia/Log.hpp"
-#include "Input.hpp"
-
 #include <glad/glad.h>
-#include <imgui.h>
 
 
 namespace Utopia
@@ -19,9 +15,10 @@ namespace Utopia
 
 		m_Window = Window::Create();
 		m_Window->setEventCallback(UT_BIND_EVENT_FN(Application::onEvent));
-	}
 
-	Application::~Application() = default;
+		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
+		pushOverlay(m_ImGuiLayer.get());
+	}
 
 	void Application::pushLayer(Layer* layer)
 	{
@@ -58,6 +55,14 @@ namespace Utopia
 			{
 				layer->onUpdate();
 			}
+
+			m_ImGuiLayer->Begin();
+			for (const auto layer : m_LayerStack)
+			{
+				layer->onImGuiDraw();
+			}
+			m_ImGuiLayer->End();
+
 			m_Window->onUpdate();
 		}
 	}

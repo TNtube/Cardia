@@ -3,10 +3,10 @@
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
 
 #include "Utopia/Application.hpp"
 
-// Temporary
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -16,159 +16,72 @@ namespace Utopia
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
 	{
-		
+
 	}
 
 	void ImGuiLayer::onPush()
 	{
+		// Setup Dear ImGui context
+		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGui::StyleColorsLight();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		ImGuiIO& io = ImGui::GetIO();
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+		ImGui::StyleColorsDark();
 
-		// TEMPORARY
-		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-		io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-		io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-		io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-		io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-		io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-		io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-		io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-		io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-		io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-		io.KeyMap[ImGuiKey_KeyPadEnter] = GLFW_KEY_KP_ENTER;
-		io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-		io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-		io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+		    style.WindowRounding = 0.0f;
+		    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
 
+		Application& app = Application::get();
+		auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
 	void ImGuiLayer::onPop()
 	{
-		
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::onUpdate()
+	void ImGuiLayer::Begin()
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+	}
+
+	void ImGuiLayer::End()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		auto[w, h] = Application::get().getWindow().getSize();
-		io.DisplaySize = ImVec2(w, h);
+		Application& app = Application::get();
+		auto[w, h] = app.getWindow().getSize();
+		io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
 
-		const auto time = static_cast<float>(glfwGetTime());
-		io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);
-		m_Time = time;
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui::NewFrame();
-
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
-
+		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		// Log::coreInfo("Updating ImGui");
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 	}
 
-	void ImGuiLayer::onEvent(Event& event)
+	void ImGuiLayer::onImGuiDraw()
 	{
-		EventDispatcher dispatcher(event);
-		dispatcher.dispatch<MouseButtonDownEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseButtonDownEvent));
-		dispatcher.dispatch<MouseButtonUpEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseButtonUpEvent));
-		dispatcher.dispatch<MouseMotionEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseMotionEvent));
-		dispatcher.dispatch<MouseScrolledEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onMouseScrolledEvent));
-		dispatcher.dispatch<KeyDownEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onKeyDownEvent));
-		dispatcher.dispatch<KeyUpEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onKeyUpEvent));
-		dispatcher.dispatch<KeyTypedEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onKeyTypedEvent));
-		dispatcher.dispatch<WinResizeEvent>(UT_BIND_EVENT_FN(ImGuiLayer::onWinResizeEvent));
-	}
-
-	bool ImGuiLayer::onMouseButtonDownEvent(const MouseButtonDownEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.MouseDown[e.getButton()] = true;
-
-		return false;
-	}
-
-	bool ImGuiLayer::onMouseButtonUpEvent(const MouseButtonUpEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.MouseDown[e.getButton()] = false;
-
-		return false;
-	}
-
-	bool ImGuiLayer::onMouseMotionEvent(const MouseMotionEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		auto [x, y] = e.getPos();
-		io.MousePos = ImVec2(x, y);
-
-		return false;
-	}
-
-	bool ImGuiLayer::onMouseScrolledEvent(const MouseScrolledEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.MouseWheel = e.getOffSetY();
-		io.MouseWheelH = e.getOffSetX();
-
-		return false;
-	}
-
-	bool ImGuiLayer::onKeyDownEvent(const KeyDownEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[e.getKeyCode()] = true;
-
-		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
-		return false;
-	}
-
-	bool ImGuiLayer::onKeyUpEvent(const KeyUpEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[e.getKeyCode()] = false;
-		return false;
-	}
-
-	bool ImGuiLayer::onKeyTypedEvent(const KeyTypedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		const int c { e.getKeyCode() };
-		if (c > 0 && c < 0x10000)
-			io.AddInputCharacter(static_cast<unsigned short>(c));
-
-		return false;
-	}
-
-	bool ImGuiLayer::onWinResizeEvent(const WinResizeEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-
-		auto [w, h] = e.getSize();
-		io.DisplaySize = ImVec2(w, h);
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-
-		glViewport(0, 0, w, h); // Temporary
-
-		return false;
+		static bool show = true;
+		ImGui::ShowDemoWindow(&show);
 	}
 }
