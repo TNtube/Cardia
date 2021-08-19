@@ -21,7 +21,7 @@ add_requires("glm 0.9.9+8")                                                 -- l
 local outputdir = "$(mode)-$(os)-$(arch)"
 
 target("Utopia")
-    set_kind("shared")
+    set_kind("static")
 
     set_targetdir("/build/" .. outputdir .. "/Utopia/bin")
     set_objectdir("/build/" .. outputdir .. "/Utopia/obj")
@@ -68,5 +68,5 @@ target("SandBox")
     end
 
     after_build(function (target)
-        os.cp("/build/" .. outputdir .. "/Utopia/bin/Utopia.dll", "/build/" .. outputdir .. "/SandBox/bin")
+        os.cp("/build/" .. outputdir .. "/Utopia/bin/Utopia.lib", "/build/" .. outputdir .. "/SandBox/bin")
     end)
