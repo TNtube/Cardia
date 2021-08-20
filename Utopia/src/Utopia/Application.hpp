@@ -29,6 +29,8 @@ namespace Utopia
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
+
+		unsigned m_VertexArray{}, m_VertexBuffer{}, m_IndexBuffer{};
 	};
 
 	std::unique_ptr<Application> CreateApplication();
