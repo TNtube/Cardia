@@ -23,11 +23,13 @@ public:
 
 	void onImGuiDraw() override
 	{
+		/*
 		std::string foo(getName());
 		ImGui::Begin(("Hello " + foo).c_str());
 		ImGui::Text("Coucou toi !");
 		ImGui::Button("Foo");
 		ImGui::End();
+		*/
 	}
 };
 

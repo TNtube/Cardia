@@ -23,7 +23,6 @@ namespace Utopia
 	void Application::pushLayer(Layer* layer)
 	{
 		m_LayerStack.pushLayer(layer);
-		layer->onPush();
 	}
 
 	void Application::pushOverlay(Layer* overlay)
@@ -49,7 +48,7 @@ namespace Utopia
 	{
 		while (m_Running)
 		{
-			glClearColor(1, 1, 0, 1);
+			glClearColor(0.2f, 0.2f, 0.2f, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 			for (const auto layer : m_LayerStack)
 			{
