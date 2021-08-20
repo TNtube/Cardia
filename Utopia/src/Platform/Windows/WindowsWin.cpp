@@ -1,6 +1,6 @@
 #include "utpch.hpp"
 #include "WindowsWin.hpp"
-#include <glad/glad.h>
+#include "Platform/OpenGL/OpenGLContext.hpp"
 
 
 namespace Utopia
@@ -41,9 +41,9 @@ namespace Utopia
 			properties.title.c_str(),
 			nullptr, nullptr);
 
-		glfwMakeContextCurrent(m_Window);
-		const int result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-		utCoreAssert(result, "Could not load Glad");
+		m_RendererContext = std::make_unique<OpenGLContext>(m_Window);		// Just change here to change API Context
+		m_RendererContext->init();
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		setVSync(true);
 
@@ -155,7 +155,7 @@ namespace Utopia
 	void WindowsWin::onUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_RendererContext->swapBuffers();
 	}
 
 	void WindowsWin::setVSync(bool state)

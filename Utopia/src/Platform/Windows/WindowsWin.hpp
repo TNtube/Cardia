@@ -2,6 +2,7 @@
 
 #include "Utopia/Window.hpp"
 #include <GLFW/glfw3.h>
+#include "Utopia/Renderer/RendererContext.hpp"
 
 
 namespace Utopia
@@ -39,5 +40,6 @@ namespace Utopia
 		
 		GLFWwindow* m_Window;
 		WinData m_Data;
+		std::unique_ptr<RendererContext> m_RendererContext;
 	};
 }

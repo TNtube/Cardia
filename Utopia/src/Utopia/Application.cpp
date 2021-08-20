@@ -62,8 +62,8 @@ namespace Utopia
 				layer->onImGuiDraw();
 			}
 			m_ImGuiLayer->End();
-
 			m_Window->onUpdate();
+
 		}
 	}
 
