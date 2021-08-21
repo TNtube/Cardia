@@ -33,7 +33,7 @@ namespace Utopia
 
 		// Temporary
 		unsigned m_VertexArray{}, m_VertexBuffer{}, m_IndexBuffer{};
-		Shader m_Shader;
+		std::unique_ptr<Shader> m_Shader;
 	};
 
 	std::unique_ptr<Application> CreateApplication();

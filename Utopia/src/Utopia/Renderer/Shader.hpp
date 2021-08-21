@@ -5,12 +5,8 @@ namespace Utopia
 	class Shader
 	{
 	public:
-		Shader() = default;
-		Shader(const std::string& vertexSource, const std::string& fragmentSource);
-		void bind() const;
-		void unbind() const;
-
-	private:
-		unsigned m_ShaderID;
+		virtual void bind() const {};
+		virtual void unbind() const {};
+		static Shader* create(const std::string& vertexSource, const std::string& fragmentSource);
 	};
 }

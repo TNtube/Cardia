@@ -67,7 +67,7 @@ namespace Utopia
 			}
 		)";
 
-		m_Shader = Shader(vertexSrc, fragmentSrc);
+		m_Shader.reset(Shader::create(vertexSrc, fragmentSrc));
 	}
 
 	void Application::pushLayer(Layer* layer)
@@ -100,7 +100,7 @@ namespace Utopia
 			glClearColor(0.2f, 0.2f, 0.2f, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			m_Shader.bind();
+			m_Shader->bind();
 			glBindVertexArray(m_VertexArray);
 			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
