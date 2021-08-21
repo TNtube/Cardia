@@ -66,5 +66,5 @@ target("SandBox")
     end
 
     after_build(function (target)
-        os.cp("build/" .. outputdir .. "/Utopia/bin/Utopia.lib", "/build/" .. outputdir .. "/SandBox/bin")
+        os.cp("build/" .. outputdir .. "/Utopia/bin/Utopia.lib", "build/" .. outputdir .. "/SandBox/bin")
     end)
