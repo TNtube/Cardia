@@ -4,6 +4,7 @@
 #include "Utopia/Window.hpp"
 #include "Utopia/Layer/LayerStack.hpp"
 #include "Utopia/ImGui/ImGuiLayer.hpp"
+#include "Utopia/Renderer/Shader.hpp"
 
 
 namespace Utopia
@@ -30,7 +31,9 @@ namespace Utopia
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
 
+		// Temporary
 		unsigned m_VertexArray{}, m_VertexBuffer{}, m_IndexBuffer{};
+		Shader m_Shader;
 	};
 
 	std::unique_ptr<Application> CreateApplication();
