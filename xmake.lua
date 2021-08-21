@@ -21,8 +21,8 @@ local outputdir = "$(mode)-$(os)-$(arch)"
 target("Utopia")
     set_kind("static")
 
-    set_targetdir("/build/" .. outputdir .. "/Utopia/bin")
-    set_objectdir("/build/" .. outputdir .. "/Utopia/obj")
+    set_targetdir("build/" .. outputdir .. "/Utopia/bin")
+    set_objectdir("build/" .. outputdir .. "/Utopia/obj")
 
     set_pcxxheader("Utopia/src/utpch.hpp")
 
@@ -47,8 +47,8 @@ target("Utopia")
 target("SandBox")
     set_kind("binary")
 
-    set_targetdir("/build/" .. outputdir .. "/SandBox/bin")
-    set_objectdir("/build/" .. outputdir .. "/SandBox/obj")
+    set_targetdir("build/" .. outputdir .. "/SandBox/bin")
+    set_objectdir("build/" .. outputdir .. "/SandBox/obj")
 
     add_files("SandBox/src/**.cpp")
     add_headerfiles("SandBox/src/**.hpp")
@@ -66,5 +66,5 @@ target("SandBox")
     end
 
     after_build(function (target)
-        os.cp("/build/" .. outputdir .. "/Utopia/bin/Utopia.lib", "/build/" .. outputdir .. "/SandBox/bin")
+        os.cp("build/" .. outputdir .. "/Utopia/bin/Utopia.lib", "/build/" .. outputdir .. "/SandBox/bin")
     end)
