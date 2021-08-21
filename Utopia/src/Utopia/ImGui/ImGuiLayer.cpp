@@ -79,9 +79,20 @@ namespace Utopia
 		}
 	}
 
+	static void DebugWindow()
+	{
+		static bool isWireframeMode = false;
+
+		ImGui::Begin("Debug tools");
+		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
+		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
+		ImGui::End();
+	}
+
 	void ImGuiLayer::onImGuiDraw()
 	{
 		static bool show = true;
 		ImGui::ShowDemoWindow(&show);
+		DebugWindow();
 	}
 }
