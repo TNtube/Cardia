@@ -64,7 +64,3 @@ target("SandBox")
     if is_mode("debug") then
         add_defines("UT_DEBUG")
     end
-
-    after_build(function (target)
-        os.cp("build/" .. outputdir .. "/Utopia/bin/Utopia.lib", "build/" .. outputdir .. "/SandBox/bin")
-    end)
