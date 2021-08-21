@@ -57,6 +57,14 @@ namespace Utopia
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		// Debug tools window
+		static bool isWireframeMode = false;
+
+		ImGui::Begin("Debug tools");
+		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
+		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
+		ImGui::End();
 	}
 
 	void ImGuiLayer::End()
