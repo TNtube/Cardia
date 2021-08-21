@@ -34,11 +34,9 @@ jobs:
         mkdir debug-artifact
         move build/debug-windows-x64/SandBox/bin/SandBox.exe debug-artifact/
         move build/debug-windows-x64/SandBox/bin/SandBox.pdb debug-artifact/
-        move build/debug-windows-x64/Utopia/bin/Utopia.lib debug-artifact/
         
         mkdir release-artifact
         move build/release-windows-x64/SandBox/bin/SandBox.exe release-artifact/
-        move build/release-windows-x64/Utopia/bin/Utopia.lib release-artifact/
 
     - uses: actions/upload-artifact@v2
       with:
