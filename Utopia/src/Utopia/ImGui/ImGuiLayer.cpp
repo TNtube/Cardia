@@ -81,11 +81,39 @@ namespace Utopia
 
 	static void DebugWindow()
 	{
+		enum ImGuiTheme {
+			THEME_DARK,
+			THEME_LIGHT,
+			THEME_CLASSIC
+		};
 		static bool isWireframeMode = false;
+		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
+
 		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
 		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
+
+		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::Text("Dear ImGui theme");
+			ImGui::RadioButton("Dark", &selectedTheme, THEME_DARK); ImGui::SameLine();
+			ImGui::RadioButton("Light", &selectedTheme, THEME_LIGHT); ImGui::SameLine();
+			ImGui::RadioButton("Classic", &selectedTheme, THEME_CLASSIC);
+			switch (selectedTheme)
+			{
+			case THEME_DARK:
+				ImGui::StyleColorsDark();
+				break;
+			case THEME_LIGHT:
+				ImGui::StyleColorsLight();
+				break;
+			case THEME_CLASSIC:
+				ImGui::StyleColorsClassic();
+				break;
+			}
+		}
+
 		ImGui::End();
 	}
 
