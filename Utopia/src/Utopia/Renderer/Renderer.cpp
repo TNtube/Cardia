@@ -3,10 +3,10 @@
 
 namespace Utopia
 {
-	RendererAPI Renderer::m_RenderAPI = RendererAPI::OpenGL;
+	RendererAPI Renderer::s_RenderAPI = RendererAPI::OpenGL;
 
 	RendererAPI Renderer::getAPI()
 	{
-		return m_RenderAPI;
+		return s_RenderAPI;
 	}
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace Utopia
 {
 	enum class RendererAPI
@@ -14,6 +13,6 @@ namespace Utopia
 	public:
 		static RendererAPI getAPI();
 	private:
-		static RendererAPI m_RenderAPI;
+		static RendererAPI s_RenderAPI;
 	};
 }
