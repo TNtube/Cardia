@@ -6,15 +6,14 @@
 
 namespace Utopia
 {
-
-	OpenGLShader::OpenGLShader(const std::string &vertexSource, const std::string &fragmentSource)
+	OpenGLShader::OpenGLShader(const std::string& vertexSource, const std::string& fragmentSource)
 	{
 		// Create an empty vertex shader handle
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
 		// Send the vertex shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		auto *source = (const GLchar *)vertexSource.c_str();
+		auto source = static_cast<const GLchar*>(vertexSource.c_str());
 		glShaderSource(vertexShader, 1, &source, nullptr);
 
 		// Compile the vertex shader
@@ -22,7 +21,7 @@ namespace Utopia
 
 		GLint isCompiled = 0;
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
-		if(isCompiled == GL_FALSE)
+		if (isCompiled == GL_FALSE)
 		{
 			GLint maxLength = 0;
 			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
@@ -44,7 +43,7 @@ namespace Utopia
 
 		// Send the fragment shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		source = (const GLchar *)fragmentSource.c_str();
+		source = static_cast<const GLchar*>(fragmentSource.c_str());
 		glShaderSource(fragmentShader, 1, &source, nullptr);
 
 		// Compile the fragment shader
@@ -84,7 +83,7 @@ namespace Utopia
 
 		// Note the different functions here: glGetProgram* instead of glGetShader*.
 		GLint isLinked = 0;
-		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, (int *)&isLinked);
+		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, static_cast<int*>(&isLinked));
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;
