@@ -8,6 +8,30 @@ namespace Utopia
 {
 	Application* Application::s_Instance = nullptr;
 
+	static GLenum ShaderDataTypeToOpenGLType(ShaderDataType type)
+	{
+		switch (type)
+		{
+			case ShaderDataType::Float:
+			case ShaderDataType::Float2:
+			case ShaderDataType::Float3:
+			case ShaderDataType::Float4:
+			case ShaderDataType::Mat3:
+			case ShaderDataType::Mat4:
+				return GL_FLOAT;
+			case ShaderDataType::Int:
+			case ShaderDataType::Int2:
+			case ShaderDataType::Int3:
+			case ShaderDataType::Int4:
+				return GL_INT;
+			case ShaderDataType::Bool:
+				return GL_BOOL;
+			default:
+				utCoreAssert(false, "Unknown ShaderDataType.");
+				return 0;
+		}
+	}
+
 	Application::Application()
 	{
 		utCoreAssert(!s_Instance, "Application already exists");
@@ -22,42 +46,65 @@ namespace Utopia
 		glGenVertexArrays(1, &m_VertexArray);
 		glBindVertexArray(m_VertexArray);
 
-		float vertices[3 * 3] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f
+		float vertices[] = {
+			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 		};
 
-		unsigned indices[3] {0, 1, 2};
+		unsigned indices[] {0, 1, 2};
 
 		m_VertexBuffer.reset(VertexBuffer::create(vertices, sizeof(vertices)));
 
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+		BufferLayout layout = {
+			{ShaderDataType::Float3, "position"},
+			{ShaderDataType::Float4, "col"}
+		};
+
+		m_VertexBuffer->setLayout(layout);
+
+		unsigned index = 0;
+		for (const auto& element : m_VertexBuffer->getLayout())
+		{
+			glEnableVertexAttribArray(index);
+			glVertexAttribPointer(index,
+					      element.getElementCount(),
+					      ShaderDataTypeToOpenGLType(element.type),
+					      element.normalized ? GL_TRUE : GL_FALSE,
+					      layout.getStride(),
+					      reinterpret_cast<const void*>(element.offset));
+			index++;
+		}
 
 		m_IndexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(unsigned)));
 
 		std::string vertexSrc = R"(
-			#version 330 core
+			#version 440 core
 
 			layout(location = 0) in vec3 position;
+			layout(location = 1) in vec4 col;
 
 			out vec3 o_Pos;
+			out vec4 o_Col;
 
 			void main() {
 				o_Pos = position;
+				o_Col = col;
 				gl_Position = vec4(position, 1.0f);
 			}
 			)";
 
 		std::string fragmentSrc = R"(
-			#version 330 core
+			#version 440 core
 
-			in vec3 o_Pos;
 			layout(location = 0) out vec4 color;
 
+			in vec3 o_Pos;
+			in vec4 o_Col;
+
 			void main() {
-			   color = vec4(abs(o_Pos), 1.0f);
+			   color = o_Col;
 			}
 		)";
 

@@ -10,9 +10,12 @@ namespace Utopia
 		~OpenGLVertexBuffer();
 		void bind() const override;
 		void unbind() const override;
+		void setLayout(const BufferLayout& layout) override { m_Layout = layout; }
+		const BufferLayout& getLayout() const override { return m_Layout; }
 
 	private:
 		unsigned m_VertexBuffer {};
+		BufferLayout m_Layout;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer
