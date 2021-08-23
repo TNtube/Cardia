@@ -116,12 +116,12 @@ namespace Utopia
 				glfwGetWindowPos(glWindow, &winPos[0], &winPos[1]);
 				glfwGetWindowSize(glWindow, &winSize[0], &winSize[1]);
 				glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+				glViewport(0, 0, mode->width, mode->height);
 			}
 			else
 			{
-				const int w = winSize[0];
-				const int h = winSize[1];
-				glfwSetWindowMonitor(glWindow, nullptr, winPos[0], winPos[1], w, h, 0);
+				glfwSetWindowMonitor(glWindow, nullptr, winPos[0], winPos[1], winSize[0], winSize[1], 0);
+				glViewport(0, 0, winSize[0], winSize[1]);
 			}
 			isFullscreenPrev = isFullscreen;
 		}
