@@ -10,7 +10,6 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-
 namespace Utopia
 {
 	ImGuiLayer::ImGuiLayer()
@@ -79,6 +78,13 @@ namespace Utopia
 		}
 	}
 
+	static std::array<int, 2> WinInitPos(GLFWwindow* win)
+	{
+		int x, y;
+		glfwGetWindowPos(win, &x, &y);
+		return { x, y };
+	}
+
 	static void DebugWindow()
 	{
 		enum ImGuiTheme {
@@ -87,12 +93,33 @@ namespace Utopia
 			THEME_CLASSIC
 		};
 		static bool isWireframeMode = false;
+		static bool isFullscreen = false;
 		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
 
 		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
 		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
+
+		ImGui::Checkbox("Fullscreen?", &isFullscreen);
+		// auto window = dynamic_cast<WindowsWin&>(Application::get().getWindow()).getNativeWin();
+		const Window& window = Application::get().getWindow();
+		const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
+		static int winSize[] = { window.getWidth(), window.getHeight() };
+		static auto winPos = WinInitPos(glWindow);
+		if (isFullscreen)
+		{
+			const auto monitor = glfwGetPrimaryMonitor();
+			const auto mode = glfwGetVideoMode(monitor);
+			glfwGetWindowPos(glWindow, &winPos[0], &winPos[1]);
+			glfwGetWindowSize(glWindow, &winSize[0], &winSize[1]);
+			glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		}
+		else
+		{
+			glfwSetWindowMonitor(glWindow, nullptr, winPos[0], winPos[1], winSize[0], winSize[1], 0);
+		}
+		glViewport(winPos[0], winPos[1], winSize[0], winSize[1]);
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
