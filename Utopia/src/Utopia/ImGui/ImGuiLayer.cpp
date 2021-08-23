@@ -10,7 +10,6 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-
 namespace Utopia
 {
 	ImGuiLayer::ImGuiLayer()
@@ -86,13 +85,26 @@ namespace Utopia
 			THEME_LIGHT,
 			THEME_CLASSIC
 		};
+		// wireframe
 		static bool isWireframeMode = false;
+		// fullscreen
+		static bool isFullscreen = false;
+		static bool isFullscreenPrev = false;
+		static Window& window = Application::get().getWindow();
+		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
 
 		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
 		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
+
+		ImGui::Checkbox("Fullscreen?", &isFullscreen);
+		if (isFullscreen != isFullscreenPrev)
+		{
+			window.setFullscreen(isFullscreen);
+			isFullscreenPrev = isFullscreen;
+		}
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{

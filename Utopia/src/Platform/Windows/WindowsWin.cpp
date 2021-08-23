@@ -2,6 +2,8 @@
 #include "WindowsWin.hpp"
 #include "Platform/OpenGL/OpenGLContext.hpp"
 
+// temp include
+#include <glad/glad.h>
 
 namespace Utopia
 {
@@ -156,6 +158,42 @@ namespace Utopia
 	{
 		glfwPollEvents();
 		m_RendererContext->swapBuffers();
+	}
+
+	static std::pair<int, int> WinInitPos(GLFWwindow* win)
+	{
+		int x, y;
+		glfwGetWindowPos(win, &x, &y);
+		return { x, y };
+	}
+
+	void WindowsWin::setFullscreen(bool state)
+	{
+		static auto winPos = WinInitPos(m_Window);
+		static auto winSize = getSize();
+
+		if (state)
+		{
+			const auto monitor = glfwGetPrimaryMonitor();
+			const auto mode = glfwGetVideoMode(monitor);
+			glfwGetWindowPos(m_Window, &winPos.first, &winPos.second);
+			glfwGetWindowSize(m_Window, &winSize.first, &winSize.second);
+			glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, isVSync() ? mode->refreshRate : 0);
+		}
+		else
+		{
+			glfwSetWindowMonitor(m_Window, nullptr, winPos.first, winPos.second, winSize.first, winSize.second, 0);
+		}
+
+		int vpWidth, vpHeight;
+		glfwGetFramebufferSize(m_Window, &vpWidth, &vpHeight);
+		// TODO Replace by rendering API wrapper
+		glViewport(0, 0, vpWidth, vpHeight);
+	}
+
+	bool WindowsWin::isFullscreen() const
+	{
+		return glfwGetWindowMonitor(m_Window) != nullptr;
 	}
 
 	void WindowsWin::setVSync(bool state)
