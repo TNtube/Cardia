@@ -8,30 +8,6 @@ namespace Utopia
 {
 	Application* Application::s_Instance = nullptr;
 
-	static GLenum ShaderDataTypeToOpenGLType(ShaderDataType type)
-	{
-		switch (type)
-		{
-			case ShaderDataType::Float:
-			case ShaderDataType::Float2:
-			case ShaderDataType::Float3:
-			case ShaderDataType::Float4:
-			case ShaderDataType::Mat3:
-			case ShaderDataType::Mat4:
-				return GL_FLOAT;
-			case ShaderDataType::Int:
-			case ShaderDataType::Int2:
-			case ShaderDataType::Int3:
-			case ShaderDataType::Int4:
-				return GL_INT;
-			case ShaderDataType::Bool:
-				return GL_BOOL;
-			default:
-				utCoreAssert(false, "Unknown ShaderDataType.");
-				return 0;
-		}
-	}
-
 	Application::Application()
 	{
 		utCoreAssert(!s_Instance, "Application already exists");
@@ -43,8 +19,7 @@ namespace Utopia
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
 		pushOverlay(m_ImGuiLayer.get());
 
-		glGenVertexArrays(1, &m_VertexArray);
-		glBindVertexArray(m_VertexArray);
+		m_VertexArray.reset(VertexArray::create());
 
 		float vertices[] = {
 			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
@@ -54,7 +29,8 @@ namespace Utopia
 
 		unsigned indices[] {0, 1, 2};
 
-		m_VertexBuffer.reset(VertexBuffer::create(vertices, sizeof(vertices)));
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		vertexBuffer.reset(VertexBuffer::create(vertices, sizeof(vertices)));
 
 
 		BufferLayout layout = {
@@ -62,22 +38,12 @@ namespace Utopia
 			{ShaderDataType::Float4, "col"}
 		};
 
-		m_VertexBuffer->setLayout(layout);
+		vertexBuffer->setLayout(layout);
+		m_VertexArray->addVertexBuffer(vertexBuffer);
 
-		unsigned index = 0;
-		for (const auto& element : m_VertexBuffer->getLayout())
-		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
-					      element.getElementCount(),
-					      ShaderDataTypeToOpenGLType(element.type),
-					      element.normalized ? GL_TRUE : GL_FALSE,
-					      layout.getStride(),
-					      reinterpret_cast<const void*>(element.offset));
-			index++;
-		}
-
-		m_IndexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(unsigned)));
+		std::shared_ptr<IndexBuffer> indexBuffer;
+		indexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(unsigned)));
+		m_VertexArray->setIndexBuffer(indexBuffer);
 
 		std::string vertexSrc = R"(
 			#version 440 core
@@ -142,8 +108,8 @@ namespace Utopia
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			m_Shader->bind();
-			glBindVertexArray(m_VertexArray);
-			glDrawElements(GL_TRIANGLES, m_IndexBuffer->getCount(), GL_UNSIGNED_INT, nullptr);
+			m_VertexArray->bind();
+			glDrawElements(GL_TRIANGLES, m_VertexArray->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (const auto layer : m_LayerStack)
 			{

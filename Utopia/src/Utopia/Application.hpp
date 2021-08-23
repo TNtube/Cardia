@@ -6,6 +6,7 @@
 #include "Utopia/ImGui/ImGuiLayer.hpp"
 #include "Utopia/Renderer/Shader.hpp"
 #include "Utopia/Renderer/Buffer.hpp"
+#include "Utopia/Renderer/VertexArray.hpp"
 
 
 namespace Utopia
@@ -32,11 +33,8 @@ namespace Utopia
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
 
-		// Temporary
-		unsigned m_VertexArray{};
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		std::shared_ptr<Shader> m_Shader;
+		std::shared_ptr<VertexArray> m_VertexArray;
 	};
 
 	std::unique_ptr<Application> CreateApplication();

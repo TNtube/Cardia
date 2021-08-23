@@ -112,7 +112,7 @@ namespace Utopia
 	public:
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
-		virtual unsigned getCount() const = 0;
+		virtual int getCount() const = 0;
 		static IndexBuffer* create(unsigned* indices, unsigned count);
 	};
 

@@ -14,7 +14,7 @@ namespace Utopia
 		const BufferLayout& getLayout() const override { return m_Layout; }
 
 	private:
-		unsigned m_VertexBuffer {};
+		unsigned m_VertexBufferID {};
 		BufferLayout m_Layout;
 	};
 
@@ -25,10 +25,10 @@ namespace Utopia
 		~OpenGLIndexBuffer();
 		void bind() const override;
 		void unbind() const override;
-		inline unsigned getCount() const override { return m_Count; }
+		inline int getCount() const override { return m_Count; }
 
 	private:
-		unsigned m_IndexBuffer {};
-		unsigned m_Count {};
+		unsigned m_IndexBufferID {};
+		int m_Count {};
 	};
 }
