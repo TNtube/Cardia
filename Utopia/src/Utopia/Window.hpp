@@ -9,12 +9,12 @@ namespace Utopia
 {
 	struct WinProperties
 	{
-		unsigned width, height;
+		int width, height;
 		std::string title;
 
 		explicit WinProperties(std::string title = "Utopia",
-			unsigned width = 1280,
-			unsigned height = 720)
+			int width = 1280,
+			int height = 720)
 			: width(width), height(height), title(std::move(title)) {}
 	};
 	
@@ -24,9 +24,9 @@ namespace Utopia
 		virtual ~Window() = default;
 		virtual void onUpdate() = 0;
 		
-		virtual unsigned getWidth() const = 0;
-		virtual unsigned getHeight() const = 0;
-		virtual std::pair<unsigned, unsigned> getSize() const = 0;
+		virtual int getWidth() const = 0;
+		virtual int getHeight() const = 0;
+		virtual std::pair<int, int> getSize() const = 0;
 
 		virtual void setEventCallback(const std::function<void(Event&)>& callback) = 0;
 		virtual void setVSync(bool state) = 0;
