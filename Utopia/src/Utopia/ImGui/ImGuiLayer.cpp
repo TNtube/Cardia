@@ -103,16 +103,16 @@ namespace Utopia
 		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
 
 		ImGui::Checkbox("Fullscreen?", &isFullscreen);
-		const Window& window = Application::get().getWindow();
-		const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
+		static const Window& window = Application::get().getWindow();
+		static const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
 		static auto winPos = WinInitPos(glWindow);
 		static int winSize[] = { window.getWidth(), window.getHeight() };
 		if (isFullscreen != isFullscreenPrev)
 		{
-			const auto monitor = glfwGetPrimaryMonitor();
-			const auto mode = glfwGetVideoMode(monitor);
 			if (isFullscreen)
 			{
+				const auto monitor = glfwGetPrimaryMonitor();
+				const auto mode = glfwGetVideoMode(monitor);
 				glfwGetWindowPos(glWindow, &winPos[0], &winPos[1]);
 				glfwGetWindowSize(glWindow, &winSize[0], &winSize[1]);
 				glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
