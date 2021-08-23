@@ -92,9 +92,16 @@ namespace Utopia
 			THEME_LIGHT,
 			THEME_CLASSIC
 		};
+		// wireframe
 		static bool isWireframeMode = false;
+		// fullscreen
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
+		static const Window& window = Application::get().getWindow();
+		static const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
+		static auto winPos = WinInitPos(glWindow);
+		static int winSize[] = { window.getWidth(), window.getHeight() };
+		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
@@ -103,10 +110,6 @@ namespace Utopia
 		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
 
 		ImGui::Checkbox("Fullscreen?", &isFullscreen);
-		static const Window& window = Application::get().getWindow();
-		static const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
-		static auto winPos = WinInitPos(glWindow);
-		static int winSize[] = { window.getWidth(), window.getHeight() };
 		if (isFullscreen != isFullscreenPrev)
 		{
 			if (isFullscreen)
