@@ -78,13 +78,6 @@ namespace Utopia
 		}
 	}
 
-	static std::pair<int, int> WinInitPos(GLFWwindow* win)
-	{
-		int x, y;
-		glfwGetWindowPos(win, &x, &y);
-		return { x, y };
-	}
-
 	static void DebugWindow()
 	{
 		enum ImGuiTheme {
@@ -97,10 +90,7 @@ namespace Utopia
 		// fullscreen
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
-		static const Window& window = Application::get().getWindow();
-		static const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
-		static auto winPos = WinInitPos(glWindow);
-		static auto winSize = window.getSize();
+		static Window& window = Application::get().getWindow();
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -112,21 +102,7 @@ namespace Utopia
 		ImGui::Checkbox("Fullscreen?", &isFullscreen);
 		if (isFullscreen != isFullscreenPrev)
 		{
-			if (isFullscreen)
-			{
-				const auto monitor = glfwGetPrimaryMonitor();
-				const auto mode = glfwGetVideoMode(monitor);
-				glfwGetWindowPos(glWindow, &winPos.first, &winPos.second);
-				glfwGetWindowSize(glWindow, &winSize.first, &winSize.second);
-				glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, window.isVSync() ? mode->refreshRate : 0);
-			}
-			else
-			{
-				glfwSetWindowMonitor(glWindow, nullptr, winPos.first, winPos.second, winSize.first, winSize.second, 0);
-			}
-			int vpWidth, vpHeight;
-			glfwGetFramebufferSize(glWindow, &vpWidth, &vpHeight);
-			glViewport(0, 0, vpWidth, vpHeight);
+			window.setFullscreen(isFullscreen);
 			isFullscreenPrev = isFullscreen;
 		}
 

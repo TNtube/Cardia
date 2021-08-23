@@ -29,6 +29,8 @@ namespace Utopia
 		virtual std::pair<int, int> getSize() const = 0;
 
 		virtual void setEventCallback(const std::function<void(Event&)>& callback) = 0;
+		virtual void setFullscreen(bool state) = 0;
+		virtual bool isFullscreen() const = 0;
 		virtual void setVSync(bool state) = 0;
 		virtual bool isVSync() const = 0;
 
