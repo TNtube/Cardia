@@ -118,14 +118,15 @@ namespace Utopia
 				const auto mode = glfwGetVideoMode(monitor);
 				glfwGetWindowPos(glWindow, &winPos[0], &winPos[1]);
 				glfwGetWindowSize(glWindow, &winSize[0], &winSize[1]);
-				glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-				glViewport(0, 0, mode->width, mode->height);
+				glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, window.isVSync() ? mode->refreshRate : 0);
 			}
 			else
 			{
 				glfwSetWindowMonitor(glWindow, nullptr, winPos[0], winPos[1], winSize[0], winSize[1], 0);
-				glViewport(0, 0, winSize[0], winSize[1]);
 			}
+			int vpWidth, vpHeight;
+			glfwGetFramebufferSize(glWindow, &vpWidth, &vpHeight);
+			glViewport(0, 0, vpWidth, vpHeight);
 			isFullscreenPrev = isFullscreen;
 		}
 
