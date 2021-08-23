@@ -94,6 +94,7 @@ namespace Utopia
 		};
 		static bool isWireframeMode = false;
 		static bool isFullscreen = false;
+		static bool isFullscreenPrev = false;
 		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
@@ -102,24 +103,28 @@ namespace Utopia
 		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
 
 		ImGui::Checkbox("Fullscreen?", &isFullscreen);
-		// auto window = dynamic_cast<WindowsWin&>(Application::get().getWindow()).getNativeWin();
 		const Window& window = Application::get().getWindow();
 		const auto glWindow = static_cast<GLFWwindow*>(window.getNativeWin());
-		static int winSize[] = { window.getWidth(), window.getHeight() };
 		static auto winPos = WinInitPos(glWindow);
-		if (isFullscreen)
+		static int winSize[] = { window.getWidth(), window.getHeight() };
+		if (isFullscreen != isFullscreenPrev)
 		{
 			const auto monitor = glfwGetPrimaryMonitor();
 			const auto mode = glfwGetVideoMode(monitor);
-			glfwGetWindowPos(glWindow, &winPos[0], &winPos[1]);
-			glfwGetWindowSize(glWindow, &winSize[0], &winSize[1]);
-			glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+			if (isFullscreen)
+			{
+				glfwGetWindowPos(glWindow, &winPos[0], &winPos[1]);
+				glfwGetWindowSize(glWindow, &winSize[0], &winSize[1]);
+				glfwSetWindowMonitor(glWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+			}
+			else
+			{
+				const int w = winSize[0];
+				const int h = winSize[1];
+				glfwSetWindowMonitor(glWindow, nullptr, winPos[0], winPos[1], w, h, 0);
+			}
+			isFullscreenPrev = isFullscreen;
 		}
-		else
-		{
-			glfwSetWindowMonitor(glWindow, nullptr, winPos[0], winPos[1], winSize[0], winSize[1], 0);
-		}
-		glViewport(winPos[0], winPos[1], winSize[0], winSize[1]);
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
