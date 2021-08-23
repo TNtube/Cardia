@@ -72,12 +72,12 @@ namespace Utopia
 		m_IndexBuffer = indexBuffer;
 	}
 
-	const std::vector<std::shared_ptr<VertexBuffer>> OpenGLVertexArray::getVertexBuffers() const
+	std::vector<std::shared_ptr<VertexBuffer>> OpenGLVertexArray::getVertexBuffers() const
 	{
 		return m_VertexBuffers;
 	}
 
-	const std::shared_ptr<IndexBuffer> OpenGLVertexArray::getIndexBuffer() const
+	std::shared_ptr<IndexBuffer> OpenGLVertexArray::getIndexBuffer() const
 	{
 		return m_IndexBuffer;
 	}

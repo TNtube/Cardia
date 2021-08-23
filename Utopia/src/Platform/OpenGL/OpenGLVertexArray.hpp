@@ -13,8 +13,8 @@ namespace Utopia
 		void unbind() const override;
 		void addVertexBuffer (const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
 		void setIndexBuffer (const std::shared_ptr<IndexBuffer>& indexBuffer) override;
-		virtual const std::vector<std::shared_ptr<VertexBuffer>> getVertexBuffers () const override;
-		virtual const std::shared_ptr<IndexBuffer> getIndexBuffer () const override;
+		virtual std::vector<std::shared_ptr<VertexBuffer>> getVertexBuffers () const override;
+		virtual std::shared_ptr<IndexBuffer> getIndexBuffer () const override;
 
 	private:
 		unsigned m_VertexArrayID{};
