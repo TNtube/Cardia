@@ -99,7 +99,7 @@ namespace Utopia
 	class UTOPIA_API WinResizeEvent : public Event
 	{
 	public:
-		WinResizeEvent(unsigned width, unsigned height)
+		WinResizeEvent(uint32_t width, uint32_t height)
 			: m_Width(width), m_Height(height) {}
 
 		~WinResizeEvent() override = default;
@@ -111,15 +111,15 @@ namespace Utopia
 			return ss.str();
 		}
 
-		inline unsigned getW() const { return m_Width; }
-		inline unsigned getH() const { return m_Height; }
+		inline uint32_t getW() const { return m_Width; }
+		inline uint32_t getH() const { return m_Height; }
 		inline std::pair<float, float> getSize() const { return {static_cast<float>(m_Width),static_cast<float>(m_Width) }; }
 
 		EVENT_CLASS_TYPE(EventType::WinResize)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 
 	private:
-		unsigned m_Width, m_Height;
+		uint32_t m_Width, m_Height;
 	};
 
 	class UTOPIA_API WinCloseEvent : public Event

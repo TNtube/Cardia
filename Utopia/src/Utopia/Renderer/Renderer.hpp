@@ -5,7 +5,7 @@ namespace Utopia
 	enum class RendererAPI
 	{
 		None = 0,
-		OpenGL = 1, // Vulkan = 2, DirectX = 3
+		OpenGL = 1 //, Vulkan = 2, Direct3D = 3
 	};
 
 	class Renderer

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Utopia::Key {
-	enum {
+	enum : uint32_t {
 		// from GLFW
 
 		// Printable keys

@@ -49,7 +49,7 @@ namespace Utopia
 		glBindVertexArray(m_VertexArrayID);
 		vertexBuffer->bind();
 
-		unsigned index = 0;
+		uint32_t index = 0;
 		auto layout = vertexBuffer->getLayout();
 		for (const auto& element : layout)
 		{

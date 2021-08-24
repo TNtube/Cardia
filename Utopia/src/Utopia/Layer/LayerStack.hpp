@@ -22,6 +22,6 @@ namespace Utopia
 
 	private:
 		std::vector<Layer*> m_Layers;
-		unsigned m_LayerInsertIndex = 0;
+		uint32_t m_LayerInsertIndex = 0;
 	};
 }

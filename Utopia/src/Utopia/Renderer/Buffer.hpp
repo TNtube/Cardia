@@ -9,7 +9,7 @@ namespace Utopia
 		Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
 	};
 
-	static unsigned ShaderDataTypeSize(ShaderDataType type)
+	static uint32_t ShaderDataTypeSize(ShaderDataType type)
 	{
 		switch (type)
 		{
@@ -34,7 +34,7 @@ namespace Utopia
 	{
 		ShaderDataType type;
 		std::string name;
-		unsigned offset{};
+		uint32_t offset{};
 		int size{};
 		bool normalized{};
 
@@ -104,7 +104,7 @@ namespace Utopia
 		virtual void setLayout(const BufferLayout& layout) = 0;
 		virtual const BufferLayout& getLayout() const = 0;
 
-		static VertexBuffer* create(float* vertices, unsigned size);
+		static VertexBuffer* create(float* vertices, uint32_t size);
 	};
 
 	class IndexBuffer
@@ -113,7 +113,7 @@ namespace Utopia
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 		virtual int getCount() const = 0;
-		static IndexBuffer* create(unsigned* indices, unsigned count);
+		static IndexBuffer* create(uint32_t* indices, uint32_t count);
 	};
 
 }

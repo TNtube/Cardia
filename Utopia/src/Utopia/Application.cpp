@@ -27,7 +27,7 @@ namespace Utopia
 			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 		};
 
-		unsigned indices[] {0, 1, 2};
+		uint32_t indices[] {0, 1, 2};
 
 		std::shared_ptr<VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(VertexBuffer::create(vertices, sizeof(vertices)));
@@ -42,7 +42,7 @@ namespace Utopia
 		m_VertexArray->addVertexBuffer(vertexBuffer);
 
 		std::shared_ptr<IndexBuffer> indexBuffer;
-		indexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(unsigned)));
+		indexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t)));
 		m_VertexArray->setIndexBuffer(indexBuffer);
 
 		std::string vertexSrc = R"(

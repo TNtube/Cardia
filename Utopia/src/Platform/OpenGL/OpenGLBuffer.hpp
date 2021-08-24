@@ -6,7 +6,7 @@ namespace Utopia
 	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
-		OpenGLVertexBuffer(float* vertices, unsigned size);
+		OpenGLVertexBuffer(float* vertices, uint32_t size);
 		~OpenGLVertexBuffer();
 		void bind() const override;
 		void unbind() const override;
@@ -14,21 +14,21 @@ namespace Utopia
 		const BufferLayout& getLayout() const override { return m_Layout; }
 
 	private:
-		unsigned m_VertexBufferID {};
+		uint32_t m_VertexBufferID {};
 		BufferLayout m_Layout;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer
 	{
 	public:
-		OpenGLIndexBuffer(unsigned* indices, unsigned count);
+		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
 		~OpenGLIndexBuffer();
 		void bind() const override;
 		void unbind() const override;
 		inline int getCount() const override { return m_Count; }
 
 	private:
-		unsigned m_IndexBufferID {};
+		uint32_t m_IndexBufferID {};
 		int m_Count {};
 	};
 }

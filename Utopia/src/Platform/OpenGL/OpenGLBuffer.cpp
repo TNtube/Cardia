@@ -7,7 +7,7 @@ namespace Utopia
 
 	// Vertex Buffer
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, unsigned size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size)
 	{
 		glCreateBuffers(1, &m_VertexBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
@@ -29,12 +29,12 @@ namespace Utopia
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(unsigned *indices, unsigned count)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t *indices, uint32_t count)
 		: m_Count(count)
 	{
 		glCreateBuffers(1, &m_IndexBufferID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()

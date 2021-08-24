@@ -8,7 +8,7 @@
 namespace Utopia
 {
 
-	VertexBuffer *VertexBuffer::create(float *vertices, unsigned size)
+	VertexBuffer *VertexBuffer::create(float *vertices, uint32_t size)
 	{
 		RendererAPI renderer = Renderer::getAPI();
 		switch (renderer)
@@ -26,7 +26,7 @@ namespace Utopia
 		}
 	}
 
-	IndexBuffer *IndexBuffer::create(unsigned *indices, unsigned count)
+	IndexBuffer *IndexBuffer::create(uint32_t *indices, uint32_t count)
 	{
 		RendererAPI renderer = Renderer::getAPI();
 		switch (renderer)

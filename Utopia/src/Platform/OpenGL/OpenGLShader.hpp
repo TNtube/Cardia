@@ -10,6 +10,6 @@ namespace Utopia
 		void bind() const override;
 		void unbind() const override;
 	private:
-		unsigned m_ShaderID;
+		uint32_t m_ShaderID;
 	};
 }
