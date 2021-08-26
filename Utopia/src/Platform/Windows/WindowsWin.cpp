@@ -66,6 +66,8 @@ namespace Utopia
 				data->height = h;
 				WinResizeEvent event(w, h);
 				data->eventCallback(event);
+				// TODO: remove gl call and replacing it by renderer command call
+				glViewport(0, 0, w, h);
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)
