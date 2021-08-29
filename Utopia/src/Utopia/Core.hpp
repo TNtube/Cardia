@@ -1,16 +1,6 @@
 #pragma once
 
-#ifdef UT_PLATFORM_WINDOWS
-	#ifdef UT_DYNAMIC_LINK
-		#ifdef UT_BUILD_DLL
-			#define UTOPIA_API __declspec(dllexport)
-		#else
-			#define UTOPIA_API __declspec(dllimport)
-		#endif
-	#else
-		#define UTOPIA_API
-	#endif
-#else
+#ifndef UT_PLATFORM_WINDOWS
 	#error Utopia is only for Windows !
 #endif
 

@@ -9,4 +9,7 @@ namespace Utopia
 	{
 		return s_RenderAPI;
 	}
+
+	Renderer::Renderer()
+		: renderCommand(RenderCommand::create()) {}
 }

@@ -6,7 +6,7 @@
 
 namespace Utopia
 {
-	class UTOPIA_API Input
+	class Input
 	{
 	public:
 		static bool isKeyPressed(int keyCode);

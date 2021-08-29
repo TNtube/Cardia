@@ -16,7 +16,7 @@ namespace Utopia
 		std::function<void(Event&)> eventCallback;
 	};
 
-	class UTOPIA_API WindowsWin : public Window
+	class WindowsWin : public Window
 	{
 	public:
 		WindowsWin(const WinProperties& properties);

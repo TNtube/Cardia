@@ -1,9 +1,8 @@
 #include "utpch.hpp"
 #include "WindowsWin.hpp"
 #include "Platform/OpenGL/OpenGLContext.hpp"
-
-// temp include
-#include <glad/glad.h>
+#include "Utopia/Renderer/Renderer.hpp"
+#include "Utopia/Application.hpp"
 
 namespace Utopia
 {
@@ -66,8 +65,7 @@ namespace Utopia
 				data->height = h;
 				WinResizeEvent event(w, h);
 				data->eventCallback(event);
-				// TODO: remove gl call and replacing it by renderer command call
-				glViewport(0, 0, w, h);
+				Application::get().getRenderer().renderCommand->setViewPort(0, 0, w, h);
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)
@@ -189,8 +187,7 @@ namespace Utopia
 
 		int vpWidth, vpHeight;
 		glfwGetFramebufferSize(m_Window, &vpWidth, &vpHeight);
-		// TODO Replace by rendering API wrapper
-		glViewport(0, 0, vpWidth, vpHeight);
+		Application::get().getRenderer().renderCommand->setViewPort(0, 0, vpWidth, vpHeight);
 	}
 
 	bool WindowsWin::isFullscreen() const

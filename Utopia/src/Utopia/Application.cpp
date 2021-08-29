@@ -16,6 +16,8 @@ namespace Utopia
 		m_Window = Window::Create();
 		m_Window->setEventCallback(UT_BIND_EVENT_FN(Application::onEvent));
 
+		m_Renderer = std::make_unique<Renderer>();
+
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
 		pushOverlay(m_ImGuiLayer.get());
 

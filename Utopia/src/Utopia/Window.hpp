@@ -18,7 +18,7 @@ namespace Utopia
 			: width(width), height(height), title(std::move(title)) {}
 	};
 	
-	class UTOPIA_API Window
+	class Window
 	{
 	public:
 		virtual ~Window() = default;

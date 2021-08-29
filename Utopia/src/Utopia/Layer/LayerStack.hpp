@@ -5,7 +5,7 @@
 
 namespace Utopia
 {
-	class UTOPIA_API LayerStack
+	class LayerStack
 	{
 	public:
 		LayerStack() = default;

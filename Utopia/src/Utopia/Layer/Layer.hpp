@@ -5,7 +5,7 @@
 
 namespace Utopia
 {
-	class UTOPIA_API Layer
+	class Layer
 	{
 	public:
 		explicit Layer(std::string name = "Layer")

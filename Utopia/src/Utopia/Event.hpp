@@ -44,7 +44,7 @@ namespace Utopia
 #define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return enum_as_integer(category); }
 	
 
-	class UTOPIA_API Event
+	class Event
 	{
 		 // The Event class is a sort of abstract class, that is here to represent any type. 
 		
@@ -96,7 +96,7 @@ namespace Utopia
 
 	// -------------------------------------- Application Events --------------------------------------
 
-	class UTOPIA_API WinResizeEvent : public Event
+	class WinResizeEvent : public Event
 	{
 	public:
 		WinResizeEvent(uint32_t width, uint32_t height)
@@ -122,7 +122,7 @@ namespace Utopia
 		uint32_t m_Width, m_Height;
 	};
 
-	class UTOPIA_API WinCloseEvent : public Event
+	class WinCloseEvent : public Event
 	{
 	public:
 		WinCloseEvent() = default;
@@ -131,7 +131,7 @@ namespace Utopia
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
-	class UTOPIA_API WinMoveEvent : public Event
+	class WinMoveEvent : public Event
 	{
 	public:
 		WinMoveEvent(int x, int y)
@@ -151,7 +151,7 @@ namespace Utopia
 		int m_PosX, m_PosY;
 	};
 
-	class UTOPIA_API AppTickEvent : public Event
+	class AppTickEvent : public Event
 	{
 	public:
 		AppTickEvent() = default;
@@ -160,7 +160,7 @@ namespace Utopia
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
-	class UTOPIA_API AppUpdateEvent : public Event
+	class AppUpdateEvent : public Event
 	{
 	public:
 		AppUpdateEvent() = default;
@@ -169,7 +169,7 @@ namespace Utopia
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
-	class UTOPIA_API AppRenderEvent : public Event
+	class AppRenderEvent : public Event
 	{
 	public:
 		AppRenderEvent() = default;
@@ -181,7 +181,7 @@ namespace Utopia
 
 	// -------------------------------------- Keys Events --------------------------------------
 
-	class UTOPIA_API KeyEvent : public Event
+	class KeyEvent : public Event
 	{
 		// KeyEvent is an abstract class to encompass Keys Events subclasses
 	public:
@@ -197,7 +197,7 @@ namespace Utopia
 	};
 
 
-	class UTOPIA_API KeyDownEvent : public KeyEvent
+	class KeyDownEvent : public KeyEvent
 	{
 	public:
 		KeyDownEvent(int keyCode, int repeatCount)
@@ -218,7 +218,7 @@ namespace Utopia
 		int m_RepeatCount;
 	};
 
-	class UTOPIA_API KeyUpEvent : public KeyEvent
+	class KeyUpEvent : public KeyEvent
 	{
 	public:
 		explicit KeyUpEvent(int keyCode)
@@ -236,7 +236,7 @@ namespace Utopia
 	};
 
 
-	class UTOPIA_API KeyTypedEvent : public KeyEvent
+	class KeyTypedEvent : public KeyEvent
 	{
 	public:
 		explicit KeyTypedEvent(int keyCode)
@@ -256,7 +256,7 @@ namespace Utopia
 
 	// -------------------------------------- Mouse Events --------------------------------------
 
-	class UTOPIA_API MouseMotionEvent : public Event
+	class MouseMotionEvent : public Event
 	{
 	public:
 		MouseMotionEvent(float x, float y)
@@ -280,7 +280,7 @@ namespace Utopia
 		float m_MouseX, m_MouseY;
 	};
 
-	class UTOPIA_API MouseScrolledEvent : public Event
+	class MouseScrolledEvent : public Event
 	{
 	public:
 		MouseScrolledEvent(float x, float y)
@@ -303,7 +303,7 @@ namespace Utopia
 		float m_OffSetX, m_OffSetY;
 	};
 
-	class UTOPIA_API MouseButtonEvent : public Event
+	class MouseButtonEvent : public Event
 	{
 		// KeyEvent is an abstract class to encompass Keys Events subclasses
 	public:
@@ -319,7 +319,7 @@ namespace Utopia
 	};
 
 
-	class UTOPIA_API MouseButtonDownEvent : public MouseButtonEvent
+	class MouseButtonDownEvent : public MouseButtonEvent
 	{
 	public:
 		explicit MouseButtonDownEvent(int button)
@@ -335,7 +335,7 @@ namespace Utopia
 		EVENT_CLASS_TYPE(EventType::MouseButtonDown)
 	};
 
-	class UTOPIA_API MouseButtonUpEvent : public MouseButtonEvent
+	class MouseButtonUpEvent : public MouseButtonEvent
 	{
 	public:
 		explicit MouseButtonUpEvent(int button)

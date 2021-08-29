@@ -8,7 +8,6 @@
 #include "Utopia/Application.hpp"
 
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
 
 namespace Utopia
 {
@@ -97,7 +96,7 @@ namespace Utopia
 		ImGui::Begin("Debug tools");
 
 		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-		glPolygonMode(GL_FRONT_AND_BACK, isWireframeMode ? GL_LINE : GL_FILL);
+		Application::get().getRenderer().renderCommand->setWireFrame(isWireframeMode);
 
 		ImGui::Checkbox("Fullscreen?", &isFullscreen);
 		if (isFullscreen != isFullscreenPrev)
@@ -131,8 +130,6 @@ namespace Utopia
 
 	void ImGuiLayer::onImGuiDraw()
 	{
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
 		DebugWindow();
 	}
 }

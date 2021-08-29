@@ -1,4 +1,5 @@
 #pragma once
+#include "RenderCommand.hpp"
 
 namespace Utopia
 {
@@ -11,8 +12,11 @@ namespace Utopia
 	class Renderer
 	{
 	public:
+		Renderer();
 		static RendererAPI getAPI();
+		RenderCommand* renderCommand;
 	private:
 		static RendererAPI s_RenderAPI;
+
 	};
 }

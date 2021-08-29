@@ -6,7 +6,7 @@
 
 namespace Utopia
 {
-	class UTOPIA_API Logger
+	class Logger
 	{
 	public:
 		static void Init();

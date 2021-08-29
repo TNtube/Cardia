@@ -7,11 +7,12 @@
 #include "Utopia/Renderer/Shader.hpp"
 #include "Utopia/Renderer/Buffer.hpp"
 #include "Utopia/Renderer/VertexArray.hpp"
+#include "Utopia/Renderer/Renderer.hpp"
 
 
 namespace Utopia
 {
-	class UTOPIA_API Application
+	class Application
 	{
 	public:
 		Application();
@@ -25,6 +26,7 @@ namespace Utopia
 
 		inline static Application& get() { return *s_Instance; }
 		inline Window& getWindow() const { return *m_Window; }
+		inline Renderer& getRenderer() const { return *m_Renderer; }
 
 	private:
 		std::unique_ptr<Window> m_Window;
@@ -35,6 +37,7 @@ namespace Utopia
 
 		std::shared_ptr<Shader> m_Shader;
 		std::shared_ptr<VertexArray> m_VertexArray;
+		std::unique_ptr<Renderer> m_Renderer;
 	};
 
 	std::unique_ptr<Application> CreateApplication();
