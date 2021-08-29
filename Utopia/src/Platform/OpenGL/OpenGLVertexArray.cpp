@@ -42,7 +42,7 @@ namespace Utopia
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuffer)
+	void OpenGLVertexArray::addVertexBuffer(std::unique_ptr<VertexBuffer> vertexBuffer)
 	{
 		utCoreAssert(vertexBuffer->getLayout().getElement().size(), "Vertex Buffer should have a layout");
 
@@ -62,23 +62,23 @@ namespace Utopia
 					      reinterpret_cast<const void*>(element.offset));
 			index++;
 		}
-		m_VertexBuffers.push_back(vertexBuffer);
+		m_VertexBuffers.push_back(std::move(vertexBuffer));
 	}
 
-	void OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer> &indexBuffer)
+	void OpenGLVertexArray::setIndexBuffer(std::unique_ptr<IndexBuffer> indexBuffer)
 	{
 		glBindVertexArray(m_VertexArrayID);
 		indexBuffer->bind();
-		m_IndexBuffer = indexBuffer;
+		m_IndexBuffer = std::move(indexBuffer);
 	}
 
-	std::vector<std::shared_ptr<VertexBuffer>> OpenGLVertexArray::getVertexBuffers() const
+	std::vector<std::unique_ptr<VertexBuffer>>& OpenGLVertexArray::getVertexBuffers()
 	{
 		return m_VertexBuffers;
 	}
 
-	std::shared_ptr<IndexBuffer> OpenGLVertexArray::getIndexBuffer() const
+	IndexBuffer& OpenGLVertexArray::getIndexBuffer() const
 	{
-		return m_IndexBuffer;
+		return *m_IndexBuffer;
 	}
 }

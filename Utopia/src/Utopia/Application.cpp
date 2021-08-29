@@ -31,7 +31,7 @@ namespace Utopia
 
 		uint32_t indices[] {0, 1, 2};
 
-		std::shared_ptr<VertexBuffer> vertexBuffer;
+		std::unique_ptr<VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(VertexBuffer::create(vertices, sizeof(vertices)));
 
 
@@ -41,11 +41,11 @@ namespace Utopia
 		};
 
 		vertexBuffer->setLayout(layout);
-		m_VertexArray->addVertexBuffer(vertexBuffer);
+		m_VertexArray->addVertexBuffer(std::move(vertexBuffer));
 
-		std::shared_ptr<IndexBuffer> indexBuffer;
+		std::unique_ptr<IndexBuffer> indexBuffer;
 		indexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t)));
-		m_VertexArray->setIndexBuffer(indexBuffer);
+		m_VertexArray->setIndexBuffer(std::move(indexBuffer));
 
 		std::string vertexSrc = R"(
 			#version 440 core
@@ -111,7 +111,7 @@ namespace Utopia
 
 			m_Shader->bind();
 			m_VertexArray->bind();
-			glDrawElements(GL_TRIANGLES, m_VertexArray->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, m_VertexArray->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (const auto layer : m_LayerStack)
 			{
