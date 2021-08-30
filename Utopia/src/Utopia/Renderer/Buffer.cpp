@@ -10,14 +10,14 @@ namespace Utopia
 
 	VertexBuffer *VertexBuffer::create(float *vertices, uint32_t size)
 	{
-		RendererAPI renderer = Renderer::getAPI();
+		RenderAPI::API renderer = Renderer::getAPI();
 		switch (renderer)
 		{
-			case RendererAPI::None:
+			case RenderAPI::API::None:
 				Log::coreError("{0} is not supported for the moment !", renderer);
 				utCoreAssert(false, "Invalid API provided");
 				return nullptr;
-			case RendererAPI::OpenGL:
+				case RenderAPI::API::OpenGL:
 				return new OpenGLVertexBuffer(vertices, size);
 			default:
 				Log::coreError("{0} is not supported for the moment !", renderer);
@@ -28,14 +28,14 @@ namespace Utopia
 
 	IndexBuffer *IndexBuffer::create(uint32_t *indices, uint32_t count)
 	{
-		RendererAPI renderer = Renderer::getAPI();
+		RenderAPI::API renderer = Renderer::getAPI();
 		switch (renderer)
 		{
-			case RendererAPI::None:
+			case RenderAPI::API::None:
 				Log::coreError("{0} is not supported for the moment !", renderer);
 				utCoreAssert(false, "Invalid API provided");
 				return nullptr;
-			case RendererAPI::OpenGL:
+			case RenderAPI::API::OpenGL:
 				return new OpenGLIndexBuffer(indices, count);
 			default:
 				Log::coreError("{0} is not supported for the moment !", renderer);

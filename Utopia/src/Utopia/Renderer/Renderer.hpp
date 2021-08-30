@@ -3,20 +3,14 @@
 
 namespace Utopia
 {
-	enum class RendererAPI
-	{
-		None = 0,
-		OpenGL = 1 //, Vulkan = 2, Direct3D = 3
-	};
 
 	class Renderer
 	{
 	public:
-		Renderer();
-		static RendererAPI getAPI();
-		RenderCommand* renderCommand;
-	private:
-		static RendererAPI s_RenderAPI;
+		static void beginScene();
+		static void endScene();
+		static void submit(const std::unique_ptr<VertexArray>& vertexArray);
+		inline static RenderAPI::API getAPI() { return RenderAPI::getAPI(); };
 
 	};
 }

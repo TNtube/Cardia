@@ -1,8 +1,6 @@
 #include "utpch.hpp"
 #include "Application.hpp"
 
-#include <glad/glad.h>
-
 
 namespace Utopia
 {
@@ -15,8 +13,6 @@ namespace Utopia
 
 		m_Window = Window::Create();
 		m_Window->setEventCallback(UT_BIND_EVENT_FN(Application::onEvent));
-
-		m_Renderer = std::make_unique<Renderer>();
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
 		pushOverlay(m_ImGuiLayer.get());
@@ -77,6 +73,8 @@ namespace Utopia
 		)";
 
 		m_Shader.reset(Shader::create(vertexSrc, fragmentSrc));
+		m_Shader->unbind();
+		m_VertexArray->unbind();
 	}
 
 	void Application::pushLayer(Layer* layer)
@@ -106,12 +104,16 @@ namespace Utopia
 	{
 		while (m_Running)
 		{
-			glClearColor(0.2f, 0.2f, 0.2f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+
+			RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
+			RenderCommand::clear();
+
+			Renderer::beginScene();
 
 			m_Shader->bind();
-			m_VertexArray->bind();
-			glDrawElements(GL_TRIANGLES, m_VertexArray->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::submit(m_VertexArray);
+
+			Renderer::endScene();
 
 			for (const auto layer : m_LayerStack)
 			{

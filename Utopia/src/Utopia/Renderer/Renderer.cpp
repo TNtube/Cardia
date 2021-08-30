@@ -3,13 +3,18 @@
 
 namespace Utopia
 {
-	RendererAPI Renderer::s_RenderAPI = RendererAPI::OpenGL;
 
-	RendererAPI Renderer::getAPI()
+	void Renderer::beginScene()
 	{
-		return s_RenderAPI;
 	}
 
-	Renderer::Renderer()
-		: renderCommand(RenderCommand::create()) {}
+	void Renderer::endScene()
+	{
+	}
+
+	void Renderer::submit(const std::unique_ptr<VertexArray> &vertexArray)
+	{
+		vertexArray->bind();
+		RenderCommand::drawIndexed(vertexArray);
+	}
 }

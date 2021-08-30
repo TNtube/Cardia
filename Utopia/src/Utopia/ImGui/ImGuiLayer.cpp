@@ -96,7 +96,7 @@ namespace Utopia
 		ImGui::Begin("Debug tools");
 
 		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-		Application::get().getRenderer().renderCommand->setWireFrame(isWireframeMode);
+		RenderCommand::setWireFrame(isWireframeMode);
 
 		ImGui::Checkbox("Fullscreen?", &isFullscreen);
 		if (isFullscreen != isFullscreenPrev)

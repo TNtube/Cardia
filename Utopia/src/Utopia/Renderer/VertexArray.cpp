@@ -8,14 +8,14 @@ namespace Utopia
 
 	VertexArray *VertexArray::create()
 	{
-		RendererAPI renderer = Renderer::getAPI();
+		RenderAPI::API renderer = Renderer::getAPI();
 		switch (renderer)
 		{
-			case RendererAPI::None:
+			case RenderAPI::API::None:
 				Log::coreError("{0} is not supported for the moment !", renderer);
 				utCoreAssert(false, "Invalid API provided");
 				return nullptr;
-			case RendererAPI::OpenGL:
+			case RenderAPI::API::OpenGL:
 				return new OpenGLVertexArray();
 			default:
 				Log::coreError("{0} is not supported for the moment !", renderer);

@@ -26,7 +26,6 @@ namespace Utopia
 
 		inline static Application& get() { return *s_Instance; }
 		inline Window& getWindow() const { return *m_Window; }
-		inline Renderer& getRenderer() const { return *m_Renderer; }
 
 	private:
 		std::unique_ptr<Window> m_Window;
@@ -35,9 +34,8 @@ namespace Utopia
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
 
-		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexArray> m_VertexArray;
-		std::unique_ptr<Renderer> m_Renderer;
+		std::unique_ptr<Shader> m_Shader;
+		std::unique_ptr<VertexArray> m_VertexArray;
 	};
 
 	std::unique_ptr<Application> CreateApplication();

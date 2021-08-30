@@ -65,7 +65,7 @@ namespace Utopia
 				data->height = h;
 				WinResizeEvent event(w, h);
 				data->eventCallback(event);
-				Application::get().getRenderer().renderCommand->setViewPort(0, 0, w, h);
+				RenderCommand::setViewPort(0, 0, w, h);
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)
@@ -187,7 +187,7 @@ namespace Utopia
 
 		int vpWidth, vpHeight;
 		glfwGetFramebufferSize(m_Window, &vpWidth, &vpHeight);
-		Application::get().getRenderer().renderCommand->setViewPort(0, 0, vpWidth, vpHeight);
+		RenderCommand::setViewPort(0, 0, vpWidth, vpHeight);
 	}
 
 	bool WindowsWin::isFullscreen() const
