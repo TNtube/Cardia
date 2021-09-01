@@ -1,4 +1,4 @@
-name: Utopia for Windows
+name: Cardia for Windows
 
 on:
   push:
@@ -40,12 +40,12 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: utopia-windows-debug-${{ github.run_id }}
+        name: Cardia-windows-debug-${{ github.run_id }}
         path: debug-artifact/
       name: Upload debug artifact
       
     - uses: actions/upload-artifact@v2
       with:
-        name: utopia-windows-release-${{ github.run_id }}
+        name: Cardia-windows-release-${{ github.run_id }}
         path: release-artifact/
       name: Upload release artifact

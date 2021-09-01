@@ -1,6 +1,6 @@
 set_xmakever("2.5.6")
 
-set_project("UtopiaGameEngine")
+set_project("CardiaGameEngine")
 set_version("0.0.0")
 
 set_allowedplats("windows", "linux", "macosx")
@@ -18,17 +18,17 @@ add_requires("glm 0.9.9+8")                                                 -- l
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
-target("Utopia")
+target("Cardia")
     set_kind("static")
 
-    set_targetdir("build/" .. outputdir .. "/Utopia/bin")
-    set_objectdir("build/" .. outputdir .. "/Utopia/obj")
+    set_targetdir("build/" .. outputdir .. "/Cardia/bin")
+    set_objectdir("build/" .. outputdir .. "/Cardia/obj")
 
-    set_pcxxheader("Utopia/src/utpch.hpp")
+    set_pcxxheader("Cardia/src/cdpch.hpp")
 
-    add_files("Utopia/src/**.cpp")
-    add_headerfiles("Utopia/src/**.hpp")
-    add_includedirs("Utopia/src/", {public = true})
+    add_files("Cardia/src/**.cpp")
+    add_headerfiles("Cardia/src/**.hpp")
+    add_includedirs("Cardia/src/", {public = true})
 
     add_packages("spdlog")
     add_packages("glfw")
@@ -37,11 +37,11 @@ target("Utopia")
     add_packages("glm")
 
     if is_plat("windows") then
-        add_defines("UT_PLATFORM_WINDOWS", "UT_BUILD_DLL")
+        add_defines("CD_PLATFORM_WINDOWS", "CD_BUILD_DLL")
     end
 
     if is_mode("debug") then
-        add_defines("UT_DEBUG")
+        add_defines("CD_DEBUG")
     end
 
 target("SandBox")
@@ -56,11 +56,11 @@ target("SandBox")
     add_packages("spdlog")
     add_packages("imgui")
     add_packages("glm")
-    add_deps("Utopia")
+    add_deps("Cardia")
 
     if is_plat("windows") then
-        add_defines("UT_PLATFORM_WINDOWS")
+        add_defines("CD_PLATFORM_WINDOWS")
     end
     if is_mode("debug") then
-        add_defines("UT_DEBUG")
+        add_defines("CD_DEBUG")
     end

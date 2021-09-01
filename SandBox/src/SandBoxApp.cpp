@@ -1,8 +1,8 @@
-#include <Utopia.hpp>
+#include <Cardia.hpp>
 #include <imgui.h>
 
 
-class LayerTest : public Utopia::Layer
+class LayerTest : public Cardia::Layer
 {
 public:
 	explicit LayerTest(std::string&& name)
@@ -10,15 +10,15 @@ public:
 
 	void onUpdate() override
 	{
-		if(Utopia::Input::isKeyPressed(Utopia::Key::Y))
+		if (Cardia::Input::isKeyPressed(Cardia::Key::Y))
 		{
-			Utopia::Log::info("Key Y is pressed");
+			Cardia::Log::info("Key Y is pressed");
 		}
 	}
 
-	void onEvent(Utopia::Event& event) override
+	void onEvent(Cardia::Event& event) override
 	{
-		// Utopia::Log::trace(event);
+		// Cardia::Log::trace(event);
 	}
 
 	void onImGuiDraw() override
@@ -34,7 +34,7 @@ public:
 };
 
 
-class SandBox : public Utopia::Application
+class SandBox : public Cardia::Application
 {
 public:
 	SandBox()
@@ -46,12 +46,12 @@ public:
 	~SandBox() override = default;
 
 private:
-	std::unique_ptr<Utopia::Layer> layer = std::make_unique<LayerTest>("First Layer");
-	std::unique_ptr<Utopia::Layer> layer2 = std::make_unique<LayerTest>("Second Layer");
+	std::unique_ptr<Cardia::Layer> layer = std::make_unique<LayerTest>("First Layer");
+	std::unique_ptr<Cardia::Layer> layer2 = std::make_unique<LayerTest>("Second Layer");
 };
 
 
-std::unique_ptr<Utopia::Application> Utopia::CreateApplication()
+std::unique_ptr<Cardia::Application> Cardia::CreateApplication()
 {
 	return std::make_unique<SandBox>();
 }
