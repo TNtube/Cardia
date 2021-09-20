@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "OpenGLShader.hpp"
+#include "Platform/OpenGL/OpenGLShader.hpp"
 #include "Cardia/Log.hpp"
 
 #include <glad/glad.h>

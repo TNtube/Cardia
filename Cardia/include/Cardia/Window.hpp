@@ -1,8 +1,7 @@
 #pragma once
-
 #include "cdpch.hpp"
-#include "Cardia/Core.hpp"
-#include "Cardia/Event.hpp"
+#include "Core.hpp"
+#include "Event.hpp"
 
 
 namespace Cardia

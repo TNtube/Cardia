@@ -1,7 +1,7 @@
 #include "cdpch.hpp"
-#include "Shader.hpp"
+#include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Log.hpp"
-#include "Renderer.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 #include "Platform/OpenGL/OpenGLShader.hpp"
 
 namespace Cardia

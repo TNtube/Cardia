@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "OpenGLBuffer.hpp"
+#include "Platform/OpenGL/OpenGLBuffer.hpp"
 #include <glad/glad.h>
 
 namespace Cardia

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Cardia/Core.hpp"
-#include "Cardia/Window.hpp"
-#include "Cardia/Layer/LayerStack.hpp"
+#include "Core.hpp"
+#include "Window.hpp"
+#include "Layer/LayerStack.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 #include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Renderer/Buffer.hpp"

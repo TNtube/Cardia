@@ -24,11 +24,11 @@ target("Cardia")
     set_targetdir("build/" .. outputdir .. "/Cardia/bin")
     set_objectdir("build/" .. outputdir .. "/Cardia/obj")
 
-    set_pcxxheader("Cardia/src/cdpch.hpp")
+    set_pcxxheader("Cardia/include/cdpch.hpp")
 
     add_files("Cardia/src/**.cpp")
-    add_headerfiles("Cardia/src/**.hpp")
-    add_includedirs("Cardia/src/", {public = true})
+    add_headerfiles("Cardia/include/**.hpp")
+    add_includedirs("Cardia/include/", {public = true})
 
     add_packages("spdlog")
     add_packages("glfw")

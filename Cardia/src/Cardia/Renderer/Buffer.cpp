@@ -1,6 +1,6 @@
 #include "cdpch.hpp"
-#include "Buffer.hpp"
-#include "Renderer.hpp"
+#include "Cardia/Renderer/Buffer.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 #include "Cardia/Log.hpp"
 #include "Platform/OpenGL/OpenGLBuffer.hpp"
 

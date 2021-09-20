@@ -1,5 +1,5 @@
 #pragma once
-#include "Cardia/Renderer/Buffer.hpp"
+#include "Buffer.hpp"
 
 namespace Cardia
 {
