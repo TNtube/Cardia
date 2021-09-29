@@ -1,5 +1,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Application.hpp"
+#include "Cardia/Input.hpp"
+#include "Cardia/KeyCodes.hpp"
 
 
 namespace Cardia
@@ -16,65 +18,6 @@ namespace Cardia
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
 		pushOverlay(m_ImGuiLayer.get());
-
-		m_VertexArray.reset(VertexArray::create());
-
-		float vertices[] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
-		};
-
-		uint32_t indices[] {0, 1, 2};
-
-		std::unique_ptr<VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(VertexBuffer::create(vertices, sizeof(vertices)));
-
-
-		BufferLayout layout = {
-			{ShaderDataType::Float3, "position"},
-			{ShaderDataType::Float4, "col"}
-		};
-
-		vertexBuffer->setLayout(layout);
-		m_VertexArray->addVertexBuffer(std::move(vertexBuffer));
-
-		std::unique_ptr<IndexBuffer> indexBuffer;
-		indexBuffer.reset(IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t)));
-		m_VertexArray->setIndexBuffer(std::move(indexBuffer));
-
-		std::string vertexSrc = R"(
-			#version 440 core
-
-			layout(location = 0) in vec3 position;
-			layout(location = 1) in vec4 col;
-
-			out vec3 o_Pos;
-			out vec4 o_Col;
-
-			void main() {
-				o_Pos = position;
-				o_Col = col;
-				gl_Position = vec4(position, 1.0f);
-			}
-			)";
-
-		std::string fragmentSrc = R"(
-			#version 440 core
-
-			layout(location = 0) out vec4 color;
-
-			in vec3 o_Pos;
-			in vec4 o_Col;
-
-			void main() {
-			   color = o_Col;
-			}
-		)";
-
-		m_Shader.reset(Shader::create(vertexSrc, fragmentSrc));
-		m_Shader->unbind();
-		m_VertexArray->unbind();
 	}
 
 	void Application::pushLayer(Layer* layer)
@@ -104,16 +47,6 @@ namespace Cardia
 	{
 		while (m_Running)
 		{
-
-			RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
-			RenderCommand::clear();
-
-			Renderer::beginScene();
-
-			m_Shader->bind();
-			Renderer::submit(m_VertexArray);
-
-			Renderer::endScene();
 
 			for (const auto layer : m_LayerStack)
 			{

@@ -8,6 +8,7 @@
 #include "Cardia/Renderer/Buffer.hpp"
 #include "Cardia/Renderer/VertexArray.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
+#include "Cardia/Renderer/Camera.hpp"
 
 
 namespace Cardia
@@ -34,8 +35,6 @@ namespace Cardia
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
 
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<VertexArray> m_VertexArray;
 	};
 
 	std::unique_ptr<Application> CreateApplication();

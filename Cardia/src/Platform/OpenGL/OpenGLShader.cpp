@@ -3,6 +3,7 @@
 #include "Cardia/Log.hpp"
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Cardia
 {
@@ -117,5 +118,11 @@ namespace Cardia
 	void OpenGLShader::unbind() const
 	{
 		glUseProgram(0);
+	}
+
+	void OpenGLShader::setUniformMat4(const std::string& name, glm::mat4 matrix)
+	{
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 }
