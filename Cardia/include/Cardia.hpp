@@ -3,13 +3,14 @@
 // Unique for Cardia App
 
 #include "Cardia/Application.hpp"
-#include "Cardia/Log.hpp"
+#include "Cardia/Core/Log.hpp"
 #include "Cardia/Layer/Layer.hpp"
+#include "Cardia/Core/Time.hpp"
 
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 
-#include "Cardia/Input.hpp"
-#include "Cardia/KeyCodes.hpp"
+#include "Cardia/Core/Input.hpp"
+#include "Cardia/Core/KeyCodes.hpp"
 
 // ----- Renderer ------------------------
 

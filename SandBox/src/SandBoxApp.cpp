@@ -1,5 +1,6 @@
 #include "Cardia.hpp"
 #include <imgui.h>
+#include <glm/ext/matrix_transform.hpp>
 
 
 class LayerTest : public Cardia::Layer
@@ -12,8 +13,8 @@ public:
 
 		float vertices[] = {
 			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-			0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+			 0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
 			-0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f
 		};
 
@@ -48,11 +49,12 @@ public:
 			out vec4 o_Col;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Model;
 
 			void main() {
 				o_Pos = position;
 				o_Col = col;
-				gl_Position = u_ViewProjection * vec4(position, 1.0f);
+				gl_Position = u_ViewProjection * u_Model * vec4(position, 1.0f);
 			}
 		)";
 
@@ -74,17 +76,24 @@ public:
 		m_VertexArray->unbind();
 	}
 
-	void onUpdate() override
+	void onUpdate(Cardia::DeltaTime deltaTime) override
 	{
 		if (Cardia::Input::isKeyPressed(Cardia::Key::Left))
-			m_CameraPosition.x -= m_CameraSpeed;
+			m_CameraPosition.x -= m_CameraSpeed * deltaTime.seconds();
 		else if (Cardia::Input::isKeyPressed(Cardia::Key::Right))
-			m_CameraPosition.x += m_CameraSpeed;
+			m_CameraPosition.x += m_CameraSpeed * deltaTime.seconds();
 
 		if (Cardia::Input::isKeyPressed(Cardia::Key::Down))
-			m_CameraPosition.y -= m_CameraSpeed;
+			m_CameraPosition.y -= m_CameraSpeed * deltaTime.seconds();
 		else if (Cardia::Input::isKeyPressed(Cardia::Key::Up))
-			m_CameraPosition.y += m_CameraSpeed;
+			m_CameraPosition.y += m_CameraSpeed * deltaTime.seconds();
+
+		if (Cardia::Input::isMouseButtonPressed(1)) {
+			m_Scale += 0.05f;
+		}
+		if (Cardia::Input::isMouseButtonPressed(0)) {
+			m_Scale -= 0.05f;
+		}
 
 		m_Camera.setPosition(m_CameraPosition);
 
@@ -93,7 +102,17 @@ public:
 
 		Cardia::Renderer::beginScene(m_Camera);
 
-		Cardia::Renderer::submit(m_VertexArray, m_Shader);
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(m_Scale));
+
+		for (int x = 0; x < 10; ++x)
+		{
+			for (int y = 0; y < 10; ++y)
+			{
+				glm::vec3 pos(static_cast<float>(x) * 0.11f, static_cast<float>(y) * 0.11f, 0.0f);
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+				Cardia::Renderer::submit(m_VertexArray, m_Shader, transform);
+			}
+		}
 
 		Cardia::Renderer::endScene();
 	}
@@ -102,7 +121,7 @@ public:
 	{
 	}
 
-	void onImGuiDraw() override
+	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
 	}
 
@@ -113,7 +132,8 @@ private:
 	Cardia::OrthographicCamera m_Camera;
 
 	glm::vec3 m_CameraPosition;
-	float m_CameraSpeed = 0.1f;
+	float m_CameraSpeed = 2.0f;
+	float m_Scale = 0.1f;
 };
 
 

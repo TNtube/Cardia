@@ -14,10 +14,12 @@ namespace Cardia
 	{
 	}
 
-	void Renderer::submit(const std::unique_ptr<VertexArray>& vertexArray, const std::unique_ptr<Shader>& shader)
+	void Renderer::submit(const std::unique_ptr<VertexArray>& vertexArray,
+			      const std::unique_ptr<Shader>& shader, const glm::mat4& transform)
 	{
 		shader->bind();
 		shader->setUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		shader->setUniformMat4("u_Model", transform);
 
 		vertexArray->bind();
 		RenderCommand::drawIndexed(vertexArray);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cardia/Layer/Layer.hpp"
+#include "Cardia/Core/Time.hpp"
 
 namespace Cardia
 {
@@ -11,7 +12,7 @@ namespace Cardia
 
 		void onPush() override;
 		void onPop() override;
-		void onImGuiDraw() override;
+		void onImGuiDraw(DeltaTime deltaTime) override;
 
 		void Begin();
 		void End();

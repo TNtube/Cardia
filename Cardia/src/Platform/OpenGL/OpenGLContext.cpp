@@ -1,6 +1,6 @@
 #include "cdpch.hpp"
 
-#include "Cardia/Core.hpp"
+#include "Cardia/Core/Core.hpp"
 #include "Platform/OpenGL/OpenGLContext.hpp"
 
 #include <GLFW/glfw3.h>

@@ -1,14 +1,15 @@
 #include "cdpch.hpp"
 #include "Cardia/Application.hpp"
-#include "Cardia/Input.hpp"
-#include "Cardia/KeyCodes.hpp"
+#include "Cardia/Core/Input.hpp"
+#include "Cardia/Core/KeyCodes.hpp"
+#include <GLFW/glfw3.h>
 
 
 namespace Cardia
 {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application()
+	Application::Application() : m_DeltaTime()
 	{
 		cdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
@@ -45,18 +46,21 @@ namespace Cardia
 	
 	void Application::Run()
 	{
+		float time = 0.0f;
 		while (m_Running)
 		{
+			m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
+			time += m_DeltaTime.seconds();
 
 			for (const auto layer : m_LayerStack)
 			{
-				layer->onUpdate();
+				layer->onUpdate(m_DeltaTime);
 			}
 
 			m_ImGuiLayer->Begin();
 			for (const auto layer : m_LayerStack)
 			{
-				layer->onImGuiDraw();
+				layer->onImGuiDraw(m_DeltaTime);
 			}
 			m_ImGuiLayer->End();
 			m_Window->onUpdate();

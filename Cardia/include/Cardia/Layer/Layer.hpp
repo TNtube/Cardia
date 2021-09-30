@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Cardia/Core.hpp"
-#include "Cardia/Event.hpp"
+#include "Cardia/Core/Core.hpp"
+#include "Cardia/Core/Event.hpp"
+#include "Cardia/Core/Time.hpp"
 
 namespace Cardia
 {
@@ -14,8 +15,8 @@ namespace Cardia
 
 		virtual void onPush() {}
 		virtual void onPop() {}
-		virtual void onUpdate() {}
-		virtual void onImGuiDraw() {}
+		virtual void onUpdate(DeltaTime deltaTime) {}
+		virtual void onImGuiDraw(DeltaTime deltaTime) {}
 		virtual void onEvent(Event& event) {}
 
 		const std::string& getName() const { return m_Name; }			// for debugging purpose

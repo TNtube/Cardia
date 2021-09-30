@@ -77,7 +77,7 @@ namespace Cardia
 		}
 	}
 
-	static void DebugWindow()
+	static void DebugWindow(DeltaTime deltaTime)
 	{
 		enum ImGuiTheme {
 			THEME_DARK,
@@ -105,6 +105,8 @@ namespace Cardia
 			isFullscreenPrev = isFullscreen;
 		}
 
+		ImGui::LabelText(std::to_string(static_cast<int>(1000 / deltaTime.milliseconds())).c_str(), "FPS");
+
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Dear ImGui theme");
@@ -128,8 +130,8 @@ namespace Cardia
 		ImGui::End();
 	}
 
-	void ImGuiLayer::onImGuiDraw()
+	void ImGuiLayer::onImGuiDraw(DeltaTime deltaTime)
 	{
-		DebugWindow();
+		DebugWindow(deltaTime);
 	}
 }

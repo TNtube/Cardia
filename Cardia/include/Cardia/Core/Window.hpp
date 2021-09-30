@@ -1,6 +1,7 @@
 #pragma once
 #include "cdpch.hpp"
-#include "Core.hpp"
+#include "Cardia/Core/Core.hpp"
+#include "Cardia/Core/Time.hpp"
 #include "Event.hpp"
 
 

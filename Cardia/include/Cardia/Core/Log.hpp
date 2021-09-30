@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.hpp"
+#include "Cardia/Core/Core.hpp"
 
 #include <spdlog/spdlog.h>
 

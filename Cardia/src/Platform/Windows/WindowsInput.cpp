@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "Cardia/Input.hpp"
+#include "Cardia/Core/Input.hpp"
 
 #include <GLFW/glfw3.h>
 

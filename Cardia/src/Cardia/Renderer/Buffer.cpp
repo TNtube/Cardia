@@ -1,7 +1,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Renderer/Buffer.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
-#include "Cardia/Log.hpp"
+#include "Cardia/Core/Log.hpp"
 #include "Platform/OpenGL/OpenGLBuffer.hpp"
 
 

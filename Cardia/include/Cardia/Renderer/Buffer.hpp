@@ -1,5 +1,5 @@
 #pragma once
-#include "Cardia/Core.hpp"
+#include "Cardia/Core/Core.hpp"
 
 namespace Cardia
 {
