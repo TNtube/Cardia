@@ -89,10 +89,10 @@ public:
 			m_CameraPosition.y += m_CameraSpeed * deltaTime.seconds();
 
 		if (Cardia::Input::isMouseButtonPressed(1)) {
-			m_Scale += 0.05f;
+			m_Scale += 0.05f * deltaTime.seconds();
 		}
 		if (Cardia::Input::isMouseButtonPressed(0)) {
-			m_Scale -= 0.05f;
+			m_Scale -= 0.05f * deltaTime.seconds();
 		}
 
 		m_Camera.setPosition(m_CameraPosition);
@@ -108,7 +108,7 @@ public:
 		{
 			for (int y = 0; y < 10; ++y)
 			{
-				glm::vec3 pos(static_cast<float>(x) * 0.11f, static_cast<float>(y) * 0.11f, 0.0f);
+				glm::vec3 pos(static_cast<float>(x) * (m_Scale + m_Scale / 10), static_cast<float>(y) * (m_Scale + m_Scale / 10), 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 				Cardia::Renderer::submit(m_VertexArray, m_Shader, transform);
 			}
