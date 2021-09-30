@@ -77,6 +77,35 @@ namespace Cardia
 		}
 	}
 
+	struct FPSDeltaCounter
+	{
+		uint64_t ms = 0;
+		uint16_t cnt = 0;
+
+		inline void AddEntry(int frameMs)
+		{
+			ms += frameMs;
+			++cnt;
+		}
+
+		inline void Reset()
+		{
+			ms = 0;
+			cnt = 0;
+		}
+
+		inline double AverageMs() const
+		{
+			assert(HasEntry());
+			return static_cast<double>(ms) / cnt;
+		}
+
+		inline bool HasEntry() const
+		{
+			return ms > 0;
+		}
+	};
+
 	static void DebugWindow(DeltaTime deltaTime)
 	{
 		enum ImGuiTheme {
@@ -91,9 +120,8 @@ namespace Cardia
 		static bool isFullscreenPrev = false;
 		static Window& window = Application::get().getWindow();
 		// fps
-		static uint64_t fpsDeltaCounter = 0; // deltaTime since last exec
-		static uint16_t frames = 0;
-		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
+		static FPSDeltaCounter fpsDeltaCounter;
+		static auto fps = 1000.0 / deltaTime.milliseconds();
 		static auto fpsClock = std::chrono::high_resolution_clock::now();
 		static auto fpsClock2 = std::chrono::high_resolution_clock::now();
 		// dear imgui theme
@@ -113,14 +141,12 @@ namespace Cardia
 
 		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 		fpsClock2 = std::chrono::high_resolution_clock::now();
-		fpsDeltaCounter += deltaTime.milliseconds();
-		++frames;
-		int cnt = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClock2 - fpsClock).count();
-		if (cnt >= 1000)
+		fpsDeltaCounter.AddEntry(static_cast<int>(deltaTime.milliseconds()));
+		auto fpsDelay = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClock2 - fpsClock).count();
+		if (fpsDelay >= 1000 && fpsDeltaCounter.HasEntry()) // fpsDeltaCounter is 0 when switch to fullscreen
 		{
-			fps = cnt / (fpsDeltaCounter / frames);
-			fpsDeltaCounter = 0;
-			frames = 0;
+			fps = 1000.0 / fpsDeltaCounter.AverageMs();
+			fpsDeltaCounter.Reset();
 			fpsClock = std::chrono::high_resolution_clock::now();
 			fpsClock2 = fpsClock;
 		}
