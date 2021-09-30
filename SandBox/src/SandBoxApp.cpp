@@ -119,6 +119,13 @@ public:
 
 	void onEvent(Cardia::Event& event) override
 	{
+		Cardia::EventDispatcher dispatcher(event);
+		dispatcher.dispatch<Cardia::MouseScrolledEvent>(CD_BIND_EVENT_FN(LayerTest::onScroll));
+	}
+
+	bool onScroll(Cardia::MouseScrolledEvent& event) {
+		m_Scale += event.getOffSetY() / 100;
+		return false;
 	}
 
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
