@@ -145,7 +145,7 @@ namespace Cardia
 		auto fpsDelay = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClock2 - fpsClock).count();
 		if (fpsDelay >= 1000 && fpsDeltaCounter.HasEntry()) // fpsDeltaCounter is 0 when switch to fullscreen
 		{
-			fps = 1000.0 / fpsDeltaCounter.AverageMs();
+			fps = static_cast<double>(fpsDelay) / fpsDeltaCounter.AverageMs();
 			fpsDeltaCounter.Reset();
 			fpsClock = std::chrono::high_resolution_clock::now();
 			fpsClock2 = fpsClock;
