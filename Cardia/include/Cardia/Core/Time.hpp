@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 
-
 namespace Cardia
 {
 	class DeltaTime
@@ -11,7 +10,7 @@ namespace Cardia
 			: m_Time(time) {}
 
 		inline float seconds() const { return m_Time; }
-		inline float milliseconds() const { return m_Time * 1000.0f; }
+		inline float milliseconds() const { return m_Time * 1'000.0f; }
 
 	private:
 		float m_Time;

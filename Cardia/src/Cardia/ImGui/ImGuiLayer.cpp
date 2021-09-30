@@ -90,6 +90,12 @@ namespace Cardia
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
 		static Window& window = Application::get().getWindow();
+		// fps
+		static uint64_t fpsDeltaCounter = 0; // deltaTime since last exec
+		static uint16_t frames = 0;
+		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
+		static auto fpsClock = std::chrono::high_resolution_clock::now();
+		static auto fpsClock2 = std::chrono::high_resolution_clock::now();
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -105,7 +111,19 @@ namespace Cardia
 			isFullscreenPrev = isFullscreen;
 		}
 
-		ImGui::LabelText(std::to_string(static_cast<int>(1000 / deltaTime.milliseconds())).c_str(), "FPS");
+		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+		fpsClock2 = std::chrono::high_resolution_clock::now();
+		fpsDeltaCounter += deltaTime.milliseconds();
+		++frames;
+		int cnt = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClock2 - fpsClock).count();
+		if (cnt >= 1000)
+		{
+			fps = cnt / (fpsDeltaCounter / frames);
+			fpsDeltaCounter = 0;
+			frames = 0;
+			fpsClock = std::chrono::high_resolution_clock::now();
+			fpsClock2 = fpsClock;
+		}
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{

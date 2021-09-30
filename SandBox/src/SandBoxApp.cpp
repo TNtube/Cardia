@@ -7,7 +7,7 @@ class LayerTest : public Cardia::Layer
 {
 public:
 	explicit LayerTest(std::string&& name)
-		: Layer(name), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
+		: Layer(std::move(name)), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
 	{
 		m_VertexArray.reset(Cardia::VertexArray::create());
 
@@ -123,7 +123,7 @@ public:
 		dispatcher.dispatch<Cardia::MouseScrolledEvent>(CD_BIND_EVENT_FN(LayerTest::onScroll));
 	}
 
-	bool onScroll(Cardia::MouseScrolledEvent& event) {
+	bool onScroll(const Cardia::MouseScrolledEvent& event) {
 		m_Scale += event.getOffSetY() / 100;
 		return false;
 	}
