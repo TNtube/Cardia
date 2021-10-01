@@ -14,10 +14,10 @@ public:
 		m_VertexArray.reset(Cardia::VertexArray::create());
 
 		float vertices[] = {
-			-0.5f, -0.5f, 0.0f, // 1.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f, // 0.0f, 1.0f, 0.0f, 1.0f,
-			 0.5f,  0.5f, 0.0f, // 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 0.0f  // 1.0f, 0.0f, 1.0f, 1.0f
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // 1.0f, 0.0f, 0.0f, 1.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // 0.0f, 1.0f, 0.0f, 1.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // 1.0f, 0.0f, 1.0f, 1.0f
 		};
 
 		uint32_t indices[] {
@@ -30,7 +30,8 @@ public:
 
 
 		Cardia::BufferLayout layout = {
-			{Cardia::ShaderDataType::Float3, "position"}
+			{Cardia::ShaderDataType::Float3, "a_Position"},
+			{Cardia::ShaderDataType::Float2, "a_TextPos"}
 		};
 
 		vertexBuffer->setLayout(layout);
@@ -43,13 +44,17 @@ public:
 		std::string vertexSrc = R"(
 			#version 440 core
 
-			layout(location = 0) in vec3 position;
+			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec2 a_TexPos;
+
+			out vec2 o_TexPos;
 
 			uniform mat4 u_ViewProjection;
 			uniform mat4 u_Model;
 
 			void main() {
-				gl_Position = u_ViewProjection * u_Model * vec4(position, 1.0f);
+				o_TexPos = a_TexPos;
+				gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0f);
 			}
 		)";
 
@@ -58,10 +63,12 @@ public:
 
 			layout(location = 0) out vec4 color;
 
+			in vec2 o_TexPos;
+
 			uniform vec3 u_Color;
 
 			void main() {
-			   color = vec4(u_Color, 1.0f);
+			   color = vec4(o_TexPos, 0.0f, 1.0f);
 			}
 		)";
 
@@ -104,6 +111,9 @@ public:
 				Cardia::Renderer::submit(m_VertexArray, m_Shader, transform);
 			}
 		}
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+		Cardia::Renderer::submit(m_VertexArray, m_Shader, transform);
 
 		Cardia::Renderer::endScene();
 	}

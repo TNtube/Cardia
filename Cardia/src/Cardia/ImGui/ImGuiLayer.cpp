@@ -102,10 +102,17 @@ namespace Cardia
 		if (isFullscreen != isFullscreenPrev)
 		{
 			window.setFullscreen(isFullscreen);
+			window.setVSync(true);
 			isFullscreenPrev = isFullscreen;
 		}
-
-		ImGui::LabelText(std::to_string(static_cast<int>(1000 / deltaTime.milliseconds())).c_str(), "FPS");
+		static float elapsedTime = 0.0f;
+		static int fps = static_cast<int>(1000 / deltaTime.milliseconds());
+		if (elapsedTime >= 0.5f) {
+			fps = static_cast<int>(1000 / deltaTime.milliseconds());
+			elapsedTime = 0.0f;
+		}
+		elapsedTime += deltaTime.seconds();
+		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
