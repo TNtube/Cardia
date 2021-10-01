@@ -1,15 +1,14 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <string>
 
 namespace Cardia
 {
 	class Shader
 	{
 	public:
-		virtual void bind() const {};
-		virtual void unbind() const {};
-
-		virtual void setUniformMat4(const std::string& name, glm::mat4 matrix) {};
+		virtual void bind() const = 0;
+		virtual void unbind() const = 0;
 
 		static Shader* create(const std::string& vertexSource, const std::string& fragmentSource);
 	};

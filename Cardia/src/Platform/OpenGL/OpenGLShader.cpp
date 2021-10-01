@@ -120,9 +120,21 @@ namespace Cardia
 		glUseProgram(0);
 	}
 
-	void OpenGLShader::setUniformMat4(const std::string& name, glm::mat4 matrix)
+	void OpenGLShader::setUniformMat4(const std::string& name, glm::mat4 matrix) const
 	{
 		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+	void OpenGLShader::setUniformFloat4(const std::string &name, glm::vec4 data) const
+	{
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+		glUniform4f(location, data.x, data.y, data.z, data.w);
+	}
+
+	void OpenGLShader::setUniformFloat3(const std::string &name, glm::vec3 data) const
+	{
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+		glUniform3f(location, data.x, data.y, data.z);
 	}
 }

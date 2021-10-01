@@ -1,3 +1,4 @@
+#include "Platform/OpenGL/OpenGLShader.hpp"
 #include "cdpch.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
@@ -18,8 +19,8 @@ namespace Cardia
 			      const std::unique_ptr<Shader>& shader, const glm::mat4& transform)
 	{
 		shader->bind();
-		shader->setUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-		shader->setUniformMat4("u_Model", transform);
+		dynamic_cast<Cardia::OpenGLShader&>(*shader).setUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		dynamic_cast<Cardia::OpenGLShader&>(*shader).setUniformMat4("u_Model", transform);
 
 		vertexArray->bind();
 		RenderCommand::drawIndexed(vertexArray);

@@ -1,6 +1,8 @@
 #include "Cardia.hpp"
 #include <imgui.h>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "Platform/OpenGL/OpenGLShader.hpp"
 
 
 class LayerTest : public Cardia::Layer
@@ -12,10 +14,10 @@ public:
 		m_VertexArray.reset(Cardia::VertexArray::create());
 
 		float vertices[] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-			 0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f
+			-0.5f, -0.5f, 0.0f, // 1.0f, 0.0f, 0.0f, 1.0f,
+			 0.5f, -0.5f, 0.0f, // 0.0f, 1.0f, 0.0f, 1.0f,
+			 0.5f,  0.5f, 0.0f, // 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f  // 1.0f, 0.0f, 1.0f, 1.0f
 		};
 
 		uint32_t indices[] {
@@ -28,8 +30,7 @@ public:
 
 
 		Cardia::BufferLayout layout = {
-			{Cardia::ShaderDataType::Float3, "position"},
-			{Cardia::ShaderDataType::Float4, "col"}
+			{Cardia::ShaderDataType::Float3, "position"}
 		};
 
 		vertexBuffer->setLayout(layout);
@@ -43,17 +44,11 @@ public:
 			#version 440 core
 
 			layout(location = 0) in vec3 position;
-			layout(location = 1) in vec4 col;
-
-			out vec3 o_Pos;
-			out vec4 o_Col;
 
 			uniform mat4 u_ViewProjection;
 			uniform mat4 u_Model;
 
 			void main() {
-				o_Pos = position;
-				o_Col = col;
 				gl_Position = u_ViewProjection * u_Model * vec4(position, 1.0f);
 			}
 		)";
@@ -63,11 +58,10 @@ public:
 
 			layout(location = 0) out vec4 color;
 
-			in vec3 o_Pos;
-			in vec4 o_Col;
+			uniform vec3 u_Color;
 
 			void main() {
-			   color = o_Col;
+			   color = vec4(u_Color, 1.0f);
 			}
 		)";
 
@@ -88,13 +82,6 @@ public:
 		else if (Cardia::Input::isKeyPressed(Cardia::Key::Up))
 			m_CameraPosition.y += m_CameraSpeed * deltaTime.seconds();
 
-		if (Cardia::Input::isMouseButtonPressed(1)) {
-			m_Scale += 0.05f * deltaTime.seconds();
-		}
-		if (Cardia::Input::isMouseButtonPressed(0)) {
-			m_Scale -= 0.05f * deltaTime.seconds();
-		}
-
 		m_Camera.setPosition(m_CameraPosition);
 
 		Cardia::RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
@@ -103,6 +90,10 @@ public:
 		Cardia::Renderer::beginScene(m_Camera);
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(m_Scale));
+
+		// Extremely temporary
+		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).bind();
+		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).setUniformFloat3("u_Color", m_Color);
 
 		for (int x = 0; x < 10; ++x)
 		{
@@ -120,16 +111,17 @@ public:
 	void onEvent(Cardia::Event& event) override
 	{
 		Cardia::EventDispatcher dispatcher(event);
-		dispatcher.dispatch<Cardia::MouseScrolledEvent>(CD_BIND_EVENT_FN(LayerTest::onScroll));
-	}
-
-	bool onScroll(Cardia::MouseScrolledEvent& event) {
-		m_Scale += event.getOffSetY() / 100;
-		return false;
+		dispatcher.dispatch<Cardia::MouseScrolledEvent>([this](const Cardia::MouseScrolledEvent& ev) -> bool{
+			m_Scale += ev.getOffSetY() / 100;
+			return false;
+		});
 	}
 
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
+		ImGui::Begin("Debug tools");
+		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_Color));
+		ImGui::End();
 	}
 
 private:
@@ -141,6 +133,7 @@ private:
 	glm::vec3 m_CameraPosition;
 	float m_CameraSpeed = 2.0f;
 	float m_Scale = 0.1f;
+	glm::vec3 m_Color{0.2f, 0.8f, 0.3f};
 };
 
 
