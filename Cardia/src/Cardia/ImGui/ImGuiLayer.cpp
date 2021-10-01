@@ -77,30 +77,32 @@ namespace Cardia
 		}
 	}
 
-	struct FPSDeltaCounter
+	class FPSDeltaCounter
 	{
 		uint64_t ms = 0;
 		uint16_t cnt = 0;
 
-		inline void AddEntry(int frameMs)
+	public:
+		inline void addEntry(int frameMs)
 		{
+			assert(frameMs > 0);
 			ms += frameMs;
 			++cnt;
 		}
 
-		inline void Reset()
+		inline void reset()
 		{
 			ms = 0;
 			cnt = 0;
 		}
 
-		inline double AverageMs() const
+		inline double averageMs() const
 		{
-			assert(HasEntry());
+			assert(notZero());
 			return static_cast<double>(ms) / cnt;
 		}
 
-		inline bool HasEntry() const
+		inline bool notZero() const
 		{
 			return ms > 0;
 		}
@@ -123,7 +125,7 @@ namespace Cardia
 		static FPSDeltaCounter fpsDeltaCounter;
 		static auto fps = 1000.0 / deltaTime.milliseconds();
 		static auto fpsClock = std::chrono::high_resolution_clock::now();
-		static auto fpsClock2 = std::chrono::high_resolution_clock::now();
+		static auto fpsClockNow = std::chrono::high_resolution_clock::now();
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -140,15 +142,18 @@ namespace Cardia
 		}
 
 		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
-		fpsClock2 = std::chrono::high_resolution_clock::now();
-		fpsDeltaCounter.AddEntry(static_cast<int>(deltaTime.milliseconds()));
-		auto fpsDelay = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClock2 - fpsClock).count();
-		if (fpsDelay >= 1000 && fpsDeltaCounter.HasEntry()) // fpsDeltaCounter is 0 when switch to fullscreen
+		fpsClockNow = std::chrono::high_resolution_clock::now();
+		fpsDeltaCounter.addEntry(static_cast<int>(deltaTime.milliseconds()));
+		auto fpsDelay = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClockNow - fpsClock).count();
+		if (fpsDelay >= 500 && fpsDeltaCounter.notZero()) // fpsDeltaCounter is 0 when switch to fullscreen
 		{
-			fps = static_cast<double>(fpsDelay) / fpsDeltaCounter.AverageMs();
-			fpsDeltaCounter.Reset();
+			// TODO Corriger imprécision fpsDelay
+			// TODO 1 seul chiffre après virgule
+			// static_cast<double>(fpsDelay)
+			fps = 1000.0 / fpsDeltaCounter.averageMs();
+			fpsDeltaCounter.reset();
 			fpsClock = std::chrono::high_resolution_clock::now();
-			fpsClock2 = fpsClock;
+			fpsClockNow = fpsClock;
 		}
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
