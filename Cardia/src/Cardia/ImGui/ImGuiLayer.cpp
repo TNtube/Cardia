@@ -126,6 +126,7 @@ namespace Cardia
 		static auto fps = 1000.0 / deltaTime.milliseconds();
 		static auto fpsClock = std::chrono::high_resolution_clock::now();
 		static auto fpsClockNow = std::chrono::high_resolution_clock::now();
+		static double fpsAverageMs {};
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -142,6 +143,7 @@ namespace Cardia
 		}
 
 		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+		ImGui::LabelText(std::to_string(fpsAverageMs).c_str(), "Average MS");
 		fpsClockNow = std::chrono::high_resolution_clock::now();
 		fpsDeltaCounter.addEntry(static_cast<int>(deltaTime.milliseconds()));
 		auto fpsDelay = std::chrono::duration_cast<std::chrono::milliseconds>(fpsClockNow - fpsClock).count();
@@ -150,7 +152,8 @@ namespace Cardia
 			// TODO Corriger imprécision fpsDelay
 			// TODO 1 seul chiffre après virgule
 			// static_cast<double>(fpsDelay)
-			fps = 1000.0 / fpsDeltaCounter.averageMs();
+			fpsAverageMs = fpsDeltaCounter.averageMs();
+			fps = 1000.0 / fpsAverageMs;
 			fpsDeltaCounter.reset();
 			fpsClock = std::chrono::high_resolution_clock::now();
 			fpsClockNow = fpsClock;
