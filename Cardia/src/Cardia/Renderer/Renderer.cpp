@@ -15,7 +15,7 @@ namespace Cardia
 	{
 	}
 
-	void Renderer::submit(const std::unique_ptr<VertexArray>& vertexArray,
+	void Renderer::submit(const VertexArray* vertexArray,
 			      const std::unique_ptr<Shader>& shader, const glm::mat4& transform)
 	{
 		shader->bind();
