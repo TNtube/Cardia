@@ -40,7 +40,7 @@ namespace Cardia
 		void init(const WinProperties& properties);
 		void quit();
 		
-		static bool isGlfwInit; // Can only initialize glfw once.
+		static bool s_isGlfwInit; // Can only initialize glfw once.
 		GLFWwindow* m_Window;
 		WinData m_Data;
 		std::unique_ptr<RendererContext> m_RendererContext;

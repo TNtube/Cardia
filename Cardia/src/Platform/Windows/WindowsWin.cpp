@@ -6,7 +6,7 @@
 
 namespace Cardia
 {
-	bool WindowsWin::isGlfwInit = false;
+	bool WindowsWin::s_isGlfwInit = false;
 
 	std::unique_ptr<Window> Window::Create(const WinProperties& properties)
 	{
@@ -30,10 +30,10 @@ namespace Cardia
 		m_Data.width = properties.width;
 		m_Data.height = properties.height;
 
-		if (!isGlfwInit)
+		if (!s_isGlfwInit)
 		{
 			cdAssert(glfwInit(), "Can't initialize glfw3.");
-			isGlfwInit = true;
+			s_isGlfwInit = true;
 		}
 		m_Window = glfwCreateWindow(properties.width,
 			properties.height,
