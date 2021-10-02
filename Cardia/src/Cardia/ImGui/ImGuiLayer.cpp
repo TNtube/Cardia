@@ -83,38 +83,50 @@ namespace Cardia
 			THEME_LIGHT,
 			THEME_CLASSIC
 		};
+		// fps
+		static float elapsedTime = 0.0f;
+		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
 		// wireframe
 		static bool isWireframeMode = false;
 		// fullscreen
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
 		static Window& window = Application::get().getWindow();
-		// fps
-		static float elapsedTime = 0.0f;
-		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
 
-		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-		RenderCommand::setWireFrame(isWireframeMode);
-
-		ImGui::Checkbox("Fullscreen?", &isFullscreen);
-		if (isFullscreen != isFullscreenPrev)
+		// Section: Rendering
+		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			window.setFullscreen(isFullscreen);
-			window.setVSync(true);
-			isFullscreenPrev = isFullscreen;
+			// Section: Rendering > Infos
+			ImGui::Text("Infos");
+
+			ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+			if (elapsedTime >= 0.5f) {
+				fps = static_cast<int>(1000 / deltaTime.milliseconds());
+				elapsedTime = 0.0f;
+			}
+			elapsedTime += deltaTime.seconds();
+
+			// Section: Rendering > Options
+			ImGui::Spacing();
+			ImGui::Text("Options");
+
+			ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
+			RenderCommand::setWireFrame(isWireframeMode);
+
+			ImGui::Checkbox("Fullscreen?", &isFullscreen);
+			if (isFullscreen != isFullscreenPrev)
+			{
+				window.setFullscreen(isFullscreen);
+				window.setVSync(true);
+				isFullscreenPrev = isFullscreen;
+			}
 		}
 
-		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
-		if (elapsedTime >= 0.5f) {
-			fps = static_cast<int>(1000 / deltaTime.milliseconds());
-			elapsedTime = 0.0f;
-		}
-		elapsedTime += deltaTime.seconds();
-
+		// Section: Fun
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Dear ImGui theme");
