@@ -129,9 +129,6 @@ public:
 
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
-		ImGui::Begin("Debug tools");
-		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_Color));
-		ImGui::End();
 	}
 
 private:
