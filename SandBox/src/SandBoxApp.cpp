@@ -8,8 +8,8 @@
 class LayerTest : public Cardia::Layer
 {
 public:
-	explicit LayerTest(std::string&& name)
-		: Layer(name), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
+	explicit LayerTest(std::string name)
+		: Layer(std::move(name))
 	{
 		m_VertexArray.reset(Cardia::VertexArray::create());
 
@@ -121,7 +121,7 @@ public:
 	void onEvent(Cardia::Event& event) override
 	{
 		Cardia::EventDispatcher dispatcher(event);
-		dispatcher.dispatch<Cardia::MouseScrolledEvent>([this](const Cardia::MouseScrolledEvent& ev) -> bool{
+		dispatcher.dispatch<Cardia::MouseScrolledEvent>([this](const Cardia::MouseScrolledEvent& ev) {
 			m_Scale += ev.getOffSetY() / 100;
 			return false;
 		});
@@ -129,18 +129,15 @@ public:
 
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
-		ImGui::Begin("Debug tools");
-		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_Color));
-		ImGui::End();
 	}
 
 private:
 	std::unique_ptr<Cardia::Shader> m_Shader;
 	std::unique_ptr<Cardia::VertexArray> m_VertexArray;
 
-	Cardia::OrthographicCamera m_Camera;
+	Cardia::OrthographicCamera m_Camera {-1.6f, 1.6f, -0.9f, 0.9f};
 
-	glm::vec3 m_CameraPosition;
+	glm::vec3 m_CameraPosition {0.0f};
 	float m_CameraSpeed = 2.0f;
 	float m_Scale = 0.1f;
 	glm::vec3 m_Color{0.2f, 0.8f, 0.3f};

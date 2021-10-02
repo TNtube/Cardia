@@ -22,8 +22,7 @@ namespace Cardia
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -36,7 +35,7 @@ namespace Cardia
 		    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		Application& app = Application::get();
+		const Application& app = Application::get();
 		auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
@@ -59,9 +58,9 @@ namespace Cardia
 
 	void ImGuiLayer::End()
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::get();
+		const Application& app = Application::get();
 		auto[w, h] = app.getWindow().getSize();
+		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
 
 		// Rendering
@@ -84,6 +83,9 @@ namespace Cardia
 			THEME_LIGHT,
 			THEME_CLASSIC
 		};
+		// fps
+		static float elapsedTime = 0.0f;
+		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
 		// wireframe
 		static bool isWireframeMode = false;
 		// fullscreen
@@ -95,25 +97,36 @@ namespace Cardia
 
 		ImGui::Begin("Debug tools");
 
-		ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-		RenderCommand::setWireFrame(isWireframeMode);
-
-		ImGui::Checkbox("Fullscreen?", &isFullscreen);
-		if (isFullscreen != isFullscreenPrev)
+		// Section: Rendering
+		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			window.setFullscreen(isFullscreen);
-			window.setVSync(true);
-			isFullscreenPrev = isFullscreen;
-		}
-		static float elapsedTime = 0.0f;
-		static int fps = static_cast<int>(1000 / deltaTime.milliseconds());
-		if (elapsedTime >= 0.5f) {
-			fps = static_cast<int>(1000 / deltaTime.milliseconds());
-			elapsedTime = 0.0f;
-		}
-		elapsedTime += deltaTime.seconds();
-		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+			// Section: Rendering > Infos
+			ImGui::Text("Infos");
 
+			ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+			if (elapsedTime >= 0.5f) {
+				fps = static_cast<int>(1000 / deltaTime.milliseconds());
+				elapsedTime = 0.0f;
+			}
+			elapsedTime += deltaTime.seconds();
+
+			// Section: Rendering > Options
+			ImGui::Spacing();
+			ImGui::Text("Options");
+
+			ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
+			RenderCommand::setWireFrame(isWireframeMode);
+
+			ImGui::Checkbox("Fullscreen?", &isFullscreen);
+			if (isFullscreen != isFullscreenPrev)
+			{
+				window.setFullscreen(isFullscreen);
+				window.setVSync(true);
+				isFullscreenPrev = isFullscreen;
+			}
+		}
+
+		// Section: Fun
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Dear ImGui theme");
