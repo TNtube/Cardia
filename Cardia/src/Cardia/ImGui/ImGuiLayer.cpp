@@ -36,7 +36,7 @@ namespace Cardia
 		    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		Application& app = Application::get();
+		const Application& app = Application::get();
 		auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
@@ -59,9 +59,9 @@ namespace Cardia
 
 	void ImGuiLayer::End()
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::get();
+		const Application& app = Application::get();
 		auto[w, h] = app.getWindow().getSize();
+		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
 
 		// Rendering
@@ -90,6 +90,9 @@ namespace Cardia
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
 		static Window& window = Application::get().getWindow();
+		// fps
+		static float elapsedTime = 0.0f;
+		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -105,14 +108,13 @@ namespace Cardia
 			window.setVSync(true);
 			isFullscreenPrev = isFullscreen;
 		}
-		static float elapsedTime = 0.0f;
-		static int fps = static_cast<int>(1000 / deltaTime.milliseconds());
+
+		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 		if (elapsedTime >= 0.5f) {
 			fps = static_cast<int>(1000 / deltaTime.milliseconds());
 			elapsedTime = 0.0f;
 		}
 		elapsedTime += deltaTime.seconds();
-		ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 
 		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
 		{
