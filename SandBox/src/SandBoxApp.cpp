@@ -8,7 +8,7 @@
 class LayerTest : public Cardia::Layer
 {
 public:
-	explicit LayerTest(std::string&& name)
+	explicit LayerTest(std::string name)
 		: Layer(std::move(name))
 	{
 		m_VertexArray.reset(Cardia::VertexArray::create());
