@@ -108,12 +108,12 @@ public:
 			{
 				glm::vec3 pos(static_cast<float>(x) * (m_Scale + m_Scale / 10), static_cast<float>(y) * (m_Scale + m_Scale / 10), 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-				Cardia::Renderer::submit(m_VertexArray.get(), m_Shader, transform);
+				Cardia::Renderer::submit(m_VertexArray.get(), *m_Shader, transform);
 			}
 		}
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-		Cardia::Renderer::submit(m_VertexArray.get(), m_Shader, transform);
+		Cardia::Renderer::submit(m_VertexArray.get(), *m_Shader, transform);
 
 		Cardia::Renderer::endScene();
 	}
