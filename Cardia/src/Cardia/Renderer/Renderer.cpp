@@ -16,11 +16,12 @@ namespace Cardia
 	}
 
 	void Renderer::submit(const VertexArray* vertexArray,
-			      const Shader& shader, const glm::mat4& transform)
+			      const Shader* shader, const glm::mat4& transform)
 	{
-		shader.bind();
-		dynamic_cast<const Cardia::OpenGLShader&>(shader).setUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-		dynamic_cast<const Cardia::OpenGLShader&>(shader).setUniformMat4("u_Model", transform);
+		shader->bind();
+		const auto& glShader = dynamic_cast<const Cardia::OpenGLShader&>(*shader);
+		glShader.setUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		glShader.setUniformMat4("u_Model", transform);
 
 		vertexArray->bind();
 		RenderCommand::drawIndexed(vertexArray);
