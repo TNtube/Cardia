@@ -14,6 +14,6 @@ namespace Cardia
 		virtual IndexBuffer& getIndexBuffer () const = 0;
 
 
-		static VertexArray* create();
+		static std::unique_ptr<VertexArray> create();
 	};
 }

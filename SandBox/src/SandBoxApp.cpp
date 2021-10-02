@@ -11,7 +11,7 @@ public:
 	explicit LayerTest(std::string name)
 		: Layer(std::move(name))
 	{
-		m_VertexArray.reset(Cardia::VertexArray::create());
+		m_VertexArray = Cardia::VertexArray::create();
 
 		float vertices[] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // 1.0f, 0.0f, 0.0f, 1.0f,
@@ -26,7 +26,7 @@ public:
 		};
 
 		std::unique_ptr<Cardia::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Cardia::VertexBuffer::create(vertices, sizeof(vertices)));
+		vertexBuffer = Cardia::VertexBuffer::create(vertices, sizeof(vertices));
 
 
 		Cardia::BufferLayout layout = {
@@ -38,7 +38,7 @@ public:
 		m_VertexArray->addVertexBuffer(std::move(vertexBuffer));
 
 		std::unique_ptr<Cardia::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Cardia::IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t)));
+		indexBuffer = Cardia::IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t));
 		m_VertexArray->setIndexBuffer(std::move(indexBuffer));
 
 		std::string vertexSrc = R"(
@@ -72,7 +72,7 @@ public:
 			}
 		)";
 
-		m_Shader.reset(Cardia::Shader::create(vertexSrc, fragmentSrc));
+		m_Shader = Cardia::Shader::create(vertexSrc, fragmentSrc);
 		m_Shader->unbind();
 		m_VertexArray->unbind();
 	}

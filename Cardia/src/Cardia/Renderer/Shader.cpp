@@ -6,7 +6,7 @@
 
 namespace Cardia
 {
-	Shader* Shader::create(const std::string& vertexSource, const std::string& fragmentSource)
+	std::unique_ptr<Shader> Shader::create(const std::string& vertexSource, const std::string& fragmentSource)
 	{
 		RenderAPI::API renderer = Renderer::getAPI();
 		switch (renderer)
@@ -16,7 +16,7 @@ namespace Cardia
 				cdCoreAssert(false, "Invalid API provided");
 				return nullptr;
 			case RenderAPI::API::OpenGL:
-				return new OpenGLShader(vertexSource, fragmentSource);
+				return std::make_unique<OpenGLShader>(vertexSource, fragmentSource);
 			default:
 				Log::coreError("{0} is not supported for the moment !", renderer);
 				cdCoreAssert(false, "Invalid API provided");
