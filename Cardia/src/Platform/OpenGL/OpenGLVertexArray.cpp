@@ -4,29 +4,31 @@
 #include <glad/glad.h>
 
 namespace Cardia
-{static GLenum ShaderDataTypeToOpenGLType(ShaderDataType type)
 {
-	switch (type)
+	static GLenum ShaderDataTypeToOpenGLType(ShaderDataType type)
 	{
-		case ShaderDataType::Float:
-		case ShaderDataType::Float2:
-		case ShaderDataType::Float3:
-		case ShaderDataType::Float4:
-		case ShaderDataType::Mat3:
-		case ShaderDataType::Mat4:
-			return GL_FLOAT;
-		case ShaderDataType::Int:
-		case ShaderDataType::Int2:
-		case ShaderDataType::Int3:
-		case ShaderDataType::Int4:
-			return GL_INT;
-		case ShaderDataType::Bool:
-			return GL_BOOL;
-		default:
-			cdCoreAssert(false, "Unknown ShaderDataType.");
-			return 0;
+		switch (type)
+		{
+			case ShaderDataType::Float:
+			case ShaderDataType::Float2:
+			case ShaderDataType::Float3:
+			case ShaderDataType::Float4:
+			case ShaderDataType::Mat3:
+			case ShaderDataType::Mat4:
+				return GL_FLOAT;
+			case ShaderDataType::Int:
+			case ShaderDataType::Int2:
+			case ShaderDataType::Int3:
+			case ShaderDataType::Int4:
+				return GL_INT;
+			case ShaderDataType::Bool:
+				return GL_BOOL;
+			default:
+				cdCoreAssert(false, "Unknown ShaderDataType.");
+				return 0;
+		}
 	}
-}
+
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
 		glCreateVertexArrays(1, &m_VertexArrayID);

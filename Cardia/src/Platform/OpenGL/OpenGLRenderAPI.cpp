@@ -4,7 +4,7 @@
 
 namespace Cardia
 {
-	void OpenGLRenderAPI::setClearColor(const glm::vec4 &color)
+	void OpenGLRenderAPI::setClearColor(const glm::vec4& color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
@@ -24,7 +24,7 @@ namespace Cardia
 		glPolygonMode(GL_FRONT_AND_BACK, state ? GL_LINE : GL_FILL);
 	}
 
-	void OpenGLRenderAPI::drawIndexed(const std::unique_ptr<VertexArray> &vertexArray)
+	void OpenGLRenderAPI::drawIndexed(const std::unique_ptr<VertexArray>& vertexArray)
 	{
 		glDrawElements(GL_TRIANGLES, vertexArray->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
 	}
