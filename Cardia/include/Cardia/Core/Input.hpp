@@ -13,6 +13,6 @@ namespace Cardia
 		static bool isMouseButtonPressed(int keyCode);
 		static std::pair<float, float> getMousePos();
 		static float getMouseX();
-		inline static float getMouseY();
+		static float getMouseY();
 	};
 }

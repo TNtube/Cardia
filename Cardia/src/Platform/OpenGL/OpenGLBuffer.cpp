@@ -4,10 +4,9 @@
 
 namespace Cardia
 {
-
 	// Vertex Buffer
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 	{
 		glCreateBuffers(1, &m_VertexBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
@@ -29,7 +28,7 @@ namespace Cardia
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t *indices, uint32_t count)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
 		: m_Count(count)
 	{
 		glCreateBuffers(1, &m_IndexBufferID);

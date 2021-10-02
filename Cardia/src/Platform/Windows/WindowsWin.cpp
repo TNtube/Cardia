@@ -6,7 +6,7 @@
 
 namespace Cardia
 {
-	static bool isGlfwInit = false;					// Can only initialize glfw once.
+	bool WindowsWin::s_isGlfwInit = false;
 
 	std::unique_ptr<Window> Window::Create(const WinProperties& properties)
 	{
@@ -30,15 +30,13 @@ namespace Cardia
 		m_Data.width = properties.width;
 		m_Data.height = properties.height;
 
-		if (!isGlfwInit)
+		if (!s_isGlfwInit)
 		{
-			const int result = glfwInit();
-			cdAssert(result, "Can't initialize glfw3.");
-
-			isGlfwInit = true;
+			cdAssert(glfwInit(), "Can't initialize glfw3.");
+			s_isGlfwInit = true;
 		}
-		m_Window = glfwCreateWindow(static_cast<int>(properties.width), 
-			static_cast<int>(properties.height),
+		m_Window = glfwCreateWindow(properties.width,
+			properties.height,
 			properties.title.c_str(),
 			nullptr, nullptr);
 
@@ -110,7 +108,7 @@ namespace Cardia
 				data->eventCallback(event);
 			});
 
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* win, int button, int action, int mods)
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* win, int button, int action, [[maybe_unused]] int mods)
 		{
 			const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 

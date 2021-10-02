@@ -11,8 +11,8 @@ namespace Cardia
 	public:
 		static void beginScene(OrthographicCamera& camera);
 		static void endScene();
-		static void submit(const std::unique_ptr<VertexArray>& vertexArray,
-				   const std::unique_ptr<Shader>& shader, const glm::mat4& transform = glm::mat4(1.0f));
+		static void submit(const VertexArray* vertexArray,
+				   const Shader& shader, const glm::mat4& transform = glm::mat4(1.0f));
 		inline static RenderAPI::API getAPI() { return RenderAPI::getAPI(); };
 
 	private:

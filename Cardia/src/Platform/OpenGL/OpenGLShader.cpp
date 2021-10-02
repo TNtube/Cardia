@@ -14,7 +14,7 @@ namespace Cardia
 
 		// Send the vertex shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		auto source = static_cast<const GLchar*>(vertexSource.c_str());
+		const GLchar* source = vertexSource.c_str();
 		glShaderSource(vertexShader, 1, &source, nullptr);
 
 		// Compile the vertex shader
@@ -44,7 +44,7 @@ namespace Cardia
 
 		// Send the fragment shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		source = static_cast<const GLchar*>(fragmentSource.c_str());
+		source = fragmentSource.c_str();
 		glShaderSource(fragmentShader, 1, &source, nullptr);
 
 		// Compile the fragment shader
@@ -84,7 +84,7 @@ namespace Cardia
 
 		// Note the different functions here: glGetProgram* instead of glGetShader*.
 		GLint isLinked = 0;
-		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, static_cast<int*>(&isLinked));
+		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;
@@ -126,13 +126,13 @@ namespace Cardia
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::setUniformFloat4(const std::string &name, glm::vec4 data) const
+	void OpenGLShader::setUniformFloat4(const std::string& name, glm::vec4 data) const
 	{
 		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform4f(location, data.x, data.y, data.z, data.w);
 	}
 
-	void OpenGLShader::setUniformFloat3(const std::string &name, glm::vec3 data) const
+	void OpenGLShader::setUniformFloat3(const std::string& name, glm::vec3 data) const
 	{
 		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform3f(location, data.x, data.y, data.z);
