@@ -3,7 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Platform/OpenGL/OpenGLShader.hpp"
-
+#include <Cardia/ImGui/ImGuiExt.hpp>
 
 class LayerTest : public Cardia::Layer
 {
@@ -128,19 +128,15 @@ public:
 		});
 	}
 
-	inline void inputVec3(const char* label, glm::vec3& vec3)
-	{
-		ImGui::InputFloat3(label, glm::value_ptr(vec3));
-	}
-
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
 		ImGui::Begin("Debug tools");
 
 		// Section: SandBox
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
+			// Section: SandBox > Camera
 			ImGui::Text("Camera");
-			inputVec3("Position", m_CameraPosition);
+			ImGuiExt::InputVec3("Position", m_CameraPosition);
 			ImGui::InputFloat("Speed", &m_CameraSpeed);
 		}
 
