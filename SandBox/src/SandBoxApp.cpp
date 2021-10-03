@@ -103,11 +103,11 @@ public:
 		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).bind();
 		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).setUniformFloat3("u_Color", m_Color);
 
-		for (int x = m_IGPosX; x < m_IGPosX + 10; ++x)
+		for (int x = 0; x < 10; ++x)
 		{
-			for (int y = m_IGPosY; y < m_IGPosY + 10; ++y)
+			for (int y = 0; y < 10; ++y)
 			{
-				glm::vec3 pos(static_cast<float>(x) * (m_Scale + m_Scale / 10), static_cast<float>(y) * (m_Scale + m_Scale / 10), 0.0f);
+				glm::vec3 pos(static_cast<float>(m_IGPosX + x) * (m_Scale + m_Scale / 10), static_cast<float>(m_IGPosY + y) * (m_Scale + m_Scale / 10), 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 				Cardia::Renderer::submit(m_VertexArray.get(), m_Shader.get(), transform);
 			}
@@ -135,8 +135,8 @@ public:
 		ImGui::Begin("Debug tools");
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
 			ImGui::Text("Position");
-			ImGui::SliderInt("", &m_IGPosX, -10, 10, "X: %d");
-			ImGui::SliderInt("", &m_IGPosY, -10, 10, "Y: %d");
+			ImGui::SliderInt("PosX", &m_IGPosX, -10, 10, "X: %d");
+			ImGui::SliderInt("PosY", &m_IGPosY, -10, 10, "Y: %d");
 		}
 		ImGui::End();
 	}
