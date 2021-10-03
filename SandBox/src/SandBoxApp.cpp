@@ -133,11 +133,20 @@ public:
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
 		ImGui::Begin("Debug tools");
+
+		// Section: SandBox
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
+			// Section: SandBox > Infos
+			ImGui::Text("Infos");
+			ImGui::Text("Camera Position" "\t" "X: %.3f | Y: %.3f", m_CameraPosition.x, m_CameraPosition.y);
+
+			// Section: SandBox > Position
+			ImGui::Spacing();
 			ImGui::Text("Position");
 			ImGui::SliderInt("PosX", &m_IGPosX, -10, 10, "X: %d");
 			ImGui::SliderInt("PosY", &m_IGPosY, -10, 10, "Y: %d");
 		}
+
 		ImGui::End();
 	}
 
