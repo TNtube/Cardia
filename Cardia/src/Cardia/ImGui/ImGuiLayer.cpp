@@ -92,6 +92,8 @@ namespace Cardia
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
 		static Window& window = Application::get().getWindow();
+		// vsync
+		static bool isVsync = window.isVSync();
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -101,28 +103,35 @@ namespace Cardia
 		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			// Section: Rendering > Infos
-			ImGui::Text("Infos");
-
-			ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
-			if (elapsedTime >= 0.5f) {
-				fps = static_cast<int>(1000 / deltaTime.milliseconds());
-				elapsedTime = 0.0f;
+			ImGui::SetNextItemOpen(true);
+			if (ImGui::TreeNode("Infos"))
+			{
+				ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+				if (elapsedTime >= 0.5f) {
+					fps = static_cast<int>(1000 / deltaTime.milliseconds());
+					elapsedTime = 0.0f;
+				}
+				elapsedTime += deltaTime.seconds();
+				ImGui::TreePop();
 			}
-			elapsedTime += deltaTime.seconds();
 
 			// Section: Rendering > Options
-			ImGui::Spacing();
-			ImGui::Text("Options");
-
-			ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-			RenderCommand::setWireFrame(isWireframeMode);
-
-			ImGui::Checkbox("Fullscreen?", &isFullscreen);
-			if (isFullscreen != isFullscreenPrev)
+			ImGui::SetNextItemOpen(true);
+			if (ImGui::TreeNode("Options"))
 			{
-				window.setFullscreen(isFullscreen);
-				window.setVSync(true);
-				isFullscreenPrev = isFullscreen;
+				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
+				RenderCommand::setWireFrame(isWireframeMode);
+
+				ImGui::Checkbox("Fullscreen?", &isFullscreen);
+				if (isFullscreen != isFullscreenPrev)
+				{
+					window.setFullscreen(isFullscreen);
+					isFullscreenPrev = isFullscreen;
+				}
+
+				ImGui::Checkbox("VSync?", &isVsync);
+				window.setVSync(isVsync);
+				ImGui::TreePop();
 			}
 		}
 

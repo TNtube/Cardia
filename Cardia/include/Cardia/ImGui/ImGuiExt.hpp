@@ -6,8 +6,8 @@
 
 namespace Cardia::ImGuiExt
 {
-	inline void InputVec3(const char* label, glm::vec3& vec3)
+	inline void InputVec3(const char* label, glm::vec3& vec3, float speed = 1.0f)
 	{
-		ImGui::InputFloat3(label, glm::value_ptr(vec3));
+		ImGui::DragFloat3(label, glm::value_ptr(vec3), speed);
 	}
 }
