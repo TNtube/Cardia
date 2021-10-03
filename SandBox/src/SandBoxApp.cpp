@@ -3,7 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Platform/OpenGL/OpenGLShader.hpp"
-
+#include <Cardia/ImGui/ImGuiExt.hpp>
 
 class LayerTest : public Cardia::Layer
 {
@@ -79,15 +79,16 @@ public:
 
 	void onUpdate(Cardia::DeltaTime deltaTime) override
 	{
+		float velocity = m_CameraSpeed * deltaTime.seconds();
 		if (Cardia::Input::isKeyPressed(Cardia::Key::Left))
-			m_CameraPosition.x -= m_CameraSpeed * deltaTime.seconds();
+			m_CameraPosition.x -= velocity;
 		else if (Cardia::Input::isKeyPressed(Cardia::Key::Right))
-			m_CameraPosition.x += m_CameraSpeed * deltaTime.seconds();
+			m_CameraPosition.x += velocity;
 
 		if (Cardia::Input::isKeyPressed(Cardia::Key::Down))
-			m_CameraPosition.y -= m_CameraSpeed * deltaTime.seconds();
+			m_CameraPosition.y -= velocity;
 		else if (Cardia::Input::isKeyPressed(Cardia::Key::Up))
-			m_CameraPosition.y += m_CameraSpeed * deltaTime.seconds();
+			m_CameraPosition.y += velocity;
 
 		m_Camera.setPosition(m_CameraPosition);
 
@@ -129,6 +130,17 @@ public:
 
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
+		ImGui::Begin("Debug tools");
+
+		// Section: SandBox
+		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
+			// Section: SandBox > Camera
+			ImGui::Text("Camera");
+			Cardia::ImGuiExt::InputVec3("Position", m_CameraPosition);
+			ImGui::InputFloat("Speed", &m_CameraSpeed);
+		}
+
+		ImGui::End();
 	}
 
 private:
