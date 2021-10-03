@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
-namespace ImGuiExt
+namespace Cardia::ImGuiExt
 {
 	inline void InputVec3(const char* label, glm::vec3& vec3)
 	{

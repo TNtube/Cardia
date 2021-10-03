@@ -136,7 +136,7 @@ public:
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
 			// Section: SandBox > Camera
 			ImGui::Text("Camera");
-			ImGuiExt::InputVec3("Position", m_CameraPosition);
+			Cardia::ImGuiExt::InputVec3("Position", m_CameraPosition);
 			ImGui::InputFloat("Speed", &m_CameraSpeed);
 		}
 
