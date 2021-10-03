@@ -20,6 +20,7 @@
 #include "Cardia/Renderer/Buffer.hpp"
 #include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Renderer/VertexArray.hpp"
+#include "Cardia/Renderer/Texture.hpp"
 
 #include "Cardia/Renderer/Camera.hpp"
 

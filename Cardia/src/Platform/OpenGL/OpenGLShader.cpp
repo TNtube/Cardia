@@ -137,4 +137,10 @@ namespace Cardia
 		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform3f(location, data.x, data.y, data.z);
 	}
+
+	void OpenGLShader::setUniformInt(const std::string &name, int value) const
+	{
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+		glUniform1i(location, value);
+	}
 }

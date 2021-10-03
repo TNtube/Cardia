@@ -65,16 +65,19 @@ public:
 
 			in vec2 o_TexPos;
 
-			uniform vec3 u_Color;
+			uniform sampler2D u_Texture;
 
 			void main() {
-			   color = vec4(o_TexPos, 0.0f, 1.0f);
+			   color = texture(u_Texture, o_TexPos);
 			}
 		)";
 
 		m_Shader = Cardia::Shader::create(vertexSrc, fragmentSrc);
 		m_Shader->unbind();
 		m_VertexArray->unbind();
+
+		m_TextureBox = Cardia::Texture2D::create("assets/container.jpg");
+		m_TextureObama = Cardia::Texture2D::create("assets/square.jpg");
 	}
 
 	void onUpdate(Cardia::DeltaTime deltaTime) override
@@ -101,8 +104,9 @@ public:
 
 		// Extremely temporary
 		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).bind();
-		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).setUniformFloat3("u_Color", m_Color);
+		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).setUniformInt("u_Texture", 0);
 
+		m_TextureObama->bind();
 		for (int x = 0; x < 10; ++x)
 		{
 			for (int y = 0; y < 10; ++y)
@@ -113,6 +117,7 @@ public:
 			}
 		}
 
+		m_TextureBox->bind();
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 		Cardia::Renderer::submit(m_VertexArray.get(), m_Shader.get(), transform);
 
@@ -146,6 +151,9 @@ public:
 private:
 	std::unique_ptr<Cardia::Shader> m_Shader;
 	std::unique_ptr<Cardia::VertexArray> m_VertexArray;
+
+	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
+	std::unique_ptr<Cardia::Texture2D> m_TextureObama;
 
 	Cardia::OrthographicCamera m_Camera {-1.6f, 1.6f, -0.9f, 0.9f};
 

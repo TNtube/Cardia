@@ -27,8 +27,9 @@ target("Cardia")
     set_pcxxheader("Cardia/include/cdpch.hpp")
 
     add_files("Cardia/src/**.cpp")
-    add_headerfiles("Cardia/include/**.hpp")
+    add_headerfiles("Cardia/**.hpp")
     add_includedirs("Cardia/include/", {public = true})
+    add_includedirs("Cardia/vendor/", {public = true})
 
     add_packages("spdlog")
     add_packages("glfw")
