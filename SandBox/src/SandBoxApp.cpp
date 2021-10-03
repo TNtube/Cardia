@@ -128,19 +128,9 @@ public:
 		});
 	}
 
-	inline void inputVec3Float(std::string name, const std::string& coord, float* ptr) const
+	inline void inputVec3(const char* label, glm::vec3& vec3)
 	{
-		ImGui::InputFloat(name.append(coord).c_str(), ptr, 0.0F, 0.0F, (coord + ": %.3f").c_str());
-	}
-
-	void inputVec3(const std::string& name, const std::string& title, glm::vec3& vec3)
-	{
-		ImGui::BeginGroup();
-		ImGui::Text(title.c_str());
-		inputVec3Float(name, " X", &vec3.x);
-		inputVec3Float(name, " Y", &vec3.y);
-		inputVec3Float(name, " Z", &vec3.z);
-		ImGui::EndGroup();
+		ImGui::InputFloat3(label, glm::value_ptr(vec3));
 	}
 
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
@@ -149,7 +139,9 @@ public:
 
 		// Section: SandBox
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
-			inputVec3("CamPos", "Camera Position", m_CameraPosition);
+			ImGui::Text("Camera");
+			inputVec3("Position", m_CameraPosition);
+			ImGui::InputFloat("Speed", &m_CameraSpeed);
 		}
 
 		ImGui::End();
