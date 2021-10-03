@@ -107,16 +107,14 @@ public:
 		{
 			for (int y = 0; y < 10; ++y)
 			{
-				glm::vec3 pos(static_cast<float>(m_IGPosX + x) * (m_Scale + m_Scale / 10), static_cast<float>(m_IGPosY + y) * (m_Scale + m_Scale / 10), 0.0f);
+				glm::vec3 pos(static_cast<float>(x) * (m_Scale + m_Scale / 10), static_cast<float>(y) * (m_Scale + m_Scale / 10), 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 				Cardia::Renderer::submit(m_VertexArray.get(), m_Shader.get(), transform);
 			}
 		}
 
-#if 0
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 		Cardia::Renderer::submit(m_VertexArray.get(), m_Shader.get(), transform);
-#endif
 
 		Cardia::Renderer::endScene();
 	}
@@ -130,21 +128,28 @@ public:
 		});
 	}
 
+	inline void inputVec3Float(std::string name, const std::string& coord, float* ptr) const
+	{
+		ImGui::InputFloat(name.append(coord).c_str(), ptr, 0.0F, 0.0F, (coord + ": %.3f").c_str());
+	}
+
+	void inputVec3(const std::string& name, const std::string& title, glm::vec3& vec3)
+	{
+		ImGui::BeginGroup();
+		ImGui::Text(title.c_str());
+		inputVec3Float(name, " X", &vec3.x);
+		inputVec3Float(name, " Y", &vec3.y);
+		inputVec3Float(name, " Z", &vec3.z);
+		ImGui::EndGroup();
+	}
+
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override
 	{
 		ImGui::Begin("Debug tools");
 
 		// Section: SandBox
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
-			// Section: SandBox > Infos
-			ImGui::Text("Infos");
-			ImGui::Text("Camera Position" "\t" "X: %.3f | Y: %.3f", m_CameraPosition.x, m_CameraPosition.y);
-
-			// Section: SandBox > Position
-			ImGui::Spacing();
-			ImGui::Text("Position");
-			ImGui::SliderInt("PosX", &m_IGPosX, -10, 10, "X: %d");
-			ImGui::SliderInt("PosY", &m_IGPosY, -10, 10, "Y: %d");
+			inputVec3("CamPos", "Camera Position", m_CameraPosition);
 		}
 
 		ImGui::End();
@@ -160,9 +165,6 @@ private:
 	float m_CameraSpeed = 2.0f;
 	float m_Scale = 0.1f;
 	glm::vec3 m_Color{0.2f, 0.8f, 0.3f};
-
-	int m_IGPosX = 0;
-	int m_IGPosY = 0;
 };
 
 
