@@ -77,7 +77,7 @@ public:
 		m_VertexArray->unbind();
 
 		m_TextureBox = Cardia::Texture2D::create("assets/container.jpg");
-		m_TextureObama = Cardia::Texture2D::create("assets/square.jpg");
+		m_TextureSquare = Cardia::Texture2D::create("assets/square.jpg");
 	}
 
 	void onUpdate(Cardia::DeltaTime deltaTime) override
@@ -106,7 +106,7 @@ public:
 		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).bind();
 		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).setUniformInt("u_Texture", 0);
 
-		m_TextureObama->bind();
+		m_TextureSquare->bind();
 		for (int x = 0; x < 10; ++x)
 		{
 			for (int y = 0; y < 10; ++y)
@@ -141,8 +141,8 @@ public:
 		if (ImGui::CollapsingHeader("SandBox", ImGuiTreeNodeFlags_DefaultOpen)) {
 			// Section: SandBox > Camera
 			ImGui::Text("Camera");
-			Cardia::ImGuiExt::InputVec3("Position", m_CameraPosition, 0.005F);
-			ImGui::InputFloat("Speed", &m_CameraSpeed);
+			Cardia::ImGuiExt::InputVec3("Position", m_CameraPosition, 0.005f);
+			ImGui::DragFloat("Speed", &m_CameraSpeed, 0.005f);
 		}
 
 		ImGui::End();
@@ -153,7 +153,7 @@ private:
 	std::unique_ptr<Cardia::VertexArray> m_VertexArray;
 
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
-	std::unique_ptr<Cardia::Texture2D> m_TextureObama;
+	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
 
 	Cardia::OrthographicCamera m_Camera {-1.6f, 1.6f, -0.9f, 0.9f};
 
