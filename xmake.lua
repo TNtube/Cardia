@@ -65,3 +65,7 @@ target("SandBox")
     if is_mode("debug") then
         add_defines("CD_DEBUG")
     end
+
+    after_build(function (target)
+            os.cp("SandBox/assets", "build/" .. outputdir .. "/SandBox/bin")
+        end)
