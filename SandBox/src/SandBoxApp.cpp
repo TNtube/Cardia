@@ -41,38 +41,7 @@ public:
 		indexBuffer = Cardia::IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t));
 		m_VertexArray->setIndexBuffer(std::move(indexBuffer));
 
-		std::string vertexSrc = R"(
-			#version 440 core
-
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec2 a_TexPos;
-
-			out vec2 o_TexPos;
-
-			uniform mat4 u_ViewProjection;
-			uniform mat4 u_Model;
-
-			void main() {
-				o_TexPos = a_TexPos;
-				gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0f);
-			}
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 440 core
-
-			layout(location = 0) out vec4 color;
-
-			in vec2 o_TexPos;
-
-			uniform sampler2D u_Texture;
-
-			void main() {
-			   color = texture(u_Texture, o_TexPos);
-			}
-		)";
-
-		m_Shader = Cardia::Shader::create(vertexSrc, fragmentSrc);
+		m_Shader = Cardia::Shader::create("assets/basic.vert", "assets/basic.frag");
 		m_Shader->unbind();
 		m_VertexArray->unbind();
 

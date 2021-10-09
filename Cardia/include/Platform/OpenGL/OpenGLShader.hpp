@@ -6,7 +6,7 @@ namespace Cardia
 	class OpenGLShader : public Shader
 	{
 	public:
-		OpenGLShader(const std::string& vertexSource, const std::string& fragmentSource);
+		OpenGLShader(const std::string& vertexFilePath, const std::string& fragmentFilePath);
 		void bind() const override;
 		void unbind() const override;
 		void setUniformMat4(const std::string& name, glm::mat4 matrix) const;

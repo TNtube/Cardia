@@ -8,14 +8,31 @@
 
 namespace Cardia
 {
-	OpenGLShader::OpenGLShader(const std::string& vertexSource, const std::string& fragmentSource)
+	static std::string LoadShader(const std::string& filePath)
+	{
+		// Code inspired from https://github.com/Razakhel/RaZ/blob/master/src/RaZ/Render/Shader.cpp#L25
+		Log::coreInfo("Loading shader (path: '" + filePath + "')...");
+
+		std::ifstream shaderSource(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+
+		const auto fileSize = static_cast<std::size_t>(shaderSource.tellg());
+		shaderSource.seekg(0, std::ios::beg);
+
+		std::vector<char> bytes(fileSize);
+		shaderSource.read(bytes.data(), static_cast<std::streamsize>(fileSize));
+
+		return bytes.data();
+	}
+
+	OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string& fragmentFilePath)
 	{
 		// Create an empty vertex shader handle
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
 		// Send the vertex shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		const GLchar* source = vertexSource.c_str();
+		std::string strSource = LoadShader(vertexFilePath);
+		const GLchar* source = strSource.c_str();
 		glShaderSource(vertexShader, 1, &source, nullptr);
 
 		// Compile the vertex shader
@@ -45,7 +62,8 @@ namespace Cardia
 
 		// Send the fragment shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		source = fragmentSource.c_str();
+		strSource = LoadShader(fragmentFilePath);
+		source = strSource.c_str();
 		glShaderSource(fragmentShader, 1, &source, nullptr);
 
 		// Compile the fragment shader
