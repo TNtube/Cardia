@@ -8,7 +8,7 @@ set_allowedarchs("windows|x64", "linux|x86_64", "macosx|x86_64")
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
-set_languages("cxx17")
+set_languages("cxx20")
 
 add_requires("spdlog v1.9.0")                                               -- latest version at the time
 add_requires("glfw 3.3.4")                                                  -- latest version at the time

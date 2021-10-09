@@ -1,6 +1,7 @@
 #include "cdpch.hpp"
 #include "Platform/OpenGL/OpenGLShader.hpp"
 #include "Cardia/Core/Log.hpp"
+#include "Cardia/Core/Core.hpp"
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>

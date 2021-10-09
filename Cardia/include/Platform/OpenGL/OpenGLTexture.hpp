@@ -12,7 +12,7 @@ namespace Cardia
 		inline uint32_t getWidth() const override { return m_Width; }
 		inline uint32_t getHeight() const override { return m_Height; }
 
-		void bind(int sloth) const override;
+		void bind(int slot) const override;
 
 	private:
 		std::string m_Path;

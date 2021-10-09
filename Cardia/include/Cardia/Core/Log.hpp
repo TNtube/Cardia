@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Cardia/Core/Core.hpp"
-
 #include <spdlog/spdlog.h>
 
 namespace Cardia

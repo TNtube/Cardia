@@ -39,8 +39,8 @@ namespace Cardia
 		glDeleteTextures(1, &m_TextureID);
 	}
 
-	void OpenGLTexture2D::bind(int sloth) const
+	void OpenGLTexture2D::bind(int slot) const
 	{
-		glBindTextureUnit(sloth, m_TextureID);
+		glBindTextureUnit(slot, m_TextureID);
 	}
 }
