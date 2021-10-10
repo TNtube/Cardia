@@ -41,7 +41,7 @@ public:
 		indexBuffer = Cardia::IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t));
 		m_VertexArray->setIndexBuffer(std::move(indexBuffer));
 
-		m_Shader = Cardia::Shader::create("assets/basic.vert", "assets/basic.frag");
+		m_Shader = Cardia::Shader::create({"assets/basic.vert", "assets/basic.frag"});
 		m_Shader->unbind();
 		m_VertexArray->unbind();
 

@@ -24,79 +24,83 @@ namespace Cardia
 		return bytes.data();
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string& fragmentFilePath)
+	static constexpr inline auto string_hash(const char *s) {
+		unsigned long long hash{}, c{};
+		for (auto p = s; *p; ++p, ++c) {
+			hash += *p << c;
+		}
+		return hash;
+	}
+
+	static constexpr inline auto operator"" _sh(const char *s, size_t) {
+		return string_hash(s);
+	}
+
+	OpenGLShader::OpenGLShader(std::initializer_list<std::string> filePaths)
 	{
-		// Create an empty vertex shader handle
-		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-		// Send the vertex shader source code to GL
-		// Note that std::string's .c_str is NULL character terminated.
-		std::string strSource = LoadShader(vertexFilePath);
-		const GLchar* source = strSource.c_str();
-		glShaderSource(vertexShader, 1, &source, nullptr);
-
-		// Compile the vertex shader
-		glCompileShader(vertexShader);
-
-		GLint isCompiled = 0;
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
-		if (isCompiled == GL_FALSE)
-		{
-			GLint maxLength = 0;
-			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
-
-			// The maxLength includes the NULL character
-			std::vector<GLchar> infoLog(maxLength);
-			glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &infoLog[0]);
-
-			// We don't need the shader anymore.
-			glDeleteShader(vertexShader);
-
-			Log::coreError("Vertex Shader error : {0}", infoLog.data());
-			cdCoreAssert(false, "Unable to create OpenGL Vertex Shader !");
-			return;
-		}
-
-		// Create an empty fragment shader handle
-		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-		// Send the fragment shader source code to GL
-		// Note that std::string's .c_str is NULL character terminated.
-		strSource = LoadShader(fragmentFilePath);
-		source = strSource.c_str();
-		glShaderSource(fragmentShader, 1, &source, nullptr);
-
-		// Compile the fragment shader
-		glCompileShader(fragmentShader);
-
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
-		if (isCompiled == GL_FALSE)
-		{
-			GLint maxLength = 0;
-			glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
-
-			// The maxLength includes the NULL character
-			std::vector<GLchar> infoLog(maxLength);
-			glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &infoLog[0]);
-
-			// We don't need the shader anymore.
-			glDeleteShader(fragmentShader);
-			// Either of them. Don't leak shaders.
-			glDeleteShader(vertexShader);
-
-			Log::coreError("Fragment Shader error : {0}", infoLog.data());
-			cdCoreAssert(false, "Unable to create OpenGL Fragment Shader !");
-			return;
-		}
-
 		// Vertex and fragment shaders are successfully compiled.
 		// Now time to link them together into a program.
 		// Get a program object.
 		m_ShaderID = glCreateProgram();
 
-		// Attach our shaders to our program
-		glAttachShader(m_ShaderID, vertexShader);
-		glAttachShader(m_ShaderID, fragmentShader);
+		std::vector<GLuint> shaderIDs {};
+
+		for (auto& filePath : filePaths)
+		{
+			GLenum shaderType;
+			std::string extension = std::filesystem::path(filePath).extension().string();
+			switch (string_hash(extension.c_str()+1))
+			{
+				case "frag"_sh:
+					shaderType = GL_FRAGMENT_SHADER;
+					break;
+				case "vert"_sh:
+					shaderType = GL_VERTEX_SHADER;
+					break;
+				default:
+					shaderType = GL_NONE;
+					Log::coreError(extension);
+					cdCoreAssert(false, "Unsupported shader extension !");
+					break;
+			}
+
+			// Create an empty shader handle
+			GLuint shader = glCreateShader(shaderType);
+
+			// Send the vertex shader source code to GL
+			// Note that std::string's .c_str is NULL character terminated.
+			std::string strSource = LoadShader(filePath);
+			const GLchar* source = strSource.c_str();
+			glShaderSource(shader, 1, &source, nullptr);
+
+			// Compile the vertex shader
+			glCompileShader(shader);
+
+			GLint isCompiled = 0;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+			if (isCompiled == GL_FALSE)
+			{
+				GLint maxLength = 0;
+				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+				// The maxLength includes the NULL character
+				std::vector<GLchar> infoLog(maxLength);
+				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+
+				// We don't need the shader anymore.
+				glDeleteShader(shader);
+
+				Log::coreError("Shader error : {0}", infoLog.data());
+				cdCoreAssert(false, "Unable to create OpenGL Shader !");
+				return;
+			}
+			shaderIDs.push_back(shader);
+		}
+		
+		for(auto& shaderID : shaderIDs)
+		{
+			glAttachShader(m_ShaderID, shaderID);
+		}
 
 		// Link our program
 		glLinkProgram(m_ShaderID);
@@ -115,18 +119,22 @@ namespace Cardia
 
 			// We don't need the program anymore.
 			glDeleteProgram(m_ShaderID);
-			// Don't leak shaders either.
-			glDeleteShader(vertexShader);
-			glDeleteShader(fragmentShader);
+
+			for (auto& shaderID : shaderIDs)
+			{
+				// Don't leak shaders either.
+				glDeleteShader(shaderID);
+			}
 
 			Log::coreError("Linking Shader error : {0}", infoLog.data());
 			cdCoreAssert(false, "Unable to link OpenGL Shaders !");
 			return;
 		}
 
-		// Always detach shaders after a successful link.
-		glDetachShader(m_ShaderID, vertexShader);
-		glDetachShader(m_ShaderID, fragmentShader);
+		for (auto& shaderID : shaderIDs)
+		{
+			glDetachShader(m_ShaderID, shaderID);
+		}
 	}
 
 	void OpenGLShader::bind() const

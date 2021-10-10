@@ -11,6 +11,6 @@ namespace Cardia
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 
-		static std::unique_ptr<Shader> create(const std::string& vertexFilePath, const std::string& fragmentFilePath);
+		static std::unique_ptr<Shader> create(std::initializer_list<std::string> filePaths);
 	};
 }
