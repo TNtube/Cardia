@@ -118,7 +118,9 @@ public:
 	}
 
 private:
-	std::unique_ptr<Cardia::Shader> m_Shader;
+	std::unordered_map<std::string, std::shared_ptr<Cardia::Shader>> m_Shaders;
+	std::unique_ptr<Cardia::ShaderManager> m_ShaderManager;
+	std::shared_ptr<Cardia::Shader> m_Shader;
 	std::unique_ptr<Cardia::VertexArray> m_VertexArray;
 
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
