@@ -54,8 +54,8 @@ namespace Cardia::Key {
 		RBracket			= 93,
 		GraveAccent			= 96,
 
-		Left				= 262,
-		Right				= 263,
+		Right				= 262,
+		Left				= 263,
 		Down				= 264,
 		Up				= 265
 
