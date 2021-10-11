@@ -1,7 +1,6 @@
 #include "Cardia.hpp"
 #include <imgui.h>
 #include <glm/ext/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "Platform/OpenGL/OpenGLShader.hpp"
 #include <Cardia/ImGui/ImGuiExt.hpp>
 
@@ -41,8 +40,8 @@ public:
 		indexBuffer = Cardia::IndexBuffer::create(indices, sizeof(indices) / sizeof(uint32_t));
 		m_VertexArray->setIndexBuffer(std::move(indexBuffer));
 
-		m_Shader = Cardia::Shader::create({"assets/basic.vert", "assets/basic.frag"});
-		m_Shader->unbind();
+		auto shader = m_ShaderManager->load("Basic", {"assets/basic.vert", "assets/basic.frag"});
+		shader->unbind();
 		m_VertexArray->unbind();
 
 		m_TextureBox = Cardia::Texture2D::create("assets/container.jpg");
@@ -71,9 +70,10 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(m_Scale));
 
+		auto shader = m_ShaderManager->get("Basic");
 		// Extremely temporary
-		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).bind();
-		dynamic_cast<Cardia::OpenGLShader&>(*m_Shader).setUniformInt("u_Texture", 0);
+		dynamic_cast<Cardia::OpenGLShader&>(*shader).bind();
+		dynamic_cast<Cardia::OpenGLShader&>(*shader).setUniformInt("u_Texture", 0);
 
 		m_TextureSquare->bind();
 		for (int x = 0; x < 10; ++x)
@@ -82,13 +82,13 @@ public:
 			{
 				glm::vec3 pos(static_cast<float>(x) * (m_Scale + m_Scale / 10), static_cast<float>(y) * (m_Scale + m_Scale / 10), 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-				Cardia::Renderer::submit(m_VertexArray.get(), m_Shader.get(), transform);
+				Cardia::Renderer::submit(m_VertexArray.get(), shader, transform);
 			}
 		}
 
 		m_TextureBox->bind();
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-		Cardia::Renderer::submit(m_VertexArray.get(), m_Shader.get(), transform);
+		Cardia::Renderer::submit(m_VertexArray.get(), shader, transform);
 
 		Cardia::Renderer::endScene();
 	}
@@ -118,9 +118,7 @@ public:
 	}
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<Cardia::Shader>> m_Shaders;
-	std::unique_ptr<Cardia::ShaderManager> m_ShaderManager;
-	std::shared_ptr<Cardia::Shader> m_Shader;
+	std::unique_ptr<Cardia::ShaderManager> m_ShaderManager = std::make_unique<Cardia::ShaderManager>();
 	std::unique_ptr<Cardia::VertexArray> m_VertexArray;
 
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
