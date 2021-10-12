@@ -5,7 +5,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 
-#include "Cardia/Application.hpp"
+#include "Cardia/Core/Application.hpp"
 
 #include <GLFW/glfw3.h>
 

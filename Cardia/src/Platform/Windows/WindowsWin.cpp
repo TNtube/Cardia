@@ -2,7 +2,7 @@
 #include "Platform/Windows/WindowsWin.hpp"
 #include "Platform/OpenGL/OpenGLContext.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
-#include "Cardia/Application.hpp"
+#include "Cardia/Core/Application.hpp"
 
 namespace Cardia
 {

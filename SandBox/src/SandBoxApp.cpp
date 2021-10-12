@@ -129,7 +129,6 @@ private:
 	glm::vec3 m_CameraPosition {0.0f};
 	float m_CameraSpeed = 2.0f;
 	float m_Scale = 0.1f;
-	glm::vec3 m_Color{0.2f, 0.8f, 0.3f};
 };
 
 

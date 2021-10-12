@@ -2,7 +2,7 @@
 
 // Unique for Cardia App
 
-#include "Cardia/Application.hpp"
+#include "Cardia/Core/Application.hpp"
 #include "Cardia/Core/Log.hpp"
 #include "Cardia/Layer/Layer.hpp"
 #include "Cardia/Core/Time.hpp"
@@ -26,6 +26,6 @@
 
 // ----- Entry Point ------------------------
 
-#include "Cardia/EntryPoint.hpp"
+#include "Cardia/Core/EntryPoint.hpp"
 
 // ------------------------------------------

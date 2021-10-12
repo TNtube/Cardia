@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cardia/Core/Core.hpp"
-#include "Cardia/Application.hpp"
+#include "Application.hpp"
 
 
 namespace Cardia
