@@ -1,4 +1,5 @@
 #include "Cardia.hpp"
+#include "Cardia/EntryPoint.hpp"
 #include <imgui.h>
 #include <glm/ext/matrix_transform.hpp>
 #include "Platform/OpenGL/OpenGLShader.hpp"

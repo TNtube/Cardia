@@ -23,9 +23,3 @@
 #include "Cardia/Renderer/Texture.hpp"
 
 #include "Cardia/Renderer/Camera.hpp"
-
-// ----- Entry Point ------------------------
-
-#include "Cardia/Core/EntryPoint.hpp"
-
-// ------------------------------------------
