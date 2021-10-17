@@ -46,7 +46,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 		{
 			float x = (float)i * 50 + 10, y = (float)j * 50 + 10;
 			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {45.0f, 45.f}, snakeCol);
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {45.0f, 45.f}, m_TextureSquare.get(), snakeCol);
 			else if (applePos == glm::vec3(i, j, 0.0f))
 				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {45.0f, 45.f}, {0.8f, 0.3f, 0.2f, 1.0f});
 			else

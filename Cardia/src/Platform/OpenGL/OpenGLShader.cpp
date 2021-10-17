@@ -10,18 +10,10 @@ namespace Cardia
 {
 	static std::string LoadShader(const std::string& filePath)
 	{
-		// Code inspired from https://github.com/Razakhel/RaZ/blob/master/src/RaZ/Render/Shader.cpp#L25
 		Log::coreInfo("Loading shader (path: '" + filePath + "')...");
+		std::ifstream t(filePath);
 
-		std::ifstream shaderSource(filePath, std::ios::in | std::ios::binary | std::ios::ate);
-
-		const auto fileSize = static_cast<std::size_t>(shaderSource.tellg());
-		shaderSource.seekg(0, std::ios::beg);
-
-		std::vector<char> bytes(fileSize);
-		shaderSource.read(bytes.data(), static_cast<std::streamsize>(fileSize));
-
-		return bytes.data();
+		return { std::istreambuf_iterator<char>(t), std::istreambuf_iterator<char>() };
 	}
 
 	static constexpr inline auto string_hash(const char *s) {
