@@ -51,8 +51,9 @@ target("SandBox")
     set_targetdir("build/" .. outputdir .. "/SandBox/bin")
     set_objectdir("build/" .. outputdir .. "/SandBox/obj")
 
+    add_headerfiles("SandBox/include/**.hpp")
     add_files("SandBox/src/**.cpp")
-    add_headerfiles("SandBox/src/**.hpp")
+    add_includedirs("SandBox/include/", {public = true})
 
     add_packages("spdlog")
     add_packages("imgui")

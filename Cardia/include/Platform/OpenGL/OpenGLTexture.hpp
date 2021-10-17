@@ -7,6 +7,7 @@ namespace Cardia
 	{
 	public:
 		explicit OpenGLTexture2D(std::string path);
+		explicit OpenGLTexture2D(int width, int height, void* data);
 		virtual ~OpenGLTexture2D();
 
 		inline uint32_t getWidth() const override { return m_Width; }

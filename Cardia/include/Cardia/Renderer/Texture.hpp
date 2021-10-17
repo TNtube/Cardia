@@ -18,5 +18,6 @@ namespace Cardia
 	{
 	public:
 		static std::unique_ptr<Texture2D> create(const std::string& path);
+		static std::unique_ptr<Texture2D> create(int width, int height, void* data);
 	};
 }
