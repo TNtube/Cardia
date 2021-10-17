@@ -1,6 +1,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Core/Application.hpp"
 #include <GLFW/glfw3.h>
+#include <Cardia/Renderer/Renderer2D.hpp>
 
 
 namespace Cardia
@@ -44,6 +45,8 @@ namespace Cardia
 	
 	void Application::Run()
 	{
+		Cardia::Renderer2D::Init();
+
 		float time = 0.0f;
 		while (m_Running)
 		{
@@ -64,6 +67,7 @@ namespace Cardia
 			m_Window->onUpdate();
 
 		}
+		Cardia::Renderer2D::Quit();
 	}
 
 	bool Application::onWinClose(WinCloseEvent& e)

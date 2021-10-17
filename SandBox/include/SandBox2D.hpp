@@ -12,7 +12,6 @@ public:
 		: Layer(std::move(name))
 	{
 		m_TextureSquare = Cardia::Texture2D::create("assets/square.jpg");
-		Cardia::Renderer2D::Init();
 
 		std::uniform_int_distribution<int> dist{0, 13};
 		applePos = {dist(random), dist(random), 0.0f};
