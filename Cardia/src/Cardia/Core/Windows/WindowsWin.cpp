@@ -2,8 +2,8 @@
 #if defined(_WIN64) || defined(__linux__)
 
 #include "cdpch.hpp"
-#include "Platform/Windows/WindowsWin.hpp"
-#include "Platform/OpenGL/OpenGLContext.hpp"
+#include "Cardia/Core/Windows/WindowsWin.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLContext.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
 namespace Cardia

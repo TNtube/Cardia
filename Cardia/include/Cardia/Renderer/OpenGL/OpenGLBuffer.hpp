@@ -7,9 +7,11 @@ namespace Cardia
 	{
 	public:
 		OpenGLVertexBuffer(float* vertices, uint32_t size);
+		OpenGLVertexBuffer(uint32_t size);
 		~OpenGLVertexBuffer();
 		void bind() const override;
 		void unbind() const override;
+		void setData(const void* data, uint32_t size) const;
 		void setLayout(const BufferLayout& layout) override { m_Layout = layout; }
 		const BufferLayout& getLayout() const override { return m_Layout; }
 

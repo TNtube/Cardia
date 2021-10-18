@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "Platform/OpenGL/OpenGLTexture.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLTexture.hpp"
 #include "Cardia/Core/Core.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION

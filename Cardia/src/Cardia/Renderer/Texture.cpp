@@ -2,7 +2,7 @@
 
 #include "Cardia/Renderer/Texture.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
-#include "Platform/OpenGL/OpenGLTexture.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLTexture.hpp"
 
 
 namespace Cardia

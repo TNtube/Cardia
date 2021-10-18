@@ -7,8 +7,11 @@
 namespace Cardia
 {
 	struct Renderer2DData {
-		std::unique_ptr<VertexArray> vertexArray;
+		const int maxRectRender = 10000;
+		const int maxVerticesRender = maxRectRender * 4;
+		const int maxIndicesRender = maxRectRender * 6;
 
+		std::unique_ptr<VertexArray> vertexArray;
 		std::unique_ptr<Shader> basicShader;
 		std::unique_ptr<Texture2D> whiteTexture;
 	};

@@ -1,4 +1,4 @@
-#include "Platform/OpenGL/OpenGLShader.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
 #include "cdpch.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 

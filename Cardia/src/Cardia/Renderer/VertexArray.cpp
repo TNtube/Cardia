@@ -1,7 +1,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Renderer/VertexArray.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
-#include "Platform/OpenGL/OpenGLVertexArray.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLVertexArray.hpp"
 
 namespace Cardia
 {

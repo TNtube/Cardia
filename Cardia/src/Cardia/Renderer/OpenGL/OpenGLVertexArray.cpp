@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "Platform/OpenGL/OpenGLVertexArray.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLVertexArray.hpp"
 
 #include <glad/glad.h>
 

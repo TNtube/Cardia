@@ -2,7 +2,7 @@
 #include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Core/Log.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
-#include "Platform/OpenGL/OpenGLShader.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
 
 namespace Cardia
 {

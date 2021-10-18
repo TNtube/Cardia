@@ -1,7 +1,7 @@
 #include "cdpch.hpp"
 
 #include "Cardia/Core/Core.hpp"
-#include "Platform/OpenGL/OpenGLContext.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLContext.hpp"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -22,7 +22,7 @@ void Cardia::OpenGLContext::swapBuffers()
 }
 
 Cardia::OpenGLContext::OpenGLContext(GLFWwindow *window)
-		: m_Window(window)
+	: m_Window(window)
 {
 	cdCoreAssert(window, "Window is null, please before instantiate a window object !");
 }

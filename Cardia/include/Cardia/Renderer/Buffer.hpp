@@ -9,7 +9,7 @@ namespace Cardia
 		Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
 	};
 
-	static uint32_t ShaderDataTypeSize(ShaderDataType type)
+	static int ShaderDataTypeSize(ShaderDataType type)
 	{
 		switch (type)
 		{
@@ -39,8 +39,8 @@ namespace Cardia
 		bool normalized{};
 
 		BufferElement() = default;
-		BufferElement(ShaderDataType type, std::string name, bool normalized = false)
-			: type(type), name(std::move(name)), offset(0), size(ShaderDataTypeSize(type)), normalized(false) {}
+		BufferElement(ShaderDataType _type, std::string name, bool normalized = false)
+			: type(_type), name(std::move(name)), offset(0), size(ShaderDataTypeSize(type)), normalized(false) {}
 
 		int getElementCount() const
 		{
@@ -104,6 +104,7 @@ namespace Cardia
 		virtual void setLayout(const BufferLayout& layout) = 0;
 		virtual const BufferLayout& getLayout() const = 0;
 
+		static std::unique_ptr<VertexBuffer> create(uint32_t size);
 		static std::unique_ptr<VertexBuffer> create(float* vertices, uint32_t size);
 	};
 
