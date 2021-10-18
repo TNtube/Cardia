@@ -37,10 +37,6 @@ target("Cardia")
     add_packages("imgui")
     add_packages("glm")
 
-    if is_plat("windows") then
-        add_defines("CD_PLATFORM_WINDOWS", "CD_BUILD_DLL")
-    end
-
     if is_mode("debug") then
         add_defines("CD_DEBUG")
     end
@@ -60,9 +56,6 @@ target("SandBox")
     add_packages("glm")
     add_deps("Cardia")
 
-    if is_plat("windows") then
-        add_defines("CD_PLATFORM_WINDOWS")
-    end
     if is_mode("debug") then
         add_defines("CD_DEBUG")
     end

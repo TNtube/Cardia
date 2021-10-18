@@ -33,7 +33,7 @@ private:
 
 	glm::vec3 applePos {0.0f};
 
-	int vx = 1, vy = 0;
+	float vx = 1, vy = 0;
 	float time = 0.0f;
 
 	Cardia::OrthographicCamera m_Camera {0, 1080, 0, 720};

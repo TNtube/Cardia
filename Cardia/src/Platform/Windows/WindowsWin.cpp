@@ -1,8 +1,10 @@
+// Temporary or not, I don't know how I'll approach the linux implementation
+#if defined(_WIN64) || defined(__linux__)
+
 #include "cdpch.hpp"
 #include "Platform/Windows/WindowsWin.hpp"
 #include "Platform/OpenGL/OpenGLContext.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
-#include "Cardia/Core/Application.hpp"
 
 namespace Cardia
 {
@@ -205,3 +207,5 @@ namespace Cardia
 		return m_Data.vSync;
 	}
 }
+
+#endif

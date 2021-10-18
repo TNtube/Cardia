@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef CD_PLATFORM_WINDOWS
-	#error Cardia is only for Windows !
+#if !defined(_WIN64) && !defined(__linux__)
+	#error Cardia is only for Windows x64 or Linux !
 #endif
 
 #include <type_traits>
