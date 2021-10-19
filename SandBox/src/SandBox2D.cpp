@@ -40,9 +40,9 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 
 	Cardia::Renderer2D::beginScene(m_Camera);
 
-	for (int i = 0; i < 14; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
-		for (int j = 0; j < 14; ++j)
+		for (int j = 0; j < 100; ++j)
 		{
 			float x = (float)i * 50 + 10, y = (float)j * 50 + 10;
 			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())

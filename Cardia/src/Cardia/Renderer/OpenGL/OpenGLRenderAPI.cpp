@@ -24,8 +24,10 @@ namespace Cardia
 		glPolygonMode(GL_FRONT_AND_BACK, state ? GL_LINE : GL_FILL);
 	}
 
-	void OpenGLRenderAPI::drawIndexed(const VertexArray* vertexArray)
+	void OpenGLRenderAPI::drawIndexed(const VertexArray* vertexArray, uint32_t indexCount)
 	{
-		glDrawElements(GL_TRIANGLES, vertexArray->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+		uint32_t count = indexCount ? indexCount : vertexArray->getIndexBuffer().getCount();
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+
 	}
 }

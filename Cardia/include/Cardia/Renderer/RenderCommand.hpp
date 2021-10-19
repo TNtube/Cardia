@@ -19,9 +19,9 @@ namespace Cardia
 		inline static void clear() {
 			s_RenderAPI->clear();
 		}
-		inline static void drawIndexed(const VertexArray* vertexArray)
+		inline static void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount = 0)
 		{
-			s_RenderAPI->drawIndexed(vertexArray);
+			s_RenderAPI->drawIndexed(vertexArray, indexCount);
 		}
 	private:
 		static std::unique_ptr<RenderAPI> s_RenderAPI;

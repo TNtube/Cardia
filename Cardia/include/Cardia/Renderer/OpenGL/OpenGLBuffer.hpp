@@ -11,7 +11,7 @@ namespace Cardia
 		~OpenGLVertexBuffer();
 		void bind() const override;
 		void unbind() const override;
-		void setData(const void* data, uint32_t size) const;
+		void setData(const void* data, uint32_t size) override;
 		void setLayout(const BufferLayout& layout) override { m_Layout = layout; }
 		const BufferLayout& getLayout() const override { return m_Layout; }
 

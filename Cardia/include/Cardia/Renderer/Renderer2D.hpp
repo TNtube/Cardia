@@ -19,6 +19,8 @@ namespace Cardia
 		static void beginScene(OrthographicCamera camera);
 		static void endScene();
 
+		static void render();
+
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture* texture);
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture* texture, const glm::vec4& color);

@@ -11,7 +11,7 @@ namespace Cardia
 		virtual void setViewPort(int x, int y, int w, int h) override;
 		virtual void setWireFrame(bool state) override;
 
-		void drawIndexed(const VertexArray* vertexArray) override;
+		void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount) override;
 	};
 }
 

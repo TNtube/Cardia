@@ -18,7 +18,7 @@ namespace Cardia
 		virtual void setViewPort(int x, int y, int w, int h) = 0;
 		virtual void setWireFrame(bool state) = 0;
 
-		virtual void drawIndexed(const VertexArray* vertexArray) = 0;
+		virtual void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount = 0) = 0;
 
 		inline static API getAPI() { return s_API; }
 

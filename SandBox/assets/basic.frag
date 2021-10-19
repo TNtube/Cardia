@@ -2,11 +2,12 @@
 
 layout(location = 0) out vec4 color;
 
+in vec4 o_Color;
 in vec2 o_TexPos;
 
 uniform sampler2D u_Texture;
-uniform vec4 u_Color;
 
 void main() {
-    color = texture(u_Texture, o_TexPos) * u_Color;
+    // color = texture(u_Texture, o_TexPos) * o_Color;
+    color = o_Color;
 }
