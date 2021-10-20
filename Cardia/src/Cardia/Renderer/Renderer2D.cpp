@@ -17,15 +17,19 @@ namespace Cardia
 		const int maxRect = 10000;
 		const int maxVertices = maxRect * 4;
 		const int maxIndices = maxRect * 6;
+		static const int maxTextureSlots = 32; // TODO: get it from RenderCommand
 
 		std::unique_ptr<VertexArray> rectVertexArray;
-		VertexBuffer* rectVertexBuffer;
+		VertexBuffer* rectVertexBuffer = nullptr;
 		std::unique_ptr<Shader> basicShader;
 		std::unique_ptr<Texture2D> whiteTexture;
 
 		uint32_t rectIndexCount = 0;
-		RectVertex* rectVertexBufferBase = nullptr;
+		std::unique_ptr<RectVertex> rectVertexBufferBase = nullptr;
 		RectVertex* rectVertexBufferPtr = nullptr;
+
+		std::array<Texture2D*, maxTextureSlots> textureSlots {};
+		uint32_t textureSlotIndex = 1;
 
 		int drawCalls = 0;
 	};
@@ -49,9 +53,9 @@ namespace Cardia
 		s_Data->rectVertexBuffer = rectVBO.get();
 		s_Data->rectVertexArray->addVertexBuffer(std::move(rectVBO));
 
-		s_Data->rectVertexBufferBase = new RectVertex[s_Data->maxVertices];
+		s_Data->rectVertexBufferBase.reset(new RectVertex[s_Data->maxVertices]);
 
-		auto* rectIndices = new uint32_t[s_Data->maxIndices];
+		std::unique_ptr<uint32_t[]> rectIndices(new uint32_t[s_Data->maxIndices]);
 
 		uint32_t offset = 0;
 		for(uint32_t i = 0; i < s_Data->maxIndices; i += 6) {
@@ -65,10 +69,8 @@ namespace Cardia
 		}
 
 		std::unique_ptr<IndexBuffer> rectIBO;
-		rectIBO = IndexBuffer::create(rectIndices, s_Data->maxIndices);
+		rectIBO = IndexBuffer::create(rectIndices.get(), s_Data->maxIndices);
 		s_Data->rectVertexArray->setIndexBuffer(std::move(rectIBO));
-
-		delete[] rectIndices;
 
 
 		s_Data->basicShader = Shader::create({"assets/basic.vert", "assets/basic.frag"});
@@ -79,6 +81,9 @@ namespace Cardia
 		s_Data->basicShader->bind();
 		s_Data->basicShader->setInt("u_Texture", 0);
 
+		// Always white tex at pos 0
+		s_Data->textureSlots[0] = s_Data->whiteTexture.get();
+		s_Data->whiteTexture->bind();
 	}
 
 	void Renderer2D::Quit()
@@ -93,13 +98,14 @@ namespace Cardia
 
 		s_Data->drawCalls = 0;
 		s_Data->rectIndexCount = 0;
-		s_Data->rectVertexBufferPtr = s_Data->rectVertexBufferBase;
+		s_Data->rectVertexBufferPtr = s_Data->rectVertexBufferBase.get();
+		s_Data->textureSlotIndex = 1;
 	}
 
 	void Renderer2D::endScene()
 	{
-		uint32_t dataSize = (uint8_t* )s_Data->rectVertexBufferPtr - (uint8_t* )s_Data->rectVertexBufferBase;
-		s_Data->rectVertexBuffer->setData(s_Data->rectVertexBufferBase, dataSize);
+		uint32_t dataSize = (uint8_t*)s_Data->rectVertexBufferPtr - (uint8_t*)s_Data->rectVertexBufferBase.get();
+		s_Data->rectVertexBuffer->setData(s_Data->rectVertexBufferBase.get(), dataSize);
 		render();
 		Log::coreTrace("Number of draw calls per frames : {0}", s_Data->drawCalls);
 	}
@@ -122,7 +128,6 @@ namespace Cardia
 
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture* texture, const glm::vec4 &color)
 	{
-		texture->bind();
 		s_Data->rectVertexBufferPtr->position = position;
 		s_Data->rectVertexBufferPtr->color = color;
 		s_Data->rectVertexBufferPtr->textureCoord = {0.0f, 0.0f};
@@ -145,22 +150,6 @@ namespace Cardia
 		s_Data->rectVertexBufferPtr++;
 
 		s_Data->rectIndexCount += 6;
-
-
-		/*s_Data->basicShader->bind();
-		s_Data->basicShader->setFloat4("u_Color", color);
-		s_Data->basicShader->setInt("u_Texture", 0);
-
-		auto transform = glm::translate(glm::mat4(1.0f), position)
-				* glm::scale(glm::mat4(1.0f), {size.x, size.y, 0.0f});
-
-		s_Data->basicShader->setMat4("u_Model", transform);
-
-
-		texture->bind();
-
-		s_Data->rectVertexArray->bind();
-		RenderCommand::drawIndexed(s_Data->rectVertexArray.get());*/
 
 	}
 }

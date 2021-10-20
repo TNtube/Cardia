@@ -8,6 +8,5 @@ in vec2 o_TexPos;
 uniform sampler2D u_Texture;
 
 void main() {
-    // color = texture(u_Texture, o_TexPos) * o_Color;
-    color = o_Color;
+    color = texture(u_Texture, o_TexPos) * o_Color;
 }
