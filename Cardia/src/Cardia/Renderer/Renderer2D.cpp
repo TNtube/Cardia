@@ -3,6 +3,7 @@
 #include "Cardia/Renderer/RenderCommand.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
+#include <memory>
 
 namespace Cardia
 {
@@ -25,7 +26,7 @@ namespace Cardia
 		std::unique_ptr<Texture2D> whiteTexture;
 
 		uint32_t rectIndexCount = 0;
-		std::unique_ptr<RectVertex> rectVertexBufferBase = nullptr;
+		std::unique_ptr<RectVertex[]> rectVertexBufferBase = nullptr;
 		RectVertex* rectVertexBufferPtr = nullptr;
 
 		std::array<Texture2D*, maxTextureSlots> textureSlots {};
@@ -53,7 +54,7 @@ namespace Cardia
 		s_Data->rectVertexBuffer = rectVBO.get();
 		s_Data->rectVertexArray->addVertexBuffer(std::move(rectVBO));
 
-		s_Data->rectVertexBufferBase.reset(new RectVertex[s_Data->maxVertices]);
+		s_Data->rectVertexBufferBase = std::make_unique<RectVertex[]>(s_Data->maxVertices);
 
 		std::unique_ptr<uint32_t[]> rectIndices(new uint32_t[s_Data->maxIndices]);
 
