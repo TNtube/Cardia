@@ -11,7 +11,7 @@ public:
 	explicit SandBox2D(std::string name)
 		: Layer(std::move(name))
 	{
-		m_TextureSquare = Cardia::Texture2D::create("assets/square.jpg");
+		m_TextureSquare = Cardia::Texture2D::create("assets/container.jpg");
 
 		std::uniform_int_distribution<int> dist{0, 13};
 		applePos = {dist(random), dist(random), 0.0f};

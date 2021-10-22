@@ -15,6 +15,7 @@ namespace Cardia
 		virtual void setFloat4(const std::string& name, const glm::vec4& value) = 0;
 		virtual void setMat4(const std::string& name, const glm::mat4& value) = 0;
 		virtual void setInt(const std::string& name, int value) = 0;
+		virtual void setIntArray(const std::string& name, int* values, int count) = 0;
 
 		static std::unique_ptr<Shader> create(std::initializer_list<std::string> filePaths);
 	};
