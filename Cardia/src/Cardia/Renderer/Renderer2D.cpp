@@ -51,7 +51,7 @@ namespace Cardia
 			{ShaderDataType::Float3, "a_Position"},
 			{ShaderDataType::Float4, "a_Color"},
 			{ShaderDataType::Float2, "a_TexPos"},
-			{ShaderDataType::Int, "a_TexIndex"}
+			{ShaderDataType::Float, "a_TexIndex"}
 		});
 
 		s_Data->rectVertexBuffer = rectVBO.get();
@@ -82,14 +82,14 @@ namespace Cardia
 		uint32_t whiteColor = 0xffffff;
 		s_Data->whiteTexture = Texture2D::create(1, 1, &whiteColor);
 
-		int32_t samplers[Renderer2DData::maxTextureSlots];
+		std::array<int, Renderer2DData::maxTextureSlots> samplers {};
 		for (int32_t i = 0; i < Renderer2DData::maxTextureSlots; ++i)
 		{
 			samplers[i] = i;
 		}
 
 		s_Data->basicShader->bind();
-		s_Data->basicShader->setIntArray("u_Textures", samplers, Renderer2DData::maxTextureSlots);
+		s_Data->basicShader->setIntArray("u_Textures", samplers.data(), Renderer2DData::maxTextureSlots);
 
 		// Always white tex at pos 0
 		s_Data->textureSlots[0] = s_Data->whiteTexture.get();

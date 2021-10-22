@@ -3,11 +3,11 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexPos;
-layout(location = 3) in int a_TexIndex;
+layout(location = 3) in float a_TexIndex;
 
 out vec4 o_Color;
 out vec2 o_TexPos;
-out flat int o_TexIndex;
+out flat float o_TexIndex;
 
 uniform mat4 u_ViewProjection;
 

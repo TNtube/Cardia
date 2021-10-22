@@ -166,7 +166,7 @@ namespace Cardia
 	void OpenGLShader::setUniformIntArray(const std::string &name, int *values, int count) const
 	{
 		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
-		glUniform4iv(location, count, values);
+		glUniform1iv(location, count, values);
 	}
 
 	void OpenGLShader::setFloat4(const std::string &name, const glm::vec4 &value)
