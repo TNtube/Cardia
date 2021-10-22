@@ -12,6 +12,7 @@ public:
 		: Layer(std::move(name))
 	{
 		m_TextureSquare = Cardia::Texture2D::create("assets/container.jpg");
+		m_TextureBox = Cardia::Texture2D::create("assets/square.jpg");
 
 		std::uniform_int_distribution<int> dist{0, 13};
 		applePos = {dist(random), dist(random), 0.0f};
@@ -23,6 +24,7 @@ public:
 
 private:
 	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
+	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
 
 	glm::vec4 bgColor {0.3f, 0.2f, 0.8f, 1.0f};
 	glm::vec4 snakeCol {0.3f, 0.8f, 0.2f, 0.1f};
