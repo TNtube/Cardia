@@ -102,23 +102,33 @@ namespace Cardia
 
 	void Renderer2D::beginScene(OrthographicCamera camera)
 	{
+		s_Data->drawCalls = 0;
 		s_Data->basicShader->bind();
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
+		startBash();
+	}
 
-		s_Data->drawCalls = 0;
+	void Renderer2D::startBash()
+	{
 		s_Data->rectIndexCount = 0;
 		s_Data->rectVertexBufferPtr = s_Data->rectVertexBufferBase.get();
 		s_Data->textureSlotIndex = 1;
 	}
 
+	void Renderer2D::nextBatch()
+	{
+		render();
+		startBash();
+	}
+
 	void Renderer2D::endScene()
 	{
 		render();
+		Log::coreTrace("Number of draw calls per frames : {0}", s_Data->drawCalls);
 	}
 
 	void Renderer2D::render()
 	{
-
 		uint32_t dataSize = (uint8_t*)s_Data->rectVertexBufferPtr - (uint8_t*)s_Data->rectVertexBufferBase.get();
 		s_Data->rectVertexBuffer->setData(s_Data->rectVertexBufferBase.get(), dataSize);
 
@@ -126,7 +136,6 @@ namespace Cardia
 		for (int i = 0; i < s_Data->textureSlotIndex; ++i)
 		{
 			s_Data->textureSlots[i]->bind(i);
-			// Log::coreInfo("Texture index : {0}, Width : {1}", i, s_Data->textureSlots[i]->getWidth());
 		}
 
 		RenderCommand::drawIndexed(s_Data->rectVertexArray.get(), s_Data->rectIndexCount);
@@ -145,6 +154,9 @@ namespace Cardia
 
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color)
 	{
+		if (s_Data->rectIndexCount >= s_Data->maxIndices)
+			nextBatch();
+
 		float textureIndex = 0;
 		for(int i = 1; i < s_Data->textureSlotIndex; ++i) {
 			if (texture && *s_Data->textureSlots[i] == *texture) {
@@ -154,6 +166,9 @@ namespace Cardia
 		}
 
 		if (textureIndex == 0 && texture) {
+			if (s_Data->textureSlotIndex >= Renderer2DData::maxTextureSlots)
+				nextBatch();
+
 			s_Data->textureSlots[s_Data->textureSlotIndex] = texture;
 			textureIndex = static_cast<float>(s_Data->textureSlotIndex);
 			s_Data->textureSlotIndex++;

@@ -40,7 +40,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 
 	Cardia::Renderer2D::beginScene(m_Camera);
 
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 1000; ++i)
 	{
 		for (int j = 0; j < 100; ++j)
 		{
