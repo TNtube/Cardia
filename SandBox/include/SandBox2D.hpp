@@ -8,15 +8,7 @@
 class SandBox2D : public Cardia::Layer
 {
 public:
-	explicit SandBox2D(std::string name)
-		: Layer(std::move(name))
-	{
-		m_TextureSquare = Cardia::Texture2D::create("assets/container.jpg");
-		m_TextureBox = Cardia::Texture2D::create("assets/square.jpg");
-
-		std::uniform_int_distribution<int> dist{0, 13};
-		applePos = {dist(random), dist(random), 0.0f};
-	}
+	explicit SandBox2D(std::string name);
 
 	void onUpdate(Cardia::DeltaTime deltaTime) override;
 	void onEvent(Cardia::Event& event) override;
