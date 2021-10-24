@@ -15,6 +15,7 @@ public:
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override;
 
 private:
+	bool onResize(const Cardia::WinResizeEvent& e);
 	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
 
@@ -30,7 +31,10 @@ private:
 	float vx = 1, vy = 0;
 	float time = 0.0f;
 
-	Cardia::OrthographicCamera m_Camera {0, 1080, 0, 720};
+	float m_Zoom = 10.0f;
+	float m_AspectRatio = static_cast<float>(Cardia::Application::get().getWindow().getWidth())
+		/ static_cast<float>(Cardia::Application::get().getWindow().getHeight());
+	Cardia::OrthographicCamera m_Camera {-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom};
 
 
 	std::random_device rd;

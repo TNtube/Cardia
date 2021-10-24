@@ -7,6 +7,7 @@ namespace Cardia {
 	{
 	public:
 		OrthographicCamera(float left, float right, float bottom, float top);
+		void setBounds(float left, float right, float bottom, float top);
 
 		inline const glm::vec3& getPosition() const { return m_Position; }
 		inline void setPosition(const glm::vec3& position) { m_Position = position; RecomputeViewMatrix(); }

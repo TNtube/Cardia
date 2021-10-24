@@ -16,9 +16,9 @@ namespace Cardia
 	};
 
 	struct Renderer2DData {
-		const int maxRect = 10000;
-		const int maxVertices = maxRect * 4;
-		const int maxIndices = maxRect * 6;
+		const uint32_t maxRect = 10000;
+		const uint32_t maxVertices = maxRect * 4;
+		const uint32_t maxIndices = maxRect * 6;
 		static const int maxTextureSlots = 32; // TODO: get it from RenderCommand
 
 		std::unique_ptr<VertexArray> rectVertexArray;
@@ -26,6 +26,7 @@ namespace Cardia
 		std::unique_ptr<Shader> basicShader;
 		std::unique_ptr<Texture2D> whiteTexture;
 
+		glm::vec4 rectPositions[4];
 		uint32_t rectIndexCount = 0;
 		std::unique_ptr<RectVertex[]> rectVertexBufferBase = nullptr;
 		RectVertex* rectVertexBufferPtr = nullptr;
@@ -59,7 +60,7 @@ namespace Cardia
 
 		s_Data->rectVertexBufferBase = std::make_unique<RectVertex[]>(s_Data->maxVertices);
 
-		std::unique_ptr<uint32_t[]> rectIndices(new uint32_t[s_Data->maxIndices]);
+		std::unique_ptr<uint32_t[]> rectIndices = std::make_unique<uint32_t[]>(s_Data->maxIndices);
 
 		uint32_t offset = 0;
 		for(uint32_t i = 0; i < s_Data->maxIndices; i += 6) {
@@ -93,6 +94,11 @@ namespace Cardia
 
 		// Always white tex at pos 0
 		s_Data->textureSlots[0] = s_Data->whiteTexture.get();
+
+		s_Data->rectPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		s_Data->rectPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		s_Data->rectPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		s_Data->rectPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 
 	void Renderer2D::Quit()
@@ -129,7 +135,8 @@ namespace Cardia
 
 	void Renderer2D::render()
 	{
-		uint32_t dataSize = (uint8_t*)s_Data->rectVertexBufferPtr - (uint8_t*)s_Data->rectVertexBufferBase.get();
+		auto dataSize = static_cast<uint32_t>(reinterpret_cast<uint8_t*>(s_Data->rectVertexBufferPtr) -
+							reinterpret_cast<uint8_t*>(s_Data->rectVertexBufferBase.get()));
 		s_Data->rectVertexBuffer->setData(s_Data->rectVertexBufferBase.get(), dataSize);
 
 		s_Data->basicShader->bind();
@@ -174,31 +181,25 @@ namespace Cardia
 			s_Data->textureSlotIndex++;
 		}
 
-		s_Data->rectVertexBufferPtr->position = position;
-		s_Data->rectVertexBufferPtr->color = color;
-		s_Data->rectVertexBufferPtr->textureCoord = {0.0f, 0.0f};
-		s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
-		s_Data->rectVertexBufferPtr++;
+		constexpr glm::vec2 texCoords[] {
+			{0.0f, 0.0f},
+			{1.0f, 0.0f},
+			{1.0f, 1.0f},
+			{0.0f, 1.0f}
+		};
 
-		s_Data->rectVertexBufferPtr->position = {position.x + size.x, position.y, 0.0f};
-		s_Data->rectVertexBufferPtr->color = color;
-		s_Data->rectVertexBufferPtr->textureCoord = {1.0f, 0.0f};
-		s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
-		s_Data->rectVertexBufferPtr++;
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		s_Data->rectVertexBufferPtr->position = {position.x + size.x, position.y + size.y, 0.0f};
-		s_Data->rectVertexBufferPtr->color = color;
-		s_Data->rectVertexBufferPtr->textureCoord = {1.0f, 1.0f};
-		s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
-		s_Data->rectVertexBufferPtr++;
-
-		s_Data->rectVertexBufferPtr->position = {position.x, position.y + size.y, 0.0f};
-		s_Data->rectVertexBufferPtr->color = color;
-		s_Data->rectVertexBufferPtr->textureCoord = {0.0f, 1.0f};
-		s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
-		s_Data->rectVertexBufferPtr++;
+		for (int i = 0; i < 4; ++i)
+		{
+			s_Data->rectVertexBufferPtr->position = transform * s_Data->rectPositions[i];
+			s_Data->rectVertexBufferPtr->color = color;
+			s_Data->rectVertexBufferPtr->textureCoord = texCoords[i];
+			s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
+			s_Data->rectVertexBufferPtr++;
+		}
 
 		s_Data->rectIndexCount += 6;
-
 	}
 }

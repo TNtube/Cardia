@@ -8,7 +8,7 @@ SandBox2D::SandBox2D(std::string name)
 	m_TextureSquare = Cardia::Texture2D::create("assets/container.jpg");
 	m_TextureBox = Cardia::Texture2D::create("assets/square.jpg");
 
-	std::uniform_int_distribution<int> dist{0, 13};
+	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
 }
 
@@ -36,7 +36,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 		time = 0.0f;
 		glm::vec3 head = snakePos.front();
 		if(head == applePos) {
-			std::uniform_int_distribution<int> dist{0, 13};
+			std::uniform_int_distribution<int> dist{-7, 6};
 			applePos = {dist(random), dist(random), 0.0f};
 		}
 		else
@@ -50,17 +50,17 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 
 	Cardia::Renderer2D::beginScene(m_Camera);
 
-	for (int i = 0; i < 14; ++i)
+	for (int i = -7; i < 7; ++i)
 	{
-		for (int j = 0; j < 14; ++j)
+		for (int j = -7; j < 7; ++j)
 		{
-			float x = (float)i * 50 + 10, y = (float)j * 50 + 10;
+			auto x = static_cast<float>(i) * 1, y = static_cast<float>(j) * 1;
 			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {45.0f, 45.f}, m_TextureBox.get());
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureBox.get());
 			else if (applePos == glm::vec3(i, j, 0.0f))
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {45.0f, 45.f}, m_TextureSquare.get(), {0.8f, 0.3f, 0.2f, 1.0f});
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureSquare.get(), {0.8f, 0.3f, 0.2f, 1.0f});
 			else
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {45.0f, 45.f}, bgColor);
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, bgColor);
 		}
 	}
 
@@ -74,6 +74,15 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 
 void SandBox2D::onEvent(Cardia::Event &event)
 {
+	Cardia::EventDispatcher dispatcher(event);
+	dispatcher.dispatch<Cardia::WinResizeEvent>(CD_BIND_EVENT_FN(SandBox2D::onResize));
+}
+
+bool SandBox2D::onResize(const Cardia::WinResizeEvent &e)
+{
+	m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
+	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+	return false;
 }
 
 
