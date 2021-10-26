@@ -13,6 +13,7 @@ namespace Cardia
 		glm::vec4 color;
 		glm::vec2 textureCoord;
 		float textureIndex;
+		float tilingFactor;
 	};
 
 	struct Renderer2DData {
@@ -52,7 +53,8 @@ namespace Cardia
 			{ShaderDataType::Float3, "a_Position"},
 			{ShaderDataType::Float4, "a_Color"},
 			{ShaderDataType::Float2, "a_TexPos"},
-			{ShaderDataType::Float, "a_TexIndex"}
+			{ShaderDataType::Float, "a_TexIndex"},
+			{ShaderDataType::Float, "a_TilingFactor"}
 		});
 
 		s_Data->rectVertexBuffer = rectVBO.get();
@@ -159,33 +161,33 @@ namespace Cardia
 		drawRect(position, size, rotation, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture)
+	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, float tilingFactor)
 	{
-		drawRect(position, size, texture, glm::vec4(1.0f));
+		drawRect(position, size, texture, glm::vec4(1.0f), tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture)
+	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, float tilingFactor)
 	{
-		drawRect(position, size, rotation, texture, glm::vec4(1.0f));
+		drawRect(position, size, rotation, texture, glm::vec4(1.0f), tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color)
+	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color, float tilingFactor)
 	{
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		drawRect(transform, texture, color);
+		drawRect(transform, texture, color, tilingFactor);
 
 	}
 
-	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color)
+	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)
 	{
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 				      * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
 				      * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
-		drawRect(transform, texture, color);
+		drawRect(transform, texture, color, tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color)
+	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)
 	{
 		if (s_Data->rectIndexCount >= s_Data->maxIndices)
 			nextBatch();
@@ -220,6 +222,7 @@ namespace Cardia
 			s_Data->rectVertexBufferPtr->color = color;
 			s_Data->rectVertexBufferPtr->textureCoord = texCoords[i];
 			s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
+			s_Data->rectVertexBufferPtr->tilingFactor = tilingFactor;
 			s_Data->rectVertexBufferPtr++;
 		}
 

@@ -32,10 +32,10 @@ namespace Cardia
 
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture);
-		static void drawRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Texture2D* texture);
-		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4& color);
-		static void drawRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Texture2D* texture, const glm::vec4& color);
-		static void drawRect(const glm::mat4& transform, const Texture2D* texture, const glm::vec4& color);
+		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, float tilingFactor = 1.0f);
+		static void drawRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Texture2D* texture, float tilingFactor = 1.0f);
+		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f);
+		static void drawRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f);
+		static void drawRect(const glm::mat4& transform, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f);
 	};
 }
