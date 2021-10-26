@@ -23,6 +23,13 @@ namespace Cardia
 		static void nextBatch();
 		static void render();
 
+		struct Stats {
+			int drawCalls;
+			int rectCount;
+		};
+
+		static Stats& getStats();
+
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture);
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4& color);

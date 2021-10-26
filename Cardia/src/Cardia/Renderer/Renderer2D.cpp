@@ -26,7 +26,7 @@ namespace Cardia
 		std::unique_ptr<Shader> basicShader;
 		std::unique_ptr<Texture2D> whiteTexture;
 
-		glm::vec4 rectPositions[4];
+		glm::vec4 rectPositions[4] {};
 		uint32_t rectIndexCount = 0;
 		std::unique_ptr<RectVertex[]> rectVertexBufferBase = nullptr;
 		RectVertex* rectVertexBufferPtr = nullptr;
@@ -34,7 +34,7 @@ namespace Cardia
 		std::array<const Texture2D*, maxTextureSlots> textureSlots {};
 		int textureSlotIndex = 1;
 
-		int drawCalls = 0;
+		Renderer2D::Stats stats {};
 	};
 
 	static std::unique_ptr<Renderer2DData> s_Data;
@@ -108,9 +108,10 @@ namespace Cardia
 
 	void Renderer2D::beginScene(OrthographicCamera camera)
 	{
-		s_Data->drawCalls = 0;
 		s_Data->basicShader->bind();
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
+		s_Data->stats.drawCalls = 0;
+		s_Data->stats.rectCount = 0;
 		startBash();
 	}
 
@@ -130,7 +131,6 @@ namespace Cardia
 	void Renderer2D::endScene()
 	{
 		render();
-		Log::coreTrace("Number of draw calls per frames : {0}", s_Data->drawCalls);
 	}
 
 	void Renderer2D::render()
@@ -146,7 +146,7 @@ namespace Cardia
 		}
 
 		RenderCommand::drawIndexed(s_Data->rectVertexArray.get(), s_Data->rectIndexCount);
-		s_Data->drawCalls++;
+		s_Data->stats.drawCalls++;
 	}
 
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4 &color)
@@ -201,5 +201,12 @@ namespace Cardia
 		}
 
 		s_Data->rectIndexCount += 6;
+
+		s_Data->stats.rectCount++;
+	}
+
+	Renderer2D::Stats& Renderer2D::getStats()
+	{
+		return s_Data->stats;
 	}
 }

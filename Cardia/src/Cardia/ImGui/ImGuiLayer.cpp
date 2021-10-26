@@ -6,6 +6,7 @@
 #include <imgui_impl_glfw.h>
 
 #include "Cardia/Core/Application.hpp"
+#include "Cardia/Renderer/Renderer2D.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -112,6 +113,10 @@ namespace Cardia
 					elapsedTime = 0.0f;
 				}
 				elapsedTime += deltaTime.seconds();
+
+
+				ImGui::LabelText(std::to_string(Renderer2D::getStats().drawCalls).c_str(), "Draw Calls");
+				ImGui::LabelText(std::to_string(Renderer2D::getStats().rectCount).c_str(), "Rect Count");
 				ImGui::TreePop();
 			}
 
