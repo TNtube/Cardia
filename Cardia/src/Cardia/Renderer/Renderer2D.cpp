@@ -154,12 +154,38 @@ namespace Cardia
 		drawRect(position, size, nullptr, color);
 	}
 
+	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color)
+	{
+		drawRect(position, size, rotation, nullptr, color);
+	}
+
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture)
 	{
 		drawRect(position, size, texture, glm::vec4(1.0f));
 	}
 
+	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture)
+	{
+		drawRect(position, size, rotation, texture, glm::vec4(1.0f));
+	}
+
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		drawRect(transform, texture, color);
+
+	}
+
+	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+				      * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
+				      * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
+		drawRect(transform, texture, color);
+	}
+
+	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color)
 	{
 		if (s_Data->rectIndexCount >= s_Data->maxIndices)
 			nextBatch();
@@ -187,9 +213,6 @@ namespace Cardia
 			{1.0f, 1.0f},
 			{0.0f, 1.0f}
 		};
-
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		for (int i = 0; i < 4; ++i)
 		{

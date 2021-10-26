@@ -59,7 +59,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())
 				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureBox.get());
 			else if (applePos == glm::vec3(i, j, 0.0f))
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureSquare.get(), {0.8f, 0.3f, 0.2f, 1.0f});
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, 45,m_TextureSquare.get(), {0.8f, 0.3f, 0.2f, 1.0f});
 			else
 				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, bgColor);
 		}
