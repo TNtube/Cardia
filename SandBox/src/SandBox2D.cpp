@@ -2,15 +2,16 @@
 #include <Cardia.hpp>
 
 
-SandBox2D::SandBox2D(std::string name)
-	: Layer(std::move(name))
+void SandBox2D::onPush()
 {
 	m_TextureSquare = Cardia::Texture2D::create("assets/container.jpg");
 	m_TextureBox = Cardia::Texture2D::create("assets/square.jpg");
 
 	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
+	glm::vec3 position = m_Camera.getPosition();
 }
+
 
 void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 {
@@ -66,7 +67,6 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 
 	Cardia::Renderer2D::endScene();
 }
-
 
 void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 {

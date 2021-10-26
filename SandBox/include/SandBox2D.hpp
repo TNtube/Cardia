@@ -8,8 +8,9 @@
 class SandBox2D : public Cardia::Layer
 {
 public:
-	explicit SandBox2D(std::string name);
+	explicit SandBox2D(std::string name) : Layer(std::move(name)) {}
 
+	void onPush() override;
 	void onUpdate(Cardia::DeltaTime deltaTime) override;
 	void onEvent(Cardia::Event& event) override;
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override;

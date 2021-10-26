@@ -45,4 +45,4 @@ constexpr auto enum_as_integer(const Enumeration value) -> std::underlying_type_
 }
 
 
-#define CD_BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+#define CD_BIND_EVENT_FN(x) [this](auto && PH1) { return (x)(PH1); }
