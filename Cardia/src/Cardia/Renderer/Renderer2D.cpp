@@ -82,7 +82,7 @@ namespace Cardia
 
 		s_Data->basicShader = Shader::create({"assets/shaders/basic.vert", "assets/shaders/basic.frag"});
 
-		uint32_t whiteColor = 0xffffff;
+		uint32_t whiteColor = 0xffffffff;
 		s_Data->whiteTexture = Texture2D::create(1, 1, &whiteColor);
 
 		std::array<int, Renderer2DData::maxTextureSlots> samplers {};

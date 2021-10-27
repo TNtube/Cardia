@@ -10,5 +10,5 @@ in float o_TilingFactor;
 uniform sampler2D u_Textures[32];
 
 void main() {
-    color = texture(u_Textures[int(o_TexIndex)] * o_TilingFactor, o_TexPos) * o_Color;
+    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * o_Color;
 }

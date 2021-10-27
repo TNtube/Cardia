@@ -55,14 +55,13 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 	{
 		for (int j = -9; j < 10; ++j)
 		{
-			float cx = (i + 10.0f) / 20.0f, cy = (j + 10.0f) / 20.0f;
-			auto x = static_cast<float>(i) * 1, y = static_cast<float>(j) * 1;
+			auto x = static_cast<float>(i), y = static_cast<float>(j);
 			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())
 				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureSquare.get(), 2);
 			else if (applePos == glm::vec3(i, j, 0.0f))
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, 45,m_TextureBox.get(), {0.8f, 0.3f, 0.2f, 1.0f});
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, 45,m_TextureBox.get(), {0.8f, 0.3f, 0.2f, 0.0f});
 			else
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, {cx, cy, 0.3f, 1.0f});
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f},{(x + 10.0f) / 20.0f, (y + 10.0f) / 20.0f, 0.3f, 0.8f});
 		}
 	}
 
