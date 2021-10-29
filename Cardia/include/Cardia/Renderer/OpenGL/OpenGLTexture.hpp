@@ -18,6 +18,7 @@ namespace Cardia
 		}
 
 		void bind(int slot) const override;
+		uint32_t getRendererID() override;
 
 	private:
 		std::string m_Path;

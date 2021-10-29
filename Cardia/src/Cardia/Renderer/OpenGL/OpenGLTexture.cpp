@@ -71,4 +71,9 @@ namespace Cardia
 	{
 		glBindTextureUnit(slot, m_TextureID);
 	}
+
+	uint32_t OpenGLTexture2D::getRendererID()
+	{
+		return m_TextureID;
+	}
 }

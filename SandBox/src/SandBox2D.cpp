@@ -84,5 +84,3 @@ bool SandBox2D::onResize(const Cardia::WinResizeEvent &e)
 	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 	return false;
 }
-
-
