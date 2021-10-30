@@ -10,6 +10,14 @@ void SandBox2D::onPush()
 	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
 	glm::vec3 position = m_Camera.getPosition();
+
+	Cardia::FramebufferSpec spec {};
+	auto& window = Cardia::Application::get().getWindow();
+
+	spec.width = window.getWidth();
+	spec.height = window.getHeight();
+
+	m_Framebuffer = Cardia::Framebuffer::create(spec);
 }
 
 
@@ -45,7 +53,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 		snakePos.emplace_front(head.x + vx, head.y + vy, head.z);
 	}
 
-
+	m_Framebuffer->bind();
 	Cardia::RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
 	Cardia::RenderCommand::clear();
 
@@ -70,6 +78,21 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 
 void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 {
+	ImGui::Begin("Game");
+	uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
+
+	ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
+	if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
+	{
+		m_Framebuffer->resize((int)scenePanelSize.x, (int)scenePanelSize.y);
+		m_SceneSize = { scenePanelSize.x, scenePanelSize.y };
+	}
+
+	ImGui::Image((void *)textureID, ImVec2{m_SceneSize.x, m_SceneSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
+	m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
+	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+
+	ImGui::End();
 }
 
 void SandBox2D::onEvent(Cardia::Event &event)
@@ -80,7 +103,7 @@ void SandBox2D::onEvent(Cardia::Event &event)
 
 bool SandBox2D::onResize(const Cardia::WinResizeEvent &e)
 {
-	m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
-	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+	// m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
+	// m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 	return false;
 }

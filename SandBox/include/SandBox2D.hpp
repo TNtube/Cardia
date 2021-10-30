@@ -19,6 +19,9 @@ private:
 	bool onResize(const Cardia::WinResizeEvent& e);
 	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
+	std::unique_ptr<Cardia::Framebuffer> m_Framebuffer;
+
+	glm::vec2 m_SceneSize {};
 
 	glm::vec4 bgColor {0.3f, 0.2f, 0.8f, 1.0f};
 	glm::vec4 snakeCol {0.3f, 0.8f, 0.2f, 0.1f};
