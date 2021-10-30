@@ -10,7 +10,7 @@
 
 
 
-#ifndef CD_DEBUG
+#ifdef CD_DEBUG
 	template <typename T>
 	constexpr void cdAssert(T x, const char* message)
 	{
