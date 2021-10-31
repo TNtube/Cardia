@@ -67,7 +67,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())
 				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureSquare.get(), 2);
 			else if (applePos == glm::vec3(i, j, 0.0f))
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, 45,m_TextureBox.get(), {0.8f, 0.3f, 0.2f, 0.0f});
+				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, 45,m_TextureBox.get(), {0.8f, 0.3f, 0.2f, 0.5f});
 			else
 				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f},{(x + 10.0f) / 20.0f, (y + 10.0f) / 20.0f, 0.3f, 0.8f});
 		}
@@ -88,7 +88,8 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 		m_SceneSize = { scenePanelSize.x, scenePanelSize.y };
 	}
 
-	ImGui::Image((void *)textureID, ImVec2{m_SceneSize.x, m_SceneSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
+	ImGui::Image(reinterpret_cast<void*>(static_cast<size_t>(textureID)), ImVec2{m_SceneSize.x, m_SceneSize.y},
+			ImVec2{0, 1}, ImVec2{1, 0});
 	m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
 	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 
@@ -98,7 +99,7 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 void SandBox2D::onEvent(Cardia::Event &event)
 {
 	Cardia::EventDispatcher dispatcher(event);
-	dispatcher.dispatch<Cardia::WinResizeEvent>(CD_BIND_EVENT_FN(SandBox2D::onResize));
+	dispatcher.dispatch<Cardia::WinResizeEvent>(CD_BIND_EVENT_FN(onResize));
 }
 
 bool SandBox2D::onResize(const Cardia::WinResizeEvent &e)

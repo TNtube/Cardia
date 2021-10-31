@@ -31,6 +31,13 @@ namespace Cardia {
 
 	void OpenGLFramebuffer::resize(int width, int height)
 	{
+		if (width <= 0 || height <= 0) // temporary values, but I don't think that any screen could override those values
+		{
+			Log::coreWarn("Attempting to resize Framebuffer with invalid value : w {0}, h {1}", width,
+				      height);
+			return;
+		}
+
 		m_Spec.width = width;
 		m_Spec.height = height;
 		createFramebuffer();
