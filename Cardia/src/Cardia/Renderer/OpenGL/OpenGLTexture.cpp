@@ -17,7 +17,7 @@ namespace Cardia
 
 		int width, height, nbChannels;
 		unsigned char *data = stbi_load(m_Path.c_str(), &width, &height, &nbChannels, 3);
-		Log::coreTrace(stbi_failure_reason());
+		Log::coreError(stbi_failure_reason());
 		cdCoreAssert(data, "Failed to load image !");
 
 		m_Width = width;

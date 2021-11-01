@@ -62,9 +62,9 @@ namespace Cardia
 			return getCategoryFlags() & enum_as_integer(category);
 		}
 
-		inline bool isHandled() const { return m_Handled; }
-	protected:
-		bool m_Handled = false;
+		inline bool isHandled() const { return handled; }
+
+		bool handled = false;
 	};
 	
 	class EventDispatcher
@@ -78,7 +78,7 @@ namespace Cardia
 		{
 			if (m_Event.getEventType() == T::getStaticType())
 			{
-				m_Event.m_Handled = func(static_cast<T&>(m_Event));
+				m_Event.handled = func(static_cast<T&>(m_Event));
 				return true;
 			}
 			return false;

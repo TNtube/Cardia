@@ -10,6 +10,7 @@ namespace Cardia
 		ImGuiLayer();
 		~ImGuiLayer() override = default;
 
+		void onEvent(Event &event) override;
 		void onPush() override;
 		void onPop() override;
 		void onImGuiDraw(DeltaTime deltaTime) override;

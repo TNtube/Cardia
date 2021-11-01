@@ -23,7 +23,7 @@ namespace Cardia
 	private:
 		uint32_t m_FramebufferID {};
 		uint32_t m_ColorAttachment {};
-		uint32_t m_DepthAttachment {};
+		uint32_t m_RenderAttachment {};
 		FramebufferSpec m_Spec;
  	};
 }

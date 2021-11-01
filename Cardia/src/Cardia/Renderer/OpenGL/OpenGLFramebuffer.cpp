@@ -15,7 +15,7 @@ namespace Cardia {
 	{
 		glDeleteFramebuffers(1, &m_FramebufferID);
 		glDeleteTextures(1, &m_ColorAttachment);
-		glDeleteTextures(1, &m_DepthAttachment);
+		glDeleteTextures(1, &m_RenderAttachment);
 	}
 
 	void OpenGLFramebuffer::bind() const
@@ -58,11 +58,11 @@ namespace Cardia {
 		// attach it to currently bound framebuffer object
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
 
-		glGenRenderbuffers(1, &m_DepthAttachment);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
+		glGenRenderbuffers(1, &m_RenderAttachment);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_RenderAttachment);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Spec.width, m_Spec.height);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderAttachment);
 
 		cdCoreAssert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is not complete!");
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

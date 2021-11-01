@@ -1,10 +1,10 @@
-set_xmakever("2.5.6")
+set_xmakever("2.5.9")
 
 set_project("CardiaGameEngine")
 set_version("0.0.0")
 
 set_allowedplats("windows", "linux", "macosx")
-set_allowedarchs("windows|x64", "linux|x86_64", "macosx|x86_64")
+set_allowedarchs("windows|x64", "linux|x64", "macosx|x86_64")
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
