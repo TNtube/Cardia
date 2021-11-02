@@ -18,6 +18,11 @@ add_requires("glm 0.9.9+8")                                                 -- l
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
+rule("cp-assets")
+    after_build(function (target)
+            os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
+        end)
+
 target("Cardia")
     set_kind("static")
 
@@ -43,6 +48,7 @@ target("Cardia")
 
 target("SandBox")
     set_kind("binary")
+    add_rules("cp-assets")
 
     set_targetdir("build/" .. outputdir .. "/SandBox/bin")
     set_objectdir("build/" .. outputdir .. "/SandBox/obj")
@@ -60,6 +66,22 @@ target("SandBox")
         add_defines("CD_DEBUG")
     end
 
-    after_build(function (target)
-            os.cp("SandBox/assets", "build/" .. outputdir .. "/SandBox/bin")
-        end)
+target("CardiaTor")
+    set_kind("binary")
+    add_rules("cp-assets")
+
+    set_targetdir("build/" .. outputdir .. "/CardiaTor/bin")
+    set_objectdir("build/" .. outputdir .. "/CardiaTor/obj")
+
+    add_headerfiles("CardiaTor/include/**.hpp")
+    add_files("CardiaTor/src/**.cpp")
+    add_includedirs("CardiaTor/include/", {public = true})
+
+    add_packages("spdlog")
+    add_packages("imgui")
+    add_packages("glm")
+    add_deps("Cardia")
+
+    if is_mode("debug") then
+        add_defines("CD_DEBUG")
+    end

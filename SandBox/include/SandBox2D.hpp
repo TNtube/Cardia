@@ -19,7 +19,6 @@ private:
 	bool onResize(const Cardia::WinResizeEvent& e);
 	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
-	std::unique_ptr<Cardia::Framebuffer> m_Framebuffer;
 
 	glm::vec2 m_SceneSize {};
 

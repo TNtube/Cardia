@@ -10,14 +10,6 @@ void SandBox2D::onPush()
 	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
 	glm::vec3 position = m_Camera.getPosition();
-
-	Cardia::FramebufferSpec spec {};
-	auto& window = Cardia::Application::get().getWindow();
-
-	spec.width = window.getWidth();
-	spec.height = window.getHeight();
-
-	m_Framebuffer = Cardia::Framebuffer::create(spec);
 }
 
 
@@ -53,7 +45,6 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 		snakePos.emplace_front(head.x + vx, head.y + vy, head.z);
 	}
 
-	m_Framebuffer->bind();
 	Cardia::RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
 	Cardia::RenderCommand::clear();
 
@@ -74,185 +65,101 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 	}
 
 	Cardia::Renderer2D::endScene();
-	m_Framebuffer->unbind();
 }
 
 void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 {
-	// Note: Switch this to true to enable dockspace
-	static bool dockingEnabled = true;
-	if (dockingEnabled)
+	enum ImGuiTheme
 	{
-		static bool dockspaceOpen = true;
-		static bool opt_fullscreen_persistant = true;
-		bool opt_fullscreen = opt_fullscreen_persistant;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+		THEME_DARK,
+		THEME_LIGHT,
+		THEME_CLASSIC
+	};
+	// fps
+	static float elapsedTime = 0.0f;
+	static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
+	// wireframe
+	static bool isWireframeMode = false;
+	// fullscreen
+	static bool isFullscreen = false;
+	static bool isFullscreenPrev = false;
+	static Cardia::Window &window = Cardia::Application::get().getWindow();
+	// vsync
+	static bool isVsync = window.isVSync();
+	// dear imgui theme
+	static int selectedTheme = THEME_DARK;
 
-		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-		// because it would be confusing to have two docking targets within each others.
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		if (opt_fullscreen)
+	ImGui::Begin("Debug tools");
+
+	// Section: Rendering
+	if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		// Section: Rendering > Infos
+		ImGui::SetNextItemOpen(true);
+		if (ImGui::TreeNode("Infos"))
 		{
-			ImGuiViewport *viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->Pos);
-			ImGui::SetNextWindowSize(viewport->Size);
-			ImGui::SetNextWindowViewport(viewport->ID);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |=
-				ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-				ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-		}
-
-		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			window_flags |= ImGuiWindowFlags_NoBackground;
-
-		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-		// all active windows docked into it will lose their parent and become undocked.
-		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
-		ImGui::PopStyleVar();
-
-		if (opt_fullscreen)
-			ImGui::PopStyleVar(2);
-
-		// DockSpace
-		ImGuiIO &io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
-
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
+			ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
+			if (elapsedTime >= 0.5f)
 			{
-				// Disabling fullscreen would allow the window to be moved to the front of other windows,
-				// which we can't undo at the moment without finer window depth/z control.
-				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+				fps = static_cast<int>(1000 / deltaTime.milliseconds());
+				elapsedTime = 0.0f;
+			}
+			elapsedTime += deltaTime.seconds();
 
-				if (ImGui::MenuItem("Exit"))
-				{}
-				ImGui::EndMenu();
+
+			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().drawCalls).c_str(),
+					 "Draw Calls");
+			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().rectCount).c_str(),
+					 "Rect Count");
+			ImGui::TreePop();
+		}
+
+		// Section: Rendering > Options
+		ImGui::SetNextItemOpen(true);
+		if (ImGui::TreeNode("Options"))
+		{
+			ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
+			Cardia::RenderCommand::setWireFrame(isWireframeMode);
+
+			ImGui::Checkbox("Fullscreen?", &isFullscreen);
+			if (isFullscreen != isFullscreenPrev)
+			{
+				window.setFullscreen(isFullscreen);
+				isFullscreenPrev = isFullscreen;
 			}
 
-			ImGui::EndMenuBar();
+			ImGui::Checkbox("VSync?", &isVsync);
+			window.setVSync(isVsync);
+			ImGui::TreePop();
 		}
-		// Extremely temporary
-		enum ImGuiTheme
-		{
-			THEME_DARK,
-			THEME_LIGHT,
-			THEME_CLASSIC
-		};
-		// fps
-		static float elapsedTime = 0.0f;
-		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
-		// wireframe
-		static bool isWireframeMode = false;
-		// fullscreen
-		static bool isFullscreen = false;
-		static bool isFullscreenPrev = false;
-		static Cardia::Window &window = Cardia::Application::get().getWindow();
-		// vsync
-		static bool isVsync = window.isVSync();
-		// dear imgui theme
-		static int selectedTheme = THEME_DARK;
-
-		ImGui::Begin("Debug tools");
-
-		// Section: Rendering
-		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			// Section: Rendering > Infos
-			ImGui::SetNextItemOpen(true);
-			if (ImGui::TreeNode("Infos"))
-			{
-				ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
-				if (elapsedTime >= 0.5f)
-				{
-					fps = static_cast<int>(1000 / deltaTime.milliseconds());
-					elapsedTime = 0.0f;
-				}
-				elapsedTime += deltaTime.seconds();
-
-
-				ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().drawCalls).c_str(),
-						 "Draw Calls");
-				ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().rectCount).c_str(),
-						 "Rect Count");
-				ImGui::TreePop();
-			}
-
-			// Section: Rendering > Options
-			ImGui::SetNextItemOpen(true);
-			if (ImGui::TreeNode("Options"))
-			{
-				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-				Cardia::RenderCommand::setWireFrame(isWireframeMode);
-
-				ImGui::Checkbox("Fullscreen?", &isFullscreen);
-				if (isFullscreen != isFullscreenPrev)
-				{
-					window.setFullscreen(isFullscreen);
-					isFullscreenPrev = isFullscreen;
-				}
-
-				ImGui::Checkbox("VSync?", &isVsync);
-				window.setVSync(isVsync);
-				ImGui::TreePop();
-			}
-		}
-
-		// Section: Fun
-		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::Text("Dear ImGui theme");
-			ImGui::RadioButton("Dark", &selectedTheme, THEME_DARK);
-			ImGui::SameLine();
-			ImGui::RadioButton("Light", &selectedTheme, THEME_LIGHT);
-			ImGui::SameLine();
-			ImGui::RadioButton("Classic", &selectedTheme, THEME_CLASSIC);
-			switch (selectedTheme)
-			{
-				case THEME_DARK:
-					ImGui::StyleColorsDark();
-					break;
-				case THEME_LIGHT:
-					ImGui::StyleColorsLight();
-					break;
-				case THEME_CLASSIC:
-					ImGui::StyleColorsClassic();
-					break;
-			}
-		}
-
-		ImGui::End();
-		ImGui::Begin("Game");
-		uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
-
-		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
-		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
-		{
-			m_Framebuffer->resize((int)scenePanelSize.x, (int)scenePanelSize.y);
-			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
-		}
-
-		ImGui::Image(reinterpret_cast<void *>(static_cast<size_t>(textureID)),
-			     ImVec2{m_SceneSize.x, m_SceneSize.y},
-			     ImVec2{0, 1}, ImVec2{1, 0});
-		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
-		m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
-
-		ImGui::End();
-		ImGui::End();
 	}
+
+	// Section: Fun
+	if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("Dear ImGui theme");
+		ImGui::RadioButton("Dark", &selectedTheme, THEME_DARK);
+		ImGui::SameLine();
+		ImGui::RadioButton("Light", &selectedTheme, THEME_LIGHT);
+		ImGui::SameLine();
+		ImGui::RadioButton("Classic", &selectedTheme, THEME_CLASSIC);
+		switch (selectedTheme)
+		{
+			case THEME_DARK:
+				ImGui::StyleColorsDark();
+				break;
+			case THEME_LIGHT:
+				ImGui::StyleColorsLight();
+				break;
+			case THEME_CLASSIC:
+				ImGui::StyleColorsClassic();
+				break;
+			default:
+				break;
+		}
+	}
+
+	ImGui::End();
 }
 
 void SandBox2D::onEvent(Cardia::Event &event)
@@ -263,7 +170,7 @@ void SandBox2D::onEvent(Cardia::Event &event)
 
 bool SandBox2D::onResize(const Cardia::WinResizeEvent &e)
 {
-	// m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
-	// m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+	m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
+	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 	return false;
 }

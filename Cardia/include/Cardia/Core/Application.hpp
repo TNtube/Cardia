@@ -28,6 +28,7 @@ namespace Cardia
 
 		inline static Application& get() { return *s_Instance; }
 		inline Window& getWindow() const { return *m_Window; }
+		inline void close() { m_Running = false; }
 
 	private:
 		std::unique_ptr<Window> m_Window;
