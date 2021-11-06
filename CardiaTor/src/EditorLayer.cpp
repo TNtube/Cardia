@@ -144,8 +144,9 @@ namespace Cardia
 		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			// Section: Rendering > Infos
-			ImGui::SetNextItemOpen(true);
-			if (ImGui::TreeNode("Infos"))
+			static bool isOpen;
+			isOpen = ImGui::TreeNodeEx("Infos", ImGuiTreeNodeFlags_DefaultOpen);
+			if (isOpen)
 			{
 				ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 				if (elapsedTime >= 0.5f)
@@ -166,8 +167,8 @@ namespace Cardia
 			}
 
 			// Section: Rendering > Options
-			ImGui::SetNextItemOpen(true);
-			if (ImGui::TreeNode("Options"))
+			isOpen = ImGui::TreeNodeEx("Options", ImGuiTreeNodeFlags_DefaultOpen);
+			if (isOpen)
 			{
 				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
 				RenderCommand::setWireFrame(isWireframeMode);
