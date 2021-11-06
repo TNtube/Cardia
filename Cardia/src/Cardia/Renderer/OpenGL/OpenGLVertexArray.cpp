@@ -46,7 +46,7 @@ namespace Cardia
 
 	void OpenGLVertexArray::addVertexBuffer(std::unique_ptr<VertexBuffer> vertexBuffer)
 	{
-		cdCoreAssert(vertexBuffer->getLayout().getElement().size(), "Vertex Buffer should have a layout");
+		cdCoreAssert(vertexBuffer->getLayout().getElement().size(), "RectVertex Buffer should have a layout");
 
 		glBindVertexArray(m_VertexArrayID);
 		vertexBuffer->bind();

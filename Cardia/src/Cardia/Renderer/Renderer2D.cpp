@@ -113,7 +113,7 @@ namespace Cardia
 		s_Data->basicShader->bind();
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->stats.drawCalls = 0;
-		s_Data->stats.rectCount = 0;
+		s_Data->stats.triangleCount = 0;
 		startBash();
 	}
 
@@ -149,6 +149,11 @@ namespace Cardia
 
 		RenderCommand::drawIndexed(s_Data->rectVertexArray.get(), s_Data->rectIndexCount);
 		s_Data->stats.drawCalls++;
+	}
+
+	Renderer2D::Stats& Renderer2D::getStats()
+	{
+		return s_Data->stats;
 	}
 
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4 &color)
@@ -228,11 +233,6 @@ namespace Cardia
 
 		s_Data->rectIndexCount += 6;
 
-		s_Data->stats.rectCount++;
-	}
-
-	Renderer2D::Stats& Renderer2D::getStats()
-	{
-		return s_Data->stats;
+		s_Data->stats.triangleCount += 2;
 	}
 }

@@ -160,8 +160,8 @@ namespace Cardia
 					std::to_string(Renderer2D::getStats().drawCalls).c_str(),
 					"Draw Calls");
 				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().rectCount).c_str(),
-					"Rect Count");
+					std::to_string(Renderer2D::getStats().triangleCount).c_str(),
+					"Triangle Count");
 				ImGui::TreePop();
 			}
 
@@ -224,7 +224,7 @@ namespace Cardia
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
 		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
 		{
-			m_Framebuffer->resize((int) scenePanelSize.x, (int) scenePanelSize.y);
+			m_Framebuffer->resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
 			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
 		}
 

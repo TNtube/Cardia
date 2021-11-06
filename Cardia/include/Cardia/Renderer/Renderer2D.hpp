@@ -25,7 +25,7 @@ namespace Cardia
 
 		struct Stats {
 			int drawCalls;
-			int rectCount;
+			int triangleCount;
 		};
 
 		static Stats& getStats();

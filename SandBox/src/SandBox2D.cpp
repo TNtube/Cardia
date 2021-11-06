@@ -109,8 +109,8 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 
 			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().drawCalls).c_str(),
 					 "Draw Calls");
-			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().rectCount).c_str(),
-					 "Rect Count");
+			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().triangleCount).c_str(),
+					 "Triangle Count");
 			ImGui::TreePop();
 		}
 
