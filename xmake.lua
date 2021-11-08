@@ -15,6 +15,7 @@ add_requires("glfw 3.3.4")                                                  -- l
 add_requires("glad v0.1.34")                                                -- latest version at the time
 add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})      -- latest version at the time
 add_requires("glm 0.9.9+8")                                                 -- latest version at the time
+add_requires("entt v3.8.1")                                                 -- latest version at the time
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
@@ -32,7 +33,7 @@ target("Cardia")
     set_pcxxheader("Cardia/include/cdpch.hpp")
 
     add_files("Cardia/src/**.cpp")
-    add_headerfiles("Cardia/**.hpp")
+    add_headerfiles("Cardia/include/**.hpp")
     add_includedirs("Cardia/include/", {public = true})
     add_includedirs("Cardia/vendor/", {public = true})
 
@@ -41,6 +42,7 @@ target("Cardia")
     add_packages("glad")
     add_packages("imgui")
     add_packages("glm")
+    add_packages("entt")
 
     if is_mode("debug") then
         add_defines("CD_DEBUG")
@@ -60,6 +62,7 @@ target("SandBox")
     add_packages("spdlog")
     add_packages("imgui")
     add_packages("glm")
+    add_packages("entt")
     add_deps("Cardia")
 
     if is_mode("debug") then
@@ -80,6 +83,7 @@ target("CardiaTor")
     add_packages("spdlog")
     add_packages("imgui")
     add_packages("glm")
+    add_packages("entt")
     add_deps("Cardia")
 
     if is_mode("debug") then
