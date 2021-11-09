@@ -16,6 +16,7 @@ namespace Cardia
 
 		}
 
+		Entity() = default;
 		Entity(const Entity&) = default;
 
 		template<typename T, typename... Args>

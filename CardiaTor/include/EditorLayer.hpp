@@ -28,10 +28,11 @@ namespace Cardia
 
 		float time = 0.0f;
 
-		float m_Zoom = 10.0f;
+		Entity m_CameraEntity;
+		Entity m_TestSquare;
+
 		float m_AspectRatio = static_cast<float>(Application::get().getWindow().getWidth())
 				      / static_cast<float>(Application::get().getWindow().getHeight());
-		OrthographicCamera m_Camera {-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom};
 
 
 		std::random_device rd;

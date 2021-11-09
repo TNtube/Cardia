@@ -117,6 +117,15 @@ namespace Cardia
 		startBash();
 	}
 
+	void Renderer2D::beginScene(const Camera& camera, glm::mat4 transform)
+	{
+		s_Data->basicShader->bind();
+		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjection() * glm::inverse(transform));
+		s_Data->stats.drawCalls = 0;
+		s_Data->stats.triangleCount = 0;
+		startBash();
+	}
+
 	void Renderer2D::startBash()
 	{
 		s_Data->rectIndexCount = 0;
@@ -190,6 +199,11 @@ namespace Cardia
 				      * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
 				      * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		drawRect(transform, texture, color, tilingFactor);
+	}
+
+	void Renderer2D::drawRect(const glm::mat4 &transform, const glm::vec4 &color)
+	{
+		drawRect(transform, nullptr, color);
 	}
 
 	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)

@@ -30,4 +30,19 @@ namespace Cardia {
 		glm::vec3 m_Position;
 		float m_Rotation = 0.0f;
 	};
+
+
+	class Camera
+	{
+	public:
+		Camera() = default;
+		explicit Camera(const glm::mat4& projection)
+			: m_Projection(projection) {}
+
+		virtual ~Camera() = default;
+
+		const glm::mat4& getProjection() const { return m_Projection; }
+	protected:
+		glm::mat4 m_Projection = glm::mat4(1.0f);
+	};
 }

@@ -8,7 +8,6 @@ namespace Cardia
 	{
 		m_TextureSquare = Texture2D::create("assets/square.jpg");
 		m_TextureBox = Texture2D::create("assets/container.jpg");
-		glm::vec3 position = m_Camera.getPosition();
 
 		FramebufferSpec spec{};
 		auto &window = Application::get().getWindow();
@@ -21,6 +20,12 @@ namespace Cardia
 		auto square = m_CurrentScene->createEntity("Square");
 		square.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
 
+		m_TestSquare = m_CurrentScene->createEntity("Test Square");
+		m_TestSquare.addComponent<Component::SpriteRenderer>(glm::vec4{0.8f, 0.2f, 0.3f, 1.0f});
+
+		m_CameraEntity = m_CurrentScene->createEntity("Camera");
+		m_CameraEntity.addComponent<Component::Camera>();
+
 		m_Framebuffer = Framebuffer::create(spec);
 	}
 
@@ -32,7 +37,6 @@ namespace Cardia
 		RenderCommand::clear();
 
 		m_CurrentScene->onUpdate(deltaTime);
-
 
 		m_Framebuffer->unbind();
 	}
@@ -213,6 +217,13 @@ namespace Cardia
 		EnableDocking();
 		DebugWindow(deltaTime);
 
+		ImGui::Begin("Test Square");
+		ImGui::Text("Transform");
+		ImGui::DragFloat3("Position", glm::value_ptr(m_TestSquare.getComponent<Component::Transform>().position), 0.1f);
+		ImGui::DragFloat3("Rotation", glm::value_ptr(m_TestSquare.getComponent<Component::Transform>().rotation), 0.1f);
+		ImGui::DragFloat3("Scale", glm::value_ptr(m_TestSquare.getComponent<Component::Transform>().scale), 0.1f);
+		ImGui::End();
+
 		ImGui::Begin(m_CurrentScene->getName());
 		uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
 
@@ -227,7 +238,7 @@ namespace Cardia
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
 		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
-		m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+		m_CameraEntity.getComponent<Component::Camera>().camera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 
 		ImGui::End();
 	}

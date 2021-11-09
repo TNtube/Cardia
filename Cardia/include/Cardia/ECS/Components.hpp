@@ -1,5 +1,9 @@
 #pragma once
 #include <glm/glm.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include <utility>
 #include "Cardia/Renderer/Texture.hpp"
 #include "SceneCamera.hpp"
@@ -24,7 +28,12 @@ namespace Cardia::Component
 
 		glm::vec3 position { 0.0f };
 		glm::vec3 rotation { 0.0f };
-		glm::vec3 scale { 1.0f };;
+		glm::vec3 scale { 1.0f };
+		inline glm::mat4 getTransform() const {
+			return glm::translate(glm::mat4(1.0f), position)
+			     * glm::toMat4(glm::quat(rotation))
+			     * glm::scale(glm::mat4(1.0f), scale);
+		}
 	};
 
 	struct SpriteRenderer
@@ -42,10 +51,8 @@ namespace Cardia::Component
 	struct Camera
 	{
 		SceneCamera camera;
+		bool primary = true;
 		Camera() = default;
 		Camera(const Camera&) = default;
-
-	private:
-		glm::mat4 m_Projection;
 	};
 }
