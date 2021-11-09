@@ -23,8 +23,6 @@ namespace Cardia
 	{
 		using namespace Component;
 
-		Renderer2D::
-
 		auto view = m_Registry.view<Transform, SpriteRenderer>();
 		for (auto entity : view)
 		{
