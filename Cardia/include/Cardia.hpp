@@ -13,6 +13,12 @@
 #include "Cardia/Core/Input.hpp"
 #include "Cardia/Core/KeyCodes.hpp"
 
+// ----- Entity Component System ---------
+
+#include "Cardia/ECS/Scene.hpp"
+#include "Cardia/ECS/Entity.hpp"
+#include "Cardia/ECS/Components.hpp"
+
 // ----- Renderer ------------------------
 
 #include "Cardia/Renderer/Renderer.hpp"

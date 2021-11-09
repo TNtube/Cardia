@@ -22,6 +22,8 @@ namespace Cardia
 		std::unique_ptr<Texture2D> m_TextureBox;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 
+		std::unique_ptr<Scene> m_CurrentScene;
+
 		glm::vec2 m_SceneSize {};
 
 		float time = 0.0f;

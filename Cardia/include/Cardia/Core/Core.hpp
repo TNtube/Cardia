@@ -11,18 +11,18 @@
 
 
 #ifdef CD_DEBUG
-	template <typename T>
-	constexpr void cdAssert(T x, const char* message)
+	template <typename T,  typename... Args>
+	constexpr void cdAssert(T x, Args&&... args)
 	{
 		if (!x)
-			Cardia::Log::error("Assertion failed: {0}", message);
+			Cardia::Log::error("Assertion failed: {0}", std::forward<Args>(args)...);
 		assert(x);
 	}
-	template <typename T>
-	constexpr void cdCoreAssert(T x, const char* message)
+	template <typename T, typename... Args>
+	constexpr void cdCoreAssert(T x, Args&&... args)
 	{
 		if (!x)
-			Cardia::Log::coreError("Assertion failed: {0}", message);
+			Cardia::Log::coreError("Assertion failed: {0}", std::forward<Args>(args)...);
 		assert(x);
 	}
 #else

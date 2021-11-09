@@ -16,6 +16,11 @@ namespace Cardia
 		spec.width = window.getWidth();
 		spec.height = window.getHeight();
 
+		m_CurrentScene = std::make_unique<Scene>("Default Scene");
+
+		auto square = m_CurrentScene->createEntity("Square");
+		square.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
+
 		m_Framebuffer = Framebuffer::create(spec);
 	}
 
@@ -26,20 +31,9 @@ namespace Cardia
 		RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
 		RenderCommand::clear();
 
-		Renderer2D::beginScene(m_Camera);
+		m_CurrentScene->onUpdate(deltaTime);
 
-		for (int i = -9; i < 10; ++i)
-		{
-			for (int j = -9; j < 10; ++j)
-			{
-				auto x = static_cast<float>(i), y = static_cast<float>(j);
 
-				glm::vec4 bgColor = {(x + 10.0f) / 20.0f, (y + 10.0f) / 20.0f, 0.3f, 0.8f};
-				Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, bgColor);
-			}
-		}
-
-		Renderer2D::endScene();
 		m_Framebuffer->unbind();
 	}
 
@@ -219,7 +213,7 @@ namespace Cardia
 		EnableDocking();
 		DebugWindow(deltaTime);
 
-		ImGui::Begin("Game");
+		ImGui::Begin(m_CurrentScene->getName());
 		uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
