@@ -6,7 +6,7 @@ set_version("0.0.0")
 set_allowedplats("windows", "linux", "macosx")
 set_allowedarchs("windows|x64", "linux|x64", "macosx|x86_64")
 
-add_rules("mode.debug", "mode.release")
+add_rules("mode.debug", "mode.release", "mode.asan")
 add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx2a")
 

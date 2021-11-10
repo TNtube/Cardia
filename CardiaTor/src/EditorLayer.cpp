@@ -16,12 +16,13 @@ namespace Cardia
 		spec.height = window.getHeight();
 
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
+		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
 
-		auto square = m_CurrentScene->createEntity("Square");
+		auto square = m_CurrentScene->createEntity("Blue Square");
 		square.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
 
-		m_TestSquare = m_CurrentScene->createEntity("Test Square");
-		m_TestSquare.addComponent<Component::SpriteRenderer>(glm::vec4{0.8f, 0.2f, 0.3f, 1.0f});
+		square = m_CurrentScene->createEntity("Red Square");
+		square.addComponent<Component::SpriteRenderer>(glm::vec4{0.8f, 0.2f, 0.3f, 1.0f});
 
 		m_CameraEntity = m_CurrentScene->createEntity("Camera");
 		m_CameraEntity.addComponent<Component::Camera>();
@@ -216,15 +217,9 @@ namespace Cardia
 	{
 		EnableDocking();
 		DebugWindow(deltaTime);
+		m_SceneHierarchyPanel->onImGuiRender(deltaTime);
 
-		ImGui::Begin("Test Square");
-		ImGui::Text("Transform");
-		ImGui::DragFloat3("Position", glm::value_ptr(m_TestSquare.getComponent<Component::Transform>().position), 0.1f);
-		ImGui::DragFloat3("Rotation", glm::value_ptr(m_TestSquare.getComponent<Component::Transform>().rotation), 0.1f);
-		ImGui::DragFloat3("Scale", glm::value_ptr(m_TestSquare.getComponent<Component::Transform>().scale), 0.1f);
-		ImGui::End();
-
-		ImGui::Begin(m_CurrentScene->getName());
+		ImGui::Begin("Edit");
 		uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();

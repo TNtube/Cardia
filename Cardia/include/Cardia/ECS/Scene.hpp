@@ -6,6 +6,7 @@
 namespace Cardia
 {
 	class Entity;
+	namespace Panel { class SceneHierarchy; }
 	class Scene
 	{
 	public:
@@ -19,5 +20,6 @@ namespace Cardia
 		std::string m_Name;
 		entt::registry m_Registry;
 		friend class Entity;
+		friend class Panel::SceneHierarchy;
 	};
 }

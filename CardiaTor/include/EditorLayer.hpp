@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <deque>
 #include <random>
+#include "Panels/SceneHierarchy.hpp"
 
 
 namespace Cardia
@@ -23,13 +24,13 @@ namespace Cardia
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
+		std::unique_ptr<Panel::SceneHierarchy> m_SceneHierarchyPanel;
 
 		glm::vec2 m_SceneSize {};
 
 		float time = 0.0f;
 
 		Entity m_CameraEntity;
-		Entity m_TestSquare;
 
 		float m_AspectRatio = static_cast<float>(Application::get().getWindow().getWidth())
 				      / static_cast<float>(Application::get().getWindow().getHeight());
