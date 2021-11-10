@@ -1,6 +1,7 @@
 #pragma once
 #include <imgui.h>
 #include <Cardia.hpp>
+#include <entt/entt.hpp>
 
 namespace Cardia :: Panel
 {
@@ -14,6 +15,6 @@ namespace Cardia :: Panel
 
 	private:
 		Scene* m_Scene;
-		std::unique_ptr<Entity> m_EntityClicked;
+		entt::entity m_EntityClicked { entt::null };
 	};
 }

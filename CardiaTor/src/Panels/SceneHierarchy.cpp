@@ -25,11 +25,11 @@ namespace Cardia :: Panel
 		for (auto entity : view)
 		{
 			auto name = view.get<Component::Name>(entity);
-			auto node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			auto node_flags = ((m_EntityClicked == entity) ? ImGuiTreeNodeFlags_Selected : 0);
+			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, node_flags, "%s", name.name.c_str())) {
 				if(ImGui::IsItemClicked(0)) {
-					m_EntityClicked.reset();
-					m_EntityClicked = std::make_unique<Entity>(entity, m_Scene);
+					m_EntityClicked = entity;
 				}
 			}
 		}
@@ -39,10 +39,11 @@ namespace Cardia :: Panel
 	void SceneHierarchy::drawComponents()
 	{
 		ImGui::Begin("Inspector");
-		if(m_EntityClicked)
+		if(m_EntityClicked != entt::null)
 		{
+			Entity entityClicked(m_EntityClicked, m_Scene);
 			// Name Component
-			auto& name = m_EntityClicked->getComponent<Component::Name>();
+			auto& name = entityClicked.getComponent<Component::Name>();
 
 			char buffer[128] {0};
 			size_t bufferSize = sizeof(buffer)/sizeof(char);
@@ -56,24 +57,24 @@ namespace Cardia :: Panel
 			// Transform Component
 
 			ImGui::Text("Transform");
-			auto& transform = m_EntityClicked->getComponent<Component::Transform>();
+			auto& transform = entityClicked.getComponent<Component::Transform>();
 			ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f);
 			ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotation), 0.05f);
 			ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f);
 
 			// SpriteRenderer Component
 
-			if (m_EntityClicked->hasComponent<Component::SpriteRenderer>()) {
+			if (entityClicked.hasComponent<Component::SpriteRenderer>()) {
 				ImGui::Text("Sprite Renderer");
-				auto& sprite = m_EntityClicked->getComponent<Component::SpriteRenderer>();
+				auto& sprite = entityClicked.getComponent<Component::SpriteRenderer>();
 				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
 			}
 
 			// Camera Component
 
-			if (m_EntityClicked->hasComponent<Component::Camera>()) {
+			if (entityClicked.hasComponent<Component::Camera>()) {
 				ImGui::Text("Camera");
-				auto& camera = m_EntityClicked->getComponent<Component::Camera>();
+				auto& camera = entityClicked.getComponent<Component::Camera>();
 				int type = (int)camera.camera.getProjectionType();
 				const char* cameraTypes[] = { "Perspective", "Orthographic" };
 				if(ImGui::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes)/sizeof(char*)))
