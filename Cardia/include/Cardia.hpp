@@ -8,7 +8,6 @@
 #include "Cardia/Core/Time.hpp"
 
 #include "Cardia/ImGui/ImGuiLayer.hpp"
-#include "Cardia/ImGui/ImGuiExt.hpp"
 
 #include "Cardia/Core/Input.hpp"
 #include "Cardia/Core/KeyCodes.hpp"

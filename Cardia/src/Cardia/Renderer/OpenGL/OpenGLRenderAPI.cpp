@@ -30,4 +30,19 @@ namespace Cardia
 		glDrawElements(GL_TRIANGLES, static_cast<int>(count), GL_UNSIGNED_INT, nullptr);
 
 	}
+
+	std::string OpenGLRenderAPI::getVendor()
+	{
+		return {reinterpret_cast<const char*>(glGetString(GL_VENDOR))};
+	}
+
+	std::string OpenGLRenderAPI::getRenderer()
+	{
+		return {reinterpret_cast<const char*>(glGetString(GL_RENDERER))};
+	}
+
+	std::string OpenGLRenderAPI::getVersion()
+	{
+		return {reinterpret_cast<const char*>(glGetString(GL_VERSION))};
+	}
 }

@@ -23,6 +23,15 @@ namespace Cardia
 		{
 			s_RenderAPI->drawIndexed(vertexArray, indexCount);
 		}
+		inline static std::string getVendor() {
+			return s_RenderAPI->getVendor();
+		}
+		inline static std::string getRenderer() {
+			return s_RenderAPI->getRenderer();
+		}
+		inline static std::string getVersion() {
+			return s_RenderAPI->getVersion();
+		}
 	private:
 		static std::unique_ptr<RenderAPI> s_RenderAPI;
 

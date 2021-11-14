@@ -1,5 +1,6 @@
 #include "Panels/SceneHierarchy.hpp"
 #include <entt/entt.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 namespace Cardia :: Panel
@@ -26,11 +27,13 @@ namespace Cardia :: Panel
 		{
 			auto name = view.get<Component::Name>(entity);
 			auto node_flags = ((m_EntityClicked == entity) ? ImGuiTreeNodeFlags_Selected : 0);
-			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
+			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, node_flags, "%s", name.name.c_str())) {
-				if(ImGui::IsItemClicked(0)) {
+				if(ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 					m_EntityClicked = entity;
 				}
+				ImGui::TreePop();
 			}
 		}
 		ImGui::End();
@@ -54,31 +57,44 @@ namespace Cardia :: Panel
 				name.name = std::string(buffer, bufferSize);
 			}
 
+			auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
+
 			// Transform Component
 
-			ImGui::Text("Transform");
 			auto& transform = entityClicked.getComponent<Component::Transform>();
-			ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f);
-			ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotation), 0.05f);
-			ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f);
+			if(ImGui::TreeNodeEx((void*)(&transform), componentFlags, "Transform"))
+			{
+				ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f);
+				auto rotation = glm::degrees(transform.rotation);
+				if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.2f))
+					transform.rotation = glm::radians(rotation);
 
+				ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f);
+				ImGui::TreePop();
+			}
 			// SpriteRenderer Component
 
 			if (entityClicked.hasComponent<Component::SpriteRenderer>()) {
-				ImGui::Text("Sprite Renderer");
 				auto& sprite = entityClicked.getComponent<Component::SpriteRenderer>();
-				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
+				if(ImGui::TreeNodeEx((void*)(&sprite), componentFlags, "Sprite Renderer"))
+				{
+					ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
+					ImGui::TreePop();
+				}
 			}
 
 			// Camera Component
 
 			if (entityClicked.hasComponent<Component::Camera>()) {
-				ImGui::Text("Camera");
 				auto& camera = entityClicked.getComponent<Component::Camera>();
-				int type = (int)camera.camera.getProjectionType();
-				const char* cameraTypes[] = { "Perspective", "Orthographic" };
-				if(ImGui::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes)/sizeof(char*)))
-					camera.camera.setProjectionType((SceneCamera::ProjectionType)type);
+				if(ImGui::TreeNodeEx((void*)(&camera), componentFlags, "Camera"))
+				{
+					int type = (int) camera.camera.getProjectionType();
+					const char *cameraTypes[] = {"Perspective", "Orthographic"};
+					if (ImGui::Combo("Camera Type", &type, cameraTypes,
+							 sizeof(cameraTypes) / sizeof(char *)))
+						camera.camera.setProjectionType((SceneCamera::ProjectionType) type);
+				}
 			}
 		}
 		ImGui::End();

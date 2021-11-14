@@ -17,6 +17,9 @@ namespace Cardia
 		virtual void clear() = 0;
 		virtual void setViewPort(int x, int y, int w, int h) = 0;
 		virtual void setWireFrame(bool state) = 0;
+		virtual std::string getVendor() = 0;
+		virtual std::string getRenderer() = 0;
+		virtual std::string getVersion() = 0;
 
 		virtual void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount = 0) = 0;
 

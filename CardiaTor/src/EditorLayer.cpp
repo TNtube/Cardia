@@ -162,6 +162,12 @@ namespace Cardia
 				ImGui::LabelText(
 					std::to_string(Renderer2D::getStats().triangleCount).c_str(),
 					"Triangle Count");
+				ImGui::Separator();
+				ImGui::Text("GPU's Info");
+				ImGui::Text("Vendor   : %s", RenderCommand::getVendor().c_str());
+				ImGui::Text("Renderer : %s", RenderCommand::getRenderer().c_str());
+				ImGui::Text("Version  : %s", RenderCommand::getVersion().c_str());
+				ImGui::Separator();
 				ImGui::TreePop();
 			}
 

@@ -42,7 +42,15 @@ namespace Cardia
 			properties.title.c_str(),
 			nullptr, nullptr);
 
-		m_RendererContext = std::make_unique<OpenGLContext>(m_Window);		// Just change here to change API Context
+		switch (RenderAPI::getAPI())
+		{
+			case RenderAPI::API::OpenGL:
+				m_RendererContext = std::make_unique<OpenGLContext>(m_Window);
+				break;
+			case RenderAPI::API::None:
+				cdCoreAssert(false, "Invalid RenderAPI");
+				break;
+		}
 		m_RendererContext->init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
