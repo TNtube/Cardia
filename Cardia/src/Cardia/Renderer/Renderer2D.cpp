@@ -148,6 +148,15 @@ namespace Cardia
 	{
 		auto dataSize = static_cast<uint32_t>(reinterpret_cast<uint8_t*>(s_Data->rectVertexBufferPtr) -
 							reinterpret_cast<uint8_t*>(s_Data->rectVertexBufferBase.get()));
+
+		/*
+		std::sort(s_Data->rectVertexBufferBase.get(), s_Data->rectVertexBufferBase.get() + dataSize,
+			  [](RectVertex v1, RectVertex v2) {
+					if (v1.position.z == v2.position.z) return false;
+					return v1.position.z < v2.position.z;
+		});
+		*/
+
 		s_Data->rectVertexBuffer->setData(s_Data->rectVertexBufferBase.get(), dataSize);
 
 		s_Data->basicShader->bind();

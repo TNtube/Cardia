@@ -39,8 +39,16 @@ namespace Cardia
 			return m_Scene->m_Registry.all_of<T>(m_Entity);
 		}
 
+		inline bool operator==(const entt::entity& entity) {
+			return m_Entity == entity;
+		}
+
+		inline explicit operator bool() {
+			return m_Entity != entt::null;
+		}
+
 	private:
-		entt::entity m_Entity;
-		Scene* m_Scene;
+		entt::entity m_Entity = entt::null;
+		Scene* m_Scene = nullptr;
 	};
 }

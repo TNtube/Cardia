@@ -14,7 +14,11 @@ namespace Cardia :: Panel
 		void drawComponents();
 
 	private:
+		template<typename T>
+		void drawInspectorComponent(const char* name, std::function<void(T&)> func);
+
+	private:
 		Scene* m_Scene;
-		entt::entity m_EntityClicked { entt::null };
+		Entity m_EntityClicked;
 	};
 }
