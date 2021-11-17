@@ -4,10 +4,10 @@
 #include <glm/glm.hpp>
 
 #include "Camera.hpp"
+#include "EditorCamera.hpp"
 #include "Shader.hpp"
 #include "VertexArray.hpp"
 #include "Texture.hpp"
-#include "Cardia/ECS/SceneCamera.hpp"
 
 namespace Cardia
 {
@@ -19,6 +19,7 @@ namespace Cardia
 
 		static void beginScene(OrthographicCamera camera);
 		static void beginScene(const Camera& camera, glm::mat4 transform);
+		static void beginScene(EditorCamera& camera);
 		static void endScene();
 
 		static void startBash();

@@ -14,7 +14,7 @@ namespace Cardia
 
 		SceneCamera();
 
-		virtual ~SceneCamera() = default;
+		~SceneCamera() override = default;
 
 		inline ProjectionType getProjectionType() const { return m_ProjectionType; }
 		inline void setProjectionType(ProjectionType type) { m_ProjectionType = type; RecomputeProjection(); }

@@ -4,6 +4,7 @@
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
+#include "Cardia/Renderer/EditorCamera.hpp"
 
 namespace Cardia
 {
@@ -19,11 +20,6 @@ namespace Cardia
 		entity.addComponent<Component::Transform>();
 		entity.addComponent<Component::Name>(name.empty() ? "Default Entity" : name);
 		return entity;
-	}
-
-	void Scene::destroyEntity(const Entity &entity)
-	{
-		m_Registry.destroy(entity.m_Entity);
 	}
 
 	void Scene::destroyEntity(entt::entity entity)
@@ -52,6 +48,20 @@ namespace Cardia
 		}
 
 		Renderer2D::beginScene(*mainCamera, mainCameraTransform);
+
+		auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
+		for (auto entity : view)
+		{
+			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
+			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.color);
+		}
+
+		Renderer2D::endScene();
+	}
+
+	void Scene::onUpdateEditor(DeltaTime deltaTime, EditorCamera& editorCamera)
+	{
+		Renderer2D::beginScene(editorCamera);
 
 		auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
 		for (auto entity : view)

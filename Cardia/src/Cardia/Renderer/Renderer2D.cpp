@@ -126,6 +126,15 @@ namespace Cardia
 		startBash();
 	}
 
+	void Renderer2D::beginScene(EditorCamera &camera)
+	{
+		s_Data->basicShader->bind();
+		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjection());
+		s_Data->stats.drawCalls = 0;
+		s_Data->stats.triangleCount = 0;
+		startBash();
+	}
+
 	void Renderer2D::startBash()
 	{
 		s_Data->rectIndexCount = 0;
