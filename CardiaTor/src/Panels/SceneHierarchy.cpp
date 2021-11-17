@@ -30,18 +30,37 @@ namespace Cardia :: Panel
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, node_flags, "%s", name.name.c_str())) {
-				if(ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 					m_EntityClicked = Entity(entity, m_Scene);
+					ImGui::TreePop();
+				}
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+					m_EntityClicked = Entity(entity, m_Scene);
+					ImGui::OpenPopup("Menu Hierarchy");
+					ImGui::TreePop();
 				}
 				ImGui::TreePop();
 			}
+		}
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
+			m_EntityClicked = {};
+		}
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()) {
+			ImGui::OpenPopup("Menu Hierarchy");
+		}
 
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-				ImGui::OpenPopup("Menu Hierarchy");
+		if (ImGui::BeginPopup("Menu Hierarchy")) {
+			if (m_EntityClicked && ImGui::MenuItem("Remove Entity")) {
+				m_Scene->destroyEntity(m_EntityClicked);
+				m_EntityClicked = {};
+				ImGui::EndPopup();
 			}
-			if (ImGui::BeginPopup("Menu Hierarchy")) {
+			if (ImGui::MenuItem("Create Empty")) {
+				m_EntityClicked = m_Scene->createEntity();
+				ImGui::EndPopup();
+			}
 
-			}
+			ImGui::EndPopup();
 		}
 		ImGui::End();
 	}
