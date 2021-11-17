@@ -1,6 +1,7 @@
 #pragma once
 #include <entt/entt.hpp>
 #include <Cardia/Core/Time.hpp>
+#include <Cardia/Renderer/EditorCamera.hpp>
 
 
 namespace Cardia
@@ -16,7 +17,7 @@ namespace Cardia
 		void destroyEntity(entt::entity entity);
 
 		void onUpdate(DeltaTime deltaTime);
-		void onUpdateEditor(DeltaTime deltaTime);
+		void onUpdateEditor(DeltaTime deltaTime, EditorCamera& editorCamera);
 		inline const char* getName() { return m_Name.c_str(); }
 
 	private:
