@@ -250,7 +250,7 @@ namespace Cardia
 
 		dispatcher.dispatch<KeyDownEvent>([this](KeyDownEvent& e) -> bool {
 			if (e.getKeyCode() == Key::Up)
-				m_CurrentScene->createEntity("New Square").addComponent<Component::SpriteRenderer>(glm::vec4(1.0f));
+				m_CurrentScene->createEntity();
 			return false;
 		});
 	}

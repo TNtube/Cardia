@@ -10,12 +10,14 @@ namespace Cardia :: Panel
 	public:
 		explicit SceneHierarchy(Scene* scene);
 		void onImGuiRender(DeltaTime deltaTime);
-		void drawHierarchy();
-		void drawComponents();
 
 	private:
 		template<typename T>
 		void drawInspectorComponent(const char* name, std::function<void(T&)> func);
+		void drawHierarchy();
+		void drawComponents();
+		void drawPopupAddComponent();
+		void resetEntityClicked() { m_EntityClicked = Entity(); }
 
 	private:
 		Scene* m_Scene;

@@ -34,6 +34,12 @@ namespace Cardia::Component
 			     * glm::toMat4(glm::quat(rotation))
 			     * glm::scale(glm::mat4(1.0f), scale);
 		}
+
+		inline void reset() {
+			position = glm::vec3(0);
+			rotation = glm::vec3(0);
+			scale = glm::vec3(1);
+		}
 	};
 
 	struct SpriteRenderer
@@ -46,6 +52,12 @@ namespace Cardia::Component
 		glm::vec4 color { 1.0f };
 		Texture2D* texture = nullptr;
 		float tillingFactor = 1.0f;
+
+		inline void reset() {
+			texture = nullptr;
+			tillingFactor = 1.0f;
+			color = glm::vec4(1.0f);
+		}
 	};
 
 	struct Camera
@@ -54,5 +66,10 @@ namespace Cardia::Component
 		bool primary = true;
 		Camera() = default;
 		Camera(const Camera&) = default;
+
+		inline void reset()
+		{
+			camera = SceneCamera();
+		}
 	};
 }

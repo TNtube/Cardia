@@ -35,6 +35,13 @@ namespace Cardia :: Panel
 				}
 				ImGui::TreePop();
 			}
+
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+				ImGui::OpenPopup("Menu Hierarchy");
+			}
+			if (ImGui::BeginPopup("Menu Hierarchy")) {
+
+			}
 		}
 		ImGui::End();
 	}
@@ -55,8 +62,6 @@ namespace Cardia :: Panel
 			{
 				name.name = std::string(buffer, bufferSize);
 			}
-
-			auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
 			// Transform Component
 
@@ -96,7 +101,29 @@ namespace Cardia :: Panel
 					if (ImGui::DragFloat("Near", &pNear, 0.05f))
 						cam.setPerspectiveNear(pNear);
 				}
+				else if (cam.getProjectionType() == SceneCamera::ProjectionType::Orthographic) {
+					float oSize = cam.getOrthographicSize();
+					if (ImGui::DragFloat("Size", &oSize, 0.05f))
+						cam.setOrthographicSize(oSize);
+					float oFar = cam.getOrthographicFar();
+					if (ImGui::DragFloat("Far", &oFar, 0.05f))
+						cam.setOrthographicFar(oFar);
+					float oNear = cam.getOrthographicNear();
+					if (ImGui::DragFloat("Near", &oNear, 0.05f))
+						cam.setOrthographicNear(oNear);
+				}
 			});
+
+			ImGui::Separator();
+
+			auto windowWidth = ImGui::GetWindowSize().x;
+			auto textWidth   = ImGui::CalcTextSize("Add Components...").x;
+
+			ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+			if (ImGui::Button("Add Component...")) {
+				ImGui::OpenPopup("Add Component");
+			}
+			drawPopupAddComponent();
 		}
 		ImGui::End();
 	}
@@ -110,8 +137,44 @@ namespace Cardia :: Panel
 			auto& component = m_EntityClicked.getComponent<T>();
 			if(ImGui::TreeNodeEx((void*)(&component), componentFlags, "%s", name))
 			{
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+					ImGui::OpenPopup("Menu Component Inspector");
+				}
+				if (ImGui::BeginPopup("Menu Component Inspector"))
+				{
+					if (ImGui::MenuItem("Reset Component"))
+					{
+						component.reset();
+						ImGui::EndPopup();
+					}
+
+					if (!std::is_same<T, Component::Transform>::value && ImGui::MenuItem("Remove Component"))
+					{
+						m_EntityClicked.removeComponent<T>();
+						ImGui::EndPopup();
+					}
+					ImGui::EndPopup();
+				}
 				func(component);
 				ImGui::TreePop();
+			}
+		}
+	}
+
+	void SceneHierarchy::drawPopupAddComponent()
+	{
+		if (ImGui::BeginPopup("Add Component"))
+		{
+			if (!m_EntityClicked.hasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
+			{
+				m_EntityClicked.addComponent<Component::Camera>();
+				ImGui::EndPopup();
+			}
+
+			if (!m_EntityClicked.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
+			{
+				m_EntityClicked.addComponent<Component::SpriteRenderer>();
+				ImGui::EndPopup();
 			}
 		}
 	}

@@ -21,6 +21,11 @@ namespace Cardia
 		return entity;
 	}
 
+	void Scene::destroyEntity(const Entity &entity)
+	{
+		m_Registry.destroy(entity.m_Entity);
+	}
+
 	void Scene::onUpdate(DeltaTime deltaTime)
 	{
 

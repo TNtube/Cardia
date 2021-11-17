@@ -22,9 +22,15 @@ namespace Cardia
 		template<typename T, typename... Args>
 		T& addComponent(Args&&... args)
 		{
-			cdCoreAssert(!hasComponent<T>(), "Entity {0}");
+			cdCoreAssert(!hasComponent<T>(), "Entity already has component");
 			T& component = m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
 			return component;
+		}
+
+		template<typename T>
+		void removeComponent()
+		{
+			m_Scene->m_Registry.remove<T>(m_Entity);
 		}
 
 		template<typename T>
@@ -48,6 +54,7 @@ namespace Cardia
 		}
 
 	private:
+		friend class Scene;
 		entt::entity m_Entity = entt::null;
 		Scene* m_Scene = nullptr;
 	};

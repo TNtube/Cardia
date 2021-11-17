@@ -13,6 +13,8 @@ namespace Cardia
 		explicit Scene(std::string name);
 		Entity createEntity(const std::string& name = "");
 
+		void destroyEntity(const Entity& entity);
+
 		void onUpdate(DeltaTime deltaTime);
 		inline const char* getName() { return m_Name.c_str(); }
 
