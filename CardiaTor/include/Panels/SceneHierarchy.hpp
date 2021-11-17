@@ -17,7 +17,7 @@ namespace Cardia :: Panel
 		void drawHierarchy();
 		void drawComponents();
 		void drawPopupAddComponent();
-		void resetEntityClicked() { m_EntityClicked = Entity(); }
+		void resetEntityClicked() { m_EntityClicked = {}; }
 
 	private:
 		Scene* m_Scene;

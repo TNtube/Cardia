@@ -32,33 +32,27 @@ namespace Cardia :: Panel
 			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, node_flags, "%s", name.name.c_str())) {
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 					m_EntityClicked = Entity(entity, m_Scene);
-					ImGui::TreePop();
 				}
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				if (ImGui::BeginPopupContextItem())
+				{
 					m_EntityClicked = Entity(entity, m_Scene);
-					ImGui::OpenPopup("Menu Hierarchy");
-					ImGui::TreePop();
+					if (ImGui::MenuItem("Delete Entity"))
+					{
+						m_Scene->destroyEntity(entity);
+						resetEntityClicked();
+					}
+					ImGui::EndPopup();
 				}
 				ImGui::TreePop();
 			}
 		}
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
-			m_EntityClicked = {};
+			resetEntityClicked();
 		}
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()) {
-			ImGui::OpenPopup("Menu Hierarchy");
-		}
-
-		if (ImGui::BeginPopup("Menu Hierarchy")) {
-			if (m_EntityClicked && ImGui::MenuItem("Remove Entity")) {
-				m_Scene->destroyEntity(m_EntityClicked);
-				m_EntityClicked = {};
-				ImGui::EndPopup();
-			}
-			if (ImGui::MenuItem("Create Empty")) {
-				m_EntityClicked = m_Scene->createEntity();
-				ImGui::EndPopup();
-			}
+		if (ImGui::BeginPopupContextWindow(nullptr, 1, false))
+		{
+			if (ImGui::MenuItem("Create Entity"))
+				m_Scene->createEntity();
 
 			ImGui::EndPopup();
 		}
@@ -156,10 +150,7 @@ namespace Cardia :: Panel
 			auto& component = m_EntityClicked.getComponent<T>();
 			if(ImGui::TreeNodeEx((void*)(&component), componentFlags, "%s", name))
 			{
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-					ImGui::OpenPopup("Menu Component Inspector");
-				}
-				if (ImGui::BeginPopup("Menu Component Inspector"))
+				if (ImGui::BeginPopupContextItem())
 				{
 					if (ImGui::MenuItem("Reset Component"))
 					{

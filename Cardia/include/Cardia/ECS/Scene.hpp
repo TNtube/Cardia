@@ -14,6 +14,7 @@ namespace Cardia
 		Entity createEntity(const std::string& name = "");
 
 		void destroyEntity(const Entity& entity);
+		void destroyEntity(entt::entity entity);
 
 		void onUpdate(DeltaTime deltaTime);
 		inline const char* getName() { return m_Name.c_str(); }
