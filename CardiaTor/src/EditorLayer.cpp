@@ -6,8 +6,6 @@ namespace Cardia
 {
 	void EditorLayer::onPush()
 	{
-		m_TextureSquare = Texture2D::create("assets/square.jpg");
-		m_TextureBox = Texture2D::create("assets/container.jpg");
 
 		FramebufferSpec spec{};
 		auto &window = Application::get().getWindow();
@@ -18,14 +16,14 @@ namespace Cardia
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
 
-		auto square = m_CurrentScene->createEntity("Blue Square");
-		square.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
+		auto component = m_CurrentScene->createEntity("Blue Square");
+		component.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
 
-		square = m_CurrentScene->createEntity("Red Square");
-		square.addComponent<Component::SpriteRenderer>(glm::vec4{0.8f, 0.2f, 0.3f, 1.0f});
+		component = m_CurrentScene->createEntity("Red Square");
+		component.addComponent<Component::SpriteRenderer>(glm::vec4{0.8f, 0.2f, 0.3f, 1.0f});
 
-		m_CameraEntity = m_CurrentScene->createEntity("Camera");
-		m_CameraEntity.addComponent<Component::Camera>();
+		component = m_CurrentScene->createEntity("Camera");
+		component.addComponent<Component::Camera>();
 
 		m_Framebuffer = Framebuffer::create(spec);
 	}
@@ -37,7 +35,8 @@ namespace Cardia
 		RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
 		RenderCommand::clear();
 
-		m_CurrentScene->onUpdate(deltaTime);
+		m_EditorCamera.onUpdate(deltaTime);
+		m_CurrentScene->onUpdateEditor(deltaTime, m_EditorCamera);
 
 		m_Framebuffer->unbind();
 	}
@@ -239,19 +238,13 @@ namespace Cardia
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
 		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
-		m_CameraEntity.getComponent<Component::Camera>().camera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
+		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 
 		ImGui::End();
 	}
 
 	void EditorLayer::onEvent(Event &event)
 	{
-		EventDispatcher dispatcher(event);
-
-		dispatcher.dispatch<KeyDownEvent>([this](KeyDownEvent& e) -> bool {
-			if (e.getKeyCode() == Key::Up)
-				m_CurrentScene->createEntity();
-			return false;
-		});
+		m_EditorCamera.onEvent(event);
 	}
 }

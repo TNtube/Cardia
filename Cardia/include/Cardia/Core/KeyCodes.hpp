@@ -57,8 +57,21 @@ namespace Cardia::Key {
 		Right				= 262,
 		Left				= 263,
 		Down				= 264,
-		Up				= 265
+		Up				= 265,
+
+		LeftAlt				= 342,
+		RightAlt			= 346,
 
 		// MISSING A LOT OF KEY CODES
+	};
+}
+
+namespace Cardia::Mouse
+{
+	enum : uint32_t
+	{
+		Left				= 0,
+		Right				= 1,
+		Middle				= 2
 	};
 }

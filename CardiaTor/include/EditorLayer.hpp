@@ -30,7 +30,7 @@ namespace Cardia
 
 		float time = 0.0f;
 
-		Entity m_CameraEntity;
+		EditorCamera m_EditorCamera;
 
 		float m_AspectRatio = static_cast<float>(Application::get().getWindow().getWidth())
 				      / static_cast<float>(Application::get().getWindow().getHeight());
