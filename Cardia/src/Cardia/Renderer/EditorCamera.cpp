@@ -22,7 +22,21 @@ namespace Cardia
 		if (Input::isMouseButtonPressed(Mouse::Middle))
 			mousePan(delta);
 		else if (Input::isMouseButtonPressed(Mouse::Right))
+		{
 			mouseRotate(delta);
+			if (Input::isKeyPressed(Key::A)) {
+				mousePan(glm::vec2(0.02f, 0.0f));
+			}
+			if (Input::isKeyPressed(Key::D)) {
+				mousePan(glm::vec2(-0.02f, 0.0f));
+			}
+			if (Input::isKeyPressed(Key::W)) {
+				mouseZoom(0.09f);
+			}
+			if (Input::isKeyPressed(Key::S)) {
+				mouseZoom(-0.09f);
+			}
+		}
 
 		updateView();
 	}
@@ -55,7 +69,7 @@ namespace Cardia
 
 	glm::quat EditorCamera::getOrientation() const
 	{
-		return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
+		return {(glm::vec3(-m_Pitch, -m_Yaw, 0.0f))};
 	}
 
 	void EditorCamera::updateProjection()
@@ -74,9 +88,9 @@ namespace Cardia
 
 	void EditorCamera::mousePan(const glm::vec2 &delta)
 	{
-		auto [xSpeed, ySpeed] = panSpeed();
-		m_FocalPoint += -getRightDirection() * delta.x * xSpeed * m_Distance;
-		m_FocalPoint += getUpDirection() * delta.y * ySpeed * m_Distance;
+		auto speed = panSpeed();
+		m_FocalPoint += -getRightDirection() * delta.x * speed.x * m_Distance;
+		m_FocalPoint += getUpDirection() * delta.y * speed.y * m_Distance;
 	}
 
 	void EditorCamera::mouseRotate(const glm::vec2 &delta)
@@ -101,7 +115,7 @@ namespace Cardia
 		return m_FocalPoint - getForwardDirection() * m_Distance;
 	}
 
-	std::pair<float, float> EditorCamera::panSpeed() const
+	glm::vec2 EditorCamera::panSpeed() const
 	{
 		float x = std::min(m_ViewportWidth / 1000.0f, 2.4f); // max = 2.4f
 		float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;

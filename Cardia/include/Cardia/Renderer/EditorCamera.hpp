@@ -45,7 +45,7 @@ namespace Cardia
 
 		glm::vec3 calculatePosition() const;
 
-		std::pair<float, float> panSpeed() const;
+		glm::vec2 panSpeed() const;
 		float rotationSpeed() const;
 		float zoomSpeed() const;
 
