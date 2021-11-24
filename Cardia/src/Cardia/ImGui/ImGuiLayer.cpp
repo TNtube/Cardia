@@ -26,6 +26,8 @@ namespace Cardia
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 		ImGui::StyleColorsDark();
 
@@ -53,8 +55,8 @@ namespace Cardia
 	void ImGuiLayer::onEvent(Event &event)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		event.handled |= event.isInCategory(EventCategory::EventCatMouse) & io.WantCaptureMouse;
-		event.handled |= event.isInCategory(EventCategory::EventCatKeyboard) & io.WantCaptureKeyboard;
+		//event.handled |= event.isInCategory(EventCategory::EventCatMouse) & io.WantCaptureMouse;
+		//event.handled |= event.isInCategory(EventCategory::EventCatKeyboard) & io.WantCaptureKeyboard;
 	}
 
 	void ImGuiLayer::Begin()
