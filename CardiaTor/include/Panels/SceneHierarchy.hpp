@@ -10,6 +10,7 @@ namespace Cardia :: Panel
 	public:
 		explicit SceneHierarchy(Scene* scene);
 		void onImGuiRender(DeltaTime deltaTime);
+		Entity getClickedEntity() { return m_EntityClicked; }
 
 	private:
 		template<typename T>

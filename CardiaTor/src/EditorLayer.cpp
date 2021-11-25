@@ -1,6 +1,9 @@
 #include "EditorLayer.hpp"
 #include <Cardia.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
+#include <ImGuizmo.h>
 
 namespace Cardia
 {
@@ -225,6 +228,12 @@ namespace Cardia
 		m_SceneHierarchyPanel->onImGuiRender(deltaTime);
 
 		ImGui::Begin("Edit");
+
+		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 		uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
@@ -237,8 +246,42 @@ namespace Cardia
 		ImGui::Image(reinterpret_cast<void *>(static_cast<size_t>(textureID)),
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
+
 		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
+
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
+
+		ImGuizmo::SetRect(0, 0, m_SceneSize.x, m_SceneSize.y);
+		auto selectedEntity = m_SceneHierarchyPanel->getClickedEntity();
+		if (selectedEntity)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+
+			ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+
+			// Editor camera
+			const glm::mat4& cameraProjection = m_EditorCamera.getProjection();
+			glm::mat4 cameraView = m_EditorCamera.getViewMatrix();
+			auto& transformComponent = selectedEntity.getComponent<Component::Transform>();
+			glm::mat4 transform = transformComponent.getTransform();
+
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+					     ImGuizmo::ROTATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
+					     nullptr, nullptr);
+
+			if (ImGuizmo::IsUsing())
+			{
+				glm::vec3 translation, scale, skew;
+				glm::quat rotation;
+				glm::vec4 perspective;
+				glm::decompose(transform, scale, rotation, translation, skew, perspective);
+				transformComponent.rotation = glm::eulerAngles(rotation);
+				transformComponent.position = translation;
+				transformComponent.scale = scale;
+
+			}
+		}
 
 		ImGui::End();
 	}
