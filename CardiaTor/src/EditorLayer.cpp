@@ -267,7 +267,7 @@ namespace Cardia
 			glm::mat4 transform = transformComponent.getTransform();
 
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					     ImGuizmo::ROTATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
+					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
 					     nullptr, nullptr);
 
 			if (ImGuizmo::IsUsing())

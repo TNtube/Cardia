@@ -31,7 +31,7 @@ namespace Cardia
 		float time = 0.0f;
 
 		EditorCamera m_EditorCamera;
-		glm::vec2 m_ViewportBounds[2];
+		glm::vec2 m_ViewportBounds[2]{};
 
 		float m_AspectRatio = static_cast<float>(Application::get().getWindow().getWidth())
 				      / static_cast<float>(Application::get().getWindow().getHeight());

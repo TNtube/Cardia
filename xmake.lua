@@ -10,8 +10,6 @@ add_rules("mode.debug", "mode.release", "mode.asan")
 add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx2a")
 
-add_repositories("test-repo xmake-repo")
-
 add_requires("spdlog v1.9.0")                                               -- latest version at the time
 add_requires("glfw 3.3.4")                                                  -- latest version at the time
 add_requires("glad v0.1.34")                                                -- latest version at the time
