@@ -53,7 +53,7 @@ namespace Cardia
 
 	void ImGuiLayer::onEvent(Event &event)
 	{
-		ImGuiIO& io = ImGui::GetIO();
+		// ImGuiIO& io = ImGui::GetIO();
 		//event.handled |= event.isInCategory(EventCategory::EventCatMouse) & io.WantCaptureMouse;
 		//event.handled |= event.isInCategory(EventCategory::EventCatKeyboard) & io.WantCaptureKeyboard;
 	}

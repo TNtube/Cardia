@@ -31,7 +31,7 @@ namespace Cardia :: Panel
 			auto node_flags = ((m_EntityClicked == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, node_flags, "%s", name.name.c_str())) {
+			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity))), node_flags, "%s", name.name.c_str())) {
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 					m_EntityClicked = Entity(entity, m_Scene);
 				}
@@ -150,7 +150,7 @@ namespace Cardia :: Panel
 
 		if (m_EntityClicked.hasComponent<T>()) {
 			auto& component = m_EntityClicked.getComponent<T>();
-			if(ImGui::TreeNodeEx((void*)(&component), componentFlags, "%s", name))
+			if(ImGui::TreeNodeEx(static_cast<void*>(&component), componentFlags, "%s", name))
 			{
 				if (ImGui::BeginPopupContextItem())
 				{

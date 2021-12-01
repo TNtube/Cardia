@@ -11,7 +11,6 @@ void SandBox2D::onPush()
 
 	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
-	glm::vec3 position = m_Camera.getPosition();
 }
 
 

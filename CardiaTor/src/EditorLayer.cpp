@@ -12,11 +12,9 @@ namespace Cardia
 	void EditorLayer::onPush()
 	{
 
-		FramebufferSpec spec{};
 		auto &window = Application::get().getWindow();
 
-		spec.width = window.getWidth();
-		spec.height = window.getHeight();
+		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
