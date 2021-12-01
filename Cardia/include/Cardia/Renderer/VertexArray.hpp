@@ -1,11 +1,14 @@
 #pragma once
+
 #include "Buffer.hpp"
+
 
 namespace Cardia
 {
 	class VertexArray
 	{
 	public:
+		virtual ~VertexArray() = default;
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 		virtual void addVertexBuffer (std::unique_ptr<VertexBuffer> vertexBuffer) = 0;

@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Cardia/Core/Core.hpp"
+
 
 namespace Cardia
 {
@@ -99,6 +101,7 @@ namespace Cardia
 	class VertexBuffer
 	{
 	public:
+		virtual ~VertexBuffer() = default;
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 		virtual void setLayout(const BufferLayout& layout) = 0;
@@ -113,6 +116,7 @@ namespace Cardia
 	class IndexBuffer
 	{
 	public:
+		virtual ~IndexBuffer() = default;
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 		virtual int getCount() const = 0;

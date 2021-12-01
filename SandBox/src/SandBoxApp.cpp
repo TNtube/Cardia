@@ -1,7 +1,8 @@
+#include "SandBox2D.hpp"
+
 #include <Cardia.hpp>
 #include <Cardia/EntryPoint.hpp>
 
-#include "SandBox2D.hpp"
 
 class SandBox : public Cardia::Application
 {

@@ -4,6 +4,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 
+
 namespace Cardia
 {
 	EditorCamera::EditorCamera(float fov, float nearClip, float farClip, float aspectRatio)

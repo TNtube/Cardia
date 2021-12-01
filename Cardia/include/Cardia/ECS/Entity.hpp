@@ -1,7 +1,9 @@
 #pragma once
-#include <entt/entt.hpp>
+
 #include "Scene.hpp"
 #include "Cardia/Core/Core.hpp"
+
+#include <entt/entt.hpp>
 
 
 namespace Cardia

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Cardia/Core/Core.hpp"
 
 namespace Cardia

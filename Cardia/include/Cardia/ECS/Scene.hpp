@@ -1,7 +1,9 @@
 #pragma once
+
+#include "Cardia/Core/Time.hpp"
+#include "Cardia/Renderer/EditorCamera.hpp"
+
 #include <entt/entt.hpp>
-#include <Cardia/Core/Time.hpp>
-#include <Cardia/Renderer/EditorCamera.hpp>
 
 
 namespace Cardia
@@ -18,7 +20,7 @@ namespace Cardia
 
 		void onUpdate(DeltaTime deltaTime);
 		void onUpdateEditor(DeltaTime deltaTime, EditorCamera& editorCamera);
-		inline const char* getName() { return m_Name.c_str(); }
+		inline const char* getName() const { return m_Name.c_str(); }
 
 	private:
 		std::string m_Name;

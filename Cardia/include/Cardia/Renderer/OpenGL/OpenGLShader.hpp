@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Cardia/Renderer/Shader.hpp"
+
 #include <initializer_list>
 
-#include "Cardia/Renderer/Shader.hpp"
 
 namespace Cardia
 {

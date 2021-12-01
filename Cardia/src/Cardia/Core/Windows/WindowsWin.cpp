@@ -6,6 +6,7 @@
 #include "Cardia/Renderer/OpenGL/OpenGLContext.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
+
 namespace Cardia
 {
 	bool WindowsWin::s_isGlfwInit = false;

@@ -1,6 +1,8 @@
 #include "Panels/SceneHierarchy.hpp"
+
 #include <entt/entt.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui/imgui.h>
 
 
 namespace Cardia :: Panel

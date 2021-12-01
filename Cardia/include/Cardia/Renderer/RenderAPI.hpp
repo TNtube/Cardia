@@ -1,13 +1,17 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "VertexArray.hpp"
+
+#include <glm/glm.hpp>
+
 
 namespace Cardia
 {
 	class RenderAPI
 	{
 	public:
+		virtual ~RenderAPI() = default;
+
 		enum class API
 		{
 			None = 0, OpenGL = 1 //, Vulkan = 2, Direct3D = 3

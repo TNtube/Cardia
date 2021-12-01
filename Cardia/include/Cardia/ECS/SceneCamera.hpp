@@ -1,6 +1,9 @@
 #pragma once
-#include <glm/glm.hpp>
+
 #include "Cardia/Renderer/Camera.hpp"
+
+#include <glm/glm.hpp>
+
 
 namespace Cardia
 {

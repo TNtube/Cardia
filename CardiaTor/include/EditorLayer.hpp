@@ -1,7 +1,9 @@
 #pragma once
+
+#include "Panels/SceneHierarchy.hpp"
+
 #include <Cardia.hpp>
 #include <random>
-#include "Panels/SceneHierarchy.hpp"
 
 
 namespace Cardia

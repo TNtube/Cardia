@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cardia/Core/Core.hpp"
+
 #include "Application.hpp"
 
 

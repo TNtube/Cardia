@@ -1,5 +1,6 @@
 #pragma once
 
+
 #if !defined(_WIN64) && !defined(__linux__)
 	#error Cardia is only for Windows x64 or Linux !
 #endif

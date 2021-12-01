@@ -2,6 +2,7 @@
 #include "Cardia/ECS/SceneCamera.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
+
 namespace Cardia
 {
 	SceneCamera::SceneCamera()

@@ -6,6 +6,7 @@
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Renderer/EditorCamera.hpp"
 
+
 namespace Cardia
 {
 	Scene::Scene(std::string name)

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Cardia/Core/Window.hpp"
-#include <GLFW/glfw3.h>
 #include "Cardia/Renderer/RendererContext.hpp"
+
+#include <GLFW/glfw3.h>
 
 
 namespace Cardia

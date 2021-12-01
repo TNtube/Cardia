@@ -1,5 +1,6 @@
 #pragma once
 
+
 namespace Cardia::Key {
 	enum : uint32_t {
 		// from GLFW

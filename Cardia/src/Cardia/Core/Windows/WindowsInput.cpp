@@ -3,6 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
+
 namespace Cardia
 {
 	inline GLFWwindow* getNativeWin()

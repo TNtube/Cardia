@@ -1,7 +1,9 @@
 #pragma once
+
 #include "Cardia/Core/Event.hpp"
 #include "Cardia/Core/Time.hpp"
 #include "Camera.hpp"
+
 #include <glm/gtc/quaternion.hpp>
 
 

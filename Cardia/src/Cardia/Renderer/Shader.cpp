@@ -4,6 +4,7 @@
 #include "Cardia/Renderer/Renderer.hpp"
 #include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
 
+
 namespace Cardia
 {
 	std::unique_ptr<Shader> Shader::create(std::initializer_list<std::string> filePaths)

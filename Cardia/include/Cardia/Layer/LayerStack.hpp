@@ -3,6 +3,7 @@
 #include "Layer.hpp"
 #include "Cardia/Core/Core.hpp"
 
+
 namespace Cardia
 {
 	class LayerStack

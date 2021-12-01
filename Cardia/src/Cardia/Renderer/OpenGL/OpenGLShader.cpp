@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+
 namespace Cardia
 {
 	static std::string LoadShader(const std::string& filePath)

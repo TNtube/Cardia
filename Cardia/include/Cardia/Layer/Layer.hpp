@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Cardia/Core/Core.hpp"
 #include "Cardia/Core/Event.hpp"
 #include "Cardia/Core/Time.hpp"
+
 
 namespace Cardia
 {

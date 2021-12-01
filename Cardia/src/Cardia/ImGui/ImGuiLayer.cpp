@@ -1,14 +1,13 @@
 #include "cdpch.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
+#include "Cardia/Core/Application.hpp"
+#include "Cardia/Renderer/Renderer2D.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
-
-#include "Cardia/Core/Application.hpp"
-#include "Cardia/Renderer/Renderer2D.hpp"
-
 #include <GLFW/glfw3.h>
+
 
 namespace Cardia
 {

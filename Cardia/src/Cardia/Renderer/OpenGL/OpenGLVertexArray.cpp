@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 
+
 namespace Cardia
 {
 	static GLenum ShaderDataTypeToOpenGLType(ShaderDataType type)
@@ -61,7 +62,7 @@ namespace Cardia
 					      ShaderDataTypeToOpenGLType(element.type),
 					      element.normalized ? GL_TRUE : GL_FALSE,
 					      layout.getStride(),
-					      reinterpret_cast<const void*>(element.offset));
+					      reinterpret_cast<const void*>(static_cast<int64_t>(element.offset)));
 			index++;
 		}
 		m_VertexBuffers.push_back(std::move(vertexBuffer));

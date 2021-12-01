@@ -1,13 +1,11 @@
 #pragma once
 
-#include <memory>
-#include <glm/glm.hpp>
-
 #include "Camera.hpp"
 #include "EditorCamera.hpp"
-#include "Shader.hpp"
-#include "VertexArray.hpp"
 #include "Texture.hpp"
+
+#include <glm/glm.hpp>
+
 
 namespace Cardia
 {

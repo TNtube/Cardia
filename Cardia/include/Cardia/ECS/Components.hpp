@@ -1,12 +1,12 @@
 #pragma once
-#include <glm/glm.hpp>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
-
-#include <utility>
 #include "Cardia/Renderer/Texture.hpp"
 #include "SceneCamera.hpp"
+
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+#include <utility>
 
 
 namespace Cardia::Component

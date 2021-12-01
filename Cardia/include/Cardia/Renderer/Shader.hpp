@@ -1,4 +1,5 @@
 #pragma once
+
 #include <glm/glm.hpp>
 #include <memory>
 #include <string>
@@ -9,6 +10,7 @@ namespace Cardia
 	class Shader
 	{
 	public:
+		virtual ~Shader() = default;
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 

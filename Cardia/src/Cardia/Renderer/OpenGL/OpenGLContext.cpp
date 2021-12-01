@@ -1,5 +1,4 @@
 #include "cdpch.hpp"
-
 #include "Cardia/Core/Core.hpp"
 #include "Cardia/Renderer/OpenGL/OpenGLContext.hpp"
 
