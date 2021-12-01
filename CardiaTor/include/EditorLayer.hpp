@@ -1,7 +1,5 @@
 #pragma once
 #include <Cardia.hpp>
-#include <imgui.h>
-#include <deque>
 #include <random>
 #include "Panels/SceneHierarchy.hpp"
 
@@ -28,10 +26,8 @@ namespace Cardia
 
 		glm::vec2 m_SceneSize {};
 
-		float time = 0.0f;
-
 		EditorCamera m_EditorCamera;
-		glm::vec2 m_ViewportBounds[2]{};
+		glm::vec4 m_ViewportBounds{};
 
 		float m_AspectRatio = static_cast<float>(Application::get().getWindow().getWidth())
 				      / static_cast<float>(Application::get().getWindow().getHeight());
