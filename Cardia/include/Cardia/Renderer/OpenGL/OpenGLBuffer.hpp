@@ -10,7 +10,7 @@ namespace Cardia
 	public:
 		OpenGLVertexBuffer(float* vertices, uint32_t size);
 		OpenGLVertexBuffer(uint32_t size);
-		~OpenGLVertexBuffer();
+		~OpenGLVertexBuffer() override;
 		void bind() const override;
 		void unbind() const override;
 		void setData(const void* data, uint32_t size) override;
@@ -26,7 +26,7 @@ namespace Cardia
 	{
 	public:
 		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
-		~OpenGLIndexBuffer();
+		~OpenGLIndexBuffer() override;
 		void bind() const override;
 		void unbind() const override;
 		inline int getCount() const override { return m_Count; }

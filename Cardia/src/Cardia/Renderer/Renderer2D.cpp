@@ -18,11 +18,18 @@ namespace Cardia
 		float tilingFactor;
 	};
 
+	struct Rect
+	{
+		RectVertex vertices[4];
+	};
+
 	struct Renderer2DData {
 		const uint32_t maxRect = 10000;
 		const uint32_t maxVertices = maxRect * 4;
 		const uint32_t maxIndices = maxRect * 6;
-		static const int maxTextureSlots = 32; // TODO: get it from RenderCommand
+		static constexpr int maxTextureSlots = 32; // TODO: get it from RenderCommand
+
+		glm::vec3 camPos;
 
 		std::unique_ptr<VertexArray> rectVertexArray;
 		VertexBuffer* rectVertexBuffer = nullptr;
@@ -31,8 +38,8 @@ namespace Cardia
 
 		glm::vec4 rectPositions[4] {};
 		uint32_t rectIndexCount = 0;
-		std::unique_ptr<RectVertex[]> rectVertexBufferBase = nullptr;
-		RectVertex* rectVertexBufferPtr = nullptr;
+		std::unique_ptr<Rect[]> rectBufferBase = nullptr;
+		Rect* rectBufferPtr = nullptr;
 
 		std::array<const Texture2D*, maxTextureSlots> textureSlots {};
 		int textureSlotIndex = 1;
@@ -62,7 +69,7 @@ namespace Cardia
 		s_Data->rectVertexBuffer = rectVBO.get();
 		s_Data->rectVertexArray->addVertexBuffer(std::move(rectVBO));
 
-		s_Data->rectVertexBufferBase = std::make_unique<RectVertex[]>(s_Data->maxVertices);
+		s_Data->rectBufferBase = std::make_unique<Rect[]>(s_Data->maxRect);
 
 		std::unique_ptr<uint32_t[]> rectIndices = std::make_unique<uint32_t[]>(s_Data->maxIndices);
 
@@ -77,8 +84,7 @@ namespace Cardia
 			offset += 4;
 		}
 
-		std::unique_ptr<IndexBuffer> rectIBO;
-		rectIBO = IndexBuffer::create(rectIndices.get(), s_Data->maxIndices);
+		std::unique_ptr<IndexBuffer> rectIBO = IndexBuffer::create(rectIndices.get(), s_Data->maxIndices);
 		s_Data->rectVertexArray->setIndexBuffer(std::move(rectIBO));
 
 
@@ -113,6 +119,7 @@ namespace Cardia
 	void Renderer2D::beginScene(OrthographicCamera camera)
 	{
 		s_Data->basicShader->bind();
+		s_Data->camPos = camera.getPosition();
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->stats.drawCalls = 0;
 		s_Data->stats.triangleCount = 0;
@@ -122,6 +129,7 @@ namespace Cardia
 	void Renderer2D::beginScene(const Camera& camera, glm::mat4 transform)
 	{
 		s_Data->basicShader->bind();
+		s_Data->camPos = glm::vec3(transform[3]);
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjection() * glm::inverse(transform));
 		s_Data->stats.drawCalls = 0;
 		s_Data->stats.triangleCount = 0;
@@ -131,6 +139,7 @@ namespace Cardia
 	void Renderer2D::beginScene(EditorCamera &camera)
 	{
 		s_Data->basicShader->bind();
+		s_Data->camPos = camera.getPosition();
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjection());
 		s_Data->stats.drawCalls = 0;
 		s_Data->stats.triangleCount = 0;
@@ -140,7 +149,7 @@ namespace Cardia
 	void Renderer2D::startBash()
 	{
 		s_Data->rectIndexCount = 0;
-		s_Data->rectVertexBufferPtr = s_Data->rectVertexBufferBase.get();
+		s_Data->rectBufferPtr = s_Data->rectBufferBase.get();
 		s_Data->textureSlotIndex = 1;
 	}
 
@@ -157,18 +166,17 @@ namespace Cardia
 
 	void Renderer2D::render()
 	{
-		auto dataSize = static_cast<uint32_t>(reinterpret_cast<uint8_t*>(s_Data->rectVertexBufferPtr) -
-							reinterpret_cast<uint8_t*>(s_Data->rectVertexBufferBase.get()));
+		const auto dataSize = static_cast<uint32_t>(reinterpret_cast<uint8_t*>(s_Data->rectBufferPtr) -
+							reinterpret_cast<uint8_t*>(s_Data->rectBufferBase.get()));
 
-		/*
-		std::sort(s_Data->rectVertexBufferBase.get(), s_Data->rectVertexBufferBase.get() + dataSize,
-			  [](RectVertex v1, RectVertex v2) {
-					if (v1.position.z == v2.position.z) return false;
-					return v1.position.z < v2.position.z;
-		});
-		*/
+		
+		/*std::sort(s_Data->rectBufferBase.get(), s_Data->rectBufferBase.get() + dataSize,
+			  [](Rect v1, Rect v2) {
+			  	if (v1.vertices[0].position.z == v2.vertices[0].position.z) return false;
+			  	return v1.vertices[0].position.z < v2.vertices[0].position.z;
+		});*/
 
-		s_Data->rectVertexBuffer->setData(s_Data->rectVertexBufferBase.get(), dataSize);
+		s_Data->rectVertexBuffer->setData(s_Data->rectBufferBase.get(), dataSize * 4);
 
 		s_Data->basicShader->bind();
 		for (int i = 0; i < s_Data->textureSlotIndex; ++i)
@@ -207,7 +215,7 @@ namespace Cardia
 
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color, float tilingFactor)
 	{
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+		const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		drawRect(transform, texture, color, tilingFactor);
 
@@ -215,7 +223,7 @@ namespace Cardia
 
 	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)
 	{
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+		const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 				      * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
 				      * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		drawRect(transform, texture, color, tilingFactor);
@@ -257,16 +265,14 @@ namespace Cardia
 
 		for (int i = 0; i < 4; ++i)
 		{
-			s_Data->rectVertexBufferPtr->position = transform * s_Data->rectPositions[i];
-			s_Data->rectVertexBufferPtr->color = color;
-			s_Data->rectVertexBufferPtr->textureCoord = texCoords[i];
-			s_Data->rectVertexBufferPtr->textureIndex = textureIndex;
-			s_Data->rectVertexBufferPtr->tilingFactor = tilingFactor;
-			s_Data->rectVertexBufferPtr++;
+			s_Data->rectBufferPtr->vertices[i].position = transform * s_Data->rectPositions[i];
+			s_Data->rectBufferPtr->vertices[i].color = color;
+			s_Data->rectBufferPtr->vertices[i].textureCoord = texCoords[i];
+			s_Data->rectBufferPtr->vertices[i].textureIndex = textureIndex;
+			s_Data->rectBufferPtr->vertices[i].tilingFactor = tilingFactor;
 		}
-
+		s_Data->rectBufferPtr++;
 		s_Data->rectIndexCount += 6;
-
 		s_Data->stats.triangleCount += 2;
 	}
 }
