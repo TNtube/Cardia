@@ -4,7 +4,7 @@
 #include <imgui/imgui.h>
 
 
-void SandBox2D::onPush()
+SandBox2D::SandBox2D()
 {
 	m_TextureSquare = Cardia::Texture2D::create("assets/square.jpg");
 	m_TextureBox = Cardia::Texture2D::create("assets/container.jpg");
@@ -12,7 +12,6 @@ void SandBox2D::onPush()
 	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
 }
-
 
 void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 {

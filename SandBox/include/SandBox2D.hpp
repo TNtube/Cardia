@@ -5,12 +5,11 @@
 #include <random>
 
 
-class SandBox2D : public Cardia::Layer
+class SandBox2D : public Cardia::Application
 {
 public:
-	explicit SandBox2D(std::string name) : Layer(std::move(name)) {}
+	SandBox2D();
 
-	void onPush() override;
 	void onUpdate(Cardia::DeltaTime deltaTime) override;
 	void onEvent(Cardia::Event& event) override;
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override;

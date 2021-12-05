@@ -1,5 +1,6 @@
 ﻿#include "CardiaTor.hpp"
-#include "Cardia/EntryPoint.hpp"
+
+#include <Cardia/EntryPoint.hpp>
 
 
 std::unique_ptr<Cardia::Application> Cardia::CreateApplication()
