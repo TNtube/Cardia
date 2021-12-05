@@ -171,9 +171,8 @@ namespace Cardia
 
 		
 		/*std::sort(s_Data->rectBufferBase.get(), s_Data->rectBufferBase.get() + dataSize,
-			  [](Rect v1, Rect v2) {
-			  	if (v1.vertices[0].position.z == v2.vertices[0].position.z) return false;
-			  	return v1.vertices[0].position.z < v2.vertices[0].position.z;
+			[](Rect v1, Rect v2) {
+				return v1.vertices[0].position.z < v2.vertices[0].position.z;
 		});*/
 
 		s_Data->rectVertexBuffer->setData(s_Data->rectBufferBase.get(), dataSize * 4);
@@ -218,7 +217,6 @@ namespace Cardia
 		const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		drawRect(transform, texture, color, tilingFactor);
-
 	}
 
 	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)
@@ -265,11 +263,12 @@ namespace Cardia
 
 		for (int i = 0; i < 4; ++i)
 		{
-			s_Data->rectBufferPtr->vertices[i].position = transform * s_Data->rectPositions[i];
-			s_Data->rectBufferPtr->vertices[i].color = color;
-			s_Data->rectBufferPtr->vertices[i].textureCoord = texCoords[i];
-			s_Data->rectBufferPtr->vertices[i].textureIndex = textureIndex;
-			s_Data->rectBufferPtr->vertices[i].tilingFactor = tilingFactor;
+			auto& vertex = s_Data->rectBufferPtr->vertices[i];
+			vertex.position = transform * s_Data->rectPositions[i];
+			vertex.color = color;
+			vertex.textureCoord = texCoords[i];
+			vertex.textureIndex = textureIndex;
+			vertex.tilingFactor = tilingFactor;
 		}
 		s_Data->rectBufferPtr++;
 		s_Data->rectIndexCount += 6;

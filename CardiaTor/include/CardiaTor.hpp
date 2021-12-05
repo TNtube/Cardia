@@ -8,12 +8,12 @@
 
 namespace Cardia
 {
-	class EditorLayer : public Layer
+	class CardiaTor : public Application
 	{
 	public:
-		explicit EditorLayer(std::string name) : Layer(std::move(name)) {}
+		CardiaTor();
 
-		void onPush() override;
+		~CardiaTor() override = default;
 		void onUpdate(DeltaTime deltaTime) override;
 		void onEvent(Event& event) override;
 		void onImGuiDraw(DeltaTime deltaTime) override;

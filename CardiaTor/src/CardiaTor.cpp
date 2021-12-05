@@ -1,4 +1,4 @@
-#include "EditorLayer.hpp"
+#include "CardiaTor.hpp"
 
 #include <Cardia.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,10 +9,9 @@
 
 namespace Cardia
 {
-	void EditorLayer::onPush()
+	CardiaTor::CardiaTor()
 	{
-
-		auto &window = Application::get().getWindow();
+		auto &window = getWindow();
 
 		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 
@@ -32,7 +31,7 @@ namespace Cardia
 	}
 
 
-	void EditorLayer::onUpdate(DeltaTime deltaTime)
+	void CardiaTor::onUpdate(DeltaTime deltaTime)
 	{
 		m_Framebuffer->bind();
 		RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
@@ -221,7 +220,7 @@ namespace Cardia
 		ImGui::End();
 	}
 
-	void EditorLayer::onImGuiDraw(DeltaTime deltaTime)
+	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
 	{
 		EnableDocking();
 		DebugWindow(deltaTime);
@@ -279,14 +278,12 @@ namespace Cardia
 				transformComponent.rotation = glm::eulerAngles(rotation);
 				transformComponent.position = translation;
 				transformComponent.scale = scale;
-
 			}
 		}
-
 		ImGui::End();
 	}
 
-	void EditorLayer::onEvent(Event &event)
+	void CardiaTor::onEvent(Event &event)
 	{
 		m_EditorCamera.onEvent(event);
 	}

@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "Cardia/Core/Application.hpp"
+#include "Cardia/Application.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 
 #include <GLFW/glfw3.h>
@@ -15,38 +15,20 @@ namespace Cardia
 		s_Instance = this;
 
 		m_Window = Window::Create();
-		m_Window->setEventCallback(CD_BIND_EVENT_FN(Application::onEvent));
+		m_Window->setEventCallback([this](Event& e)
+		{
+			EventDispatcher dispatcher(e);
+			dispatcher.dispatch<WinCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
+			m_ImGuiLayer->onEvent(e);
+			onEvent(e);
+		});
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
-		pushOverlay(m_ImGuiLayer.get());
 	}
 
-	void Application::pushLayer(Layer* layer)
-	{
-		m_LayerStack.pushLayer(layer);
-	}
-
-	void Application::pushOverlay(Layer* overlay)
-	{
-		m_LayerStack.pushOverlay(overlay);
-	}
-
-	void Application::onEvent(Event& e)
-	{
-		EventDispatcher dispatcher(e);
-		dispatcher.dispatch<WinCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
-
-		for (auto it = m_LayerStack.rbegin(); it < m_LayerStack.rend(); ++it)
-		{
-			(*it)->onEvent(e);
-			if(e.isHandled())
-				break;
-		}
-	}
-	
 	void Application::Run()
 	{
-		Cardia::Renderer2D::Init();
+		Renderer2D::Init();
 
 		float time = 0.0f;
 		while (m_Running)
@@ -54,21 +36,16 @@ namespace Cardia
 			m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
 			time += m_DeltaTime.seconds();
 
-			for (const auto layer : m_LayerStack)
-			{
-				layer->onUpdate(m_DeltaTime);
-			}
+			onUpdate(m_DeltaTime);
 
 			m_ImGuiLayer->Begin();
-			for (const auto layer : m_LayerStack)
-			{
-				layer->onImGuiDraw(m_DeltaTime);
-			}
+			onImGuiDraw(m_DeltaTime);
 			m_ImGuiLayer->End();
+
 			m_Window->onUpdate();
 
 		}
-		Cardia::Renderer2D::Quit();
+		Renderer2D::Quit();
 	}
 
 	bool Application::onWinClose(WinCloseEvent& e)

@@ -1,6 +1,6 @@
 #include "cdpch.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
-#include "Cardia/Core/Application.hpp"
+#include "Cardia/Application.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 
 #include <imgui.h>
@@ -12,12 +12,6 @@
 namespace Cardia
 {
 	ImGuiLayer::ImGuiLayer()
-		: Layer("ImGuiLayer")
-	{
-
-	}
-
-	void ImGuiLayer::onPush()
 	{
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -33,8 +27,8 @@ namespace Cardia
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-		    style.WindowRounding = 0.0f;
-		    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
 		const Application& app = Application::get();
@@ -44,7 +38,7 @@ namespace Cardia
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
-	void ImGuiLayer::onPop()
+	ImGuiLayer::~ImGuiLayer()
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -83,9 +77,5 @@ namespace Cardia
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
-	}
-
-	void ImGuiLayer::onImGuiDraw(DeltaTime deltaTime)
-	{
 	}
 }

@@ -2,9 +2,8 @@
 
 // Unique for Cardia App
 
-#include "Cardia/Core/Application.hpp"
+#include "Cardia/Application.hpp"
 #include "Cardia/Core/Log.hpp"
-#include "Cardia/Layer/Layer.hpp"
 #include "Cardia/Core/Time.hpp"
 
 #include "Cardia/ImGui/ImGuiLayer.hpp"

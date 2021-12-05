@@ -1,20 +1,17 @@
 #pragma once
 
-#include "Cardia/Layer/Layer.hpp"
+#include "Cardia/Core/Event.hpp"
 #include "Cardia/Core/Time.hpp"
 
 
 namespace Cardia
 {
-	class ImGuiLayer : public Layer {
+	class ImGuiLayer {
 	public:
 		ImGuiLayer();
-		~ImGuiLayer() override = default;
+		~ImGuiLayer();
 
-		void onEvent(Event &event) override;
-		void onPush() override;
-		void onPop() override;
-		void onImGuiDraw(DeltaTime deltaTime) override;
+		void onEvent(Event &event);
 
 		void Begin();
 		void End();
