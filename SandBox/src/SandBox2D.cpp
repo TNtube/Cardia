@@ -83,7 +83,7 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 	// fullscreen
 	static bool isFullscreen = false;
 	static bool isFullscreenPrev = false;
-	static Cardia::Window &window = Cardia::Application::get().getWindow();
+	static Cardia::Window &window = getWindow();
 	// vsync
 	static bool isVsync = window.isVSync();
 	// dear imgui theme

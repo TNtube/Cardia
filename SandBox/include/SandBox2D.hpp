@@ -34,8 +34,8 @@ private:
 	float time = 0.0f;
 
 	float m_Zoom = 10.0f;
-	float m_AspectRatio = static_cast<float>(Cardia::Application::get().getWindow().getWidth())
-		/ static_cast<float>(Cardia::Application::get().getWindow().getHeight());
+	float m_AspectRatio = static_cast<float>(get().getWindow().getWidth())
+		/ static_cast<float>(get().getWindow().getHeight());
 	Cardia::OrthographicCamera m_Camera {-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom};
 
 

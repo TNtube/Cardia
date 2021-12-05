@@ -31,8 +31,8 @@ namespace Cardia
 		EditorCamera m_EditorCamera;
 		glm::vec4 m_ViewportBounds{};
 
-		float m_AspectRatio = static_cast<float>(Application::get().getWindow().getWidth())
-				      / static_cast<float>(Application::get().getWindow().getHeight());
+		float m_AspectRatio = static_cast<float>(getWindow().getWidth())
+				      / static_cast<float>(getWindow().getHeight());
 
 
 		std::random_device rd;
