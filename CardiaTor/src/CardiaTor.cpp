@@ -34,8 +34,8 @@ namespace Cardia
 	void CardiaTor::onUpdate(DeltaTime deltaTime)
 	{
 		m_Framebuffer->bind();
-		RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
-		RenderCommand::clear();
+		RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
+		RenderAPI::get().clear();
 
 		m_EditorCamera.onUpdate(deltaTime);
 		m_CurrentScene->onUpdateEditor(deltaTime, m_EditorCamera);
@@ -165,9 +165,9 @@ namespace Cardia
 					"Triangle Count");
 				ImGui::Separator();
 				ImGui::Text("GPU's Info");
-				ImGui::Text("Vendor   : %s", RenderCommand::getVendor().c_str());
-				ImGui::Text("Renderer : %s", RenderCommand::getRenderer().c_str());
-				ImGui::Text("Version  : %s", RenderCommand::getVersion().c_str());
+				ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
+				ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
+				ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
 				ImGui::Separator();
 				ImGui::TreePop();
 			}
@@ -177,7 +177,7 @@ namespace Cardia
 			if (isOpen)
 			{
 				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-				RenderCommand::setWireFrame(isWireframeMode);
+				RenderAPI::get().setWireFrame(isWireframeMode);
 
 				ImGui::Checkbox("Fullscreen?", &isFullscreen);
 				if (isFullscreen != isFullscreenPrev)

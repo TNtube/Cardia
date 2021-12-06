@@ -4,6 +4,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Cardia/Renderer/RenderAPI.hpp"
+
 
 namespace Cardia
 {
@@ -28,7 +30,8 @@ namespace Cardia
 
 	void Application::Run()
 	{
-		Renderer2D::Init();
+		RenderAPI::init();
+		Renderer2D::init();
 
 		float time = 0.0f;
 		while (m_Running)
@@ -45,7 +48,7 @@ namespace Cardia
 			m_Window->onUpdate();
 
 		}
-		Renderer2D::Quit();
+		Renderer2D::quit();
 	}
 
 	bool Application::onWinClose(WinCloseEvent& e)

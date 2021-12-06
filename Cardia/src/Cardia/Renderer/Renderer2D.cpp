@@ -1,6 +1,6 @@
 #include "cdpch.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
-#include "Cardia/Renderer/RenderCommand.hpp"
+#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Shader.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -27,7 +27,7 @@ namespace Cardia
 		const uint32_t maxRect = 10000;
 		const uint32_t maxVertices = maxRect * 4;
 		const uint32_t maxIndices = maxRect * 6;
-		static constexpr int maxTextureSlots = 32; // TODO: get it from RenderCommand
+		static constexpr int maxTextureSlots = 32; // TODO: get it from RenderAPI
 
 		glm::vec3 camPos;
 
@@ -49,7 +49,7 @@ namespace Cardia
 
 	static std::unique_ptr<Renderer2DData> s_Data;
 
-	void Renderer2D::Init()
+	void Renderer2D::init()
 	{
 		s_Data = std::make_unique<Renderer2DData>();
 
@@ -111,7 +111,7 @@ namespace Cardia
 		s_Data->rectPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 
-	void Renderer2D::Quit()
+	void Renderer2D::quit()
 	{
 		s_Data.reset();
 	}
@@ -183,7 +183,7 @@ namespace Cardia
 			s_Data->textureSlots[i]->bind(i);
 		}
 
-		RenderCommand::drawIndexed(s_Data->rectVertexArray.get(), s_Data->rectIndexCount);
+		RenderAPI::get().drawIndexed(s_Data->rectVertexArray.get(), s_Data->rectIndexCount);
 		s_Data->stats.drawCalls++;
 	}
 

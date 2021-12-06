@@ -74,7 +74,7 @@ namespace Cardia
 				data->height = h;
 				WinResizeEvent event(w, h);
 				data->eventCallback(event);
-				RenderCommand::setViewPort(0, 0, w, h);
+				RenderAPI::get().setViewPort(0, 0, w, h);
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)
@@ -196,7 +196,7 @@ namespace Cardia
 
 		int vpWidth, vpHeight;
 		glfwGetFramebufferSize(m_Window, &vpWidth, &vpHeight);
-		RenderCommand::setViewPort(0, 0, vpWidth, vpHeight);
+		RenderAPI::get().setViewPort(0, 0, vpWidth, vpHeight);
 	}
 
 	bool WindowsWin::isFullscreen() const

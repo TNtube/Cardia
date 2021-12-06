@@ -1,4 +1,5 @@
 #pragma once
+#include <source_location>
 
 
 #if !defined(_WIN64) && !defined(__linux__)
@@ -12,18 +13,20 @@
 
 
 #ifdef CD_DEBUG
-	template <typename T,  typename... Args>
-	constexpr void cdAssert(T x, Args&&... args)
+	template <typename T>
+	constexpr void cdAssert(T x, std::string message, const std::source_location location = std::source_location::current())
 	{
 		if (!x)
-			Cardia::Log::error("Assertion failed: {0}", std::forward<Args>(args)...);
+			Cardia::Log::coreError("{0} : ({1}:{2}) Assertion failed: {3}",
+				location.file_name(), location.line(), location.column(), message);
 		assert(x);
 	}
-	template <typename T, typename... Args>
-	constexpr void cdCoreAssert(T x, Args&&... args)
+	template <typename T>
+	constexpr void cdCoreAssert(T x, std::string message, const std::source_location location = std::source_location::current())
 	{
 		if (!x)
-			Cardia::Log::coreError("Assertion failed: {0}", std::forward<Args>(args)...);
+			Cardia::Log::coreError("{0} : ({1}:{2}) Assertion failed: {3}",
+				location.file_name(), location.line(), location.column(), message);
 		assert(x);
 	}
 #else

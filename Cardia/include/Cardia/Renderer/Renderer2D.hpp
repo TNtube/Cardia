@@ -12,8 +12,8 @@ namespace Cardia
 	class Renderer2D
 	{
 	public:
-		static void Init();
-		static void Quit();
+		static void init();
+		static void quit();
 
 		static void beginScene(OrthographicCamera camera);
 		static void beginScene(const Camera& camera, glm::mat4 transform);

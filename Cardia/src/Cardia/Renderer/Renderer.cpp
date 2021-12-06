@@ -1,5 +1,5 @@
-#include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
 #include "cdpch.hpp"
+#include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
 namespace Cardia
@@ -24,6 +24,6 @@ namespace Cardia
 		glShader.setUniformMat4("u_Model", transform);
 
 		vertexArray->bind();
-		RenderCommand::drawIndexed(vertexArray);
+		RenderAPI::get().drawIndexed(vertexArray);
 	}
 }

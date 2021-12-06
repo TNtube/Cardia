@@ -45,8 +45,8 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 		snakePos.emplace_front(head.x + vx, head.y + vy, head.z);
 	}
 
-	Cardia::RenderCommand::setClearColor({0.2f, 0.2f, 0.2f, 1});
-	Cardia::RenderCommand::clear();
+	Cardia::RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
+	Cardia::RenderAPI::get().clear();
 
 	Cardia::Renderer2D::beginScene(m_Camera);
 
@@ -119,7 +119,7 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 		if (ImGui::TreeNode("Options"))
 		{
 			ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-			Cardia::RenderCommand::setWireFrame(isWireframeMode);
+			Cardia::RenderAPI::get().setWireFrame(isWireframeMode);
 
 			ImGui::Checkbox("Fullscreen?", &isFullscreen);
 			if (isFullscreen != isFullscreenPrev)
