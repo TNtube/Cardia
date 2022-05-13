@@ -130,7 +130,7 @@ namespace Cardia
 	{
 		s_Data->basicShader->bind();
 		s_Data->camPos = glm::vec3(transform[3]);
-		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjection() * glm::inverse(transform));
+		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
 		s_Data->stats.drawCalls = 0;
 		s_Data->stats.triangleCount = 0;
 		startBash();

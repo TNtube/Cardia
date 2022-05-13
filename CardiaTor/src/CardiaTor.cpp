@@ -11,7 +11,7 @@ namespace Cardia
 {
 	CardiaTor::CardiaTor()
 	{
-		auto &window = getWindow();
+		const auto &window = getWindow();
 
 		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 
@@ -250,7 +250,6 @@ namespace Cardia
 
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 
-		ImGuizmo::SetRect(0, 0, m_SceneSize.x, m_SceneSize.y);
 		auto selectedEntity = m_SceneHierarchyPanel->getClickedEntity();
 		if (selectedEntity)
 		{
@@ -260,7 +259,7 @@ namespace Cardia
 			ImGuizmo::SetRect(m_ViewportBounds.x, m_ViewportBounds.y, m_SceneSize.x, m_SceneSize.y);
 
 			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.getProjection();
+			const glm::mat4& cameraProjection = m_EditorCamera.getProjectionMatrix();
 			glm::mat4 cameraView = m_EditorCamera.getViewMatrix();
 			auto& transformComponent = selectedEntity.getComponent<Component::Transform>();
 			glm::mat4 transform = transformComponent.getTransform();
@@ -268,6 +267,8 @@ namespace Cardia
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
 					     nullptr, nullptr);
+
+			Log::coreInfo("Is Over {0}", ImGuizmo::IsOver());
 
 			if (ImGuizmo::IsUsing())
 			{
