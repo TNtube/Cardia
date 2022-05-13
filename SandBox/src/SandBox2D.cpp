@@ -1,7 +1,7 @@
 #include "SandBox2D.hpp"
 
 #include <Cardia.hpp>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 
 SandBox2D::SandBox2D()

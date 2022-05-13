@@ -3,7 +3,7 @@
 #include <Cardia.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <ImGuizmo.h>
 
 
@@ -257,7 +257,7 @@ namespace Cardia
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 
-			ImGuizmo::SetRect(m_ViewportBounds.x, m_ViewportBounds.y, m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
+			ImGuizmo::SetRect(m_ViewportBounds.x, m_ViewportBounds.y, m_SceneSize.x, m_SceneSize.y);
 
 			// Editor camera
 			const glm::mat4& cameraProjection = m_EditorCamera.getProjection();

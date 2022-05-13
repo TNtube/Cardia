@@ -10,12 +10,14 @@ add_rules("mode.debug", "mode.release", "mode.asan")
 add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx2a")
 
+add_repositories("my-repo https://github.com/TNtube/xmake-repo.git")
+
 add_requires("spdlog v1.9.0")                                               -- latest version at the time
-add_requires("glfw 3.3.4")                                                  -- latest version at the time
-add_requires("glad v0.1.34")                                                -- latest version at the time
-add_requires("imgui v1.85-docking", {configs = {glfw_opengl3 = true}})      -- latest version at the time
+add_requires("glfw 3.3.6")                                                  -- latest version at the time
+add_requires("glad v0.1.36")                                                -- latest version at the time
+add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})      -- latest version at the time
 add_requires("glm 0.9.9+8")                                                 -- latest version at the time
-add_requires("entt v3.8.1")                                                 -- latest version at the time
+add_requires("entt v3.10.0")                                                -- latest version at the time
 add_requires("imguizmo 1.83")                                               -- latest version at the time
 
 local outputdir = "$(mode)-$(os)-$(arch)"
