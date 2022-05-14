@@ -284,7 +284,7 @@ namespace Cardia
 		ImGui::End();
 	}
 
-	void CardiaTor::onEvent(Event &event)
+	void CardiaTor::onEvent(Event& event)
 	{
 		m_EditorCamera.onEvent(event);
 	}

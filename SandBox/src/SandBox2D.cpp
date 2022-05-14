@@ -168,9 +168,8 @@ void SandBox2D::onEvent(Cardia::Event &event)
 	dispatcher.dispatch<Cardia::WinResizeEvent>(CD_BIND_EVENT_FN(onResize));
 }
 
-bool SandBox2D::onResize(const Cardia::WinResizeEvent &e)
+void SandBox2D::onResize(const Cardia::WinResizeEvent &e)
 {
 	m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
 	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
-	return false;
 }

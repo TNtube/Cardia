@@ -61,9 +61,11 @@ namespace Cardia
 			return getCategoryFlags() & enum_as_integer(category);
 		}
 
-		inline bool isHandled() const { return handled; }
+		inline bool isHandled() const { return m_Handled; }
+		inline void stopPropagation() { m_Handled = false; }
 
-		bool handled = false;
+	private:
+		bool m_Handled = false;
 	};
 	
 	class EventDispatcher
@@ -73,11 +75,11 @@ namespace Cardia
 			: m_Event(event) {}
 
 		template<typename T>
-		bool dispatch(std::function<bool(T&)> func)
+		bool dispatch(std::function<void(T&)> func)
 		{
 			if (m_Event.getEventType() == T::getStaticType())
 			{
-				m_Event.handled = func(static_cast<T&>(m_Event));
+				func(static_cast<T&>(m_Event));
 				return true;
 			}
 			return false;

@@ -15,7 +15,7 @@ public:
 	void onImGuiDraw(Cardia::DeltaTime deltaTime) override;
 
 private:
-	bool onResize(const Cardia::WinResizeEvent& e);
+	void onResize(const Cardia::WinResizeEvent& e);
 	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
 
