@@ -17,6 +17,7 @@ add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})      -- l
 add_requires("glm 0.9.9+8")                                                 -- latest version at the time
 add_requires("entt v3.10.0")                                                -- latest version at the time
 add_requires("imguizmo 1.83")                                               -- latest version at the time
+add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", configs = {glfw_opengl3 = true}}) -- config sub imgui module
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 

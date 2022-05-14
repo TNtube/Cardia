@@ -62,6 +62,8 @@ namespace Cardia::Key {
 
 		LeftAlt				= 342,
 		RightAlt			= 346,
+		LeftCtrl			= 341,
+		RightCtrl			= 345
 
 		// MISSING A LOT OF KEY CODES
 	};
