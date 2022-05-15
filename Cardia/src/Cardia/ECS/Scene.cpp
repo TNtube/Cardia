@@ -61,7 +61,7 @@ namespace Cardia
 
 	void Scene::onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera)
 	{
-		Renderer2D::beginScene(editorCamera);
+		Renderer2D::beginScene(editorCamera, editorCamera.getPosition());
 
 		auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
 		for (auto entity : view)

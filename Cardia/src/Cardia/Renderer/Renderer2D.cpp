@@ -116,17 +116,7 @@ namespace Cardia
 		s_Data.reset();
 	}
 
-	void Renderer2D::beginScene(OrthographicCamera camera)
-	{
-		s_Data->basicShader->bind();
-		s_Data->camPos = camera.getPosition();
-		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
-		s_Data->stats.drawCalls = 0;
-		s_Data->stats.triangleCount = 0;
-		startBash();
-	}
-
-	void Renderer2D::beginScene(Camera& camera, glm::mat4 transform)
+	void Renderer2D::beginScene(Camera& camera, glm::mat4& transform)
 	{
 		s_Data->basicShader->bind();
 		s_Data->camPos = glm::vec3(transform[3]);
@@ -136,15 +126,16 @@ namespace Cardia
 		startBash();
 	}
 
-	void Renderer2D::beginScene(Camera &camera)
+	void Renderer2D::beginScene(Camera& camera, const glm::vec3& position)
 	{
 		s_Data->basicShader->bind();
-		s_Data->camPos = camera.getPosition();
+		s_Data->camPos = position;
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->stats.drawCalls = 0;
 		s_Data->stats.triangleCount = 0;
 		startBash();
 	}
+
 
 	void Renderer2D::startBash()
 	{

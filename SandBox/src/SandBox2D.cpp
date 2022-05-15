@@ -48,7 +48,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 	Cardia::RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
 	Cardia::RenderAPI::get().clear();
 
-	Cardia::Renderer2D::beginScene(m_Camera);
+	Cardia::Renderer2D::beginScene(m_Camera, m_Camera.getPosition());
 
 	for (int i = -9; i < 10; ++i)
 	{

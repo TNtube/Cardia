@@ -13,10 +13,8 @@ namespace Cardia
 	public:
 		static void init();
 		static void quit();
-
-		static void beginScene(OrthographicCamera camera);
-		static void beginScene(Camera& camera, glm::mat4 transform);
-		static void beginScene(Camera& camera);
+		static void beginScene(Camera& camera, glm::mat4& transform);
+		static void beginScene(Camera& camera, const glm::vec3& position);
 		static void endScene();
 
 		static void startBash();
