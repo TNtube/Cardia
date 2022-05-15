@@ -4,7 +4,6 @@
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
-#include "Cardia/Renderer/EditorCamera.hpp"
 
 
 namespace Cardia
@@ -60,7 +59,7 @@ namespace Cardia
 		Renderer2D::endScene();
 	}
 
-	void Scene::onUpdateEditor(DeltaTime deltaTime, EditorCamera& editorCamera)
+	void Scene::onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera)
 	{
 		Renderer2D::beginScene(editorCamera);
 
@@ -68,7 +67,7 @@ namespace Cardia
 		for (auto entity : view)
 		{
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.color);
+			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture, spriteRenderer.color, spriteRenderer.tillingFactor);
 		}
 
 		Renderer2D::endScene();

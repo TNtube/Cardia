@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "EditorCamera.hpp"
 #include "Texture.hpp"
 
 #include <glm/glm.hpp>
@@ -16,8 +15,8 @@ namespace Cardia
 		static void quit();
 
 		static void beginScene(OrthographicCamera camera);
-		static void beginScene(const Camera& camera, glm::mat4 transform);
-		static void beginScene(EditorCamera& camera);
+		static void beginScene(Camera& camera, glm::mat4 transform);
+		static void beginScene(Camera& camera);
 		static void endScene();
 
 		static void startBash();

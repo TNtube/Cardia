@@ -2,7 +2,7 @@
 
 #include "Cardia/Core/Event.hpp"
 #include "Cardia/Core/Time.hpp"
-#include "Camera.hpp"
+#include "Cardia/Renderer/Camera.hpp"
 
 #include <glm/gtc/quaternion.hpp>
 
@@ -24,14 +24,15 @@ namespace Cardia
 		inline void setDistance(float distance) { m_Distance = distance; }
 
 		inline void setViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; updateProjection(); }
-
-		const glm::mat4& getViewMatrix() const { return m_ViewMatrix; }
-		glm::mat4 getViewProjection() const { return m_Projection * m_ViewMatrix; }
+		const glm::mat4& getViewProjectionMatrix() override
+		{
+			m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+			return m_ViewProjectionMatrix;
+		}
 
 		glm::vec3 getUpDirection() const;
 		glm::vec3 getRightDirection() const;
 		glm::vec3 getForwardDirection() const;
-		const glm::vec3& getPosition() const { return m_Position; }
 		glm::quat getOrientation() const;
 
 		float getPitch() const { return m_Pitch; }
@@ -53,9 +54,6 @@ namespace Cardia
 
 	private:
 		float m_FOV = 45.0f, m_AspectRatio = 1.778f, m_NearClip = 0.1f, m_FarClip = 1000.0f;
-
-		glm::mat4 m_ViewMatrix {};
-		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
 
 		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };

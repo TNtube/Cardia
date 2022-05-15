@@ -126,7 +126,7 @@ namespace Cardia
 		startBash();
 	}
 
-	void Renderer2D::beginScene(const Camera& camera, glm::mat4 transform)
+	void Renderer2D::beginScene(Camera& camera, glm::mat4 transform)
 	{
 		s_Data->basicShader->bind();
 		s_Data->camPos = glm::vec3(transform[3]);
@@ -136,11 +136,11 @@ namespace Cardia
 		startBash();
 	}
 
-	void Renderer2D::beginScene(EditorCamera &camera)
+	void Renderer2D::beginScene(Camera &camera)
 	{
 		s_Data->basicShader->bind();
 		s_Data->camPos = camera.getPosition();
-		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjection());
+		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->stats.drawCalls = 0;
 		s_Data->stats.triangleCount = 0;
 		startBash();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cardia/Core/Time.hpp"
-#include "Cardia/Renderer/EditorCamera.hpp"
+#include "Cardia/Renderer/Camera.hpp"
 
 #include <entt/entt.hpp>
 
@@ -19,7 +19,7 @@ namespace Cardia
 		void destroyEntity(entt::entity entity);
 
 		void onUpdate(DeltaTime deltaTime);
-		void onUpdateEditor(DeltaTime deltaTime, EditorCamera& editorCamera);
+		void onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera);
 		inline const char* getName() const { return m_Name.c_str(); }
 
 	private:

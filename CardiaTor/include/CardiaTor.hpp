@@ -5,6 +5,8 @@
 #include <Cardia.hpp>
 #include <random>
 
+#include "EditorCamera.hpp"
+
 
 namespace Cardia
 {

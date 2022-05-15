@@ -17,10 +17,10 @@ namespace Cardia
 			float right = m_AspectRatio * m_OrthoSize * 0.5f;
 			float down = m_OrthoSize * -0.5f;
 			float up = m_OrthoSize * 0.5f;
-			m_Projection = glm::ortho(left, right, down, up, m_OrthoNear, m_OrthoFar);
+			m_ProjectionMatrix = glm::ortho(left, right, down, up, m_OrthoNear, m_OrthoFar);
 		}
 		else if (m_ProjectionType == ProjectionType::Perspective) {
-			m_Projection = glm::perspective(m_PersFOV, m_AspectRatio, m_PersNear, m_PersFar);
+			m_ProjectionMatrix = glm::perspective(m_PersFOV, m_AspectRatio, m_PersNear, m_PersFar);
 		}
 
 	}

@@ -268,8 +268,6 @@ namespace Cardia
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
 					     nullptr, nullptr);
 
-			Log::coreInfo("Is Over {0}", ImGuizmo::IsOver());
-
 			if (ImGuizmo::IsUsing())
 			{
 				glm::vec3 translation, scale, skew;

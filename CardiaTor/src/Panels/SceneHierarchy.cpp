@@ -93,6 +93,7 @@ namespace Cardia :: Panel
 
 			drawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
 				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
+				ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0, 5);
 			});
 
 			// Camera Component

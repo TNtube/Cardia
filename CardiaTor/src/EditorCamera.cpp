@@ -1,4 +1,4 @@
-#include "Cardia/Renderer/EditorCamera.hpp"
+#include "EditorCamera.hpp"
 #include "Cardia/Core/Input.hpp"
 #include "Cardia/Core/KeyCodes.hpp"
 
@@ -75,7 +75,7 @@ namespace Cardia
 	void EditorCamera::updateProjection()
 	{
 		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-		m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+		m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
 	}
 
 	void EditorCamera::updateView()
