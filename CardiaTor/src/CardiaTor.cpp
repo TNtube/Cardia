@@ -6,6 +6,8 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 
+#include "Panels/InspectorPanel.hpp"
+
 
 namespace Cardia
 {
@@ -225,6 +227,7 @@ namespace Cardia
 		EnableDocking();
 		DebugWindow(deltaTime);
 		m_SceneHierarchyPanel->onImGuiRender(deltaTime);
+		InspectorPanel::draw(m_SceneHierarchyPanel->getClickedEntity());
 
 		ImGui::Begin("Edit");
 
