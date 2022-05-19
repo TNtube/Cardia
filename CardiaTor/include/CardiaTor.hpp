@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Panels/SceneHierarchy.hpp"
 
 #include <Cardia.hpp>
 #include <random>
 
 #include "EditorCamera.hpp"
+#include "Panels/SceneHierarchy.hpp"
+#include "Panels/DebugPanel.hpp"
+#include "Panels/InspectorPanel.hpp"
 
 
 namespace Cardia
@@ -27,6 +29,8 @@ namespace Cardia
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::unique_ptr<Panel::SceneHierarchy> m_SceneHierarchyPanel;
+		std::unique_ptr<Panel::InspectorPanel> m_InspectorPanel;
+		std::unique_ptr<Panel::DebugPanel> m_DebugPanel;
 
 		glm::vec2 m_SceneSize {};
 

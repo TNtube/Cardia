@@ -1,21 +1,25 @@
 ﻿#pragma once
 #include <functional>
 
+#include "IPanel.hpp"
 #include "Cardia/ECS/Entity.hpp"
 
 
-namespace Cardia
+namespace Cardia::Panel
 {
-        class InspectorPanel
+        class InspectorPanel : public IPanel
         {
         public:
-                static void draw(Entity selectedEntity);
+                InspectorPanel(Entity& entity) : m_SelectedEntity(entity) {}
+                ~InspectorPanel() = default;
+                void onImGuiRender(DeltaTime deltaTime) override;
+                void updateSelectedEntity(const Entity& entity) const;
 
         private:
                 template<typename T>
-                static void drawInspectorComponent(const char* name, std::function<void(T&)> func);
+                void drawInspectorComponent(const char* name, std::function<void(T&)> func);
 
         private:
-                inline static Entity m_SelectedEntity {};
+                Entity& m_SelectedEntity;
         };
 }

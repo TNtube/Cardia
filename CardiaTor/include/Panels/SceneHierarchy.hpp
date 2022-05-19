@@ -3,14 +3,17 @@
 #include <Cardia.hpp>
 #include <entt/entt.hpp>
 
+#include "IPanel.hpp"
+
 
 namespace Cardia :: Panel
 {
-	class SceneHierarchy
+	class SceneHierarchy : public IPanel
 	{
 	public:
 		explicit SceneHierarchy(Scene* scene);
-		void onImGuiRender(DeltaTime deltaTime);
+                ~SceneHierarchy() = default;
+		void onImGuiRender(DeltaTime deltaTime) override;
 		Entity& getClickedEntity() { return m_EntityClicked; }
 
 	private:

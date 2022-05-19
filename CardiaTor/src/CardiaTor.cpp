@@ -6,8 +6,6 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 
-#include "Panels/InspectorPanel.hpp"
-
 
 namespace Cardia
 {
@@ -19,6 +17,8 @@ namespace Cardia
 
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
+		m_InspectorPanel = std::make_unique<Panel::InspectorPanel>(m_SceneHierarchyPanel->getClickedEntity());
+		m_DebugPanel = std::make_unique<Panel::DebugPanel>();
 
 		auto component = m_CurrentScene->createEntity("Blue Square");
 		component.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
@@ -119,115 +119,13 @@ namespace Cardia
 		}
 	}
 
-	static void DebugWindow(DeltaTime deltaTime) {
-		enum ImGuiTheme
-		{
-			THEME_DARK,
-			THEME_LIGHT,
-			THEME_CLASSIC
-		};
-		// fps
-		static float elapsedTime = 0.0f;
-		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
-		// wireframe
-		static bool isWireframeMode = false;
-		// fullscreen
-		static bool isFullscreen = false;
-		static bool isFullscreenPrev = false;
-		static Window &window = Application::get().getWindow();
-		// vsync
-		static bool isVsync = window.isVSync();
-		// dear imgui theme
-		static int selectedTheme = THEME_DARK;
-
-		ImGui::Begin("Debug tools");
-
-		// Section: Rendering
-		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			// Section: Rendering > Infos
-			static bool isOpen;
-			isOpen = ImGui::TreeNodeEx("Infos", ImGuiTreeNodeFlags_DefaultOpen);
-			if (isOpen)
-			{
-				ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
-				if (elapsedTime >= 0.5f)
-				{
-					fps = static_cast<int>(1000 / deltaTime.milliseconds());
-					elapsedTime = 0.0f;
-				}
-				elapsedTime += deltaTime.seconds();
-
-
-				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().drawCalls).c_str(),
-					"Draw Calls");
-				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().triangleCount).c_str(),
-					"Triangle Count");
-				ImGui::Separator();
-				ImGui::Text("GPU's Info");
-				ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
-				ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
-				ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
-				ImGui::Separator();
-				ImGui::TreePop();
-			}
-
-			// Section: Rendering > Options
-			isOpen = ImGui::TreeNodeEx("Options", ImGuiTreeNodeFlags_DefaultOpen);
-			if (isOpen)
-			{
-				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-				RenderAPI::get().setWireFrame(isWireframeMode);
-
-				ImGui::Checkbox("Fullscreen?", &isFullscreen);
-				if (isFullscreen != isFullscreenPrev)
-				{
-					window.setFullscreen(isFullscreen);
-					isFullscreenPrev = isFullscreen;
-				}
-
-				ImGui::Checkbox("VSync?", &isVsync);
-				window.setVSync(isVsync);
-				ImGui::TreePop();
-			}
-		}
-
-		// Section: Fun
-		if (ImGui::CollapsingHeader("Fun", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::Text("Dear ImGui theme");
-			ImGui::RadioButton("Dark", &selectedTheme, THEME_DARK);
-			ImGui::SameLine();
-			ImGui::RadioButton("Light", &selectedTheme, THEME_LIGHT);
-			ImGui::SameLine();
-			ImGui::RadioButton("Classic", &selectedTheme, THEME_CLASSIC);
-			switch (selectedTheme)
-			{
-				case THEME_DARK:
-					ImGui::StyleColorsDark();
-					break;
-				case THEME_LIGHT:
-					ImGui::StyleColorsLight();
-					break;
-				case THEME_CLASSIC:
-					ImGui::StyleColorsClassic();
-					break;
-				default:
-					break;
-			}
-		}
-
-		ImGui::End();
-	}
-
 	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
 	{
 		EnableDocking();
-		DebugWindow(deltaTime);
+		m_DebugPanel->onImGuiRender(deltaTime);
+		m_InspectorPanel->updateSelectedEntity(m_SceneHierarchyPanel->getClickedEntity());
 		m_SceneHierarchyPanel->onImGuiRender(deltaTime);
-		InspectorPanel::draw(m_SceneHierarchyPanel->getClickedEntity());
+		m_InspectorPanel->onImGuiRender(deltaTime);
 
 		ImGui::Begin("Edit");
 

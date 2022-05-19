@@ -7,19 +7,18 @@
 #include "Cardia/ECS/Entity.hpp"
 
 
-namespace Cardia
+namespace Cardia::Panel
 {
-        void InspectorPanel::draw(Entity selectedEntity)
+        void InspectorPanel::onImGuiRender(DeltaTime deltaTime)
         {
-        	m_SelectedEntity = selectedEntity;
                 ImGui::Begin("Inspector");
-		if(selectedEntity) 
+		if(m_SelectedEntity) 
 		{
 			// Name Component
-			auto& name = selectedEntity.getComponent<Component::Name>();
+			auto& name = m_SelectedEntity.getComponent<Component::Name>();
 
 			char buffer[128] {0};
-			size_t bufferSize = sizeof(buffer)/sizeof(char);
+			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
 			name.name.copy(buffer, bufferSize);
 
 			if(ImGui::InputText("Name", buffer, bufferSize))
@@ -81,8 +80,8 @@ namespace Cardia
 
 			ImGui::Separator();
 
-			auto windowWidth = ImGui::GetWindowSize().x;
-			auto textWidth   = ImGui::CalcTextSize("Add Components...").x;
+			const auto windowWidth = ImGui::GetWindowSize().x;
+			const auto textWidth   = ImGui::CalcTextSize("Add Components...").x;
 
 			ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
 			if (ImGui::Button("Add Component...")) {
@@ -93,15 +92,15 @@ namespace Cardia
 			// Add component button
 			if (ImGui::BeginPopup("Add Component"))
 			{
-				if (!selectedEntity.hasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
+				if (!m_SelectedEntity.hasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
 				{
-					selectedEntity.addComponent<Component::Camera>();
+					m_SelectedEntity.addComponent<Component::Camera>();
 					ImGui::EndPopup();
 				}
 
-				if (!selectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
+				if (!m_SelectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
 				{
-					selectedEntity.addComponent<Component::SpriteRenderer>();
+					m_SelectedEntity.addComponent<Component::SpriteRenderer>();
 					ImGui::EndPopup();
 				}
 			}
@@ -109,11 +108,16 @@ namespace Cardia
 		ImGui::End();
         }
 
-	
-	template<typename T>
+        void InspectorPanel::updateSelectedEntity(const Entity& entity) const
+        {
+        	m_SelectedEntity = entity;
+        }
+
+
+        template<typename T>
 	void InspectorPanel::drawInspectorComponent(const char* name, std::function<void(T&)> func)
         {
-        	auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
+        	constexpr auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
         	if (m_SelectedEntity.hasComponent<T>()) {
         		auto& component = m_SelectedEntity.getComponent<T>();
@@ -127,7 +131,7 @@ namespace Cardia
         					ImGui::EndPopup();
         				}
 
-        				if (!std::is_same<T, Component::Transform>::value && ImGui::MenuItem("Remove Component"))
+        				if (!std::is_same_v<T, Component::Transform> && ImGui::MenuItem("Remove Component"))
         				{
         					m_SelectedEntity.removeComponent<T>();
         					ImGui::EndPopup();
