@@ -11,7 +11,7 @@ namespace Cardia::Panel
         {
         public:
                 InspectorPanel(Entity& entity) : m_SelectedEntity(entity) {}
-                ~InspectorPanel() = default;
+                ~InspectorPanel() override = default;
                 void onImGuiRender(DeltaTime deltaTime) override;
                 void updateSelectedEntity(const Entity& entity) const;
 

@@ -12,7 +12,7 @@ namespace Cardia :: Panel
 	{
 	public:
 		explicit SceneHierarchy(Scene* scene);
-                ~SceneHierarchy() = default;
+                ~SceneHierarchy() override = default;
 		void onImGuiRender(DeltaTime deltaTime) override;
 		Entity& getClickedEntity() { return m_EntityClicked; }
 

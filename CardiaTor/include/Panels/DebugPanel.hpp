@@ -9,6 +9,7 @@ namespace Cardia::Panel
         {
         public:
                 DebugPanel() = default;
+                ~DebugPanel() override = default;
                 void onImGuiRender(DeltaTime deltaTime) override;
         };        
 }
