@@ -5,6 +5,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 #include <ImGuizmo.h>
+#include <nfd.h>
 
 
 namespace Cardia
@@ -19,6 +20,7 @@ namespace Cardia
 		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
 		m_InspectorPanel = std::make_unique<Panel::InspectorPanel>(m_SceneHierarchyPanel->getClickedEntity());
 		m_DebugPanel = std::make_unique<Panel::DebugPanel>();
+		m_FileHierarchyPanel = std::make_unique<Panel::FileHierarchy>(m_Workspace);
 
 		auto component = m_CurrentScene->createEntity("Blue Square");
 		component.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
@@ -45,7 +47,7 @@ namespace Cardia
 		m_Framebuffer->unbind();
 	}
 
-	static void EnableDocking()
+	void CardiaTor::enableDocking()
 	{
 		// Note: Switch this to true to enable dockspace
 		static bool dockingEnabled = true;
@@ -105,6 +107,17 @@ namespace Cardia
 					// Disabling fullscreen would allow the window to be moved to the front of other windows,
 					// which we can't undo at the moment without finer window depth/z control.
 					//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+					if (ImGui::MenuItem("Open"))
+					{
+						char *outPath = nullptr;
+						nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
+        
+						if ( result == NFD_OKAY ) {
+							m_Workspace = std::string(outPath);
+							m_FileHierarchyPanel->updateWorkspace(m_Workspace);
+							Log::coreInfo("Workspace : {0}", m_Workspace);
+						}
+					}
 
 					if (ImGui::MenuItem("Exit"))
 					{
@@ -121,11 +134,12 @@ namespace Cardia
 
 	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
 	{
-		EnableDocking();
+		enableDocking();
 		m_DebugPanel->onImGuiRender(deltaTime);
 		m_InspectorPanel->updateSelectedEntity(m_SceneHierarchyPanel->getClickedEntity());
 		m_SceneHierarchyPanel->onImGuiRender(deltaTime);
 		m_InspectorPanel->onImGuiRender(deltaTime);
+		m_FileHierarchyPanel->onImGuiRender(deltaTime);
 
 		ImGui::Begin("Edit");
 
@@ -185,6 +199,11 @@ namespace Cardia
 
 	void CardiaTor::onEvent(Event& event)
 	{
-		m_EditorCamera.onEvent(event);
+		const auto [x, y] = Input::getMousePos(); 
+		if (m_ViewportBounds.x <= x && x <= m_ViewportBounds.x + m_SceneSize.x && m_ViewportBounds.y <= y && y <= m_ViewportBounds.y + m_SceneSize.y)
+		{
+			// Mouse inside viewport
+			m_EditorCamera.onEvent(event);
+		}
 	}
 }

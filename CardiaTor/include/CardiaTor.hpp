@@ -7,6 +7,7 @@
 #include "EditorCamera.hpp"
 #include "Panels/SceneHierarchy.hpp"
 #include "Panels/DebugPanel.hpp"
+#include "Panels/FileHierarchy.hpp"
 #include "Panels/InspectorPanel.hpp"
 
 
@@ -23,6 +24,7 @@ namespace Cardia
 		void onImGuiDraw(DeltaTime deltaTime) override;
 
 	private:
+		void enableDocking();
 		std::unique_ptr<Texture2D> m_TextureSquare;
 		std::unique_ptr<Texture2D> m_TextureBox;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
@@ -31,6 +33,7 @@ namespace Cardia
 		std::unique_ptr<Panel::SceneHierarchy> m_SceneHierarchyPanel;
 		std::unique_ptr<Panel::InspectorPanel> m_InspectorPanel;
 		std::unique_ptr<Panel::DebugPanel> m_DebugPanel;
+		std::unique_ptr<Panel::FileHierarchy> m_FileHierarchyPanel;
 
 		glm::vec2 m_SceneSize {};
 
@@ -39,6 +42,9 @@ namespace Cardia
 
 		float m_AspectRatio = static_cast<float>(getWindow().getWidth())
 				      / static_cast<float>(getWindow().getHeight());
+
+
+		std::string m_Workspace;
 
 
 		std::random_device rd;
