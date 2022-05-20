@@ -55,7 +55,10 @@ namespace Cardia::Panel
 						const auto* path = static_cast<const wchar_t*>(payload->Data);
 						const std::filesystem::path texturePath = path;
 						auto tex = Texture2D::create(texturePath.string());
-						sprite.texture = std::move(tex);
+						if (tex->isLoaded())
+						{
+							sprite.texture = std::move(tex);
+						}
 					}
 					ImGui::EndDragDropTarget();
 				}

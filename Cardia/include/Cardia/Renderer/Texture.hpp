@@ -15,6 +15,9 @@ namespace Cardia
 		virtual void bind(int slot = 0) const = 0;
 		virtual bool operator==(const Texture& other) const = 0;
 		virtual uint32_t getRendererID() = 0;
+		virtual bool isLoaded() { return m_Loaded; }
+	protected:
+		bool m_Loaded = false;
 	};
 
 	class Texture2D : public Texture
