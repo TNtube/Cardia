@@ -1,7 +1,9 @@
 ﻿#pragma once
+#include <filesystem>
 #include <string>
 
 #include "IPanel.hpp"
+#include "Cardia/Renderer/Texture.hpp"
 
 namespace Cardia::Panel
 {
@@ -14,7 +16,9 @@ namespace Cardia::Panel
                 void updateWorkspace(const std::string& workspace);
 
         private:
-                std::string m_Workspace;
-                std::string m_CurrentPath;
+                std::filesystem::path m_Workspace;
+                std::filesystem::path m_CurrentPath;
+                std::unique_ptr<Texture2D> m_FileIcon;
+                std::unique_ptr<Texture2D> m_FolderIcon;
         };
 }

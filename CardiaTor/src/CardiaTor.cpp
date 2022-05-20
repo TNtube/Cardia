@@ -55,7 +55,7 @@ namespace Cardia
 		{
 			static bool dockspaceOpen = true;
 			static bool opt_fullscreen_persistant = true;
-			bool opt_fullscreen = opt_fullscreen_persistant;
+			const bool opt_fullscreen = opt_fullscreen_persistant;
 			static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 			// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
@@ -143,12 +143,14 @@ namespace Cardia
 
 		ImGui::Begin("Edit");
 
-		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-		auto viewportOffset = ImGui::GetWindowPos();
+		m_HoverViewport = ImGui::IsWindowHovered();
+
+		const auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		const auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		const auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
+		const uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
 		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
@@ -199,8 +201,8 @@ namespace Cardia
 
 	void CardiaTor::onEvent(Event& event)
 	{
-		const auto [x, y] = Input::getMousePos(); 
-		if (m_ViewportBounds.x <= x && x <= m_ViewportBounds.x + m_SceneSize.x && m_ViewportBounds.y <= y && y <= m_ViewportBounds.y + m_SceneSize.y)
+		const auto [x, y] = Input::getMousePos();
+		if (m_HoverViewport)
 		{
 			// Mouse inside viewport
 			m_EditorCamera.onEvent(event);

@@ -15,32 +15,39 @@ namespace Cardia
 		stbi_set_flip_vertically_on_load(true);
 
 		int width, height, nbChannels;
-		unsigned char *data = stbi_load(m_Path.c_str(), &width, &height, &nbChannels, 3);
+		Log::coreInfo("Loading {0}...", m_Path);
+		unsigned char *data = stbi_load(m_Path.c_str(), &width, &height, &nbChannels, 0);
 		cdCoreAssert(data, "Failed to load image !");
 
 		m_Width = width;
 		m_Height = height;
 
-		GLenum channelType = GL_RGB, channelSize = GL_RGB8;
-		if (nbChannels == 3) {
-			channelType = GL_RGB;
-			channelSize = GL_RGB8;
+		GLenum internalFormat = 0, dataFormat = 0;
+		if (nbChannels == 4)
+		{
+			internalFormat = GL_RGBA8;
+			dataFormat = GL_RGBA;
 		}
-		else if (nbChannels == 4) {
-			Log::coreTrace("FOOBAR");
-			channelType = GL_RGBA;
-			channelSize = GL_RGBA8;
+		else if (nbChannels == 3)
+		{
+			internalFormat = GL_RGB8;
+			dataFormat = GL_RGB;
 		}
 		else
-			cdCoreAssert(false, "Invalid number of channel in image");
+		{
+			cdCoreAssert(false, "Unsupported image format");
+		}
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
-		glTextureStorage2D(m_TextureID, 1, channelSize, m_Width, m_Height);
+		glTextureStorage2D(m_TextureID, 1, internalFormat, m_Width, m_Height);
 
 		glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, channelType, GL_UNSIGNED_BYTE, data);
+		glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
 	}

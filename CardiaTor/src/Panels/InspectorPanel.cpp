@@ -1,5 +1,6 @@
 ﻿#include "Panels/InspectorPanel.hpp"
 
+#include <filesystem>
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -42,6 +43,24 @@ namespace Cardia::Panel
 			drawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
 				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
 				ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0, 5);
+				uint32_t whiteColor = 0xffffffff;
+				const auto white = Texture2D::create(1, 1, &whiteColor);
+				const auto texID = sprite.texture ? sprite.texture->getRendererID() : white->getRendererID();
+				ImGui::ImageButton(reinterpret_cast<ImTextureID>(texID), {15, 15}, {0, 1}, {1, 0}, 0);
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH", ImGuiDragDropFlags_AcceptBeforeDelivery))
+					{
+						Log::coreInfo("Dropped Here");
+						const auto* path = static_cast<const wchar_t*>(payload->Data);
+						const std::filesystem::path texturePath = path;
+						auto tex = Texture2D::create(texturePath.string());
+						sprite.texture = std::move(tex);
+					}
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::SameLine();
+				ImGui::Text("Texture");
 			});
 
 			// Camera Component

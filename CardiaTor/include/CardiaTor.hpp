@@ -46,6 +46,8 @@ namespace Cardia
 
 		std::string m_Workspace;
 
+		bool m_HoverViewport = false;
+
 
 		std::random_device rd;
 		std::mt19937 random{rd()};
