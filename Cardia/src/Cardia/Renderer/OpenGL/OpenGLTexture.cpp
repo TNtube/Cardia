@@ -20,6 +20,7 @@ namespace Cardia
 		m_Loaded = true;
 		if (!data)
 		{
+			Log::coreWarn("Invalid image");
 			m_Loaded = false;
 			return;
 		}

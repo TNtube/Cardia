@@ -51,7 +51,6 @@ namespace Cardia::Panel
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH", ImGuiDragDropFlags_AcceptBeforeDelivery))
 					{
-						Log::coreInfo("Dropped Here");
 						const auto* path = static_cast<const wchar_t*>(payload->Data);
 						const std::filesystem::path texturePath = path;
 						auto tex = Texture2D::create(texturePath.string());
