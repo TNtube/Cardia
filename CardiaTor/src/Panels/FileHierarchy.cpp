@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <imgui.h>
+#include <set>
 
 #include "Cardia/Core/Log.hpp"
 
@@ -44,32 +45,47 @@ namespace Cardia::Panel
                 if (columnCount < 1)
                         columnCount = 1;
 
-                ImGui::Columns(columnCount, nullptr, false);
+
+                std::set<std::filesystem::directory_entry> folders;
+                std::set<std::filesystem::directory_entry> files;
 
                 for (const auto& entry : std::filesystem::directory_iterator(m_CurrentPath))
                 {
+                        if (entry.is_directory())
+                                folders.insert(entry);
+                        else
+                                files.insert(entry);
+                }
+
+                ImGui::Columns(columnCount, nullptr, false);
+
+                for (const auto& entry : folders)
+                {
                         std::string path(entry.path().filename().string());
-                        
                         ImGui::PushID(path.c_str());
-                        
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-                        const auto id = entry.is_directory() ? m_FolderIcon->getRendererID() : m_FileIcon->getRendererID();
-                        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(id), button_sz, {0, 1}, {1, 0}) && entry.is_directory())
+                        const auto id = m_FolderIcon->getRendererID();
+                        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0}))
                         {
                                 m_CurrentPath /= path;
                         }
-
-                        if (ImGui::BeginDragDropSource())
-                        {
-                                const wchar_t* itemPath = (m_CurrentPath / path).c_str();
-                                ImGui::SetDragDropPayload("FILE_PATH", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
-                                ImGui::EndDragDropSource();
-                        }
-
                         ImGui::PopStyleColor();
 
                         ImGui::TextWrapped("%s", path.c_str());
 
+                        ImGui::NextColumn();
+                        ImGui::PopID();
+                }
+
+                for (const auto& entry: files)
+                {
+                        std::string path(entry.path().filename().string());
+                        ImGui::PushID(path.c_str());
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+                        const auto id = m_FileIcon->getRendererID();
+                        ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
+                        ImGui::PopStyleColor();
+                        ImGui::TextWrapped("%s", path.c_str());
                         ImGui::NextColumn();
                         ImGui::PopID();
                 }

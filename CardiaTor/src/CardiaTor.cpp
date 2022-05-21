@@ -159,7 +159,7 @@ namespace Cardia
 			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
 		}
 
-		ImGui::Image(reinterpret_cast<void *>(static_cast<size_t>(textureID)),
+		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
 

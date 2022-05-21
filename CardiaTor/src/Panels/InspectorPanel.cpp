@@ -44,9 +44,11 @@ namespace Cardia::Panel
 				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
 				ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0, 5);
 				uint32_t whiteColor = 0xffffffff;
+				
 				const auto white = Texture2D::create(1, 1, &whiteColor);
 				const auto texID = sprite.texture ? sprite.texture->getRendererID() : white->getRendererID();
-				ImGui::ImageButton(reinterpret_cast<ImTextureID>(texID), {15, 15}, {0, 1}, {1, 0}, 0);
+				
+				ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0}, 0);
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH", ImGuiDragDropFlags_AcceptBeforeDelivery))
