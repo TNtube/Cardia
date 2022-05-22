@@ -65,13 +65,16 @@ namespace Cardia::Panel
                         ImGui::PushID(path.c_str());
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
                         const auto id = m_FolderIcon->getRendererID();
+                        
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
                         if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0}))
                         {
                                 m_CurrentPath /= path;
                         }
                         ImGui::PopStyleColor();
 
-                        ImGui::TextWrapped("%s", path.c_str());
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
+                        ImGui::Text("%s", path.c_str());
 
                         ImGui::NextColumn();
                         ImGui::PopID();
@@ -83,6 +86,7 @@ namespace Cardia::Panel
                         ImGui::PushID(path.c_str());
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
                         const auto id = m_FileIcon->getRendererID();
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
                         ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
                         
                         if (ImGui::BeginDragDropSource())
@@ -93,7 +97,8 @@ namespace Cardia::Panel
                         }
 
                         ImGui::PopStyleColor();
-                        ImGui::TextWrapped("%s", path.c_str());
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
+                        ImGui::Text("%s", path.c_str());
                         ImGui::NextColumn();
                         ImGui::PopID();
                 }
