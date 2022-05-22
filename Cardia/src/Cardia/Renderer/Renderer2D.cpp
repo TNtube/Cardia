@@ -9,7 +9,6 @@
 
 namespace Cardia
 {
-
 	struct Vertex
 	{
 		glm::vec3 position;
@@ -19,13 +18,18 @@ namespace Cardia
 		float tilingFactor;
 	};
 
+	struct TriangleIndex
+	{
+		uint32_t indices[3];
+	};
+
 	struct Renderer2DData {
 		const uint32_t maxTriangle = 10000;
 		const uint32_t maxVertices = maxTriangle * 3;
 		const uint32_t maxIndices = maxTriangle * 3;
 		static constexpr int maxTextureSlots = 32; // TODO: get it from RenderAPI
 
-		glm::vec3 camPos;
+		glm::vec3 camPos {};
 
 		std::unique_ptr<VertexArray> vertexArray;
 		VertexBuffer* vertexBuffer = nullptr;
@@ -37,9 +41,9 @@ namespace Cardia
 		std::unique_ptr<Vertex[]> vertexBufferBase = nullptr;
 		Vertex* vertexBufferPtr = nullptr;
 
-		std::unique_ptr<uint32_t[]> indexBufferBase = nullptr;
-		uint32_t* indexBufferPtr = nullptr;
-		uint32_t indexOffset;
+		std::unique_ptr<TriangleIndex[]> indexBufferBase = nullptr;
+		TriangleIndex* indexBufferPtr = nullptr;
+		uint32_t indexOffset {};
 
 		std::array<const Texture2D*, maxTextureSlots> textureSlots {};
 		int textureSlotIndex = 1;
@@ -70,7 +74,7 @@ namespace Cardia
 		s_Data->vertexArray->setVertexBuffer(std::move(vbo));
 
 		s_Data->vertexBufferBase = std::make_unique<Vertex[]>(s_Data->maxVertices);
-		s_Data->indexBufferBase = std::make_unique<uint32_t[]>(s_Data->maxIndices);
+		s_Data->indexBufferBase = std::make_unique<TriangleIndex[]>(s_Data->maxIndices);
 
 		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(s_Data->maxIndices);
 		s_Data->indexVertexBuffer = ibo.get();
@@ -149,8 +153,16 @@ namespace Cardia
 		const auto indexBufferDataSize = static_cast<uint32_t>(reinterpret_cast<uint8_t*>(s_Data->indexBufferPtr) -
 							reinterpret_cast<uint8_t*>(s_Data->indexBufferBase.get()));
 
+
+		std::sort(s_Data->indexBufferBase.get(), s_Data->indexBufferPtr, [](const TriangleIndex a, const TriangleIndex b)
+		{
+			const auto vertexA = (s_Data->vertexBufferBase[a.indices[0]].position + s_Data->vertexBufferBase[a.indices[1]].position + s_Data->vertexBufferBase[a.indices[2]].position) / 3.0f;
+			const auto vertexB = (s_Data->vertexBufferBase[b.indices[0]].position + s_Data->vertexBufferBase[b.indices[1]].position + s_Data->vertexBufferBase[b.indices[2]].position) / 3.0f;
+			return glm::distance(vertexA, s_Data->camPos) >= glm::distance(vertexB, s_Data->camPos);
+		});
+
 		s_Data->vertexBuffer->setData(s_Data->vertexBufferBase.get(), vertexBufferDataSize);
-		s_Data->indexVertexBuffer->setData(s_Data->indexBufferBase.get(), indexBufferDataSize);
+		s_Data->indexVertexBuffer->setData(s_Data->indexBufferBase.get(), indexBufferDataSize * (sizeof(TriangleIndex) / sizeof(uint32_t)));
 
 		s_Data->basicShader->bind();
 		for (int i = 0; i < s_Data->textureSlotIndex; ++i)
@@ -255,11 +267,15 @@ namespace Cardia
 			s_Data->vertexBufferPtr++;
 		}
 
-		constexpr uint32_t index[] { 0, 1, 2, 2, 3, 0 };
+		constexpr TriangleIndex triangle_indices[] { {0, 1, 2}, {2, 3, 0} };
 
-		for (const auto i : index)
+		for (const auto& triangle : triangle_indices)
 		{
-			*s_Data->indexBufferPtr = s_Data->indexOffset + i;
+			int i = 0;
+			for (const auto index : triangle.indices)
+			{
+				s_Data->indexBufferPtr->indices[i++] = s_Data->indexOffset + index;
+			}
 			s_Data->indexBufferPtr++;
 		}
 		
