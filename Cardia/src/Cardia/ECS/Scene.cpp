@@ -34,8 +34,8 @@ namespace Cardia
 		glm::mat4 mainCameraTransform;
 
 		{
-			auto viewCamera = m_Registry.view<Component::Transform, Component::Camera>();
-			for (auto entity: viewCamera)
+			const auto viewCamera = m_Registry.view<Component::Transform, Component::Camera>();
+			for (const auto entity: viewCamera)
 			{
 				auto[transform, camera] = viewCamera.get<Component::Transform, Component::Camera>(
 					entity);
@@ -49,8 +49,8 @@ namespace Cardia
 
 		Renderer2D::beginScene(*mainCamera, mainCameraTransform);
 
-		auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		for (auto entity : view)
+		const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
+		for (const auto entity : view)
 		{
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.color);
@@ -63,13 +63,12 @@ namespace Cardia
 	{
 		Renderer2D::beginScene(editorCamera, editorCamera.getPosition());
 
-		auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		for (auto entity : view)
+		const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
+		for (const auto entity : view)
 		{
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor);
 		}
-
 		Renderer2D::endScene();
 	}
 }

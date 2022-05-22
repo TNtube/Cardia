@@ -42,7 +42,7 @@ namespace Cardia::Panel
 
 			drawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
 				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
-				ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0, 5);
+				ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0, 120);
 				uint32_t whiteColor = 0xffffffff;
 				
 				const auto white = Texture2D::create(1, 1, &whiteColor);

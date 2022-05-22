@@ -84,6 +84,14 @@ namespace Cardia::Panel
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
                         const auto id = m_FileIcon->getRendererID();
                         ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
+                        
+                        if (ImGui::BeginDragDropSource())
+                        {
+                                const wchar_t* itemPath = (m_CurrentPath / path).c_str();
+                                ImGui::SetDragDropPayload("FILE_PATH", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
+                                ImGui::EndDragDropSource();
+                        }
+
                         ImGui::PopStyleColor();
                         ImGui::TextWrapped("%s", path.c_str());
                         ImGui::NextColumn();

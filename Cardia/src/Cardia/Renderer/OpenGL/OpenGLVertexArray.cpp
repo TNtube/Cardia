@@ -45,7 +45,7 @@ namespace Cardia
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::addVertexBuffer(std::unique_ptr<VertexBuffer> vertexBuffer)
+	void OpenGLVertexArray::setVertexBuffer(std::unique_ptr<VertexBuffer> vertexBuffer)
 	{
 		cdCoreAssert(vertexBuffer->getLayout().getElement().size(), "RectVertex Buffer should have a layout");
 
@@ -65,7 +65,7 @@ namespace Cardia
 					      reinterpret_cast<const void*>(static_cast<int64_t>(element.offset)));
 			index++;
 		}
-		m_VertexBuffers.push_back(std::move(vertexBuffer));
+		m_VertexBuffer = std::move(vertexBuffer);
 	}
 
 	void OpenGLVertexArray::setIndexBuffer(std::unique_ptr<IndexBuffer> indexBuffer)
@@ -75,9 +75,9 @@ namespace Cardia
 		m_IndexBuffer = std::move(indexBuffer);
 	}
 
-	std::vector<std::unique_ptr<VertexBuffer>>& OpenGLVertexArray::getVertexBuffers()
+	VertexBuffer& OpenGLVertexArray::getVertexBuffer()
 	{
-		return m_VertexBuffers;
+		return *m_VertexBuffer;
 	}
 
 	IndexBuffer& OpenGLVertexArray::getIndexBuffer() const

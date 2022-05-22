@@ -67,7 +67,7 @@ namespace Cardia
 		});
 
 		s_Data->rectVertexBuffer = rectVBO.get();
-		s_Data->rectVertexArray->addVertexBuffer(std::move(rectVBO));
+		s_Data->rectVertexArray->setVertexBuffer(std::move(rectVBO));
 
 		s_Data->rectBufferBase = std::make_unique<Rect[]>(s_Data->maxRect);
 
