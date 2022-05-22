@@ -52,6 +52,13 @@ namespace Cardia
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}
 
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
+	{
+		glCreateBuffers(1, &m_IndexBufferID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+	}
+
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
 		glDeleteBuffers(1, &m_IndexBufferID);
@@ -65,5 +72,11 @@ namespace Cardia
 	void OpenGLIndexBuffer::unbind() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	void OpenGLIndexBuffer::setData(const void* data, uint32_t size)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, data);
 	}
 }

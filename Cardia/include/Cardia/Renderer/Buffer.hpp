@@ -120,7 +120,10 @@ namespace Cardia
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 		virtual int getCount() const = 0;
+
+		virtual void setData(const void* data, uint32_t size) = 0;
 		static std::unique_ptr<IndexBuffer> create(uint32_t* indices, uint32_t count);
+		static std::unique_ptr<IndexBuffer> create(uint32_t count);
 	};
 
 }

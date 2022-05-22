@@ -61,4 +61,22 @@ namespace Cardia
 				return nullptr;
 		}
 	}
+
+	std::unique_ptr<IndexBuffer> IndexBuffer::create(uint32_t count)
+	{
+		RenderAPI::API renderer = Renderer::getAPI();
+		switch (renderer)
+		{
+		case RenderAPI::API::None:
+			Log::coreError("{0} is not supported for the moment !", renderer);
+			cdCoreAssert(false, "Invalid API provided");
+			return nullptr;
+		case RenderAPI::API::OpenGL:
+			return std::make_unique<OpenGLIndexBuffer>(count);
+		default:
+			Log::coreError("{0} is not supported for the moment !", renderer);
+			cdCoreAssert(false, "Invalid API provided");
+			return nullptr;
+		}
+	}
 }

@@ -26,9 +26,11 @@ namespace Cardia
 	{
 	public:
 		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
+		explicit OpenGLIndexBuffer(uint32_t count);
 		~OpenGLIndexBuffer() override;
 		void bind() const override;
 		void unbind() const override;
+		void setData(const void* data, uint32_t size) override;
 		inline int getCount() const override { return m_Count; }
 
 	private:
