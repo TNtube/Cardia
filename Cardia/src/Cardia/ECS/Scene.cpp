@@ -67,7 +67,7 @@ namespace Cardia
 		for (const auto entity : view)
 		{
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor);
+			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 		Renderer2D::endScene();
 	}

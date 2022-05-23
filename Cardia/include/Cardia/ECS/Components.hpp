@@ -52,6 +52,7 @@ namespace Cardia::Component
 		glm::vec4 color { 1.0f };
 		std::shared_ptr<Texture2D> texture = nullptr;
 		float tillingFactor = 1.0f;
+		int32_t zIndex = 0;
 
 		inline void reset() {
 			texture = nullptr;
