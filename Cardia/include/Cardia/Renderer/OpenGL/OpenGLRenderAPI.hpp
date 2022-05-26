@@ -12,6 +12,7 @@ namespace Cardia
 		void clear() override;
 		void setViewPort(int x, int y, int w, int h) override;
 		void setWireFrame(bool state) override;
+		void clearDepthBuffer() override;
 		std::string getVendor() override;
 		std::string getRenderer() override;
 		std::string getVersion() override;

@@ -36,7 +36,7 @@ namespace Cardia
 		}
 
 		const Application& app = Application::get();
-		auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
+		const auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
 		ImGui_ImplOpenGL3_Init("#version 460");

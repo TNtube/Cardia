@@ -245,6 +245,7 @@ namespace Cardia
 		for (auto& batch : s_Data->batches)
 		{
 			batch.render();
+			RenderAPI::get().clearDepthBuffer();
 		}
 	}
 
