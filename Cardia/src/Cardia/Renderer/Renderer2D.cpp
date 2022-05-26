@@ -1,8 +1,6 @@
 #include "cdpch.hpp"
+
 #include "Cardia/Renderer/Renderer2D.hpp"
-
-#include <map>
-
 #include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Shader.hpp"
 
@@ -67,9 +65,6 @@ namespace Cardia
 			vertexArray->setIndexBuffer(std::move(ibo));
 			indexOffset = 0;
 
-			uint32_t whiteColor = 0xffffffff;
-			whiteTexture = Texture2D::create(1, 1, &whiteColor);
-
 			std::array<int, maxTextureSlots> samplers {};
 			for (int32_t i = 0; i < maxTextureSlots; ++i)
 			{
@@ -78,6 +73,9 @@ namespace Cardia
 
 			shader->bind();
 			shader->setIntArray("u_Textures", samplers.data(), maxTextureSlots);
+
+			uint32_t whiteColor = 0xffffffff;
+			whiteTexture = Texture2D::create(1, 1, &whiteColor);
 
 			// Always white tex at pos 0
 			textureSlots[0] = whiteTexture.get();

@@ -22,14 +22,20 @@ namespace Cardia
 		m_DebugPanel = std::make_unique<Panel::DebugPanel>();
 		m_FileHierarchyPanel = std::make_unique<Panel::FileHierarchy>(m_Workspace);
 
-		auto component = m_CurrentScene->createEntity("Blue Square");
-		component.addComponent<Component::SpriteRenderer>(glm::vec4{0.2f, 0.8f, 0.8f, 1.0f});
+		Entity entity;
+		for (int x = 0; x < 9; x++)
+		{
+			for (int y = 0; y < 9; y++)
+			{
+				entity = m_CurrentScene->createEntity("Square-" + std::to_string(x) + "-" + std::to_string(y));
+				entity.getComponent<Component::Transform>().position = {x, y, 0};
+				entity.addComponent<Component::SpriteRenderer>(glm::vec4{static_cast<float>(x)/10.0f, static_cast<float>(y)/10.0f, static_cast<float>(x + y)/20.0f, 1.0f});
 
-		component = m_CurrentScene->createEntity("Red Square");
-		component.addComponent<Component::SpriteRenderer>(glm::vec4{0.8f, 0.2f, 0.3f, 1.0f});
+			}
+		}
 
-		component = m_CurrentScene->createEntity("Camera");
-		component.addComponent<Component::Camera>();
+		entity = m_CurrentScene->createEntity("Camera");
+		entity.addComponent<Component::Camera>();
 
 		m_Framebuffer = Framebuffer::create(spec);
 	}
