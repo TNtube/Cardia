@@ -65,7 +65,7 @@ namespace Cardia::Panel
 				}
 				ImGui::SameLine();
 				ImGui::Text("Texture");
-				ImGui::DragInt("zIndex", &sprite.zIndex);
+				ImGui::DragInt("zIndex", &sprite.zIndex, 0.05f);
 			});
 
 			// Camera Component

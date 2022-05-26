@@ -81,6 +81,7 @@ target("CardiaTor")
     set_objectdir("build/" .. outputdir .. "/CardiaTor/obj")
 
     add_headerfiles("CardiaTor/include/**.hpp")
+    add_headerfiles("CardiaTor/assets/**") -- a hack for the moment
     add_files("CardiaTor/src/**.cpp")
     add_includedirs("CardiaTor/include/", {public = true})
 

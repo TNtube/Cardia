@@ -38,31 +38,13 @@ namespace Cardia
 	class Batch
 	{
 	public:
-		Batch(const glm::vec3& cameraPosition, Shader* shader, int32_t zIndex) : m_zIndex(zIndex),
+		Batch(VertexArray* va, const glm::vec3& cameraPosition, Shader* shader, int32_t zIndex) : m_zIndex(zIndex),
 			camPos(cameraPosition), m_Shader(shader)
 		{
-			vertexArray = VertexArray::create();
+			vertexArray = va;
 
-			std::unique_ptr<VertexBuffer> vbo;
-			vbo = VertexBuffer::create(maxVertices * sizeof(Vertex));
-
-			vbo->setLayout({
-				{ShaderDataType::Float3, "a_Position"},
-				{ShaderDataType::Float4, "a_Color"},
-				{ShaderDataType::Float2, "a_TexPos"},
-				{ShaderDataType::Float, "a_TexIndex"},
-				{ShaderDataType::Float, "a_TilingFactor"}
-			});
-
-			vertexBuffer = vbo.get();
-			vertexArray->setVertexBuffer(std::move(vbo));
-
-			vertexBufferData = std::vector<Vertex>();
-			indexBufferData = std::vector<MeshIndices>();
-
-			std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
-			indexBuffer = ibo.get();
-			vertexArray->setIndexBuffer(std::move(ibo));
+			vertexBuffer = &va->getVertexBuffer();
+			indexBuffer = &va->getIndexBuffer();
 			indexOffset = 0;
 
 			std::array<int, maxTextureSlots> samplers {};
@@ -89,13 +71,6 @@ namespace Cardia
 			vertexBufferData.clear();
 			indexBufferData.clear();
 			textureSlotIndex = 1;
-		}
-
-		
-		void nextBatch()
-		{
-			render();
-			startBash();
 		}
 
 		void render()
@@ -130,14 +105,14 @@ namespace Cardia
 				textureSlots[i]->bind(i);
 			}
 
-			RenderAPI::get().drawIndexed(vertexArray.get(), vertexCount);
+			RenderAPI::get().drawIndexed(vertexArray, vertexCount);
 			s_Stats->drawCalls++;
 		}
 
-		void addMesh(std::vector<Vertex>& vertices, MeshIndices& indices, const Texture2D *texture)
+		bool addMesh(std::vector<Vertex>& vertices, MeshIndices& indices, const Texture2D *texture)
 		{
 			if (vertexCount >= maxIndices)
-				nextBatch();
+				return false;
 
 			float textureIndex = 0;
 			for(int i = 1; i < textureSlotIndex; ++i) {
@@ -149,7 +124,7 @@ namespace Cardia
 
 			if (textureIndex == 0 && texture) {
 				if (textureSlotIndex >= maxTextureSlots)
-					nextBatch();
+					return false;
 
 				textureSlots[textureSlotIndex] = texture;
 				textureIndex = static_cast<float>(textureSlotIndex);
@@ -173,13 +148,15 @@ namespace Cardia
 			indexOffset += vertices.size();
 			vertexCount += 6;
 			s_Stats->triangleCount += 2;
+
+			return true;
 		}
 		int32_t zIndex() const { return m_zIndex; }
 	private:
 		int32_t m_zIndex;
 		glm::vec3 camPos {};
 
-		std::unique_ptr<VertexArray> vertexArray;
+		VertexArray* vertexArray;
 		VertexBuffer* vertexBuffer = nullptr;
 		IndexBuffer* indexBuffer = nullptr;
 		Shader* m_Shader;
@@ -201,6 +178,9 @@ namespace Cardia
 		glm::vec3 cameraPosition {};
 		std::unique_ptr<Shader> basicShader;
 		glm::mat4 viewProjectionMatrix {};
+
+		std::unique_ptr<VertexArray> vertexArray;
+		
 	};
 
 	static std::unique_ptr<Renderer2DData> s_Data {};
@@ -211,6 +191,23 @@ namespace Cardia
 		s_Stats = std::make_unique<Renderer2D::Stats>();
 		s_Data->basicShader = Shader::create({"assets/shaders/basic.vert", "assets/shaders/basic.frag"});
 		s_Data->batches.clear();
+		s_Data->vertexArray = VertexArray::create();
+
+		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices * sizeof(Vertex));
+
+		vbo->setLayout({
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"},
+			{ShaderDataType::Float2, "a_TexPos"},
+			{ShaderDataType::Float, "a_TexIndex"},
+			{ShaderDataType::Float, "a_TilingFactor"}
+		});
+
+		s_Data->vertexArray->setVertexBuffer(std::move(vbo));
+
+		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
+		s_Data->vertexArray->setIndexBuffer(std::move(ibo));
+		
 	}
 
 	void Renderer2D::quit()
@@ -221,7 +218,6 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, glm::mat4& transform)
 	{
 		s_Data->batches.clear();
-		s_Data->batches.emplace_back(glm::vec3(transform[3]), s_Data->basicShader.get(), 0);
 		s_Data->cameraPosition = glm::vec3(transform[3]);
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
 		s_Data->viewProjectionMatrix = camera.getProjectionMatrix() * glm::inverse(transform);
@@ -232,7 +228,6 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, const glm::vec3& position)
 	{
 		s_Data->batches.clear();
-		s_Data->batches.emplace_back(position, s_Data->basicShader.get(), 0);
 		s_Data->cameraPosition = position;
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->viewProjectionMatrix = camera.getViewProjectionMatrix();
@@ -242,6 +237,11 @@ namespace Cardia
 
 	void Renderer2D::endScene()
 	{
+		std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
+		{
+			return a.zIndex() < b.zIndex();
+		});
+
 		for (auto& batch : s_Data->batches)
 		{
 			batch.render();
@@ -324,6 +324,12 @@ namespace Cardia
 		MeshIndices indices;
 		indices.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
 
-		s_Data->batches[0].addMesh(vertices, indices, texture);
+		for (auto& batch : s_Data->batches)
+		{
+			if (batch.zIndex() == zIndex && batch.addMesh(vertices, indices, texture))
+				return;
+		}
+		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, s_Data->basicShader.get(), zIndex);
+		batch.addMesh(vertices, indices, texture);
 	}
 }
