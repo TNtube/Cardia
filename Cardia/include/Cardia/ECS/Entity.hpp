@@ -30,7 +30,7 @@ namespace Cardia
 		}
 
 		template<typename T>
-		void removeComponent()
+		void removeComponent() const
 		{
 			m_Scene->m_Registry.remove<T>(m_Entity);
 		}
@@ -42,16 +42,18 @@ namespace Cardia
 		}
 
 		template<typename T>
-		bool hasComponent()
+		bool hasComponent() const
 		{
 			return m_Scene->m_Registry.all_of<T>(m_Entity);
 		}
 
-		inline bool operator==(const entt::entity& entity) {
+		inline bool operator==(const entt::entity& entity) const
+		{
 			return m_Entity == entity;
 		}
 
-		inline explicit operator bool() {
+		inline explicit operator bool() const
+		{
 			return m_Entity != entt::null;
 		}
 

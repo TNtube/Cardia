@@ -10,14 +10,16 @@ add_rules("mode.debug", "mode.release", "mode.asan")
 add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx2a")
 
-add_requires("spdlog v1.9.0")                                               -- latest version at the time
-add_requires("glfw 3.3.6")                                                  -- latest version at the time
-add_requires("glad v0.1.36")                                                -- latest version at the time
-add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})      -- latest version at the time
-add_requires("glm 0.9.9+8")                                                 -- latest version at the time
-add_requires("entt v3.10.0")                                                -- latest version at the time
-add_requires("nativefiledialog 1.1.6")                                      -- latest version at the time
-add_requires("imguizmo 1.83")                                               -- latest version at the time
+add_requires("spdlog v1.9.0")
+add_requires("glfw 3.3.6")
+add_requires("glad v0.1.36")
+add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})
+add_requires("glm 0.9.9+8")
+add_requires("entt v3.10.0")
+add_requires("nativefiledialog 1.1.6")
+add_requires("jsoncpp 1.9.5")
+
+add_requires("imguizmo 1.83")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", configs = {glfw_opengl3 = true}}) -- config sub imgui module
 
 local outputdir = "$(mode)-$(os)-$(arch)"
@@ -47,6 +49,7 @@ target("Cardia")
     add_packages("imgui")
     add_packages("glm")
     add_packages("entt")
+    add_packages("jsoncpp")
 
     if is_mode("debug") then
         add_defines("CD_DEBUG")

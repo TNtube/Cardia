@@ -13,7 +13,7 @@ namespace Cardia
 	class Scene
 	{
 	public:
-		explicit Scene(std::string name);
+		explicit Scene(std::string name = "Default Scene");
 		Entity createEntity(const std::string& name = "");
 
 		void destroyEntity(entt::entity entity);
@@ -21,6 +21,7 @@ namespace Cardia
 		void onUpdate(DeltaTime deltaTime);
 		void onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera);
 		inline const char* getName() const { return m_Name.c_str(); }
+		inline const entt::registry& getRegistry() const { return m_Registry; }
 
 	private:
 		std::string m_Name;

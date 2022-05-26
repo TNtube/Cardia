@@ -13,10 +13,10 @@ namespace Cardia
 	void SceneCamera::RecomputeProjection()
 	{
 		if(m_ProjectionType == ProjectionType::Orthographic) {
-			float left = m_AspectRatio * m_OrthoSize * -0.5f;
-			float right = m_AspectRatio * m_OrthoSize * 0.5f;
-			float down = m_OrthoSize * -0.5f;
-			float up = m_OrthoSize * 0.5f;
+			const float left = m_AspectRatio * m_OrthoSize * -0.5f;
+			const float right = m_AspectRatio * m_OrthoSize * 0.5f;
+			const float down = m_OrthoSize * -0.5f;
+			const float up = m_OrthoSize * 0.5f;
 			m_ProjectionMatrix = glm::ortho(left, right, down, up, m_OrthoNear, m_OrthoFar);
 		}
 		else if (m_ProjectionType == ProjectionType::Perspective) {

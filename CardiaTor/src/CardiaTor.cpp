@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <nfd.h>
+#include <Cardia/SerializationUtils/SceneSerializer.hpp>
 
 
 namespace Cardia
@@ -36,6 +37,8 @@ namespace Cardia
 
 		entity = m_CurrentScene->createEntity("Camera");
 		entity.addComponent<Component::Camera>();
+
+		Log::coreInfo(SerializerUtils::SerializeScene(m_CurrentScene.get()));
 
 		m_Framebuffer = Framebuffer::create(spec);
 	}

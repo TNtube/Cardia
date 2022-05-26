@@ -21,7 +21,7 @@ namespace Cardia :: Panel
 	void SceneHierarchy::drawHierarchy()
 	{
 		ImGui::Begin(m_Scene->getName());
-		auto view = m_Scene->m_Registry.view<Component::Name>();
+		const auto view = m_Scene->m_Registry.view<Component::Name>();
 
 		for (auto entity : view)
 		{
