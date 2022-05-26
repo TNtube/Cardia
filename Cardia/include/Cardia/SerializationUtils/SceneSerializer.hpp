@@ -7,5 +7,5 @@ namespace Cardia::SerializerUtils
 {
         std::string SerializeScene(Scene* scene);
 
-        Scene DeserializeScene(const std::string& serializedScene);
+        bool DeserializeScene(const std::string& serializedScene, Scene& scene);
 }

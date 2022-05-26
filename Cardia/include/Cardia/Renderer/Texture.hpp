@@ -16,8 +16,10 @@ namespace Cardia
 		virtual bool operator==(const Texture& other) const = 0;
 		virtual uint32_t getRendererID() = 0;
 		virtual bool isLoaded() { return m_Loaded; }
+		virtual std::string getPath() { return m_Path; }
 	protected:
 		bool m_Loaded = false;
+		std::string m_Path {};
 	};
 
 	class Texture2D : public Texture

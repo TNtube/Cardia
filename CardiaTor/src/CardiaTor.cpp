@@ -15,31 +15,14 @@ namespace Cardia
 	{
 		const auto &window = getWindow();
 
-		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
-
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
+
 		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
 		m_InspectorPanel = std::make_unique<Panel::InspectorPanel>(m_SceneHierarchyPanel->getClickedEntity());
 		m_DebugPanel = std::make_unique<Panel::DebugPanel>();
 		m_FileHierarchyPanel = std::make_unique<Panel::FileHierarchy>(m_Workspace);
 
-		Entity entity;
-		for (int x = 0; x < 9; x++)
-		{
-			for (int y = 0; y < 9; y++)
-			{
-				entity = m_CurrentScene->createEntity("Square-" + std::to_string(x) + "-" + std::to_string(y));
-				entity.getComponent<Component::Transform>().position = {x, y, 0};
-				entity.addComponent<Component::SpriteRenderer>(glm::vec4{static_cast<float>(x)/10.0f, static_cast<float>(y)/10.0f, static_cast<float>(x + y)/20.0f, 1.0f});
-
-			}
-		}
-
-		entity = m_CurrentScene->createEntity("Camera");
-		entity.addComponent<Component::Camera>();
-
-		Log::coreInfo(SerializerUtils::SerializeScene(m_CurrentScene.get()));
-
+		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 		m_Framebuffer = Framebuffer::create(spec);
 	}
 
@@ -116,16 +99,9 @@ namespace Cardia
 					// Disabling fullscreen would allow the window to be moved to the front of other windows,
 					// which we can't undo at the moment without finer window depth/z control.
 					//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-					if (ImGui::MenuItem("Open"))
+					if (ImGui::MenuItem("Open", "CTRL+O"))
 					{
-						char *outPath = nullptr;
-						nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
-        
-						if ( result == NFD_OKAY ) {
-							m_Workspace = std::string(outPath);
-							m_FileHierarchyPanel->updateWorkspace(m_Workspace);
-							Log::coreInfo("Workspace : {0}", m_Workspace);
-						}
+						openWorkspace();
 					}
 
 					if (ImGui::MenuItem("Exit"))
@@ -139,6 +115,41 @@ namespace Cardia
 			}
 			ImGui::End();
 		}
+	}
+
+	void CardiaTor::openWorkspace()
+	{
+		char *outPath = nullptr;
+		nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
+        
+		if ( result == NFD_OKAY ) {
+			m_Workspace = std::string(outPath);
+			m_FileHierarchyPanel->updateWorkspace(m_Workspace);
+			Log::coreInfo("Workspace : {0}", m_Workspace);
+		}
+	}
+
+	void CardiaTor::saveScene() const
+	{
+		if (m_CurrentScene->path.empty())
+		{
+			nfdchar_t *outPath = nullptr;
+			NFD_SaveDialog("cardia", "", &outPath);
+			if (std::string(outPath).empty())
+			{
+				return;
+			}
+			m_CurrentScene->path = outPath;
+			if (!m_CurrentScene->path.ends_with(".cardia"))
+			{
+				m_CurrentScene->path += ".cardia";
+			}
+		}
+		
+		std::ofstream file;
+		file.open(m_CurrentScene->path);
+		file << SerializerUtils::SerializeScene(m_CurrentScene.get());
+		file.close();
 	}
 
 	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
@@ -171,6 +182,25 @@ namespace Cardia
 		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+			{
+				const auto* path = static_cast<const wchar_t*>(payload->Data);
+				const std::filesystem::path scenePath = path;
+				std::ifstream t(scenePath);
+				std::stringstream buffer;
+				buffer << t.rdbuf();
+				m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
+				if (!SerializerUtils::DeserializeScene(buffer.str(), *m_CurrentScene))
+				{
+					Log::coreInfo("Unable to load {0}", scenePath.string());
+				}
+				m_SceneHierarchyPanel->setCurrentScene(m_CurrentScene.get());
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
 
@@ -216,5 +246,25 @@ namespace Cardia
 			// Mouse inside viewport
 			m_EditorCamera.onEvent(event);
 		}
+
+		EventDispatcher dispatcher(event);
+		// shortcuts
+		dispatcher.dispatch<KeyDownEvent>([this](const KeyDownEvent& e)
+		{
+			if (Input::isKeyPressed(Key::LeftCtrl) || Input::isKeyPressed(Key::RightCtrl))
+			{
+				switch (e.getKeyCode())
+				{
+				case Key::O:
+					openWorkspace();
+					break;
+				case Key::S:
+					saveScene();
+					break;
+				default:
+					break;
+				}
+			}
+		});
 	}
 }

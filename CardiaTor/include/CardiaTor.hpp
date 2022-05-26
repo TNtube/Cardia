@@ -25,6 +25,8 @@ namespace Cardia
 
 	private:
 		void enableDocking();
+		void openWorkspace();
+		void saveScene() const;
 		std::unique_ptr<Texture2D> m_TextureSquare;
 		std::unique_ptr<Texture2D> m_TextureBox;
 		std::unique_ptr<Framebuffer> m_Framebuffer;

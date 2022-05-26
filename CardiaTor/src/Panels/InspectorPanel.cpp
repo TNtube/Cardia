@@ -24,7 +24,7 @@ namespace Cardia::Panel
 
 			if(ImGui::InputText("Name", buffer, bufferSize))
 			{
-				name.name = std::string(buffer, bufferSize);
+				name.name = std::string(buffer);
 			}
 
 			// Transform Component

@@ -10,8 +10,9 @@
 namespace Cardia
 {
 	OpenGLTexture2D::OpenGLTexture2D(std::string path)
-		: m_Path(std::move(path)), m_Width(), m_Height(), m_TextureID()
+		:m_Width(), m_Height(), m_TextureID()
 	{
+		m_Path = std::move(path);
 		stbi_set_flip_vertically_on_load(true);
 
 		int width, height, nbChannels;

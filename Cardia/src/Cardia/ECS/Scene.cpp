@@ -71,4 +71,9 @@ namespace Cardia
 		}
 		Renderer2D::endScene();
 	}
+
+	void Scene::clear()
+	{
+		m_Registry.clear();
+	}
 }

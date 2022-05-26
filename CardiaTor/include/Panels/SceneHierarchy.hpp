@@ -15,6 +15,7 @@ namespace Cardia :: Panel
                 ~SceneHierarchy() override = default;
 		void onImGuiRender(DeltaTime deltaTime) override;
 		Entity& getClickedEntity() { return m_EntityClicked; }
+		void setCurrentScene(Scene* scene) { m_Scene = scene; }
 
 	private:
 		void drawHierarchy();
