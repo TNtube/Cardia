@@ -39,7 +39,7 @@ namespace Cardia
 		auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
-		ImGui_ImplOpenGL3_Init("#version 440");
+		ImGui_ImplOpenGL3_Init("#version 460");
 	}
 
 	ImGuiLayer::~ImGuiLayer()

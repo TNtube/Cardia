@@ -9,7 +9,7 @@ namespace Cardia
 	{
 	public:
 		explicit OpenGLFramebuffer(FramebufferSpec spec);
-		virtual ~OpenGLFramebuffer();
+		virtual ~OpenGLFramebuffer() override;
 
 		void bind() const override;
 		void unbind() const override;

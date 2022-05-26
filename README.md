@@ -24,6 +24,7 @@ As a Minimum Viable Product, i'm aiming a functional 2D pipeline, using python f
 - - - [X] zIndex breaking batch
 - - - [ ] Material breaking batch
 
+- [ ] Mouse picking
 - [ ] Scene Serialization
 - [ ] Physic system
 - [ ] Scripting integration
