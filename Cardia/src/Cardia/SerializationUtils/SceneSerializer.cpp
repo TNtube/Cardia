@@ -138,7 +138,6 @@ namespace Cardia::SerializerUtils
                                 camera.camera.setOrthographicNear(node["camera"]["orthoNear"].asFloat());
                                 camera.camera.setOrthographicFar(node["camera"]["orthoFar"].asFloat());
                         }
-
                 }
                 
                 return true;

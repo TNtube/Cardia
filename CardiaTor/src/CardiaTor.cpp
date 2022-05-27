@@ -135,7 +135,7 @@ namespace Cardia
 		{
 			nfdchar_t *outPath = nullptr;
 			NFD_SaveDialog("cardia", "", &outPath);
-			if (std::string(outPath).empty())
+			if (!outPath)
 			{
 				return;
 			}
@@ -150,6 +150,19 @@ namespace Cardia
 		file.open(m_CurrentScene->path);
 		file << SerializerUtils::SerializeScene(m_CurrentScene.get());
 		file.close();
+	}
+
+	void CardiaTor::openScene(const std::filesystem::path& scenePath)
+	{
+		const std::ifstream t(scenePath);
+		std::stringstream buffer;
+		buffer << t.rdbuf();
+		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
+		if (!SerializerUtils::DeserializeScene(buffer.str(), *m_CurrentScene))
+		{
+			Log::coreInfo("Unable to load {0}", scenePath.string());
+		}
+		m_SceneHierarchyPanel->setCurrentScene(m_CurrentScene.get());
 	}
 
 	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
@@ -188,16 +201,7 @@ namespace Cardia
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 			{
 				const auto* path = static_cast<const wchar_t*>(payload->Data);
-				const std::filesystem::path scenePath = path;
-				std::ifstream t(scenePath);
-				std::stringstream buffer;
-				buffer << t.rdbuf();
-				m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
-				if (!SerializerUtils::DeserializeScene(buffer.str(), *m_CurrentScene))
-				{
-					Log::coreInfo("Unable to load {0}", scenePath.string());
-				}
-				m_SceneHierarchyPanel->setCurrentScene(m_CurrentScene.get());
+				openScene(path);
 			}
 			ImGui::EndDragDropTarget();
 		}
