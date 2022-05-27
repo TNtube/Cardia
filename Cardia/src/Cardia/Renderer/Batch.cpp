@@ -1,6 +1,10 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/Renderer/Batch.hpp"
 
+#include <numeric>
+
+#include "Cardia/Renderer/RenderAPI.hpp"
+
 
 namespace Cardia
 {
