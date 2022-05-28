@@ -51,4 +51,14 @@ namespace Cardia
 	{
 		return {reinterpret_cast<const char*>(glGetString(GL_VERSION))};
 	}
+
+	void OpenGLRenderAPI::enableDepth()
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	void OpenGLRenderAPI::disableDepth()
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
 }

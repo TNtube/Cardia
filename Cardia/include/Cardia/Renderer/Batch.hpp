@@ -30,7 +30,7 @@ namespace Cardia
 	public:
 		Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification);
 		void startBash();
-		void render();
+		void render(bool alpha = false);
 		bool addMesh(Mesh& mesh, const Texture2D *texture);
         	BatchSpecification specification;
 	private:

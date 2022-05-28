@@ -84,12 +84,16 @@ namespace Cardia
 		{
 			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
 		});
-
+		int32_t lastLayer = 0;
 		for (auto& batch : s_Data->batches)
 		{
-			batch.render();
+			batch.render(batch.specification.alpha);
 			s_Stats->drawCalls++;
-			RenderAPI::get().clearDepthBuffer();
+			if (lastLayer != batch.specification.layer)
+			{
+				RenderAPI::get().clearDepthBuffer();
+			}
+			lastLayer = batch.specification.layer;
 		}
 	}
 

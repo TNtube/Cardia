@@ -27,6 +27,8 @@ namespace Cardia
 		virtual std::string getVendor() = 0;
 		virtual std::string getRenderer() = 0;
 		virtual std::string getVersion() = 0;
+		virtual void enableDepth() = 0;
+		virtual void disableDepth() = 0;
 
 		virtual void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount = 0) = 0;
 

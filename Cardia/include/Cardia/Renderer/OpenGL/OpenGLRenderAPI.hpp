@@ -16,6 +16,8 @@ namespace Cardia
 		std::string getVendor() override;
 		std::string getRenderer() override;
 		std::string getVersion() override;
+		void enableDepth() override;
+		void disableDepth() override;
 
 		void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount) override;
 	};

@@ -8,8 +8,8 @@
 
 namespace Cardia
 {
-        Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification) : specification(specification),
-                                                                                                                 camPos(cameraPosition)
+        Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification) :
+                specification(specification), camPos(cameraPosition)
         {
                 vertexArray = va;
 
@@ -52,19 +52,22 @@ namespace Cardia
                 textureSlotIndex = 1;
         }
 
-        void Batch::render()
+        void Batch::render(bool alpha)
         {
-                std::ranges::sort(indexBufferData, [this](const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
+                if (alpha)
                 {
-                        const auto lambda = [this](const glm::vec3 va, const uint32_t ib)
+                        std::ranges::sort(indexBufferData, [this](const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
                         {
-                                return va + vertexBufferData[ib].position;
-                        };
-                        const auto vertexA = std::accumulate(a.begin(), a.end(), glm::vec3(0), lambda) / 3.0f;
-                        const auto vertexB = std::accumulate(b.begin(), b.end(), glm::vec3(0), lambda) / 3.0f;
-                        return glm::distance(vertexA, camPos) >= glm::distance(vertexB, camPos);
-                });
-
+                               const auto lambda = [this](const glm::vec3 va, const uint32_t ib)
+                               {
+                                      return va + vertexBufferData[ib].position;
+                               };
+                               const auto vertexA = std::accumulate(a.begin(), a.end(), glm::vec3(0), lambda) / 3.0f;
+                               const auto vertexB = std::accumulate(b.begin(), b.end(), glm::vec3(0), lambda) / 3.0f;
+                               return glm::distance(vertexA, camPos) >= glm::distance(vertexB, camPos);
+                        });   
+                }
+                
                 std::vector<uint32_t> iboData;
 
                 for (const auto& object: indexBufferData)
