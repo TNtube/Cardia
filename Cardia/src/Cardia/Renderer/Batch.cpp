@@ -107,6 +107,7 @@ namespace Cardia
                 vertexBufferData.reserve( vertexBufferData.size() + mesh.vertices.size() );
                 vertexBufferData.insert(vertexBufferData.end(), mesh.vertices.begin(), mesh.vertices.end());
 
+                indexBufferData.reserve(indexBufferData.size() + mesh.indices.size());
                 for (auto& index: mesh.indices)
                 {
                         index += indexOffset;
