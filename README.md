@@ -13,20 +13,4 @@ In the long term, I am aiming at a 2D and 3D rendering engine.
 
 As a Minimum Viable Product, i'm aiming a functional 2D pipeline, using python for scripting.
 
-###### TODO LIST : 
-- [ ] Renderer2D
-- - [ ] SpriteRenderer
-- - - [X] Rect
-- - - [ ] Circle
-- - [ ] Material
-- - [ ] Batching System
-- - - [X] Basic Batch
-- - - [X] zIndex breaking batch
-- - - [ ] Material breaking batch
-
-- [ ] Mouse picking
-- [ ] Scene Serialization
-- [ ] Physic system
-- [ ] Scripting integration
-- [ ] Editor tools
-
+See [this](https://github.com/TNtube/Cardia/projects/2) to follow the project progress
