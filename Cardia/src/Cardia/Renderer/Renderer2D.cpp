@@ -82,7 +82,7 @@ namespace Cardia
 	{
 		std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
 		{
-			return a.zIndex() < b.zIndex();
+			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
 		});
 
 		for (auto& batch : s_Data->batches)
@@ -170,12 +170,17 @@ namespace Cardia
 		mesh.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
 		s_Stats->triangleCount += 2;
 
+		BatchSpecification specification;
+		specification.alpha = color.a < 1.0f;
+		specification.layer = zIndex;
+		specification.shader = "basic";
+
 		for (auto& batch : s_Data->batches)
 		{
-			if (batch.zIndex() == zIndex && batch.addMesh(mesh, texture))
+			if (batch.specification == specification && batch.addMesh(mesh, texture))
 				return;
 		}
-		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, s_Data->basicShader.get(), zIndex);
+		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
 		batch.addMesh(mesh, texture);
 	}
 }

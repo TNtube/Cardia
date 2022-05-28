@@ -38,6 +38,10 @@ namespace Cardia
 
 	Shader* ShaderManager::get(const std::string &name)
 	{
-		return m_Shaders[name].get();
+		if (m_Shaders.contains(name))
+		{
+			return m_Shaders[name].get();
+		}
+		return nullptr;
 	}
 }

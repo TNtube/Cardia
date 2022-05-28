@@ -8,8 +8,8 @@
 
 namespace Cardia
 {
-        Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, Shader* shader, int32_t zIndex) : m_zIndex(zIndex),
-                        camPos(cameraPosition), m_Shader(shader)
+        Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification) : specification(specification),
+                                                                                                                 camPos(cameraPosition)
         {
                 vertexArray = va;
 
@@ -23,8 +23,17 @@ namespace Cardia
                         samplers[i] = i;
                 }
 
-                shader->bind();
-                shader->setIntArray("u_Textures", samplers.data(), maxTextureSlots);
+                m_Shader = ShaderManager::get(specification.shader);
+
+                if (!m_Shader)
+                {
+                        // TODO: Temporary, should change when Materials get implemented
+                        const auto shaderPath = "assets/shaders/" + specification.shader;
+                        m_Shader = ShaderManager::load(specification.shader, {shaderPath + ".vert", shaderPath + ".frag"});
+                }
+
+                m_Shader->bind();
+                m_Shader->setIntArray("u_Textures", samplers.data(), maxTextureSlots);
 
                 uint32_t whiteColor = 0xffffffff;
                 whiteTexture = Texture2D::create(1, 1, &whiteColor);
@@ -120,8 +129,4 @@ namespace Cardia
 
                 return true;
         }
-
-
-
-
 }

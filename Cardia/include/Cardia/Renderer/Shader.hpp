@@ -25,12 +25,12 @@ namespace Cardia
 	class ShaderManager
 	{
 	public:
-		void add(const std::string& name, std::unique_ptr<Shader> shader);
-		Shader* load(const std::string& name, const std::initializer_list<std::string>& filePaths);
-		Shader* get(const std::string& name);
+		static void add(const std::string& name, std::unique_ptr<Shader> shader);
+		static Shader* load(const std::string& name, const std::initializer_list<std::string>& filePaths);
+		static Shader* get(const std::string& name);
 
 
 	private:
-		std::unordered_map<std::string, std::unique_ptr<Shader>> m_Shaders;
+		inline static std::unordered_map<std::string, std::unique_ptr<Shader>> m_Shaders {};
 	};
 }

@@ -14,18 +14,26 @@ namespace Cardia
 	constexpr uint32_t maxIndices = maxTriangle * 3;
 	constexpr int maxTextureSlots = 32; // TODO: get it from RenderAPI
 
+	struct BatchSpecification
+	{
+		int32_t layer;
+		bool alpha;
+		std::string shader;
+		bool operator==(const BatchSpecification& other) const
+		{
+			return other.layer == layer && other.alpha == alpha && other.shader == shader;
+		}
+	};
 	
         class Batch
 	{
 	public:
-		Batch(VertexArray* va, const glm::vec3& cameraPosition, Shader* shader, int32_t zIndex);
+		Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification);
 		void startBash();
 		void render();
 		bool addMesh(Mesh& mesh, const Texture2D *texture);
-        	
-		inline int32_t zIndex() const { return m_zIndex; }
+        	BatchSpecification specification;
 	private:
-		int32_t m_zIndex;
 		glm::vec3 camPos {};
 
 		VertexArray* vertexArray;
