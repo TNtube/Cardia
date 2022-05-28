@@ -7,7 +7,6 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <memory>
-#include <numeric>
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -156,7 +155,8 @@ namespace Cardia
 			{ -0.5f,  0.5f, 0.0f, 1.0f },
 		};
 
-		std::vector<Vertex> vertices;
+
+		Mesh mesh;
 		for (int i = 0; i < 4; ++i)
 		{
 			auto vertex = Vertex();
@@ -164,19 +164,18 @@ namespace Cardia
 			vertex.color = color;
 			vertex.textureCoord = texCoords[i];
 			vertex.tilingFactor = tilingFactor;
-			vertices.push_back(vertex);
+			mesh.vertices.push_back(vertex);
 		}
 
-		MeshIndices indices;
-		indices.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
+		mesh.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
 		s_Stats->triangleCount += 2;
 
 		for (auto& batch : s_Data->batches)
 		{
-			if (batch.zIndex() == zIndex && batch.addMesh(vertices, indices, texture))
+			if (batch.zIndex() == zIndex && batch.addMesh(mesh, texture))
 				return;
 		}
 		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, s_Data->basicShader.get(), zIndex);
-		batch.addMesh(vertices, indices, texture);
+		batch.addMesh(mesh, texture);
 	}
 }

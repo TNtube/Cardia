@@ -45,14 +45,14 @@ namespace Cardia
 
         void Batch::render()
         {
-                std::ranges::sort(indexBufferData, [this](const MeshIndices a, const MeshIndices b)
+                std::ranges::sort(indexBufferData, [this](const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
                 {
                         const auto lambda = [this](const glm::vec3 va, const uint32_t ib)
                         {
                                 return va + vertexBufferData[ib].position;
                         };
-                        const auto vertexA = std::accumulate(a.indices.begin(), a.indices.end(), glm::vec3(0), lambda) / 3.0f;
-                        const auto vertexB = std::accumulate(b.indices.begin(), b.indices.end(), glm::vec3(0), lambda) / 3.0f;
+                        const auto vertexA = std::accumulate(a.begin(), a.end(), glm::vec3(0), lambda) / 3.0f;
+                        const auto vertexB = std::accumulate(b.begin(), b.end(), glm::vec3(0), lambda) / 3.0f;
                         return glm::distance(vertexA, camPos) >= glm::distance(vertexB, camPos);
                 });
 
@@ -60,7 +60,7 @@ namespace Cardia
 
                 for (const auto& object: indexBufferData)
                 {
-                        for (const auto index: object.indices)
+                        for (const auto index: object)
                         {
                                 iboData.push_back(index);
                         }
@@ -78,7 +78,7 @@ namespace Cardia
                 RenderAPI::get().drawIndexed(vertexArray, vertexCount);
         }
 
-        bool Batch::addMesh(std::vector<Vertex>& vertices, MeshIndices& indices, const Texture2D* texture)
+        bool Batch::addMesh(Mesh& mesh, const Texture2D* texture)
         {
                 if (vertexCount >= maxIndices)
                         return false;
@@ -99,23 +99,23 @@ namespace Cardia
                         textureIndex = static_cast<float>(textureSlotIndex);
                         textureSlotIndex++;
                 }
-                for (auto& vertex : vertices)
+                for (auto& vertex : mesh.vertices)
                 {
                         vertex.textureIndex = textureIndex;
                 }
 
-                vertexBufferData.reserve( vertexBufferData.size() + vertices.size() );
-                vertexBufferData.insert(vertexBufferData.end(), vertices.begin(), vertices.end());
+                vertexBufferData.reserve( vertexBufferData.size() + mesh.vertices.size() );
+                vertexBufferData.insert(vertexBufferData.end(), mesh.vertices.begin(), mesh.vertices.end());
 
-                for (auto& index: indices.indices)
+                for (auto& index: mesh.indices)
                 {
                         index += indexOffset;
                 }
 
-                indexBufferData.push_back(indices);
+                indexBufferData.push_back(mesh.indices);
 
-                indexOffset += vertices.size();
-                vertexCount += indices.indices.size();
+                indexOffset += mesh.vertices.size();
+                vertexCount += mesh.indices.size();
 
                 return true;
         }
