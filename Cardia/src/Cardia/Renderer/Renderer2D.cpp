@@ -50,7 +50,6 @@ namespace Cardia
 
 		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
 		s_Data->vertexArray->setIndexBuffer(std::move(ibo));
-		
 	}
 
 	void Renderer2D::quit()
@@ -84,16 +83,16 @@ namespace Cardia
 		{
 			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
 		});
-		int32_t lastLayer = 0;
+		std::string lastLayer;
 		for (auto& batch : s_Data->batches)
 		{
 			batch.render(batch.specification.alpha);
 			s_Stats->drawCalls++;
-			if (lastLayer != batch.specification.layer)
+			if (lastLayer != std::to_string(batch.specification.layer))
 			{
 				RenderAPI::get().clearDepthBuffer();
 			}
-			lastLayer = batch.specification.layer;
+			lastLayer = std::to_string(batch.specification.layer);
 		}
 	}
 
@@ -158,7 +157,6 @@ namespace Cardia
 			{  0.5f,  0.5f, 0.0f, 1.0f },
 			{ -0.5f,  0.5f, 0.0f, 1.0f },
 		};
-
 
 		Mesh mesh;
 		for (int i = 0; i < 4; ++i)
