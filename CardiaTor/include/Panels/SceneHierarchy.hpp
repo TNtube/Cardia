@@ -14,15 +14,13 @@ namespace Cardia :: Panel
 		explicit SceneHierarchy(Scene* scene);
                 ~SceneHierarchy() override = default;
 		void onImGuiRender(DeltaTime deltaTime) override;
-		Entity& getClickedEntity() { return m_EntityClicked; }
-		void setCurrentScene(Scene* scene) { m_Scene = scene; }
+		void setCurrentScene(Scene* scene) { m_Scene = scene; resetEntityClicked(); }
 
 	private:
 		void drawHierarchy();
-		void resetEntityClicked() { m_EntityClicked = {}; }
+		void resetEntityClicked() { m_SelectedEntity = {}; }
 
 	private:
 		Scene* m_Scene;
-		Entity m_EntityClicked;
 	};
 }

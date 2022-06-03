@@ -8,7 +8,7 @@
 
 namespace Cardia::Panel
 {
-        FileHierarchy::FileHierarchy(const std::string& workspace) : m_Workspace(workspace), m_CurrentPath(workspace)
+        FileHierarchy::FileHierarchy()
         {
                 m_FolderIcon = Texture2D::create("assets/icons/folder.png");
                 m_FileIcon = Texture2D::create("assets/icons/file.png");

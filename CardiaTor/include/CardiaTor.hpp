@@ -13,6 +13,11 @@
 
 namespace Cardia
 {
+	enum class EditorState
+	{
+		Play,
+		Edit
+	};
 	class CardiaTor : public Application
 	{
 	public:
@@ -26,17 +31,17 @@ namespace Cardia
 	private:
 		void enableDocking();
 		void openWorkspace();
+		void invalidateWorkspace() const;
 		void saveScene() const;
 		void openScene(const std::filesystem::path& scenePath);
-		std::unique_ptr<Texture2D> m_TextureSquare;
-		std::unique_ptr<Texture2D> m_TextureBox;
+		void reloadScene();
+		std::unique_ptr<Texture2D> m_IconPlay;
+		std::unique_ptr<Texture2D> m_IconStop;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
-		std::unique_ptr<Panel::SceneHierarchy> m_SceneHierarchyPanel;
-		std::unique_ptr<Panel::InspectorPanel> m_InspectorPanel;
-		std::unique_ptr<Panel::DebugPanel> m_DebugPanel;
-		std::unique_ptr<Panel::FileHierarchy> m_FileHierarchyPanel;
+		Entity m_SelectedEntity {};
+		std::unordered_map<std::string, std::unique_ptr<IPanel>> m_Panels;
 
 		glm::vec2 m_SceneSize {};
 
@@ -46,11 +51,12 @@ namespace Cardia
 		float m_AspectRatio = static_cast<float>(getWindow().getWidth())
 				      / static_cast<float>(getWindow().getHeight());
 
-
 		std::string m_Workspace;
 
 		bool m_HoverViewport = false;
 
+		EditorState m_EditorState = EditorState::Edit;
+		std::string m_LastEditorState {};
 
 		std::random_device rd;
 		std::mt19937 random{rd()};

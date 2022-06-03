@@ -17,10 +17,15 @@ namespace Cardia
 
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 
-		m_SceneHierarchyPanel = std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get());
-		m_InspectorPanel = std::make_unique<Panel::InspectorPanel>(m_SceneHierarchyPanel->getClickedEntity());
-		m_DebugPanel = std::make_unique<Panel::DebugPanel>();
-		m_FileHierarchyPanel = std::make_unique<Panel::FileHierarchy>(m_Workspace);
+		m_Panels = std::unordered_map<std::string, std::unique_ptr<IPanel>>();
+
+		m_Panels.insert({"SceneHierarchy", std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get())});
+		m_Panels.insert({"Inspector", std::make_unique<Panel::InspectorPanel>()});
+		m_Panels.insert({"Debug", std::make_unique<Panel::DebugPanel>()});
+		m_Panels.insert({"FileHierarchy", std::make_unique<Panel::FileHierarchy>()});
+
+		m_IconPlay = Texture2D::create("assets/icons/play.png");
+		m_IconStop = Texture2D::create("assets/icons/pause.png");
 
 		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 		m_Framebuffer = Framebuffer::create(spec);
@@ -33,8 +38,16 @@ namespace Cardia
 		RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
 		RenderAPI::get().clear();
 
-		m_EditorCamera.onUpdate(deltaTime);
-		m_CurrentScene->onUpdateEditor(deltaTime, m_EditorCamera);
+
+		if (m_EditorState == EditorState::Edit)
+		{
+			m_CurrentScene->onUpdateEditor(deltaTime, m_EditorCamera);
+			m_EditorCamera.onUpdate(deltaTime);
+		}
+		if (m_EditorState == EditorState::Play)
+		{
+			m_CurrentScene->onUpdate(deltaTime, m_SceneSize);
+		}
 
 		m_Framebuffer->unbind();
 	}
@@ -120,12 +133,20 @@ namespace Cardia
 	void CardiaTor::openWorkspace()
 	{
 		char *outPath = nullptr;
-		nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
+		const nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
         
 		if ( result == NFD_OKAY ) {
 			m_Workspace = std::string(outPath);
-			m_FileHierarchyPanel->updateWorkspace(m_Workspace);
+			invalidateWorkspace();
 			Log::coreInfo("Workspace : {0}", m_Workspace);
+		}
+	}
+
+	void CardiaTor::invalidateWorkspace() const
+	{
+		for (const auto& [name, panel]: m_Panels)
+		{
+			panel->updateWorkspace(m_Workspace);
 		}
 	}
 
@@ -140,7 +161,7 @@ namespace Cardia
 				return;
 			}
 			m_CurrentScene->path = outPath;
-			if (!m_CurrentScene->path.ends_with(".cardia"))
+			if (m_CurrentScene->path.extension() != "cardia")
 			{
 				m_CurrentScene->path += ".cardia";
 			}
@@ -158,21 +179,71 @@ namespace Cardia
 		std::stringstream buffer;
 		buffer << t.rdbuf();
 		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
+		m_CurrentScene->path = scenePath;
+		
 		if (!SerializerUtils::DeserializeScene(buffer.str(), *m_CurrentScene))
 		{
 			Log::coreInfo("Unable to load {0}", scenePath.string());
 		}
-		m_SceneHierarchyPanel->setCurrentScene(m_CurrentScene.get());
+		dynamic_cast<Panel::SceneHierarchy*>(m_Panels.at("SceneHierarchy").get())->setCurrentScene(m_CurrentScene.get());
+	}
+
+	void CardiaTor::reloadScene()
+	{
+		const auto scenePath = m_CurrentScene->path;
+		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
+		m_CurrentScene->path = scenePath;
+
+		if (!SerializerUtils::DeserializeScene(m_LastEditorState, *m_CurrentScene))
+		{
+			Log::coreInfo("Unable to reload {0}", m_CurrentScene->path.filename().string());
+		}
+		dynamic_cast<Panel::SceneHierarchy*>(m_Panels.at("SceneHierarchy").get())->setCurrentScene(m_CurrentScene.get());
+		m_SelectedEntity = {};
 	}
 
 	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
 	{
 		enableDocking();
-		m_DebugPanel->onImGuiRender(deltaTime);
-		m_InspectorPanel->updateSelectedEntity(m_SceneHierarchyPanel->getClickedEntity());
-		m_SceneHierarchyPanel->onImGuiRender(deltaTime);
-		m_InspectorPanel->onImGuiRender(deltaTime);
-		m_FileHierarchyPanel->onImGuiRender(deltaTime);
+
+		m_SelectedEntity = m_Panels.at("SceneHierarchy")->getSelectedEntity();
+
+		for (const auto& [name, panel]: m_Panels)
+		{
+			panel->updateSelectedEntity(m_SelectedEntity);
+			panel->onImGuiRender(deltaTime);
+		}
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		const auto& colors = ImGui::GetStyle().Colors;
+		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		float size = ImGui::GetWindowHeight() - 4.0f;
+		Texture2D* icon = m_EditorState == EditorState::Edit ? m_IconPlay.get() : m_IconStop.get();
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x- size) * 0.5f);
+		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->getRendererID())), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0))
+		{
+			if (m_EditorState == EditorState::Edit)
+			{
+				m_EditorState = EditorState::Play;
+				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get());
+			}
+			else if (m_EditorState == EditorState::Play)
+			{
+				m_EditorState = EditorState::Edit;
+				reloadScene();
+			}
+		}
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+		ImGui::End();
 
 		ImGui::Begin("Edit");
 
@@ -209,9 +280,8 @@ namespace Cardia
 		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
 
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
-
-		auto selectedEntity = m_SceneHierarchyPanel->getClickedEntity();
-		if (selectedEntity)
+		
+		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
 		{
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
@@ -221,7 +291,7 @@ namespace Cardia
 			// Editor camera
 			const glm::mat4& cameraProjection = m_EditorCamera.getProjectionMatrix();
 			glm::mat4 cameraView = m_EditorCamera.getViewMatrix();
-			auto& transformComponent = selectedEntity.getComponent<Component::Transform>();
+			auto& transformComponent = m_SelectedEntity.getComponent<Component::Transform>();
 			glm::mat4 transform = transformComponent.getTransform();
 
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),

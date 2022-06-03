@@ -2,11 +2,28 @@
 #include "Cardia/ECS/SceneCamera.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
-
 namespace Cardia
 {
 	SceneCamera::SceneCamera()
 	{
+		RecomputeProjection();
+	}
+	
+	void SceneCamera::setPerspective(float verticalFOV, float nearClip, float farClip)
+	{
+		m_ProjectionType = ProjectionType::Perspective;
+		m_PersFOV = verticalFOV;
+		m_PersNear = nearClip;
+		m_PersFar = farClip;
+		RecomputeProjection();
+	}
+
+	void SceneCamera::setOrthographic(float size, float nearClip, float farClip)
+	{
+		m_ProjectionType = ProjectionType::Orthographic;
+		m_OrthoSize = size;
+		m_OrthoNear = nearClip;
+		m_OrthoFar = farClip;
 		RecomputeProjection();
 	}
 

@@ -27,25 +27,33 @@ namespace Cardia
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::onUpdate(DeltaTime deltaTime)
+	void Scene::onUpdate(DeltaTime deltaTime, const glm::vec2& viewport)
 	{
 
-		Camera* mainCamera = nullptr;
+		SceneCamera* mainCamera = nullptr;
 		glm::mat4 mainCameraTransform;
 
 		{
 			const auto viewCamera = m_Registry.view<Component::Transform, Component::Camera>();
 			for (const auto entity: viewCamera)
 			{
-				auto[transform, camera] = viewCamera.get<Component::Transform, Component::Camera>(
+				auto[transform, cam] = viewCamera.get<Component::Transform, Component::Camera>(
 					entity);
-				if (camera.primary)
+				if (cam.primary)
 				{
-					mainCamera = &camera.camera;
+					mainCamera = &cam.camera;
 					mainCameraTransform = transform.getTransform();
 				}
 			}
 		}
+
+		if (!mainCamera)
+		{
+			Log::error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
+			return;
+		}
+
+		mainCamera->setViewportSize(viewport.x, viewport.y);
 
 		Renderer2D::beginScene(*mainCamera, mainCameraTransform);
 
@@ -53,7 +61,7 @@ namespace Cardia
 		for (const auto entity : view)
 		{
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.color);
+			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 
 		Renderer2D::endScene();
@@ -69,6 +77,7 @@ namespace Cardia
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
+
 		Renderer2D::endScene();
 	}
 

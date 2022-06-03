@@ -40,7 +40,7 @@ namespace Cardia::Panel
 
 			// SpriteRenderer Component
 
-			drawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
+			drawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [this](Component::SpriteRenderer& sprite) {
 				ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
 				ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0);
 				uint32_t whiteColor = 0xffffffff;
@@ -54,7 +54,7 @@ namespace Cardia::Panel
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
 						const auto* path = static_cast<const wchar_t*>(payload->Data);
-						const std::filesystem::path texturePath = path;
+						const auto texturePath = std::filesystem::relative(path, m_Workspace);
 						auto tex = Texture2D::create(texturePath.string());
 						if (tex->isLoaded())
 						{
@@ -78,6 +78,11 @@ namespace Cardia::Panel
 				if (ImGui::Combo("Camera Type", &type, cameraTypes,
 						 sizeof(cameraTypes) / sizeof(char *)))
 					cam.setProjectionType(static_cast<SceneCamera::ProjectionType>(type));
+
+				auto& isPrimary = camera.primary;
+
+				ImGui::Checkbox("Primary", &isPrimary);
+				
 				if (cam.getProjectionType() == SceneCamera::ProjectionType::Perspective) {
 					float pFov = glm::degrees(cam.getPerspectiveFov());
 					if (ImGui::DragFloat("Fov", &pFov, 0.05f))
@@ -130,11 +135,6 @@ namespace Cardia::Panel
 			}
 		}
 		ImGui::End();
-        }
-
-        void InspectorPanel::updateSelectedEntity(const Entity& entity) const
-        {
-        	m_SelectedEntity = entity;
         }
 
 

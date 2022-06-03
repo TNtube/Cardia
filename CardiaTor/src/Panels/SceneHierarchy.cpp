@@ -26,16 +26,16 @@ namespace Cardia :: Panel
 		for (auto entity : view)
 		{
 			auto name = view.get<Component::Name>(entity);
-			auto node_flags = ((m_EntityClicked == entity) ? ImGuiTreeNodeFlags_Selected : 0);
+			auto node_flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity))), node_flags, "%s", name.name.c_str())) {
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-					m_EntityClicked = Entity(entity, m_Scene);
+					m_SelectedEntity = Entity(entity, m_Scene);
 				}
 				if (ImGui::BeginPopupContextItem())
 				{
-					m_EntityClicked = Entity(entity, m_Scene);
+					m_SelectedEntity = Entity(entity, m_Scene);
 					if (ImGui::MenuItem("Delete Entity"))
 					{
 						m_Scene->destroyEntity(entity);

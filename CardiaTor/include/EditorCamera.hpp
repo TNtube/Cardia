@@ -35,6 +35,11 @@ namespace Cardia
 		glm::vec3 getForwardDirection() const;
 		glm::quat getOrientation() const;
 
+		const glm::vec3& getPosition() override
+		{
+			return m_Position;
+		}
+
 		float getPitch() const { return m_Pitch; }
 		float getYaw() const { return m_Yaw; }
 

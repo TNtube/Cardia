@@ -18,6 +18,8 @@ namespace Cardia
 		SceneCamera();
 
 		~SceneCamera() override = default;
+		void setPerspective(float verticalFOV, float nearClip, float farClip);
+		void setOrthographic(float size, float nearClip, float farClip);
 
 		inline ProjectionType getProjectionType() const { return m_ProjectionType; }
 		inline void setProjectionType(ProjectionType type) { m_ProjectionType = type; RecomputeProjection(); }
