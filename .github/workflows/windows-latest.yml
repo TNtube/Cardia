@@ -21,7 +21,7 @@ jobs:
 
     - name: Build debug
       run: |
-        xmake f -m debug -y
+        xmake f -m debug -y -v
         xmake -v
 
     - name: Build release
