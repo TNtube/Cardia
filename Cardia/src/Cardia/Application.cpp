@@ -20,7 +20,7 @@ namespace Cardia
 		m_Window->setEventCallback([this](Event& e)
 		{
 			EventDispatcher dispatcher(e);
-			dispatcher.dispatch<WinCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
+			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
 			m_ImGuiLayer->onEvent(e);
 			onEvent(e);
 		});
@@ -51,7 +51,7 @@ namespace Cardia
 		Renderer2D::quit();
 	}
 
-	bool Application::onWinClose(WinCloseEvent& e)
+	bool Application::onWinClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
 		return true;

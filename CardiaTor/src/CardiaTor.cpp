@@ -178,12 +178,16 @@ namespace Cardia
 		const std::ifstream t(scenePath);
 		std::stringstream buffer;
 		buffer << t.rdbuf();
-		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
-		m_CurrentScene->path = scenePath;
+
+		auto newScene = std::make_unique<Scene>(scenePath.filename().string());
+		newScene->path = scenePath;
 		
-		if (!SerializerUtils::DeserializeScene(buffer.str(), *m_CurrentScene))
+		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene))
 		{
 			Log::coreInfo("Unable to load {0}", scenePath.string());
+		} else
+		{
+			m_CurrentScene = std::move(newScene);
 		}
 		dynamic_cast<Panel::SceneHierarchy*>(m_Panels.at("SceneHierarchy").get())->setCurrentScene(m_CurrentScene.get());
 	}
@@ -337,6 +341,18 @@ namespace Cardia
 					break;
 				default:
 					break;
+				}
+			}
+		});
+
+		dispatcher.dispatch<WindowFocusEvent>([this](const WindowFocusEvent& e)
+		{
+			if (e.isFocused())
+			{
+				const auto view = m_CurrentScene->getRegistry().view<Component::EntityBehavior>();
+				for (auto [entity, behavior] : view.each())
+				{
+					behavior.setPath(behavior.getPath());
 				}
 			}
 		});

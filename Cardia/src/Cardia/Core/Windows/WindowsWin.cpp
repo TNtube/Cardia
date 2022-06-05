@@ -63,7 +63,7 @@ namespace Cardia
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* win)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
-				WinCloseEvent event;
+				WindowCloseEvent event;
 				data->eventCallback(event);
 			});
 
@@ -72,7 +72,7 @@ namespace Cardia
 				const auto data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 				data->width = w;
 				data->height = h;
-				WinResizeEvent event(w, h);
+				WindowResizeEvent event(w, h);
 				data->eventCallback(event);
 				RenderAPI::get().setViewPort(0, 0, w, h);
 			});
@@ -80,7 +80,7 @@ namespace Cardia
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
-				WinMoveEvent event(x, y);
+				WindowMoveEvent event(x, y);
 				data->eventCallback(event);
 			});
 		
@@ -155,6 +155,13 @@ namespace Cardia
 				MouseMotionEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
 				data->eventCallback(event);
 			});
+
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* win, int focused)
+		{
+			const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
+			WindowFocusEvent event(focused);
+			data->eventCallback(event);
+		});
 	}
 
 

@@ -21,7 +21,7 @@ namespace Cardia
 	{
 	public:
 		WindowsWin(const WinProperties& properties);
-		virtual ~WindowsWin();
+		virtual ~WindowsWin() override;
 
 		void onUpdate() override;
 		inline int getWidth() const override { return m_Data.width; }

@@ -9,6 +9,7 @@ set_allowedarchs("windows|x64", "linux|x64", "macosx|x86_64")
 add_rules("mode.debug", "mode.release", "mode.asan")
 add_rules("plugin.vsxmake.autoupdate")
 set_languages("cxx2a")
+set_optimize("fastest")
 
 add_requires("spdlog v1.9.0")
 add_requires("glfw 3.3.6")
@@ -21,6 +22,9 @@ add_requires("jsoncpp 1.9.5")
 
 add_requires("imguizmo 1.83")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", configs = {glfw_opengl3 = true}}) -- config sub imgui module
+
+add_requires("pybind11")
+add_requireconfs("pybind11.python", { override = true, kind = "bynary" }) -- config pybind11 python submodule
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
@@ -50,6 +54,7 @@ target("Cardia")
     add_packages("glm", { public = true })
     add_packages("entt", { public = true })
     add_packages("jsoncpp", { public = true })
+    add_packages("pybind11")
 
     if is_mode("debug") then
         add_defines("CD_DEBUG")

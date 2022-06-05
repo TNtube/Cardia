@@ -22,7 +22,7 @@ namespace Cardia
 		void onUpdate(DeltaTime deltaTime, const glm::vec2& viewport);
 		void onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera);
 		inline const char* getName() const { return m_Name.c_str(); }
-		inline const entt::registry& getRegistry() const { return m_Registry; }
+		inline entt::registry& getRegistry() { return m_Registry; }
 		void clear();
 
 		std::filesystem::path path;

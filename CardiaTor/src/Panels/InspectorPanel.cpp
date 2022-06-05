@@ -75,8 +75,7 @@ namespace Cardia::Panel
 
 				int type = static_cast<int>(cam.getProjectionType());
 				const char *cameraTypes[] = {"Perspective", "Orthographic"};
-				if (ImGui::Combo("Camera Type", &type, cameraTypes,
-						 sizeof(cameraTypes) / sizeof(char *)))
+				if (ImGui::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes) / sizeof(char *)))
 					cam.setProjectionType(static_cast<SceneCamera::ProjectionType>(type));
 
 				auto& isPrimary = camera.primary;
@@ -107,6 +106,30 @@ namespace Cardia::Panel
 				}
 			});
 
+			drawInspectorComponent<Component::EntityBehavior>("Entity Behavior", [this](Component::EntityBehavior& behaviorComponent) {
+				std::string path = behaviorComponent.getPath();
+				
+				char* buffer = &path[0];
+				ImGui::InputText("label", buffer, path.size(), ImGuiInputTextFlags_ReadOnly);
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+					{
+						const auto behaviorPath = std::filesystem::relative(static_cast<const wchar_t*>(payload->Data), m_Workspace);
+						if (behaviorPath.extension() == ".py")
+						{
+							behaviorComponent.setPath(behaviorPath.string());
+						}
+						else
+						{
+							Log::warn("Could not load file {0}", behaviorPath.string());
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+			});
+
 			ImGui::Separator();
 
 			const auto windowWidth = ImGui::GetWindowSize().x;
@@ -130,6 +153,12 @@ namespace Cardia::Panel
 				if (!m_SelectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
 				{
 					m_SelectedEntity.addComponent<Component::SpriteRenderer>();
+					ImGui::EndPopup();
+				}
+
+				if (!m_SelectedEntity.hasComponent<Component::EntityBehavior>() && ImGui::MenuItem("Entity Behavior"))
+				{
+					m_SelectedEntity.addComponent<Component::EntityBehavior>();
 					ImGui::EndPopup();
 				}
 			}

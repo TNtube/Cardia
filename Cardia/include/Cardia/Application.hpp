@@ -19,7 +19,7 @@ namespace Cardia
 		virtual void onEvent(Event& e) = 0;
 		virtual void onUpdate(DeltaTime deltaTime) = 0;
 		virtual void onImGuiDraw(DeltaTime deltaTime) = 0;
-		bool onWinClose(WinCloseEvent& e);
+		bool onWinClose(WindowCloseEvent& e);
 
 		inline static Application& get() { return *s_Instance; }
 		inline Window& getWindow() const { return *m_Window; }

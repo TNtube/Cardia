@@ -14,7 +14,7 @@ namespace Cardia
 	enum class EventType
 	{
 		Null = 0,
-		WinClose, WinResize, WinFocus, WinLostFocus, WinMoved,
+		WindowClose, WindowResize, WindowMoved, WindowFocus,
 		KeyDown, KeyUp, KeyTyped,
 		AppTick, AppUpdate, AppRender,
 		MouseButtonDown, MouseButtonUp, MouseMotion, MouseScrolled
@@ -97,13 +97,13 @@ namespace Cardia
 
 	// -------------------------------------- Application Events --------------------------------------
 
-	class WinResizeEvent : public Event
+	class WindowResizeEvent : public Event
 	{
 	public:
-		WinResizeEvent(uint32_t width, uint32_t height)
+		WindowResizeEvent(uint32_t width, uint32_t height)
 			: m_Width(width), m_Height(height) {}
 
-		~WinResizeEvent() override = default;
+		~WindowResizeEvent() override = default;
 
 		std::string toString() const override							// for debugging purpose
 		{
@@ -116,26 +116,39 @@ namespace Cardia
 		inline uint32_t getH() const { return m_Height; }
 		inline std::pair<float, float> getSize() const { return {static_cast<float>(m_Width),static_cast<float>(m_Width) }; }
 
-		EVENT_CLASS_TYPE(EventType::WinResize)
+		EVENT_CLASS_TYPE(EventType::WindowResize)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 
 	private:
 		uint32_t m_Width, m_Height;
 	};
 
-	class WinCloseEvent : public Event
+	class WindowCloseEvent : public Event
 	{
 	public:
-		WinCloseEvent() = default;
+		WindowCloseEvent() = default;
 
-		EVENT_CLASS_TYPE(EventType::WinClose)
+		EVENT_CLASS_TYPE(EventType::WindowClose)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 	};
 
-	class WinMoveEvent : public Event
+	class WindowFocusEvent : public Event
 	{
 	public:
-		WinMoveEvent(int x, int y)
+		WindowFocusEvent(bool hasFocus) : m_HasFocus(hasFocus) {}
+
+		bool isFocused() const { return m_HasFocus; }
+
+		EVENT_CLASS_TYPE(EventType::WindowFocus)
+		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
+	private:
+		bool m_HasFocus;
+	};
+
+	class WindowMoveEvent : public Event
+	{
+	public:
+		WindowMoveEvent(int x, int y)
 			: m_PosX(x), m_PosY(y) {}
 
 		std::string toString() const override							// for debugging purpose
@@ -145,7 +158,7 @@ namespace Cardia
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(EventType::WinMoved)
+		EVENT_CLASS_TYPE(EventType::WindowMoved)
 		EVENT_CLASS_CATEGORY(EventCategory::EventCatApplication)
 
 	private:

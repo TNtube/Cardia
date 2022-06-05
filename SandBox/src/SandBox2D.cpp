@@ -165,10 +165,10 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 void SandBox2D::onEvent(Cardia::Event &event)
 {
 	Cardia::EventDispatcher dispatcher(event);
-	dispatcher.dispatch<Cardia::WinResizeEvent>(CD_BIND_EVENT_FN(onResize));
+	dispatcher.dispatch<Cardia::WindowResizeEvent>(CD_BIND_EVENT_FN(onResize));
 }
 
-void SandBox2D::onResize(const Cardia::WinResizeEvent &e)
+void SandBox2D::onResize(const Cardia::WindowResizeEvent &e)
 {
 	m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
 	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);

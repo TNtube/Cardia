@@ -73,4 +73,24 @@ namespace Cardia::Component
 			camera = SceneCamera();
 		}
 	};
+
+	struct EntityBehavior
+	{
+		EntityBehavior() = default;
+		EntityBehavior(const EntityBehavior&) = default;
+		explicit EntityBehavior(std::string scriptPath) : m_Path(std::move(scriptPath)) { reloadFile(); }
+		inline std::string getPath() const {return m_Path; }
+		inline void setPath(const std::string& newPath) { m_Path = newPath; reloadFile(); }
+
+		inline void reset()
+		{
+			m_Path.clear();
+			m_Content.clear();
+		}
+
+	private:
+		void reloadFile();
+		std::string m_Path;
+		std::string m_Content;
+	};
 }
