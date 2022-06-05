@@ -23,7 +23,7 @@ add_requires("jsoncpp 1.9.5")
 add_requires("imguizmo 1.83")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", configs = {glfw_opengl3 = true}}) -- config sub imgui module
 
-add_requires("python", { kind = "bynary" }) -- config pybind11 python submodule
+add_requires("python", { kind = "binary" })
 add_requires("pybind11")
 
 local outputdir = "$(mode)-$(os)-$(arch)"
