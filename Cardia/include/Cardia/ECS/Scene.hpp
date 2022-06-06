@@ -15,6 +15,7 @@ namespace Cardia
 	{
 	public:
 		Scene(std::string name = "Default Scene");
+		virtual ~Scene() = default;
 		Entity createEntity(const std::string& name = "");
 
 		void destroyEntity(entt::entity entity);

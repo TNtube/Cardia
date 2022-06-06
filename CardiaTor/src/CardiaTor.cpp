@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <nfd.h>
+#include <ranges>
 #include <Cardia/SerializationUtils/SceneSerializer.hpp>
 
 
@@ -190,6 +191,7 @@ namespace Cardia
 			m_CurrentScene = std::move(newScene);
 		}
 		dynamic_cast<Panel::SceneHierarchy*>(m_Panels.at("SceneHierarchy").get())->setCurrentScene(m_CurrentScene.get());
+		m_SelectedEntity = {};
 	}
 
 	void CardiaTor::reloadScene()
@@ -212,7 +214,7 @@ namespace Cardia
 
 		m_SelectedEntity = m_Panels.at("SceneHierarchy")->getSelectedEntity();
 
-		for (const auto& [name, panel]: m_Panels)
+		for (const auto& panel : m_Panels | std::views::values)
 		{
 			panel->updateSelectedEntity(m_SelectedEntity);
 			panel->onImGuiRender(deltaTime);

@@ -8,7 +8,7 @@ set_allowedarchs("windows|x64", "linux|x64", "macosx|x86_64")
 
 add_rules("mode.debug", "mode.release", "mode.asan")
 add_rules("plugin.vsxmake.autoupdate")
-set_languages("cxx2a")
+set_languages("cxx20")
 set_optimize("fastest")
 
 add_requires("spdlog v1.9.0")
@@ -23,14 +23,21 @@ add_requires("jsoncpp 1.9.5")
 add_requires("imguizmo 1.83")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", configs = {glfw_opengl3 = true}}) -- config sub imgui module
 
-add_requires("python", { kind = "binary" })
+add_requires("python")
 add_requires("pybind11")
+add_requireconfs("pybind11.python", { override = true, kind = "bynary" })
+
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
 rule("cp-assets")
     after_build(function (target)
             os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
+        end)
+
+rule("cp-cardiapy")
+    after_build(function (target)
+            os.cp("build/" .. outputdir .. "/CardiaPy/**.pyd", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
         end)
 
 target("Cardia")
@@ -54,11 +61,25 @@ target("Cardia")
     add_packages("glm", { public = true })
     add_packages("entt", { public = true })
     add_packages("jsoncpp", { public = true })
-    add_packages("pybind11")
+    add_packages("python", { public = true })
+    add_packages("pybind11", { public = true })
 
     if is_mode("debug") then
         add_defines("CD_DEBUG")
     end
+
+target("CardiaPy")
+    set_basename("cardia")
+    set_kind("shared")
+    set_extension(".pyd")
+
+    set_targetdir("build/" .. outputdir .. "/CardiaPy/bin")
+    set_objectdir("build/" .. outputdir .. "/CardiaPy/obj")
+
+    add_packages("python")
+    add_packages("pybind11")
+    add_deps("Cardia")
+    add_files("CardiaPy/src/*.cpp")
 
 target("SandBox")
     set_kind("binary")
@@ -84,6 +105,7 @@ target("SandBox")
 target("CardiaTor")
     set_kind("binary")
     add_rules("cp-assets")
+    add_rules("cp-cardiapy")
 
     set_targetdir("build/" .. outputdir .. "/CardiaTor/bin")
     set_objectdir("build/" .. outputdir .. "/CardiaTor/obj")

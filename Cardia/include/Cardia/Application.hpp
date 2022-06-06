@@ -13,7 +13,7 @@ namespace Cardia
 	{
 	public:
 		Application();
-		virtual ~Application() = default;
+		virtual ~Application();
 
 		void Run();
 		virtual void onEvent(Event& e) = 0;

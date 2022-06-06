@@ -4,14 +4,17 @@
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
+#include <pybind11/embed.h>
 
 
 namespace Cardia
 {
+	namespace py = pybind11;
+	using namespace py::literals;
+	
 	Scene::Scene(std::string name)
 		: m_Name(std::move(name))
 	{
-
 	}
 
 	Entity Scene::createEntity(const std::string& name)
@@ -29,6 +32,24 @@ namespace Cardia
 
 	void Scene::onUpdate(DeltaTime deltaTime, const glm::vec2& viewport)
 	{
+		{
+			const auto viewTransform = m_Registry.view<Component::EntityBehavior, Component::Transform>();
+			for (auto [entity, spriteRenderer, transform] : viewTransform.each())
+			{
+				try {
+					auto cardiapy = py::module_::import("cardia");
+					auto locals = py::dict("entity"_a=Entity(entity, this));
+				
+					py::exec(R"(
+						import cardia
+						entity.getTransform().position = cardia.vec3(2, 2, 0)
+						print("Hello World from Python !")
+					)", py::globals(), locals);
+				} catch (std::exception &e) {
+					Log::error(e.what());
+				}
+			}
+		}
 
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 mainCameraTransform;

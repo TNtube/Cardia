@@ -65,6 +65,15 @@ namespace Cardia::SerializerUtils
                                 root[name.name]["camera"] = node;
                                 node.clear();
                         }
+
+                        if (entity.hasComponent<Component::EntityBehavior>())
+                        {
+                                const auto& behavior = entity.getComponent<Component::EntityBehavior>();
+                                node["path"] = behavior.getPath();
+                                
+                                root[name.name]["behavior"] = node;
+                                node.clear();
+                        }
                 }
 
                 std::stringstream output;
@@ -137,6 +146,12 @@ namespace Cardia::SerializerUtils
                                 camera.camera.setOrthographicSize(node["camera"]["orthoSize"].asFloat());
                                 camera.camera.setOrthographicNear(node["camera"]["orthoNear"].asFloat());
                                 camera.camera.setOrthographicFar(node["camera"]["orthoFar"].asFloat());
+                        }
+                        
+                        if (node.isMember("behavior"))
+                        {
+                                auto& behavior = entity.addComponent<Component::EntityBehavior>();
+                                behavior.setPath(node["behavior"]["path"].asString());
                         }
                 }
                 
