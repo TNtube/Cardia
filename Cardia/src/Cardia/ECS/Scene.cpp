@@ -42,7 +42,7 @@ namespace Cardia
 				
 					py::exec(R"(
 						import cardia
-						entity.getTransform().position = cardia.vec3(2, 2, 0)
+						entity.get_transform().rotation.y += 0.05
 						print("Hello World from Python !")
 					)", py::globals(), locals);
 				} catch (std::exception &e) {

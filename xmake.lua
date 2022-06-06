@@ -25,8 +25,7 @@ add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", 
 
 add_requires("python")
 add_requires("pybind11")
-add_requireconfs("pybind11.python", { override = true, kind = "bynary" })
-
+add_requireconfs("pybind11.python", {override = true, config = {kind = "binary"}})
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
@@ -39,6 +38,17 @@ rule("cp-cardiapy")
     after_build(function (target)
             os.cp("build/" .. outputdir .. "/CardiaPy/**.pyd", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
         end)
+
+rule("python-env")
+    on_load(function (target)
+		target:add("packages", "python")
+
+		local pythonDir = target:pkg("python"):installdir()
+        print("Python dir is : " .. pythonDir)
+        
+        os.setenv("PYTHONPATH", path.join(pythonDir, "Lib", "site-packages"))
+        os.setenv("PYTHONHOME", pythonDir)
+	end)
 
 target("Cardia")
     set_kind("static")
@@ -63,6 +73,8 @@ target("Cardia")
     add_packages("jsoncpp", { public = true })
     add_packages("python", { public = true })
     add_packages("pybind11", { public = true })
+    
+    add_rules("python-env")
 
     if is_mode("debug") then
         add_defines("CD_DEBUG")

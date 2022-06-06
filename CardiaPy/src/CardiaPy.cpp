@@ -44,8 +44,8 @@ PYBIND11_MODULE(cardia, m) {
         
         py::class_<Component::Transform>(m, "Transform")
                 .def_readwrite("position", &Component::Transform::position, py::return_value_policy::reference)
-                .def_readwrite("rotation", &Component::Transform::position, py::return_value_policy::reference)
-                .def_readwrite("scale", &Component::Transform::position, py::return_value_policy::reference);
+                .def_readwrite("rotation", &Component::Transform::rotation, py::return_value_policy::reference)
+                .def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference);
 
 
         // Core objects
