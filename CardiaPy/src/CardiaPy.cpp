@@ -17,6 +17,7 @@ PYBIND11_MODULE(cardia, m) {
                 .def_readwrite("y", &glm::vec2::y, py::return_value_policy::reference)
                 .def_readwrite("r", &glm::vec2::r, py::return_value_policy::reference)
                 .def_readwrite("g", &glm::vec2::g, py::return_value_policy::reference);
+
         py::class_<glm::vec3>(m, "vec3")
                 .def(py::init<float>())
                 .def(py::init<float, float, float>())
