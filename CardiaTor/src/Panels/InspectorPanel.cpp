@@ -53,7 +53,7 @@ namespace Cardia::Panel
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
-						const auto* path = static_cast<const wchar_t*>(payload->Data);
+						const auto* path = static_cast<const char*>(payload->Data);
 						const auto texturePath = std::filesystem::relative(path, m_Workspace);
 						auto tex = Texture2D::create(texturePath.string());
 						if (tex->isLoaded())
@@ -116,7 +116,7 @@ namespace Cardia::Panel
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
-						const auto behaviorPath = std::filesystem::relative(static_cast<const wchar_t*>(payload->Data), m_Workspace);
+						const auto behaviorPath = std::filesystem::relative(static_cast<const char*>(payload->Data), m_Workspace);
 						if (behaviorPath.extension() == ".py")
 						{
 							behaviorComponent.setPath(behaviorPath.string());

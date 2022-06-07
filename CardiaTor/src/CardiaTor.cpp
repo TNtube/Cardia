@@ -277,7 +277,7 @@ namespace Cardia
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 			{
-				const auto* path = static_cast<const wchar_t*>(payload->Data);
+				const auto* path = static_cast<const char*>(payload->Data);
 				openScene(path);
 			}
 			ImGui::EndDragDropTarget();
