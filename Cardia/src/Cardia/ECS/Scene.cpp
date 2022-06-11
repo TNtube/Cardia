@@ -4,6 +4,8 @@
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
+#include "Cardia/Core/Input.hpp"
+#include "Cardia/Core/EmbeddedPythonModule.hpp"
 #include <pybind11/embed.h>
 
 
@@ -41,11 +43,17 @@ namespace Cardia
 					auto locals = py::dict("entity"_a=Entity(entity, this));
 				
 					py::exec(R"(
-						import cardia
-						entity.get_transform().rotation.y += 0.05
-						print("Hello World from Python !")
+						from cardia import *
+						if Input.is_key_pressed(key.A):
+							entity.transform.position.x -= 0.05
+						if Input.is_key_pressed(key.D):
+							entity.transform.position.x += 0.05
+						if Input.is_key_pressed(key.S):
+							entity.transform.position.y -= 0.05
+						if Input.is_key_pressed(key.W):
+							entity.transform.position.y += 0.05
 					)", py::globals(), locals);
-				} catch (std::exception &e) {
+				} catch (const std::exception &e) {
 					Log::error(e.what());
 				}
 			}

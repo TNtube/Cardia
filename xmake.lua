@@ -34,11 +34,6 @@ rule("cp-assets")
             os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
         end)
 
-rule("cp-cardiapy")
-    after_build(function (target)
-            os.cp("build/" .. outputdir .. "/CardiaPy/**.pyd", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
-        end)
-
 rule("python-env")
     on_load(function (target)
 		target:add("packages", "python")
@@ -80,19 +75,6 @@ target("Cardia")
         add_defines("CD_DEBUG")
     end
 
-target("CardiaPy")
-    set_basename("cardia")
-    set_kind("shared")
-    set_extension(".pyd")
-
-    set_targetdir("build/" .. outputdir .. "/CardiaPy/bin")
-    set_objectdir("build/" .. outputdir .. "/CardiaPy/obj")
-
-    add_packages("python")
-    add_packages("pybind11")
-    add_deps("Cardia")
-    add_files("CardiaPy/src/*.cpp")
-
 target("SandBox")
     set_kind("binary")
     add_rules("cp-assets")
@@ -117,7 +99,6 @@ target("SandBox")
 target("CardiaTor")
     set_kind("binary")
     add_rules("cp-assets")
-    add_rules("cp-cardiapy")
 
     set_targetdir("build/" .. outputdir .. "/CardiaTor/bin")
     set_objectdir("build/" .. outputdir .. "/CardiaTor/obj")

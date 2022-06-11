@@ -2,7 +2,7 @@
 
 
 namespace Cardia::Key {
-	enum : uint32_t {
+	enum Key : uint32_t {
 		// from GLFW
 
 		// Printable keys
