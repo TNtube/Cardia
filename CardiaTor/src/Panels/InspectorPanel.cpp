@@ -106,8 +106,9 @@ namespace Cardia::Panel
 				}
 			});
 
-			drawInspectorComponent<Component::EntityBehavior>("Entity Behavior", [this](Component::EntityBehavior& behaviorComponent) {
-				std::string path = behaviorComponent.getPath();
+			drawInspectorComponent<Component::Script>("Script", [this](Component::Script& scriptComponent) {
+				std::filesystem::path filepath = scriptComponent.getPath();
+				auto path = filepath.filename().string();
 				
 				char* buffer = &path[0];
 				ImGui::InputText("label", buffer, path.size(), ImGuiInputTextFlags_ReadOnly);
@@ -116,10 +117,10 @@ namespace Cardia::Panel
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
-						const auto behaviorPath = std::filesystem::relative(static_cast<const char*>(payload->Data), m_Workspace);
+						const std::filesystem::path behaviorPath = static_cast<const char*>(payload->Data);
 						if (behaviorPath.extension() == ".py")
 						{
-							behaviorComponent.setPath(behaviorPath.string());
+							scriptComponent.setPath(behaviorPath.string());
 						}
 						else
 						{
@@ -156,9 +157,9 @@ namespace Cardia::Panel
 					ImGui::EndPopup();
 				}
 
-				if (!m_SelectedEntity.hasComponent<Component::EntityBehavior>() && ImGui::MenuItem("Entity Behavior"))
+				if (!m_SelectedEntity.hasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
 				{
-					m_SelectedEntity.addComponent<Component::EntityBehavior>();
+					m_SelectedEntity.addComponent<Component::Script>();
 					ImGui::EndPopup();
 				}
 			}

@@ -83,13 +83,14 @@ namespace Cardia::Component
 		}
 	};
 
-	struct EntityBehavior
+	struct Script
 	{
-		EntityBehavior() = default;
-		EntityBehavior(const EntityBehavior&) = default;
-		explicit EntityBehavior(std::string scriptPath) : m_Path(std::move(scriptPath)) { reloadFile(); }
+		Script() = default;
+		Script(const Script&) { reloadFile(); }
+		explicit Script(std::string scriptPath) : m_Path(std::move(scriptPath)) { reloadFile(); }
 		inline std::string getPath() const {return m_Path; }
 		inline void setPath(const std::string& newPath) { m_Path = newPath; reloadFile(); }
+		std::string getContent() { return m_Content; }
 
 		inline void reset()
 		{

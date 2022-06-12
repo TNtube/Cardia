@@ -4,8 +4,9 @@
 
 namespace Cardia::Component
 {
-        void EntityBehavior::reloadFile()
+        void Script::reloadFile()
         {
+                Log::info("Loading path {0}", m_Path);
                 const std::ifstream t(m_Path);
                 std::stringstream buffer;
                 buffer << t.rdbuf();

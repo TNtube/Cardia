@@ -351,7 +351,7 @@ namespace Cardia
 		{
 			if (e.isFocused())
 			{
-				const auto view = m_CurrentScene->getRegistry().view<Component::EntityBehavior>();
+				const auto view = m_CurrentScene->getRegistry().view<Component::Script>();
 				for (auto [entity, behavior] : view.each())
 				{
 					behavior.setPath(behavior.getPath());

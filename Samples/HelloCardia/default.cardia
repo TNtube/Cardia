@@ -1,0 +1,114 @@
+{
+	"Camera" : 
+	{
+		"camera" : 
+		{
+			"orthoFar" : 1.0,
+			"orthoNear" : -1.0,
+			"orthoSize" : 10.0,
+			"perspectiveFar" : 1000.0,
+			"perspectiveFov" : 1.0471975803375244,
+			"perspectiveNear" : 0.0099999997764825821,
+			"type" : 1
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : -0.96382147073745728,
+				"y" : 0.0,
+				"z" : 0.20000000298023224
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : -0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"Folder" : 
+	{
+		"spriteRenderer" : 
+		{
+			"color" : 
+			{
+				"a" : 1.0,
+				"b" : 1.0,
+				"g" : 1.0,
+				"r" : 1.0
+			},
+			"texture" : "C:\\dev\\Cardia\\CardiaTor\\assets\\icons\\folder.png",
+			"tillingFactor" : 1.0,
+			"zIndex" : 0
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : -1.5542764663696289,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : -0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"WhiteSquare" : 
+	{
+		"behavior" : 
+		{
+			"path" : "C:\\dev\\Cardia\\Samples\\HelloCardia\\Moving.py"
+		},
+		"spriteRenderer" : 
+		{
+			"color" : 
+			{
+				"a" : 1.0,
+				"b" : 1.0,
+				"g" : 1.0,
+				"r" : 1.0
+			},
+			"texture" : "",
+			"tillingFactor" : 1.0,
+			"zIndex" : 0
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : 0.7820783257484436,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	}
+}

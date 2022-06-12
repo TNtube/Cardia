@@ -5,7 +5,7 @@
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/Input.hpp"
-#include "Cardia/Core/EmbeddedPythonModule.hpp"
+#include "Cardia/Scripting/EmbeddedPythonModule.hpp"
 #include <pybind11/embed.h>
 
 
@@ -35,24 +35,24 @@ namespace Cardia
 	void Scene::onUpdate(DeltaTime deltaTime, const glm::vec2& viewport)
 	{
 		{
-			const auto viewTransform = m_Registry.view<Component::EntityBehavior, Component::Transform>();
-			for (auto [entity, spriteRenderer, transform] : viewTransform.each())
+			const auto viewTransform = m_Registry.view<Component::Script, Component::Transform>();
+			for (auto [entity, script, transform] : viewTransform.each())
 			{
 				try {
-					auto cardiapy = py::module_::import("cardia");
-					auto locals = py::dict("entity"_a=Entity(entity, this));
-				
-					py::exec(R"(
-						from cardia import *
-						if Input.is_key_pressed(key.A):
-							entity.transform.position.x -= 0.05
-						if Input.is_key_pressed(key.D):
-							entity.transform.position.x += 0.05
-						if Input.is_key_pressed(key.S):
-							entity.transform.position.y -= 0.05
-						if Input.is_key_pressed(key.W):
-							entity.transform.position.y += 0.05
-					)", py::globals(), locals);
+					const auto filename = std::filesystem::path(script.getPath()).filename().replace_extension().string();
+					auto builtins = py::module::import("builtins");
+					auto cardiapy = py::module::import("cardia");
+
+					auto globals = py::globals();
+
+					py::exec(script.getContent(), globals, globals);
+
+					if (builtins.attr("issubclass")(globals[filename.c_str()], cardiapy.attr("EntityBehavior")))
+					{
+						auto instance = globals[filename.c_str()](Entity(entity, this));
+						auto start = instance.attr("start")();
+						auto update = instance.attr("update")();
+					}
 				} catch (const std::exception &e) {
 					Log::error(e.what());
 				}

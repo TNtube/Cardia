@@ -66,9 +66,9 @@ namespace Cardia::SerializerUtils
                                 node.clear();
                         }
 
-                        if (entity.hasComponent<Component::EntityBehavior>())
+                        if (entity.hasComponent<Component::Script>())
                         {
-                                const auto& behavior = entity.getComponent<Component::EntityBehavior>();
+                                const auto& behavior = entity.getComponent<Component::Script>();
                                 node["path"] = behavior.getPath();
                                 
                                 root[name.name]["behavior"] = node;
@@ -150,7 +150,7 @@ namespace Cardia::SerializerUtils
                         
                         if (node.isMember("behavior"))
                         {
-                                auto& behavior = entity.addComponent<Component::EntityBehavior>();
+                                auto& behavior = entity.addComponent<Component::Script>();
                                 behavior.setPath(node["behavior"]["path"].asString());
                         }
                 }

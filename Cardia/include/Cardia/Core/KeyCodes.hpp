@@ -71,7 +71,7 @@ namespace Cardia::Key {
 
 namespace Cardia::Mouse
 {
-	enum : uint32_t
+	enum Mouse: uint32_t
 	{
 		Left				= 0,
 		Right				= 1,

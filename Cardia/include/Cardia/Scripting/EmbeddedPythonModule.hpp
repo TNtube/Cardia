@@ -4,7 +4,8 @@
 #include <Cardia/ECS/Entity.hpp>
 #include <pybind11/embed.h>
 
-#include "KeyCodes.hpp"
+#include "EntityBehavior.hpp"
+#include "Cardia/Core/KeyCodes.hpp"
 #include "Cardia/Core/Input.hpp"
 #include "Cardia/ECS/Components.hpp"
 
@@ -96,6 +97,11 @@ namespace Cardia
                         keycodes.value(name.c_str(), static_cast<Key::Key>(v));
                 }
 
+                py::enum_<Mouse::Mouse>(m, "mouse")
+                        .value("left", Mouse::Left)
+                        .value("right", Mouse::Right)
+                        .value("middle", Mouse::Middle);
+
                 py::class_<Input>(m, "Input")
                         .def_static("is_key_pressed", &Input::isKeyPressed, py::return_value_policy::reference)
                         .def_static("is_mouse_button_pressed", &Input::isMouseButtonPressed, py::return_value_policy::reference)
@@ -103,9 +109,15 @@ namespace Cardia
                         .def_static("get_mouse_x", &Input::getMouseX, py::return_value_policy::reference)
                         .def_static("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
                 
-                py::class_<Entity>(m, "Entity")
-                        .def(py::init<>())
-                        .def(py::init<const Entity&>())
-                        .def_property_readonly("transform", &Entity::getComponent<Component::Transform>, py::return_value_policy::reference);
+                py::class_<Entity> PyEntity(m, "Entity");
+
+                py::class_<EntityBehavior>(m, "EntityBehavior")
+                        .def(py::init<const Entity&>(), py::return_value_policy::reference)
+                        .def("start", &EntityBehavior::start, py::return_value_policy::reference)
+                        .def("update", &EntityBehavior::update, py::return_value_policy::reference)
+                        .def_property_readonly("transform", [](EntityBehavior& behavior)
+                        {
+                                return &behavior.m_Entity.getComponent<Component::Transform>();
+                        }, py::return_value_policy::reference);
         }
 }
