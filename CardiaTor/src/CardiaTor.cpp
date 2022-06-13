@@ -170,7 +170,7 @@ namespace Cardia
 		
 		std::ofstream file;
 		file.open(m_CurrentScene->path);
-		file << SerializerUtils::SerializeScene(m_CurrentScene.get());
+		file << SerializerUtils::SerializeScene(m_CurrentScene.get(), m_Workspace);
 		file.close();
 	}
 
@@ -183,7 +183,7 @@ namespace Cardia
 		auto newScene = std::make_unique<Scene>(scenePath.filename().string());
 		newScene->path = scenePath;
 		
-		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene))
+		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene, m_Workspace))
 		{
 			Log::coreInfo("Unable to load {0}", scenePath.string());
 		} else
@@ -200,7 +200,7 @@ namespace Cardia
 		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
 		m_CurrentScene->path = scenePath;
 
-		if (!SerializerUtils::DeserializeScene(m_LastEditorState, *m_CurrentScene))
+		if (!SerializerUtils::DeserializeScene(m_LastEditorState, *m_CurrentScene, m_Workspace))
 		{
 			Log::coreInfo("Unable to reload {0}", m_CurrentScene->path.filename().string());
 		}
@@ -239,7 +239,7 @@ namespace Cardia
 			if (m_EditorState == EditorState::Edit)
 			{
 				m_EditorState = EditorState::Play;
-				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get());
+				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), m_Workspace);
 			}
 			else if (m_EditorState == EditorState::Play)
 			{

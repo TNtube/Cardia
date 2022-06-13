@@ -54,8 +54,7 @@ namespace Cardia::Panel
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
 						const auto* path = static_cast<const char*>(payload->Data);
-						const auto texturePath = std::filesystem::relative(path, m_Workspace);
-						auto tex = Texture2D::create(texturePath.string());
+						auto tex = Texture2D::create(path);
 						if (tex->isLoaded())
 						{
 							sprite.texture = std::move(tex);

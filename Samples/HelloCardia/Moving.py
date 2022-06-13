@@ -16,4 +16,4 @@ class Moving(EntityBehavior):
             self.transform.position.y += self.velocity
 
         if Input.is_key_pressed(key.space):
-            self.transform.rotation.x += self.velocity
+            self.transform.scale.x += self.velocity

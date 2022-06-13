@@ -7,7 +7,7 @@
 
 namespace Cardia::SerializerUtils
 {
-        std::string SerializeScene(Scene* scene)
+        std::string SerializeScene(Scene* scene, const std::string& workspace)
         {
                 Json::Value root;
                 const auto view = scene->getRegistry().view<Component::Name>();
@@ -41,7 +41,9 @@ namespace Cardia::SerializerUtils
                                 node["color"]["g"] = spriteRenderer.color.g;
                                 node["color"]["b"] = spriteRenderer.color.b;
                                 node["color"]["a"] = spriteRenderer.color.a;
-                                node["texture"] = spriteRenderer.texture ? spriteRenderer.texture->getPath() : "";
+                                const auto path = spriteRenderer.texture ? spriteRenderer.texture->getPath() : "";
+                                
+                                node["texture"] = std::filesystem::relative(path, workspace).string();
                                 node["tillingFactor"] = spriteRenderer.tillingFactor;
                                 node["zIndex"] = spriteRenderer.zIndex;
                         
@@ -69,7 +71,7 @@ namespace Cardia::SerializerUtils
                         if (entity.hasComponent<Component::Script>())
                         {
                                 const auto& behavior = entity.getComponent<Component::Script>();
-                                node["path"] = behavior.getPath();
+                                node["path"] = std::filesystem::relative(behavior.getPath(), workspace).string();
                                 
                                 root[name.name]["behavior"] = node;
                                 node.clear();
@@ -83,7 +85,7 @@ namespace Cardia::SerializerUtils
                 return output.str();
         }
 
-        bool DeserializeScene(const std::string& serializedScene, Scene& scene)
+        bool DeserializeScene(const std::string& serializedScene, Scene& scene, const std::string& workspace)
         {
                 Json::Value root;
 
@@ -125,7 +127,8 @@ namespace Cardia::SerializerUtils
                                 spriteRenderer.color.b = node["spriteRenderer"]["color"]["b"].asFloat();
                                 spriteRenderer.color.a = node["spriteRenderer"]["color"]["a"].asFloat();
 
-                                auto texture = Texture2D::create(node["spriteRenderer"]["texture"].asString());
+                                const auto path = std::filesystem::path(workspace);
+                                auto texture = Texture2D::create((path / node["spriteRenderer"]["texture"].asString()).string());
                                 if (texture->isLoaded())
                                 {
                                         spriteRenderer.texture = std::move(texture);
@@ -151,7 +154,8 @@ namespace Cardia::SerializerUtils
                         if (node.isMember("behavior"))
                         {
                                 auto& behavior = entity.addComponent<Component::Script>();
-                                behavior.setPath(node["behavior"]["path"].asString());
+                                const auto path = std::filesystem::path(workspace);
+                                behavior.setPath((path /  node["behavior"]["path"].asString()).string());
                         }
                 }
                 
