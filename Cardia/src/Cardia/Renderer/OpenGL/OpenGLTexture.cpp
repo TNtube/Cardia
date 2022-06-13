@@ -34,6 +34,7 @@ namespace Cardia
 		{
 			internalFormat = GL_RGBA8;
 			dataFormat = GL_RGBA;
+			m_IsTransparent = true;
 		}
 		else if (nbChannels == 3)
 		{

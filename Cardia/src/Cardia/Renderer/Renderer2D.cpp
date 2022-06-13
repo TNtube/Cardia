@@ -86,12 +86,12 @@ namespace Cardia
 		std::string lastLayer;
 		for (auto& batch : s_Data->batches)
 		{
-			batch.render(batch.specification.alpha);
-			s_Stats->drawCalls++;
 			if (lastLayer != std::to_string(batch.specification.layer))
 			{
 				RenderAPI::get().clearDepthBuffer();
 			}
+			batch.render(batch.specification.alpha);
+			s_Stats->drawCalls++;
 			lastLayer = std::to_string(batch.specification.layer);
 		}
 	}
@@ -173,7 +173,7 @@ namespace Cardia
 		s_Stats->triangleCount += 2;
 
 		BatchSpecification specification;
-		specification.alpha = color.a < 1.0f;
+		specification.alpha = color.a < 1.0f || (texture && texture->isTransparent());
 		specification.layer = zIndex;
 		specification.shader = "basic";
 

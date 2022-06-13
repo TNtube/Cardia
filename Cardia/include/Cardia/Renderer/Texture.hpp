@@ -17,8 +17,10 @@ namespace Cardia
 		virtual uint32_t getRendererID() = 0;
 		virtual bool isLoaded() { return m_Loaded; }
 		virtual std::string getPath() { return m_Path; }
+		virtual bool isTransparent() const { return m_IsTransparent; }
 	protected:
 		bool m_Loaded = false;
+		bool m_IsTransparent = false;
 		std::string m_Path {};
 	};
 
