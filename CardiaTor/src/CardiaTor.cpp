@@ -214,7 +214,7 @@ namespace Cardia
 
 		m_SelectedEntity = m_Panels.at("SceneHierarchy")->getSelectedEntity();
 
-		for (const auto& panel : m_Panels | std::views::values)
+		for (const auto& [name, panel] : m_Panels)
 		{
 			panel->updateSelectedEntity(m_SelectedEntity);
 			panel->onImGuiRender(deltaTime);
