@@ -91,8 +91,8 @@ namespace Cardia::Panel
                         
                         if (ImGui::BeginDragDropSource())
                         {
-                                const char* itemPath = (m_CurrentPath / path).string().c_str();
-                                ImGui::SetDragDropPayload("FILE_PATH", itemPath, (strlen(itemPath) + 1) * sizeof(char));
+                                std::string itemPath = (m_CurrentPath / path).string();
+                                ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
                                 ImGui::EndDragDropSource();
                         }
 
