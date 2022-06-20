@@ -44,7 +44,7 @@
 				"g" : 1.0,
 				"r" : 1.0
 			},
-			"texture" : "CardiaTor\\assets\\icons\\folder.png",
+			"texture" : "folder.png",
 			"tillingFactor" : 1.0,
 			"zIndex" : 0
 		},
@@ -74,7 +74,7 @@
 	{
 		"behavior" : 
 		{
-			"path" : "Samples\\HelloCardia\\Moving.py"
+			"path" : "Moving.py"
 		},
 		"spriteRenderer" : 
 		{
