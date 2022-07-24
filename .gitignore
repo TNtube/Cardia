@@ -12,6 +12,7 @@ CMakeLists.txt
 .xmake/
 build/
 vsxmake2019/
+vs2022/
 
 # CLion
 .idea/

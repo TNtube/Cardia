@@ -1,20 +1,17 @@
 #include "cdpch.hpp"
 #include "Cardia/Application.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
+#include "Cardia/Renderer/RenderAPI.hpp"
+#include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <GLFW/glfw3.h>
 
-#include "Cardia/Renderer/RenderAPI.hpp"
-#include <pybind11/embed.h>
-
 namespace Cardia
 {
-	namespace py = pybind11;
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application() : m_DeltaTime()
 	{
-		py::initialize_interpreter();
 		cdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
 
@@ -28,11 +25,12 @@ namespace Cardia
 		});
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
+		ScriptEngine::init();
 	}
 
 	Application::~Application()
 	{
-		py::finalize_interpreter();
+		ScriptEngine::shutdown();
 	}
 
 	void Application::Run()
