@@ -13,7 +13,7 @@ namespace Cardia
 {
 	namespace py = pybind11;
 	using namespace py::literals;
-	
+
 	Scene::Scene(std::string name)
 		: m_Name(std::move(name))
 	{
@@ -23,7 +23,16 @@ namespace Cardia
 	{
 		Entity entity = {m_Registry.create(), this};
 		entity.addComponent<Component::Transform>();
+		entity.addComponent<Component::ID>();
 		entity.addComponent<Component::Name>(name.empty() ? "Default Entity" : name);
+		return entity;
+	}
+
+	Entity Scene::createEntityFromId(UUID uuid) {
+		Entity entity = {m_Registry.create(), this};
+		entity.addComponent<Component::Transform>();
+		entity.addComponent<Component::ID>(uuid);
+		entity.addComponent<Component::Name>("Default Entity");
 		return entity;
 	}
 

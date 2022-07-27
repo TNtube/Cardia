@@ -2,6 +2,7 @@
 
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
+#include "Cardia/Core/UUID.hpp"
 
 #include <entt/entt.hpp>
 #include <filesystem>
@@ -17,6 +18,7 @@ namespace Cardia
 		Scene(std::string name = "Default Scene");
 		virtual ~Scene() = default;
 		Entity createEntity(const std::string& name = "");
+		Entity createEntityFromId(UUID uuid);
 
 		void destroyEntity(entt::entity entity);
 

@@ -1,5 +1,5 @@
 {
-	"Camera" : 
+	"1b38b0d7-dc63-4dc9-bc6e-d2fb0e8c4c75" : 
 	{
 		"camera" : 
 		{
@@ -11,18 +11,19 @@
 			"perspectiveNear" : 0.0099999997764825821,
 			"type" : 1
 		},
+		"name" : "Camera",
 		"transform" : 
 		{
 			"position" : 
 			{
-				"x" : -0.96382147073745728,
+				"x" : 0.0,
 				"y" : 0.0,
-				"z" : 0.20000000298023224
+				"z" : 0.0
 			},
 			"rotation" : 
 			{
 				"x" : 0.0,
-				"y" : -0.0,
+				"y" : 0.0,
 				"z" : 0.0
 			},
 			"scale" : 
@@ -33,49 +34,9 @@
 			}
 		}
 	},
-	"Folder" : 
+	"6b560be1-869b-413f-a38d-f45f1463f5e6" : 
 	{
-		"spriteRenderer" : 
-		{
-			"color" : 
-			{
-				"a" : 1.0,
-				"b" : 1.0,
-				"g" : 1.0,
-				"r" : 1.0
-			},
-			"texture" : "folder.png",
-			"tillingFactor" : 1.0,
-			"zIndex" : 0
-		},
-		"transform" : 
-		{
-			"position" : 
-			{
-				"x" : -1.5542764663696289,
-				"y" : 0.0,
-				"z" : 0.0
-			},
-			"rotation" : 
-			{
-				"x" : 0.0,
-				"y" : -0.0,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			}
-		}
-	},
-	"WhiteSquare" : 
-	{
-		"behavior" : 
-		{
-			"path" : "Moving.py"
-		},
+		"name" : "WhiteSquare",
 		"spriteRenderer" : 
 		{
 			"color" : 
@@ -93,7 +54,45 @@
 		{
 			"position" : 
 			{
-				"x" : 0.7820783257484436,
+				"x" : 2.5,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"d53632b9-e6f2-49e9-afc1-6561550fb07d" : 
+	{
+		"name" : "Folder",
+		"spriteRenderer" : 
+		{
+			"color" : 
+			{
+				"a" : 1.0,
+				"b" : 1.0,
+				"g" : 1.0,
+				"r" : 1.0
+			},
+			"texture" : "folder.png",
+			"tillingFactor" : 1.0,
+			"zIndex" : 0
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : 0.0,
 				"y" : 0.0,
 				"z" : 0.0
 			},

@@ -162,7 +162,7 @@ namespace Cardia
 				return;
 			}
 			m_CurrentScene->path = outPath;
-			if (m_CurrentScene->path.extension() != "cardia")
+			if (m_CurrentScene->path.extension() != ".cardia")
 			{
 				m_CurrentScene->path += ".cardia";
 			}

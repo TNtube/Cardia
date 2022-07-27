@@ -15,9 +15,13 @@ namespace Cardia::SerializerUtils
                 for (const auto entity_id : view)
                 {
                         Entity entity(entity_id, scene);
-                        const auto name = entity.getComponent<Component::Name>();
+			const auto uuid = entity.getComponent<Component::ID>();
 
-                        Json::Value node;
+			const auto name = entity.getComponent<Component::Name>();
+
+			root[uuid.uuid]["name"] = name.name;
+
+			Json::Value node;
                         // Transform
                         const auto& transform = entity.getComponent<Component::Transform>();
                         node["position"]["x"] = transform.position.x;
@@ -30,7 +34,7 @@ namespace Cardia::SerializerUtils
                         node["scale"]["y"] = transform.scale.y;
                         node["scale"]["z"] = transform.scale.z;
 
-                        root[name.name]["transform"] = node;
+                        root[uuid.uuid]["transform"] = node;
                         node.clear();
 
                         // SpriteRenderer
@@ -47,7 +51,7 @@ namespace Cardia::SerializerUtils
                                 node["tillingFactor"] = spriteRenderer.tillingFactor;
                                 node["zIndex"] = spriteRenderer.zIndex;
                         
-                                root[name.name]["spriteRenderer"] = node;
+                                root[uuid.uuid]["spriteRenderer"] = node;
                                 node.clear();
                         }
                         
@@ -64,7 +68,7 @@ namespace Cardia::SerializerUtils
                                 node["orthoNear"] = camera.camera.getOrthographicNear();
                                 node["orthoFar"] = camera.camera.getOrthographicFar();
                                 
-                                root[name.name]["camera"] = node;
+                                root[uuid.uuid]["camera"] = node;
                                 node.clear();
                         }
 
@@ -73,7 +77,7 @@ namespace Cardia::SerializerUtils
                                 const auto& behavior = entity.getComponent<Component::Script>();
                                 node["path"] = std::filesystem::relative(behavior.getPath(), workspace).string();
                                 
-                                root[name.name]["behavior"] = node;
+                                root[uuid.uuid]["behavior"] = node;
                                 node.clear();
                         }
                 }
@@ -100,11 +104,13 @@ namespace Cardia::SerializerUtils
 
                 scene.clear();
 
-                for (const auto& entityName: root.getMemberNames())
+                for (const auto& uuid: root.getMemberNames())
                 {
-                        auto entity = scene.createEntity(entityName);
+                        auto entity = scene.createEntityFromId(uuid);
 
-                        auto& node = root[entityName];
+                        auto& node = root[uuid];
+			auto& name = entity.getComponent<Component::Name>();
+			name.name = node["name"].asString();
 
                         auto& component = entity.getComponent<Component::Transform>();
                         component.position.x = node["transform"]["position"]["x"].asFloat();

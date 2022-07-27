@@ -2,6 +2,7 @@
 
 #include "Cardia/Renderer/Texture.hpp"
 #include "SceneCamera.hpp"
+#include "Cardia/Core/UUID.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -14,10 +15,11 @@ namespace Cardia::Component
 	enum class ComponentType
 	{
 		Name,
+		ID,
 		Transform,
 		SpriteRenderer,
 		Camera,
-		EntityBehavior
+		Script
 	};
 
 	struct Name
@@ -28,6 +30,16 @@ namespace Cardia::Component
 			: name(std::move(name)) {}
 
 		std::string name;
+	};
+
+	struct ID
+	{
+		ID() : uuid(UUID()) {};
+		ID(const ID&) = default;
+		explicit ID(UUID uuid)
+			: uuid(uuid) {}
+
+		UUID uuid;
 	};
 
 	struct Transform
