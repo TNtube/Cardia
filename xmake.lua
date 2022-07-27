@@ -47,6 +47,7 @@ rule("python-env")
 
 target("Cardia")
     set_kind("static")
+    set_runtimes("MT")
 
     set_targetdir("build/" .. outputdir .. "/Cardia/bin")
     set_objectdir("build/" .. outputdir .. "/Cardia/obj")
@@ -76,6 +77,7 @@ target("Cardia")
 
 target("SandBox")
     set_kind("binary")
+    set_runtimes("MT")
     add_rules("cp-assets")
 
     set_targetdir("build/" .. outputdir .. "/SandBox/bin")
@@ -97,6 +99,7 @@ target("SandBox")
 
 target("CardiaTor")
     set_kind("binary")
+    set_runtimes("MT")
     add_rules("cp-assets")
 
     set_targetdir("build/" .. outputdir .. "/CardiaTor/bin")

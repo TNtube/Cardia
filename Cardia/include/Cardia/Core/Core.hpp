@@ -1,20 +1,18 @@
 #pragma once
-#include <source_location>
-
-
 #if !defined(_WIN64) && !defined(__linux__)
 	#error Cardia is only for Windows x64 or Linux !
 #endif
 
+#include <source_location>
 #include <type_traits>
 #include <cassert>
 #include "Log.hpp"
+#include <uuid.h>
 
 
-
-#ifdef CD_DEBUG
+#ifndef NDEBUG
 	template <typename T>
-	constexpr void cdAssert(T x, std::string message, const std::source_location location = std::source_location::current())
+	constexpr void cdAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
 	{
 		if (!x)
 			Cardia::Log::coreError("{0} : ({1}:{2}) Assertion failed: {3}",
@@ -22,7 +20,7 @@
 		assert(x);
 	}
 	template <typename T>
-	constexpr void cdCoreAssert(T x, std::string message, const std::source_location location = std::source_location::current())
+	constexpr void cdCoreAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
 	{
 		if (!x)
 			Cardia::Log::coreError("{0} : ({1}:{2}) Assertion failed: {3}",
