@@ -106,7 +106,16 @@ namespace Cardia::SerializerUtils
 
                 for (const auto& uuid: root.getMemberNames())
                 {
-                        auto entity = scene.createEntityFromId(uuid);
+			UUID id;
+			Entity entity;
+			try {
+				id = UUID::fromString(uuid);
+				entity = scene.createEntityFromId(id);
+			}
+			catch (const std::invalid_argument& e) {
+				Log::warn("Entity with invalid UUID found");
+				entity = scene.createEntity();
+			}
 
                         auto& node = root[uuid];
 			auto& name = entity.getComponent<Component::Name>();

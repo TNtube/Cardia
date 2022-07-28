@@ -17,8 +17,11 @@ namespace Cardia
 		m_UUID = uuid;
 	}
 
-	UUID::UUID(const std::string &uuid) {
-
-		m_UUID = uuids::uuid::from_string(uuid).value();
+	UUID UUID::fromString(const std::string &uuid) {
+		auto id =  uuids::uuid::from_string(uuid);
+		if (!id.has_value()) {
+			throw std::invalid_argument("UUID : " + uuid + " is not a valid id");
+		}
+		return id.value();
 	}
 }

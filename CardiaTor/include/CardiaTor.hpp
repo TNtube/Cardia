@@ -51,8 +51,6 @@ namespace Cardia
 		float m_AspectRatio = static_cast<float>(getWindow().getWidth())
 				      / static_cast<float>(getWindow().getHeight());
 
-		std::string m_Workspace;
-
 		bool m_HoverViewport = false;
 
 		EditorState m_EditorState = EditorState::Edit;

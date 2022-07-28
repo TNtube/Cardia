@@ -137,9 +137,10 @@ namespace Cardia
 		const nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
         
 		if ( result == NFD_OKAY ) {
-			m_Workspace = std::string(outPath);
+			auto& settings = projectSettings();
+			settings.workspace = std::string(outPath);
 			invalidateWorkspace();
-			Log::coreInfo("Workspace : {0}", m_Workspace);
+			Log::coreInfo("Workspace : {0}", settings.workspace);
 		}
 	}
 
@@ -147,7 +148,7 @@ namespace Cardia
 	{
 		for (const auto& [name, panel]: m_Panels)
 		{
-			panel->updateWorkspace(m_Workspace);
+			panel->updateWorkspace(projectSettings().workspace);
 		}
 	}
 
@@ -170,7 +171,7 @@ namespace Cardia
 		
 		std::ofstream file;
 		file.open(m_CurrentScene->path);
-		file << SerializerUtils::SerializeScene(m_CurrentScene.get(), m_Workspace);
+		file << SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
 		file.close();
 	}
 
@@ -183,7 +184,7 @@ namespace Cardia
 		auto newScene = std::make_unique<Scene>(scenePath.filename().string());
 		newScene->path = scenePath;
 		
-		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene, m_Workspace))
+		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene, projectSettings().workspace))
 		{
 			Log::coreInfo("Unable to load {0}", scenePath.string());
 		} else
@@ -200,7 +201,7 @@ namespace Cardia
 		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
 		m_CurrentScene->path = scenePath;
 
-		if (!SerializerUtils::DeserializeScene(m_LastEditorState, *m_CurrentScene, m_Workspace))
+		if (!SerializerUtils::DeserializeScene(m_LastEditorState, *m_CurrentScene, projectSettings().workspace))
 		{
 			Log::coreInfo("Unable to reload {0}", m_CurrentScene->path.filename().string());
 		}
@@ -239,7 +240,7 @@ namespace Cardia
 			if (m_EditorState == EditorState::Edit)
 			{
 				m_EditorState = EditorState::Play;
-				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), m_Workspace);
+				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
 			}
 			else if (m_EditorState == EditorState::Play)
 			{

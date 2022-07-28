@@ -9,8 +9,9 @@ namespace Cardia {
 	public:
 		UUID();
 		UUID(const uuids::uuid& uuid);
-		UUID(const std::string& strUuid);
 		UUID(const UUID&) = default;
+
+		static UUID fromString(const std::string& strUuid);
 
 		operator std::string() const { return to_string(m_UUID); }
 	private:

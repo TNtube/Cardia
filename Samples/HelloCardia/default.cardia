@@ -36,6 +36,10 @@
 	},
 	"6b560be1-869b-413f-a38d-f45f1463f5e6" : 
 	{
+		"behavior" : 
+		{
+			"path" : "Moving.py"
+		},
 		"name" : "WhiteSquare",
 		"spriteRenderer" : 
 		{
