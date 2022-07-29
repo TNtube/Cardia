@@ -10,7 +10,7 @@
 #include <uuid.h>
 
 
-#ifndef NDEBUG
+#if defined(__cpp_consteval) && !defined(NDEBUG) // Trick because CLion can't find std::source_location
 	template <typename T>
 	constexpr void cdAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
 	{
