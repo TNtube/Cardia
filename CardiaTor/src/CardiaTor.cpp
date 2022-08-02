@@ -47,7 +47,7 @@ namespace Cardia
 		}
 		if (m_EditorState == EditorState::Play)
 		{
-			m_CurrentScene->onUpdate(deltaTime, m_SceneSize);
+			m_CurrentScene->onUpdateRuntime(deltaTime);
 		}
 
 		m_Framebuffer->unbind();
@@ -287,7 +287,8 @@ namespace Cardia
 		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
 
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
-		
+		m_CurrentScene->onViewportResize(m_SceneSize.x, m_SceneSize.y);
+
 		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
 		{
 			ImGuizmo::SetOrthographic(false);

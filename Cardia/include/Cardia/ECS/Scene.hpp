@@ -22,8 +22,10 @@ namespace Cardia
 
 		void destroyEntity(entt::entity entity);
 
-		void onUpdate(DeltaTime deltaTime, const glm::vec2& viewport);
+		void onUpdateRuntime(DeltaTime deltaTime);
 		void onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera);
+		void onCreateRuntime();
+		void onViewportResize(float width, float height);
 		inline const char* getName() const { return m_Name.c_str(); }
 		inline entt::registry& getRegistry() { return m_Registry; }
 		void clear();

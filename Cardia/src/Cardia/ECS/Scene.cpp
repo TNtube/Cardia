@@ -41,7 +41,7 @@ namespace Cardia
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::onUpdate(DeltaTime deltaTime, const glm::vec2& viewport)
+	void Scene::onUpdateRuntime(DeltaTime deltaTime)
 	{
 		{
 			const auto viewTransform = m_Registry.view<Component::Script, Component::Transform>();
@@ -91,8 +91,6 @@ namespace Cardia
 			return;
 		}
 
-		mainCamera->setViewportSize(viewport.x, viewport.y);
-
 		Renderer2D::beginScene(*mainCamera, mainCameraTransform);
 
 		const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
@@ -119,8 +117,23 @@ namespace Cardia
 		Renderer2D::endScene();
 	}
 
+	void Scene::onViewportResize(float width, float height)
+	{
+		auto view = m_Registry.view<Component::Camera>();
+		for (auto entity : view)
+		{
+			auto& cameraComponent = view.get<Component::Camera>(entity);
+			cameraComponent.camera.setViewportSize((float)width, (float)height);
+		}
+	}
+
 	void Scene::clear()
 	{
 		m_Registry.clear();
+	}
+
+	void Scene::onCreateRuntime()
+	{
+
 	}
 }
