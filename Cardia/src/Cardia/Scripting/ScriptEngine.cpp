@@ -36,12 +36,11 @@ namespace Cardia
 
 				if (builtins.attr("issubclass")(globals[filename.c_str()], cardiapy.attr("Behavior")))
 				{
-					Log::trace("class is instantiated");
 					auto instance = globals[filename.c_str()]();
 					std::string id = uuid.uuid;
 					builtins.attr("setattr")(instance, "id", id);
 
-					instance.attr("start")();
+					instance.attr("on_create")();
 					s_Data->classInstances.insert({id, instance});
 				}
 			} catch (const std::exception &e) {
@@ -59,6 +58,8 @@ namespace Cardia
 
 	void ScriptEngine::onRuntimeUpdate(DeltaTime deltaTime)
 	{
-
+		std::for_each(s_Data->classInstances.begin(), s_Data->classInstances.end(), [&](auto& instance) {
+			instance.second.attr("on_update")();
+		});
 	}
 }

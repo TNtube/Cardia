@@ -102,12 +102,11 @@ namespace Cardia
                         .value("right", Mouse::Right)
                         .value("middle", Mouse::Middle);
 
-                py::class_<Input>(m, "Input")
-                        .def_static("is_key_pressed", &Input::isKeyPressed, py::return_value_policy::reference)
-                        .def_static("is_mouse_button_pressed", &Input::isMouseButtonPressed, py::return_value_policy::reference)
-                        .def_static("get_mouse_position", &Input::getMousePos, py::return_value_policy::reference)
-                        .def_static("get_mouse_x", &Input::getMouseX, py::return_value_policy::reference)
-                        .def_static("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
+		m.def("is_key_pressed", &Input::isKeyPressed, py::return_value_policy::reference);
+		m.def("is_mouse_button_pressed", &Input::isMouseButtonPressed, py::return_value_policy::reference);
+		m.def("get_mouse_position", &Input::getMousePos, py::return_value_policy::reference);
+		m.def("get_mouse_x", &Input::getMouseX, py::return_value_policy::reference);
+		m.def("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
 
 		m.def("get_native_transform", [](std::string& id){
 			auto scene = ScriptEngine::getSceneContext();
