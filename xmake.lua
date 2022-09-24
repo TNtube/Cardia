@@ -12,7 +12,7 @@ set_languages("cxx20")
 set_optimize("fastest")
 
 add_requires("spdlog v1.9.0")
-add_requires("glfw 3.3.6")
+add_requires("glfw 3.3.8")
 add_requires("glad v0.1.36")
 add_requires("imgui v1.83-docking", {configs = {glfw_opengl3 = true}})
 add_requires("glm 0.9.9+8")

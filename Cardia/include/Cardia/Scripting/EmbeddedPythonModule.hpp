@@ -4,16 +4,16 @@
 #include <Cardia/ECS/Entity.hpp>
 #include <pybind11/embed.h>
 
-#include "EntityBehavior.hpp"
 #include "Cardia/Core/KeyCodes.hpp"
 #include "Cardia/Core/Input.hpp"
 #include "Cardia/ECS/Components.hpp"
+#include "ScriptEngine.hpp"
 
 namespace Cardia
 {
         namespace py = pybind11;
 
-        PYBIND11_EMBEDDED_MODULE(cardia, m) {
+        PYBIND11_EMBEDDED_MODULE(cardia_native, m) {
                 m.doc() = "Cardia Python Bindings";
                 using namespace Cardia;
 
@@ -35,7 +35,7 @@ namespace Cardia
                         .def_readwrite("r", &glm::vec3::r, py::return_value_policy::reference)
                         .def_readwrite("g", &glm::vec3::g, py::return_value_policy::reference)
                         .def_readwrite("b", &glm::vec3::b, py::return_value_policy::reference);
-                
+
                 py::class_<glm::vec4>(m, "vec4")
                         .def(py::init<float>())
                         .def(py::init<float, float, float, float>())
@@ -50,7 +50,7 @@ namespace Cardia
 
 
                 // Components
-                
+
                 py::class_<Component::Transform>(m, "Transform")
                         .def_readwrite("position", &Component::Transform::position, py::return_value_policy::reference)
                         .def_readwrite("rotation", &Component::Transform::rotation, py::return_value_policy::reference)
@@ -108,16 +108,20 @@ namespace Cardia
                         .def_static("get_mouse_position", &Input::getMousePos, py::return_value_policy::reference)
                         .def_static("get_mouse_x", &Input::getMouseX, py::return_value_policy::reference)
                         .def_static("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
-                
-                py::class_<Entity> PyEntity(m, "Entity");
 
-                py::class_<EntityBehavior>(m, "EntityBehavior")
-                        .def(py::init<const Entity&>(), py::return_value_policy::reference)
-                        .def("start", &EntityBehavior::start, py::return_value_policy::reference)
-                        .def("update", &EntityBehavior::update, py::return_value_policy::reference)
-                        .def_property_readonly("transform", [](EntityBehavior& behavior)
-                        {
-                                return &behavior.m_Entity.getComponent<Component::Transform>();
-                        }, py::return_value_policy::reference);
+		m.def("get_native_transform", [](std::string& id){
+			auto scene = ScriptEngine::getSceneContext();
+			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+			return entity.getComponent<Component::Transform>();
+		}, py::return_value_policy::reference);
+
+		m.def("set_native_transform", [](std::string& id, Component::Transform transform){
+			auto scene = ScriptEngine::getSceneContext();
+			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+			auto& t = entity.getComponent<Component::Transform>();
+			t.position = transform.position;
+			t.rotation = transform.rotation;
+			t.scale = transform.scale;
+		}, py::return_value_policy::reference);
         }
 }

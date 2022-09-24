@@ -5,7 +5,7 @@
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/Input.hpp"
-#include "Cardia/Scripting/EmbeddedPythonModule.hpp"
+#include "Cardia/Scripting/ScriptEngine.hpp"
 #include <pybind11/embed.h>
 
 
@@ -43,30 +43,7 @@ namespace Cardia
 
 	void Scene::onUpdateRuntime(DeltaTime deltaTime)
 	{
-		{
-			const auto viewTransform = m_Registry.view<Component::Script, Component::Transform>();
-			for (auto [entity, script, transform] : viewTransform.each())
-			{
-				try {
-					const auto filename = std::filesystem::path(script.getPath()).filename().replace_extension().string();
-					auto builtins = py::module::import("builtins");
-					auto cardiapy = py::module::import("cardia");
-
-					auto globals = py::globals();
-
-					py::exec(script.getContent(), globals, globals);
-
-					if (builtins.attr("issubclass")(globals[filename.c_str()], cardiapy.attr("EntityBehavior")))
-					{
-						auto instance = globals[filename.c_str()](Entity(entity, this));
-						auto start = instance.attr("start")();
-						auto update = instance.attr("update")();
-					}
-				} catch (const std::exception &e) {
-					Log::error(e.what());
-				}
-			}
-		}
+		ScriptEngine::onRuntimeUpdate(deltaTime);
 
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 mainCameraTransform;
@@ -134,6 +111,20 @@ namespace Cardia
 
 	void Scene::onCreateRuntime()
 	{
+		ScriptEngine::onRuntimeStart(this);
+	}
 
+	Entity Scene::getEntityByUUID(const UUID& uuid)
+	{
+		auto view = m_Registry.view<Component::ID>();
+		Entity result;
+		for (auto entity : view)
+		{
+			auto& idComponent = view.get<Component::ID>(entity);
+			if (idComponent.uuid == uuid) {
+				result = Entity(entity, this);
+			}
+		}
+		return result;
 	}
 }

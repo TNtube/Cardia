@@ -26,6 +26,7 @@ namespace Cardia
 		void onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera);
 		void onCreateRuntime();
 		void onViewportResize(float width, float height);
+		Entity getEntityByUUID(const UUID& uuid);
 		inline const char* getName() const { return m_Name.c_str(); }
 		inline entt::registry& getRegistry() { return m_Registry; }
 		void clear();

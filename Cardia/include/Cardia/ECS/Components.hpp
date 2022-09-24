@@ -36,6 +36,7 @@ namespace Cardia::Component
 	{
 		ID() : uuid(UUID()) {};
 		ID(const ID&) = default;
+
 		explicit ID(UUID uuid)
 			: uuid(uuid) {}
 

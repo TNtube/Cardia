@@ -240,6 +240,7 @@ namespace Cardia
 			if (m_EditorState == EditorState::Edit)
 			{
 				m_EditorState = EditorState::Play;
+				m_CurrentScene->onCreateRuntime();
 				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
 			}
 			else if (m_EditorState == EditorState::Play)

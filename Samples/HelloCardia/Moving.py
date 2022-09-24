@@ -1,15 +1,15 @@
 from cardia import *
 
 
-class Moving(EntityBehavior):
+class Moving(Behavior):
     def start(self):
         self.velocity = 0.05
 
     def update(self):
         if Input.is_key_pressed(key.A):
-            self.transform.position.x -= self.velocity
+            self.transform.scale.x -= self.velocity
         if Input.is_key_pressed(key.D):
-            self.transform.position.x += self.velocity
+            self.transform.scale.x += self.velocity
         if Input.is_key_pressed(key.S):
             self.transform.position.y -= self.velocity
         if Input.is_key_pressed(key.W):
