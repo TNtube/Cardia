@@ -1,25 +1,17 @@
-from cardia import Behavior, Input, Key
+from cardia import Behavior, Input, Key, Serializable, on_key_pressed
 
 
 class Moving(Behavior):
     def __init__(self):
         super().__init__()
-        self.velocity = 0
+        self.velocity: Serializable(int) = 0
 
     def on_create(self):
-        self.velocity = 0.05
+        self.velocity = 5
 
-    def on_update(self):
-        if Input.is_key_pressed(Key.Space):
-            t = self.transform
-            t.position.x += self.velocity
-            self.transform = t
+    def on_update(self, dt: float):
+        ...
 
-        # if Input.is_key_pressed(key.A):
-        #     self.transform.scale.x -= self.velocity
-        # if Input.is_key_pressed(key.D):
-        #     self.transform.scale.x += self.velocity
-        # if Input.is_key_pressed(key.S):
-        #     self.transform.position.y -= self.velocity
-        # if Input.is_key_pressed(key.W):
-        #     self.transform.position.y += self.velocity
+    @on_key_pressed(Key.Space)
+    def jump(self):
+        self.transform.position.y += self.velocity * 0.0008

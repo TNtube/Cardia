@@ -108,7 +108,7 @@ namespace Cardia
 		m.def("get_mouse_x", &Input::getMouseX, py::return_value_policy::reference);
 		m.def("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
 
-		m.def("get_native_transform", [](std::string& id){
+		m.def("get_native_transform", [](std::string& id) -> Component::Transform& {
 			auto scene = ScriptEngine::getSceneContext();
 			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
 			return entity.getComponent<Component::Transform>();

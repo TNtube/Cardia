@@ -7,11 +7,22 @@ namespace py = pybind11;
 
 namespace Cardia
 {
+	struct ScriptData
+	{
+		py::object self;
+		std::vector<std::string> onUpdateCallbacks;
+
+		explicit ScriptData(py::object& instance) {
+			self = instance;
+			onUpdateCallbacks = {};
+		}
+	};
+
 	struct ScriptEngineData
 	{
 	public:
 		Scene* currentContext;
-		std::unordered_map<std::string, py::object> classInstances;
+		std::unordered_map<std::string, ScriptData> classInstances;
 	};
 
 

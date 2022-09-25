@@ -3,23 +3,9 @@ import cardia_native as _cd
 import enum
 
 
-class Behavior:
-    def __init__(self):
-        self.id = None
-
-    @property
-    def transform(self):
-        return _cd.get_native_transform(self.id)
-
-    @transform.setter
-    def transform(self, t):
-        _cd.set_native_transform(self.id, t)
-
-    def on_create(self):
-        ...
-
-    def on_update(self):
-        ...
+class Serializable:
+    def __init__(self, t: type):
+        self.t = t
 
 
 class Key(enum.IntEnum):
@@ -85,3 +71,34 @@ class Input:
     @staticmethod
     def is_key_pressed(key: Key) -> bool:
         return _cd.is_key_pressed(int(key))
+
+
+class Behavior:
+    def __init__(self):
+        self.id = None
+
+    @property
+    def transform(self):
+        return _cd.get_native_transform(self.id)
+
+    @transform.setter
+    def transform(self, t):
+        _cd.set_native_transform(self.id, t)
+
+    def on_create(self):
+        ...
+
+    def on_update(self, dt: float):
+        ...
+
+
+def on_key_pressed(key: Key):
+    def inner(func: callable):
+        def wrapper(self, *args, **kwargs):
+            if _cd.is_key_pressed(int(key)):
+                func(self, *args, **kwargs)
+
+        wrapper.__name__ = "internal_update_cardia"
+        return wrapper
+
+    return inner
