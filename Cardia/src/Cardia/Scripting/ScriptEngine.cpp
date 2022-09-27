@@ -36,29 +36,12 @@ namespace Cardia
 
 				if (builtins.attr("issubclass")(globals[filename.c_str()], cardiapy.attr("Behavior")))
 				{
-					py::object instance = globals[filename.c_str()]();
 					std::string id = uuid.uuid;
-					builtins.attr("setattr")(instance, "id", id);
-
-					ScriptData scriptData (instance);
-
-					for (auto py_obj : builtins.attr("dir")(instance))
-					{
-						auto name = py_obj.cast<std::string>();
-						auto pyClass = instance.attr("__class__");
-
-						if (!builtins.attr("hasattr")(pyClass, name.c_str()).cast<bool>()
-							|| !builtins.attr("hasattr")(pyClass.attr(name.c_str()), "__name__").cast<bool>())
-						{
-							continue;
-						}
-						if (pyClass.attr(name.c_str()).attr("__name__").cast<std::string>() == "internal_update_cardia") {
-							scriptData.onUpdateCallbacks.push_back(name);
-						}
+					if (!s_Data->classInstances.contains(id)) {
+						py::object cls = globals[filename.c_str()];
+						ScriptData scriptData = instantiatePythonClass(cls, id);
+						s_Data->classInstances.insert({id, scriptData});
 					}
-
-					instance.attr("on_create")();
-					s_Data->classInstances.insert({id, scriptData});
 				}
 			} catch (const std::exception &e) {
 				Log::error("On Init : {0}", e.what());
@@ -75,7 +58,7 @@ namespace Cardia
 
 	void ScriptEngine::onRuntimeUpdate(DeltaTime deltaTime)
 	{
-		std::for_each(s_Data->classInstances.begin(), s_Data->classInstances.end(), [&](auto& instance) {
+		for (auto& instance : s_Data->classInstances)  {
 			try {
 				instance.second.self.attr("on_update")(deltaTime.seconds());
 				for (auto& callback : instance.second.onUpdateCallbacks) {
@@ -85,6 +68,26 @@ namespace Cardia
 			catch (const std::exception& e) {
 				Log::error("On Update : {0}", e.what());
 			}
-		});
+		};
+	}
+
+	void ScriptEngine::registerUpdateCallback(py::object& obj, std::string& name) {
+		s_Data->unRegisteredCallbacks.emplace_back(obj, name);
+	}
+
+	ScriptData ScriptEngine::instantiatePythonClass(py::object& classObj, const std::string& id) {
+		py::object instance = classObj();
+		auto builtins = py::module::import("builtins");
+		builtins.attr("setattr")(instance, "id", id);
+
+		ScriptData scriptData (instance);
+		instance.attr("on_create")();
+		for (auto& unRegisteredCallback : s_Data->unRegisteredCallbacks) {
+			if (py::isinstance(instance, unRegisteredCallback.first)) {
+				scriptData.onUpdateCallbacks.emplace_back(unRegisteredCallback.second);
+			}
+		}
+
+		return scriptData;
 	}
 }

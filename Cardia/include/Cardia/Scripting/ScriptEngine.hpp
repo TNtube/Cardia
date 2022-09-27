@@ -23,18 +23,21 @@ namespace Cardia
 	public:
 		Scene* currentContext;
 		std::unordered_map<std::string, ScriptData> classInstances;
+		std::vector<std::pair<py::object, std::string>> unRegisteredCallbacks;
 	};
 
 
-        class ScriptEngine
-        {
-        public:
-                static void init();
-		static void shutdown();
-		static void onRuntimeStart(Scene* context);
-		static void onRuntimeUpdate(DeltaTime deltaTime);
-		static Scene* getSceneContext();
-	private:
-		static std::unique_ptr<ScriptEngineData> s_Data;
-        };
+		class ScriptEngine
+		{
+		public:
+				static void init();
+				static void shutdown();
+				static void onRuntimeStart(Scene* context);
+				static void onRuntimeUpdate(DeltaTime deltaTime);
+				static Scene* getSceneContext();
+				static void registerUpdateCallback(py::object& obj, std::string& name);
+		private:
+				static std::unique_ptr<ScriptEngineData> s_Data;
+				static ScriptData instantiatePythonClass(py::object& classObj, const std::string& id);
+		};
 }

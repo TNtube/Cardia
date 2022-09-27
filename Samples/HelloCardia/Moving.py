@@ -14,4 +14,5 @@ class Moving(Behavior):
 
     @on_key_pressed(Key.Space)
     def jump(self):
+        print(self.transform)
         self.transform.position.y += self.velocity * 0.0008
