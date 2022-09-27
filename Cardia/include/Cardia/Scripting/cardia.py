@@ -1,3 +1,5 @@
+import inspect
+
 import cardia_native as _cd
 
 import enum
@@ -98,12 +100,15 @@ def on_key_pressed(key: Key):
     class Inner:
         def __init__(self, func):
             functools.update_wrapper(self, func)
+            args = inspect.getfullargspec(func).args
+            if not len(args) or args[0] != "self":
+                _cd.register_update_function(self.__call__)
             self.func = func
             self.cls = None
 
         def __set_name__(self, cls, __):
             self.cls = cls
-            _cd.register_update_callback(cls, self.func.__name__)
+            _cd.register_update_method(cls, self.func.__name__)
 
         def __call__(self, *args, **kwargs):
             if _cd.is_key_pressed(int(key)):

@@ -58,6 +58,13 @@ namespace Cardia
 
 	void ScriptEngine::onRuntimeUpdate(DeltaTime deltaTime)
 	{
+		for (auto& function : s_Data->onUpdateFunctions) {
+			try {
+				function();
+			} catch (const std::exception& e) {
+				Log::error("On Update : {0}", e.what());
+			}
+		}
 		for (auto& instance : s_Data->classInstances)  {
 			try {
 				instance.second.self.attr("on_update")(deltaTime.seconds());
@@ -71,7 +78,7 @@ namespace Cardia
 		};
 	}
 
-	void ScriptEngine::registerUpdateCallback(py::object& obj, std::string& name) {
+	void ScriptEngine::registerUpdateMethod(py::object& obj, std::string& name) {
 		s_Data->unRegisteredCallbacks.emplace_back(obj, name);
 	}
 
@@ -83,11 +90,17 @@ namespace Cardia
 		ScriptData scriptData (instance);
 		instance.attr("on_create")();
 		for (auto& unRegisteredCallback : s_Data->unRegisteredCallbacks) {
+			Log::warn("{0} : {1}", unRegisteredCallback.first.attr("__name__").cast<std::string>(), unRegisteredCallback.second);
 			if (py::isinstance(instance, unRegisteredCallback.first)) {
 				scriptData.onUpdateCallbacks.emplace_back(unRegisteredCallback.second);
 			}
 		}
 
 		return scriptData;
+	}
+
+	void ScriptEngine::registerUpdateFunction(py::object &obj)
+	{
+		s_Data->onUpdateFunctions.push_back(obj);
 	}
 }

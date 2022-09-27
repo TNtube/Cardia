@@ -122,8 +122,13 @@ namespace Cardia
 			t.rotation = transform.rotation;
 			t.scale = transform.scale;
 		}, py::return_value_policy::reference);
-	m.def("register_update_callback", [](py::object& obj, std::string& name) {
-	    ScriptEngine::registerUpdateCallback(obj, name);
-	});
+
+		m.def("register_update_method", [](py::object& obj, std::string& name) {
+		    ScriptEngine::registerUpdateMethod(obj, name);
+		});
+
+		m.def("register_update_function", [](py::object& func) {
+			ScriptEngine::registerUpdateFunction(func);
+		});
 	}
 }

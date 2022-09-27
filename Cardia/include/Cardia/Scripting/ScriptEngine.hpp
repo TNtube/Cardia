@@ -24,6 +24,7 @@ namespace Cardia
 		Scene* currentContext;
 		std::unordered_map<std::string, ScriptData> classInstances;
 		std::vector<std::pair<py::object, std::string>> unRegisteredCallbacks;
+		std::vector<py::object> onUpdateFunctions;
 	};
 
 
@@ -35,7 +36,8 @@ namespace Cardia
 				static void onRuntimeStart(Scene* context);
 				static void onRuntimeUpdate(DeltaTime deltaTime);
 				static Scene* getSceneContext();
-				static void registerUpdateCallback(py::object& obj, std::string& name);
+				static void registerUpdateMethod(py::object& obj, std::string& name);
+				static void registerUpdateFunction(py::object& obj);
 		private:
 				static std::unique_ptr<ScriptEngineData> s_Data;
 				static ScriptData instantiatePythonClass(py::object& classObj, const std::string& id);
