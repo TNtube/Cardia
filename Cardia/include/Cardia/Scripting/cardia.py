@@ -1,6 +1,7 @@
 import cardia_native as _cd
 
 import enum
+import functools
 from types import MethodType
 
 
@@ -93,24 +94,15 @@ class Behavior:
         ...
 
 
-class Meta(type):
-    def __call__(cls, *args, **kwargs):
-        instance = super(Meta, cls).__call__(*args, **kwargs)
-        return instance
-
-    def __init__(cls, name, base, attr):
-        super(Meta, cls).__init__(name, base, attr)
-
-
 def on_key_pressed(key: Key):
-    class Inner(metaclass=Meta):
+    class Inner:
         def __init__(self, func):
+            functools.update_wrapper(self, func)
             self.func = func
             self.cls = None
 
         def __set_name__(self, cls, __):
             self.cls = cls
-            print("registered")
             _cd.register_update_callback(cls, self.func.__name__)
 
         def __call__(self, *args, **kwargs):
