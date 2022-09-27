@@ -109,6 +109,6 @@ def on_key_pressed(key: Key):
             if _cd.is_key_pressed(int(key)):
                 self.func(*args, **kwargs)
 
-        def __get__(self, _, inst):
+        def __get__(self, inst, _):  # Thanks @horus-4ever
             return MethodType(self, inst)
     return Inner
