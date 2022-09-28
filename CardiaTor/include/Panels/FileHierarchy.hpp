@@ -12,7 +12,7 @@ namespace Cardia::Panel
         public:
                 FileHierarchy();
                 ~FileHierarchy() override = default;
-                void onImGuiRender(DeltaTime deltaTime) override;
+                void onImGuiRender() override;
                 void updateWorkspace(const std::string& workspace) override;
 
         private:

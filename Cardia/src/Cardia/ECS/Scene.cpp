@@ -41,9 +41,9 @@ namespace Cardia
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::onUpdateRuntime(DeltaTime deltaTime)
+	void Scene::onUpdateRuntime()
 	{
-		ScriptEngine::onRuntimeUpdate(deltaTime);
+		ScriptEngine::onRuntimeUpdate();
 
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 mainCameraTransform;
@@ -80,7 +80,7 @@ namespace Cardia
 		Renderer2D::endScene();
 	}
 
-	void Scene::onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera)
+	void Scene::onUpdateEditor(Camera& editorCamera)
 	{
 		Renderer2D::beginScene(editorCamera, editorCamera.getPosition());
 

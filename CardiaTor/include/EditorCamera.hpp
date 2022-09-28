@@ -17,7 +17,7 @@ namespace Cardia
 
 		~EditorCamera() override = default;
 
-		void onUpdate(DeltaTime deltaTime);
+		void onUpdate();
 		void onEvent(Event& e);
 
 		inline float getDistance() const { return m_Distance; }

@@ -24,9 +24,9 @@ namespace Cardia
 		CardiaTor();
 
 		~CardiaTor() override = default;
-		void onUpdate(DeltaTime deltaTime) override;
+		void onUpdate() override;
 		void onEvent(Event& event) override;
-		void onImGuiDraw(DeltaTime deltaTime) override;
+		void onImGuiDraw() override;
 
 	private:
 		void enableDocking();

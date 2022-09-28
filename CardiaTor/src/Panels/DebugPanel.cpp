@@ -10,7 +10,7 @@
 
 namespace Cardia::Panel
 {
-        void DebugPanel::onImGuiRender(DeltaTime deltaTime)
+        void DebugPanel::onImGuiRender()
         {
                 enum ImGuiTheme
 		{
@@ -20,7 +20,7 @@ namespace Cardia::Panel
 		};
 		// fps
 		static float elapsedTime = 0.0f;
-		static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
+		static auto fps = static_cast<int>(1000 / Time::deltaTime().milliseconds());
 		// wireframe
 		static bool isWireframeMode = false;
 		// fullscreen
@@ -45,10 +45,10 @@ namespace Cardia::Panel
 				ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 				if (elapsedTime >= 0.5f)
 				{
-					fps = static_cast<int>(1000 / deltaTime.milliseconds());
+					fps = static_cast<int>(1000 / Time::deltaTime().milliseconds());
 					elapsedTime = 0.0f;
 				}
-				elapsedTime += deltaTime.seconds();
+				elapsedTime += Time::deltaTime().seconds();
 
 
 				ImGui::LabelText(

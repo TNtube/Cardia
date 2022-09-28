@@ -56,7 +56,7 @@ namespace Cardia
 		return s_Data->currentContext;
 	}
 
-	void ScriptEngine::onRuntimeUpdate(DeltaTime deltaTime)
+	void ScriptEngine::onRuntimeUpdate()
 	{
 		for (auto& function : s_Data->onUpdateFunctions) {
 			try {
@@ -67,7 +67,7 @@ namespace Cardia
 		}
 		for (auto& instance : s_Data->classInstances)  {
 			try {
-				instance.second.self.attr("on_update")(deltaTime.seconds());
+				instance.second.self.attr("on_update")();
 				for (auto& callback : instance.second.onUpdateCallbacks) {
 					instance.second.self.attr(callback.c_str())();
 				}

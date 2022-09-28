@@ -10,9 +10,9 @@ class SandBox2D : public Cardia::Application
 public:
 	SandBox2D();
 
-	void onUpdate(Cardia::DeltaTime deltaTime) override;
+	void onUpdate() override;
 	void onEvent(Cardia::Event& event) override;
-	void onImGuiDraw(Cardia::DeltaTime deltaTime) override;
+	void onImGuiDraw() override;
 
 private:
 	void onResize(const Cardia::WindowResizeEvent& e);

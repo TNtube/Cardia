@@ -77,6 +77,27 @@ class Input:
         return _cd.is_key_pressed(int(key))
 
 
+class DeltaTime:
+    def __init__(self):
+        self.dt = 0.0
+        self.mldt = 0.0
+
+    def seconds(self) -> float:
+        self.dt = _cd.get_delta_time_seconds()
+        return self.dt
+
+    def milliseconds(self) -> float:
+        self.mldt = _cd.get_delta_time_milliseconds()
+        return self.mldt
+
+    def __float__(self):
+        return self.dt
+
+
+class Time:
+    delta_time = DeltaTime()
+
+
 class Behavior:
     def __init__(self):
         self.id = None
@@ -92,7 +113,7 @@ class Behavior:
     def on_create(self):
         ...
 
-    def on_update(self, dt: float):
+    def on_update(self):
         ...
 
 

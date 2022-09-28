@@ -13,7 +13,7 @@ namespace Cardia
 		updateView();
 	}
 
-	void EditorCamera::onUpdate(DeltaTime deltaTime)
+	void EditorCamera::onUpdate()
 	{
 		const glm::vec2& mouse{ Input::getMouseX(), Input::getMouseY() };
 		glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;

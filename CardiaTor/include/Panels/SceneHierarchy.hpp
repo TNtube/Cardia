@@ -13,7 +13,7 @@ namespace Cardia :: Panel
 	public:
 		explicit SceneHierarchy(Scene* scene);
                 ~SceneHierarchy() override = default;
-		void onImGuiRender(DeltaTime deltaTime) override;
+		void onImGuiRender() override;
 		void setCurrentScene(Scene* scene) { m_Scene = scene; resetEntityClicked(); }
 
 	private:

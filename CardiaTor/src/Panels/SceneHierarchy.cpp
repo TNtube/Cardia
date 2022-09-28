@@ -13,7 +13,7 @@ namespace Cardia :: Panel
 
 	}
 
-	void SceneHierarchy::onImGuiRender(DeltaTime deltaTime)
+	void SceneHierarchy::onImGuiRender()
 	{
 		drawHierarchy();
 	}

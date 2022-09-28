@@ -14,7 +14,7 @@ namespace Cardia::Panel
                 m_FileIcon = Texture2D::create("assets/icons/file.png");
         }
 
-        void FileHierarchy::onImGuiRender(DeltaTime deltaTime)
+        void FileHierarchy::onImGuiRender()
         {
                 ImGui::Begin("Files");
 

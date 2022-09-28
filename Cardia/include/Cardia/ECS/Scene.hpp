@@ -22,8 +22,8 @@ namespace Cardia
 
 		void destroyEntity(entt::entity entity);
 
-		void onUpdateRuntime(DeltaTime deltaTime);
-		void onUpdateEditor(DeltaTime deltaTime, Camera& editorCamera);
+		void onUpdateRuntime();
+		void onUpdateEditor(Camera& editorCamera);
 		void onCreateRuntime();
 		void onViewportResize(float width, float height);
 		Entity getEntityByUUID(const UUID& uuid);

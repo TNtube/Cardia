@@ -10,7 +10,7 @@
 
 namespace Cardia::Panel
 {
-        void InspectorPanel::onImGuiRender(DeltaTime deltaTime)
+        void InspectorPanel::onImGuiRender()
         {
                 ImGui::Begin("Inspector");
 		if(m_SelectedEntity) 

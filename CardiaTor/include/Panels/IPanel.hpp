@@ -10,7 +10,7 @@ namespace Cardia
         {
         public:
                 virtual ~IPanel() = default;
-                virtual void onImGuiRender(DeltaTime deltaTime) = 0;
+                virtual void onImGuiRender() = 0;
                 virtual void updateWorkspace(const std::string& workspace)
                 {
                         m_Workspace = workspace;

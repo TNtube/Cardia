@@ -33,7 +33,7 @@ namespace Cardia
 	}
 
 
-	void CardiaTor::onUpdate(DeltaTime deltaTime)
+	void CardiaTor::onUpdate()
 	{
 		m_Framebuffer->bind();
 		RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
@@ -42,12 +42,12 @@ namespace Cardia
 
 		if (m_EditorState == EditorState::Edit)
 		{
-			m_CurrentScene->onUpdateEditor(deltaTime, m_EditorCamera);
-			m_EditorCamera.onUpdate(deltaTime);
+			m_CurrentScene->onUpdateEditor(m_EditorCamera);
+			m_EditorCamera.onUpdate();
 		}
 		if (m_EditorState == EditorState::Play)
 		{
-			m_CurrentScene->onUpdateRuntime(deltaTime);
+			m_CurrentScene->onUpdateRuntime();
 		}
 
 		m_Framebuffer->unbind();
@@ -209,7 +209,7 @@ namespace Cardia
 		m_SelectedEntity = {};
 	}
 
-	void CardiaTor::onImGuiDraw(DeltaTime deltaTime)
+	void CardiaTor::onImGuiDraw()
 	{
 		enableDocking();
 
@@ -218,7 +218,7 @@ namespace Cardia
 		for (const auto& [name, panel] : m_Panels)
 		{
 			panel->updateSelectedEntity(m_SelectedEntity);
-			panel->onImGuiRender(deltaTime);
+			panel->onImGuiRender();
 		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));

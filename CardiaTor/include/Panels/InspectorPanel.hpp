@@ -12,7 +12,7 @@ namespace Cardia::Panel
         public:
                 InspectorPanel() = default;
                 ~InspectorPanel() override = default;
-                void onImGuiRender(DeltaTime deltaTime) override;
+                void onImGuiRender() override;
 
         private:
                 template<typename T>

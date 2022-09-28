@@ -1,4 +1,4 @@
-from cardia import Behavior, Input, Key, Serializable, on_key_pressed
+from cardia import Behavior, Input, Key, Serializable, on_key_pressed, Time
 
 
 class Moving(Behavior):
@@ -9,9 +9,9 @@ class Moving(Behavior):
     def on_create(self):
         self.velocity = 5
 
-    def on_update(self, dt: float):
+    def on_update(self):
         if Input.is_key_pressed(Key.Space):
-            print("Space is called !")
+            print(Time.delta_time.seconds())
 
     @on_key_pressed(Key.Left)
     def move_left(self):

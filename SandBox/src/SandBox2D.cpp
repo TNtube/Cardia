@@ -13,7 +13,7 @@ SandBox2D::SandBox2D()
 	applePos = {dist(random), dist(random), 0.0f};
 }
 
-void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
+void SandBox2D::onUpdate()
 {
 	if (Cardia::Input::isKeyPressed(Cardia::Key::Left)) {
 		vx = -1;
@@ -32,7 +32,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 		vy = 1;
 	}
 
-	time += deltaTime.seconds();
+	time += Cardia::Time::deltaTime();
 	if (time > 0.2f) {
 		time = 0.0f;
 		glm::vec3 head = snakePos.front();
@@ -67,7 +67,7 @@ void SandBox2D::onUpdate(Cardia::DeltaTime deltaTime)
 	Cardia::Renderer2D::endScene();
 }
 
-void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
+void SandBox2D::onImGuiDraw()
 {
 	enum ImGuiTheme
 	{
@@ -77,7 +77,7 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 	};
 	// fps
 	static float elapsedTime = 0.0f;
-	static auto fps = static_cast<int>(1000 / deltaTime.milliseconds());
+	static auto fps = static_cast<int>(1000 / Cardia::Time::deltaTime().milliseconds());
 	// wireframe
 	static bool isWireframeMode = false;
 	// fullscreen
@@ -101,10 +101,10 @@ void SandBox2D::onImGuiDraw(Cardia::DeltaTime deltaTime)
 			ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 			if (elapsedTime >= 0.5f)
 			{
-				fps = static_cast<int>(1000 / deltaTime.milliseconds());
+				fps = static_cast<int>(1000 / Cardia::Time::deltaTime().milliseconds());
 				elapsedTime = 0.0f;
 			}
-			elapsedTime += deltaTime.seconds();
+			elapsedTime += Cardia::Time::deltaTime();
 
 
 			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().drawCalls).c_str(),

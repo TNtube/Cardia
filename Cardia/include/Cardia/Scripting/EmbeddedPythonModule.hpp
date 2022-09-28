@@ -130,5 +130,13 @@ namespace Cardia
 		m.def("register_update_function", [](py::object& func) {
 			ScriptEngine::registerUpdateFunction(func);
 		});
+
+		m.def("get_delta_time_seconds", []() {
+			return Time::deltaTime().seconds();
+		});
+
+		m.def("get_delta_time_milliseconds", []() {
+			return Time::deltaTime().milliseconds();
+		});
 	}
 }

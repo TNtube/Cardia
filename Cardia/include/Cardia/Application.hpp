@@ -23,8 +23,8 @@ namespace Cardia
 
 		void Run();
 		virtual void onEvent(Event& e) = 0;
-		virtual void onUpdate(DeltaTime deltaTime) = 0;
-		virtual void onImGuiDraw(DeltaTime deltaTime) = 0;
+		virtual void onUpdate() = 0;
+		virtual void onImGuiDraw() = 0;
 		bool onWinClose(WindowCloseEvent& e);
 
 		inline static ProjectSettings& projectSettings() { return s_ProjectSettings; };

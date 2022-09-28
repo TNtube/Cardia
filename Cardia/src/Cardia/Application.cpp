@@ -41,13 +41,13 @@ namespace Cardia
 		float time = 0.0f;
 		while (m_Running)
 		{
-			m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
-			time += m_DeltaTime.seconds();
+			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
+			time += Time::m_DeltaTime.seconds();
 
-			onUpdate(m_DeltaTime);
+			onUpdate();
 
 			m_ImGuiLayer->Begin();
-			onImGuiDraw(m_DeltaTime);
+			onImGuiDraw();
 			m_ImGuiLayer->End();
 
 			m_Window->onUpdate();
