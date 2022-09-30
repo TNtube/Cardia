@@ -1,5 +1,5 @@
 #pragma once
-
+#include <glm/glm.hpp>
 
 #include "Cardia/Application.hpp"
 
@@ -11,7 +11,7 @@ namespace Cardia
 	public:
 		static bool isKeyPressed(int keyCode);
 		static bool isMouseButtonPressed(int button);
-		static std::pair<float, float> getMousePos();
+		static glm::vec2 getMousePos();
 		static float getMouseX();
 		static float getMouseY();
 	};

@@ -6,8 +6,55 @@
 
 #include "Cardia/Core/KeyCodes.hpp"
 #include "Cardia/Core/Input.hpp"
+#include "Cardia/Core/Log.hpp"
 #include "Cardia/ECS/Components.hpp"
 #include "ScriptEngine.hpp"
+
+
+namespace pybind11::detail
+{
+	template <> struct type_caster<glm::vec2> : public type_caster_base<glm::vec2> {
+		using base = type_caster_base<glm::vec2>;
+	public:
+		bool load(handle src, bool convert) {
+			if (base::load(src, convert)) {
+				return true;
+			}
+			try {
+				auto* vec = new glm::vec2(
+					src.attr("x").cast<float>(),
+					src.attr("y").cast<float>());
+				value = vec;
+				return !PyErr_Occurred();
+			} catch (const std::exception& e) {
+				Cardia::Log::coreError(e.what());
+				return false;
+			}
+		}
+	};
+
+	template <> struct type_caster<glm::vec3> : public type_caster_base<glm::vec3> {
+		using base = type_caster_base<glm::vec3>;
+	public:
+		bool load(handle src, bool convert) {
+			if (base::load(src, convert)) {
+				return true;
+			}
+			try {
+				auto* vec = new glm::vec3(
+					src.attr("x").cast<float>(),
+				        src.attr("y").cast<float>(),
+					src.attr("z").cast<float>());
+				value = vec;
+				return !PyErr_Occurred();
+			} catch (const std::exception& e) {
+				Cardia::Log::coreError(e.what());
+				return false;
+			}
+		}
+	};
+}
+
 
 namespace Cardia
 {
@@ -137,6 +184,10 @@ namespace Cardia
 
 		m.def("get_delta_time_milliseconds", []() {
 			return Time::deltaTime().milliseconds();
+		});
+
+		m.def("print_vec2", [](glm::vec2& vec2) {
+			Log::warn("vec2 is (x: {0}, y: {1})", vec2.x, vec2.y);
 		});
 	}
 }

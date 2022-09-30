@@ -20,7 +20,7 @@ namespace Cardia
 		return glfwGetMouseButton(getNativeWin(), button) == GLFW_PRESS;
 	}
 
-	std::pair<float, float> Input::getMousePos() {
+	glm::vec2 Input::getMousePos() {
 		double x, y;
 		glfwGetCursorPos(getNativeWin(), &x, &y);
 
@@ -28,10 +28,10 @@ namespace Cardia
 	}
 
 	float Input::getMouseX() {
-		return getMousePos().first;
+		return getMousePos().x;
 	}
 
 	float Input::getMouseY() {
-		return getMousePos().second;
+		return getMousePos().y;
 	}
 }

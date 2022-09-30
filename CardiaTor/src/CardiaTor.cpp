@@ -323,7 +323,6 @@ namespace Cardia
 
 	void CardiaTor::onEvent(Event& event)
 	{
-		const auto [x, y] = Input::getMousePos();
 		if (m_HoverViewport)
 		{
 			// Mouse inside viewport

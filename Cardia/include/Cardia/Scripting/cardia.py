@@ -1,7 +1,6 @@
-import inspect
-
 import cardia_native as _cd
 
+import inspect
 import enum
 import functools
 from types import MethodType
@@ -10,6 +9,12 @@ from types import MethodType
 class Serializable:
     def __init__(self, t: type):
         self.t = t
+
+
+class Mouse(enum.IntEnum):
+    Left = 0
+    Right = 1
+    Middle = 2
 
 
 class Key(enum.IntEnum):
@@ -71,10 +76,43 @@ class Key(enum.IntEnum):
     RightCtrl = 345
 
 
+class Vector2:
+    def __init__(self, x: int, y: int):
+        self.x: int = x
+        self.y: int = y
+
+
+class Vector3:
+    def __init__(self, x: int, y: int, z: int):
+        self.x: int = x
+        self.y: int = y
+        self.z: int = z
+
+
+def print_vec2(vec2: Vector2):
+    _cd.print_vec2(vec2)
+
+
 class Input:
     @staticmethod
     def is_key_pressed(key: Key) -> bool:
         return _cd.is_key_pressed(int(key))
+
+    @staticmethod
+    def is_mouse_button_pressed(key: Mouse) -> bool:
+        return _cd.is_mouse_button_pressed(int(key))
+
+    @staticmethod
+    def get_mouse_position() -> Vector2:
+        return _cd.get_mouse_position()
+
+    @staticmethod
+    def get_mouse_x() -> float:
+        return _cd.get_mouse_x()
+
+    @staticmethod
+    def get_mouse_y() -> float:
+        return _cd.get_mouse_y()
 
 
 class DeltaTime:
@@ -117,24 +155,39 @@ class Behavior:
         ...
 
 
+class RegisterMethodOrFunction:
+    def __init__(self, func):
+        functools.update_wrapper(self, func)
+        args = inspect.getfullargspec(func).args
+        if not len(args) or args[0] != "self":
+            _cd.register_update_function(self.__call__)
+        self.func = func
+        self.cls = None
+
+    def __set_name__(self, cls, __):
+        self.cls = cls
+        _cd.register_update_method(cls, self.func.__name__)
+
+    def __call__(self, *args, **kwargs):
+        self.func(self, *args, **kwargs)
+
+    def __get__(self, inst, _):  # Thanks @horus-4ever
+        return MethodType(self, inst)
+
+
 def on_key_pressed(key: Key):
-    class Inner:
-        def __init__(self, func):
-            functools.update_wrapper(self, func)
-            args = inspect.getfullargspec(func).args
-            if not len(args) or args[0] != "self":
-                _cd.register_update_function(self.__call__)
-            self.func = func
-            self.cls = None
-
-        def __set_name__(self, cls, __):
-            self.cls = cls
-            _cd.register_update_method(cls, self.func.__name__)
-
+    class Inner(RegisterMethodOrFunction):
         def __call__(self, *args, **kwargs):
             if _cd.is_key_pressed(int(key)):
                 self.func(*args, **kwargs)
 
-        def __get__(self, inst, _):  # Thanks @horus-4ever
-            return MethodType(self, inst)
+    return Inner
+
+
+def on_mouse_clicked(button: Mouse):
+    class Inner(RegisterMethodOrFunction):
+        def __call__(self, *args, **kwargs):
+            if _cd.is_mouse_button_pressed(int(button)):
+                self.func(*args, **kwargs)
+
     return Inner

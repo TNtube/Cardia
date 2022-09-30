@@ -90,7 +90,6 @@ namespace Cardia
 		ScriptData scriptData (instance);
 		instance.attr("on_create")();
 		for (auto& unRegisteredCallback : s_Data->unRegisteredCallbacks) {
-			Log::warn("{0} : {1}", unRegisteredCallback.first.attr("__name__").cast<std::string>(), unRegisteredCallback.second);
 			if (py::isinstance(instance, unRegisteredCallback.first)) {
 				scriptData.onUpdateCallbacks.emplace_back(unRegisteredCallback.second);
 			}
