@@ -185,9 +185,5 @@ namespace Cardia
 		m.def("get_delta_time_milliseconds", []() {
 			return Time::deltaTime().milliseconds();
 		});
-
-		m.def("print_vec2", [](glm::vec2& vec2) {
-			Log::warn("vec2 is (x: {0}, y: {1})", vec2.x, vec2.y);
-		});
 	}
 }
