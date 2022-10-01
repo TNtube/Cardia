@@ -3,6 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <Cardia/ECS/Entity.hpp>
 #include <pybind11/embed.h>
+#include <glm/vec2.hpp>
 
 #include "Cardia/Core/KeyCodes.hpp"
 #include "Cardia/Core/Input.hpp"
@@ -13,46 +14,6 @@
 
 namespace pybind11::detail
 {
-	template <> struct type_caster<glm::vec2> : public type_caster_base<glm::vec2> {
-		using base = type_caster_base<glm::vec2>;
-	public:
-		bool load(handle src, bool convert) {
-			if (base::load(src, convert)) {
-				return true;
-			}
-			try {
-				auto* vec = new glm::vec2(
-					src.attr("x").cast<float>(),
-					src.attr("y").cast<float>());
-				value = vec;
-				return !PyErr_Occurred();
-			} catch (const std::exception& e) {
-				Cardia::Log::coreError(e.what());
-				return false;
-			}
-		}
-	};
-
-	template <> struct type_caster<glm::vec3> : public type_caster_base<glm::vec3> {
-		using base = type_caster_base<glm::vec3>;
-	public:
-		bool load(handle src, bool convert) {
-			if (base::load(src, convert)) {
-				return true;
-			}
-			try {
-				auto* vec = new glm::vec3(
-					src.attr("x").cast<float>(),
-				        src.attr("y").cast<float>(),
-					src.attr("z").cast<float>());
-				value = vec;
-				return !PyErr_Occurred();
-			} catch (const std::exception& e) {
-				Cardia::Log::coreError(e.what());
-				return false;
-			}
-		}
-	};
 }
 
 
@@ -71,7 +32,13 @@ namespace Cardia
 			.def_readwrite("x", &glm::vec2::x, py::return_value_policy::reference)
 			.def_readwrite("y", &glm::vec2::y, py::return_value_policy::reference)
 			.def_readwrite("r", &glm::vec2::r, py::return_value_policy::reference)
-			.def_readwrite("g", &glm::vec2::g, py::return_value_policy::reference);
+			.def_readwrite("g", &glm::vec2::g, py::return_value_policy::reference)
+			.def("length", [](glm::vec2& self) {
+					return glm::length(self);
+				},py::return_value_policy::reference)
+			.def_static("lerp", [](glm::vec2& start, glm::vec2& end, float step){
+					return glm::mix(start, end, step);
+				}, py::return_value_policy::reference);
 
 		py::class_<glm::vec3>(m, "vec3")
 			.def(py::init<float>())
@@ -81,7 +48,13 @@ namespace Cardia
 			.def_readwrite("z", &glm::vec3::z, py::return_value_policy::reference)
 			.def_readwrite("r", &glm::vec3::r, py::return_value_policy::reference)
 			.def_readwrite("g", &glm::vec3::g, py::return_value_policy::reference)
-			.def_readwrite("b", &glm::vec3::b, py::return_value_policy::reference);
+			.def_readwrite("b", &glm::vec3::b, py::return_value_policy::reference)
+			.def("length", [](glm::vec3& self) {
+					return glm::length(self);
+				},py::return_value_policy::reference)
+			.def_static("lerp", [](glm::vec3& start, glm::vec3& end, float step){
+					return glm::mix(start, end, step);
+				}, py::return_value_policy::reference);
 
 		py::class_<glm::vec4>(m, "vec4")
 			.def(py::init<float>())
@@ -99,55 +72,14 @@ namespace Cardia
 		// Components
 
 		py::class_<Component::Transform>(m, "Transform")
+		        .def(py::init<>())
+		        .def(py::init<glm::vec3, glm::vec3, glm::vec3>())
 			.def_readwrite("position", &Component::Transform::position, py::return_value_policy::reference)
 			.def_readwrite("rotation", &Component::Transform::rotation, py::return_value_policy::reference)
-			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference);
+			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)
+			.def("reset", &Component::Transform::reset, py::return_value_policy::reference);
 
-
-		// Core objects
-
-		auto keycodes = py::enum_<Key::Key>(m, "key");
-		keycodes.value("space", Key::Space)
-			.value("apostrophe", Key::Apostrophe)
-			.value("comma", Key::Comma)
-			.value("minus", Key::Minus)
-			.value("period", Key::Period)
-			.value("slash", Key::Slash)
-			.value("n0", Key::N0)
-			.value("n1", Key::N1)
-			.value("n2", Key::N2)
-			.value("n3", Key::N3)
-			.value("n4", Key::N4)
-			.value("n5", Key::N5)
-			.value("n6", Key::N6)
-			.value("n7", Key::N7)
-			.value("n8", Key::N8)
-			.value("n9", Key::N9)
-			.value("semicolon", Key::Semicolon)
-			.value("equal", Key::Equal)
-			.value("lbracket", Key::LBracket)
-			.value("backslash", Key::BackSlash)
-			.value("rbracket", Key::RBracket)
-			.value("grave_accent", Key::GraveAccent)
-			.value("right", Key::Right)
-			.value("left", Key::Left)
-			.value("down", Key::Down)
-			.value("up", Key::Up)
-			.value("left_alt", Key::LeftAlt)
-			.value("right_alt", Key::RightAlt)
-			.value("left_ctrl", Key::LeftCtrl)
-			.value("right_ctrl", Key::RightCtrl);
-
-		for (int v = Key::A; v < static_cast<int>(Key::Z); v++)
-		{
-			const auto name = std::string(1, static_cast<char>(v));
-			keycodes.value(name.c_str(), static_cast<Key::Key>(v));
-		}
-
-		py::enum_<Mouse::Mouse>(m, "mouse")
-			.value("left", Mouse::Left)
-			.value("right", Mouse::Right)
-			.value("middle", Mouse::Middle);
+		// API Calls
 
 		m.def("is_key_pressed", &Input::isKeyPressed, py::return_value_policy::reference);
 		m.def("is_mouse_button_pressed", &Input::isMouseButtonPressed, py::return_value_policy::reference);

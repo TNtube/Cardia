@@ -47,6 +47,7 @@ namespace Cardia::Component
 	{
 		Transform() = default;
 		Transform(const Transform&) = default;
+		Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) : position(pos), rotation(rot), scale(sca) {}
 
 		glm::vec3 position { 0.0f };
 		glm::vec3 rotation { 0.0f };

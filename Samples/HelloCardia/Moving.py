@@ -1,5 +1,5 @@
 from cardia import Behavior, Input, Key, Serializable, on_key_pressed,\
-    Time, Vector3, on_mouse_clicked, Mouse
+    Time, Vector3, on_mouse_clicked, Mouse, Transform
 
 
 class Moving(Behavior):
@@ -31,9 +31,9 @@ class Moving(Behavior):
 
     @on_mouse_clicked(Mouse.Left)
     def clicked(self):
-        v = Input.get_mouse_position()
-        print(f"Mouse pos is ({v.x}:{v.y})")
+        self.transform.reset()
 
     @on_mouse_clicked(Mouse.Right)
     def teleport(self):
-        self.transform.position = Vector3(7, 4, 0)
+        self.transform.position = Vector3.lerp(self.transform.position, Vector3(7, 4, 0),
+                                               5 * Time.delta_time.seconds())
