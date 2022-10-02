@@ -11,7 +11,7 @@ class Moving(Behavior):
         self.velocity = 5
 
     def on_update(self):
-        pass
+        self.get_component(Transform).position.x += 1 * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Left)
     def move_left(self):

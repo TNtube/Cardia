@@ -23,6 +23,17 @@ namespace Cardia
 	template<class T>
 	using type_caster = py::detail::type_caster<T>;
 
+	template<typename T>
+	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
+	{
+		static auto issubclass = py::module_::import("builtins").attr("issubclass");
+		if (issubclass(cls, py::detail::get_type_handle(typeid(T), false)).cast<bool>()) {
+			out["output"] = py::cast(entity.getComponent<T>(), py::return_value_policy::reference);
+			return true;
+		}
+		return false;
+	}
+
 	PYBIND11_EMBEDDED_MODULE(cardia_native, m) {
 		m.doc() = "Cardia Python Bindings";
 		using namespace Cardia;
@@ -104,11 +115,11 @@ namespace Cardia
 			t.scale = transform.scale;
 		}, py::return_value_policy::reference);
 
-		m.def("get_component", [](std::string& id, py::object& cls, py::object& out) {;
-			if (type_caster<Component::Transform>().load(cls, false)) {
-				auto scene = ScriptEngine::getSceneContext();
-				Entity entity = scene->getEntityByUUID(UUID::fromString(id));
-				out = py::cast(entity.getComponent<Component::Transform>());
+		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {
+			auto scene = ScriptEngine::getSceneContext();
+			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+			if (GetComponent<Component::Transform>(entity, cls, out)) {
+				return;
 			}
 		});
 
