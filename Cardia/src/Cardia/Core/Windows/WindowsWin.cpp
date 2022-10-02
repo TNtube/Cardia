@@ -5,6 +5,7 @@
 #include "Cardia/Core/Windows/WindowsWin.hpp"
 #include "Cardia/Renderer/OpenGL/OpenGLContext.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
+#include "Cardia/Scripting/ScriptEngine.hpp"
 
 
 namespace Cardia
@@ -63,6 +64,7 @@ namespace Cardia
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* win)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
+				ScriptEngine::shutdown();
 				WindowCloseEvent event;
 				data->eventCallback(event);
 			});
