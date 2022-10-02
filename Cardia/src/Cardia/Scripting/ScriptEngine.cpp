@@ -78,8 +78,8 @@ namespace Cardia
 		};
 	}
 
-	void ScriptEngine::registerUpdateMethod(py::object& obj, std::string& name) {
-		s_Data->unRegisteredCallbacks.emplace_back(obj, name);
+	void ScriptEngine::registerUpdateMethod(py::object& cls, std::string& name) {
+		s_Data->unRegisteredCallbacks.emplace_back(cls, name);
 	}
 
 	ScriptData ScriptEngine::instantiatePythonClass(py::object& classObj, const std::string& id) {

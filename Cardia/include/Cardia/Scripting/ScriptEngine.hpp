@@ -36,7 +36,7 @@ namespace Cardia
 				static void onRuntimeStart(Scene* context);
 				static void onRuntimeUpdate();
 				static Scene* getSceneContext();
-				static void registerUpdateMethod(py::object& obj, std::string& name);
+				static void registerUpdateMethod(py::object& cls, std::string& name);
 				static void registerUpdateFunction(py::object& obj);
 		private:
 				static std::unique_ptr<ScriptEngineData> s_Data;

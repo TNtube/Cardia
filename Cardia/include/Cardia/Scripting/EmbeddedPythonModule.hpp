@@ -20,6 +20,8 @@ namespace pybind11::detail
 namespace Cardia
 {
 	namespace py = pybind11;
+	template<class T>
+	using type_caster = py::detail::type_caster<T>;
 
 	PYBIND11_EMBEDDED_MODULE(cardia_native, m) {
 		m.doc() = "Cardia Python Bindings";
@@ -102,8 +104,16 @@ namespace Cardia
 			t.scale = transform.scale;
 		}, py::return_value_policy::reference);
 
-		m.def("register_update_method", [](py::object& obj, std::string& name) {
-		    ScriptEngine::registerUpdateMethod(obj, name);
+		m.def("get_component", [](std::string& id, py::object& cls, py::object& out) {;
+			if (type_caster<Component::Transform>().load(cls, false)) {
+				auto scene = ScriptEngine::getSceneContext();
+				Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+				out = py::cast(entity.getComponent<Component::Transform>());
+			}
+		});
+
+		m.def("register_update_method", [](py::object& cls, std::string& name) {
+		    ScriptEngine::registerUpdateMethod(cls, name);
 		});
 
 		m.def("register_update_function", [](py::object& func) {
