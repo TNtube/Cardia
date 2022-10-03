@@ -5,6 +5,7 @@
 #include <set>
 
 #include "Cardia/Core/Log.hpp"
+#include "Cardia/Application.hpp"
 
 namespace Cardia::Panel
 {
@@ -18,16 +19,18 @@ namespace Cardia::Panel
         {
                 ImGui::Begin("Files");
 
-                if (m_Workspace.string().length() == 0)
+		auto workspace = Application::projectSettings().workspace;
+
+                if (workspace.length() == 0)
                 {
                         ImGui::End();
                         return;
                 }
                 
-                const auto pathFromWorkspace = std::filesystem::relative(m_CurrentPath, m_Workspace).string();
+                const auto pathFromWorkspace = std::filesystem::relative(m_CurrentPath, workspace).string();
                 ImGui::Text("%s", pathFromWorkspace != "." ? pathFromWorkspace.c_str() : "");
 
-                if (m_CurrentPath != m_Workspace)
+                if (m_CurrentPath != workspace)
                 {
                         if (ImGui::Button(".."))
                         {
@@ -107,9 +110,8 @@ namespace Cardia::Panel
                 ImGui::End();
         }
 
-        void FileHierarchy::updateWorkspace(const std::string& workspace)
+        void FileHierarchy::updateWorkspace()
         {
-                m_Workspace = workspace;
-                m_CurrentPath = workspace;
+		m_CurrentPath = Application::projectSettings().workspace;
         }
 }

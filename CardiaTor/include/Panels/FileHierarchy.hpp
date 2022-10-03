@@ -13,7 +13,7 @@ namespace Cardia::Panel
                 FileHierarchy();
                 ~FileHierarchy() override = default;
                 void onImGuiRender() override;
-                void updateWorkspace(const std::string& workspace) override;
+                void updateWorkspace() override;
 
         private:
                 std::filesystem::path m_CurrentPath;
