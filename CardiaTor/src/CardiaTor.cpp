@@ -148,7 +148,7 @@ namespace Cardia
 	{
 		for (const auto& [name, panel]: m_Panels)
 		{
-			panel->updateWorkspace(projectSettings().workspace);
+			panel->updateWorkspace();
 		}
 	}
 
