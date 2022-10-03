@@ -11,10 +11,7 @@ namespace Cardia
         public:
                 virtual ~IPanel() = default;
                 virtual void onImGuiRender() = 0;
-                virtual void updateWorkspace(const std::string& workspace)
-                {
-                        m_Workspace = workspace;
-                }
+                virtual void updateWorkspace() {}
                 virtual Entity& getSelectedEntity()
                 {
                         return m_SelectedEntity;
@@ -25,7 +22,6 @@ namespace Cardia
                         m_SelectedEntity = entity;
                 }
         protected:
-                std::filesystem::path m_Workspace;
                 Entity m_SelectedEntity;
         };
 }

@@ -11,7 +11,7 @@ class Moving(Behavior):
         self.velocity = 5
 
     def on_update(self):
-        self.get_component(Transform).position.x += 1 * Time.delta_time.seconds()
+        pass
 
     @on_key_pressed(Key.Left)
     def move_left(self):
@@ -31,7 +31,7 @@ class Moving(Behavior):
 
     @on_mouse_clicked(Mouse.Left)
     def clicked(self):
-        self.transform.reset()
+        self.get_component(Transform).reset()
 
     @on_mouse_clicked(Mouse.Right)
     def teleport(self):
