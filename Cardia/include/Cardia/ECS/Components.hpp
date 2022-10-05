@@ -12,16 +12,6 @@
 
 namespace Cardia::Component
 {
-	enum class ComponentType
-	{
-		Name,
-		ID,
-		Transform,
-		SpriteRenderer,
-		Camera,
-		Script
-	};
-
 	struct Name
 	{
 		Name() = default;
