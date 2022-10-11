@@ -3,9 +3,8 @@ from cardia import Behavior, Input, Key, Serializable, on_key_pressed,\
 
 
 class Moving(Behavior):
-    def __init__(self):
-        super().__init__()
-        self.velocity: Serializable(int) = 0
+    velocity: int
+    _mouse_count: int
 
     def on_create(self):
         self.velocity = 5
@@ -31,9 +30,11 @@ class Moving(Behavior):
 
     @on_mouse_clicked(Mouse.Left)
     def clicked(self):
+        self._mouse_count += 1
         self.get_component(Transform).reset()
 
     @on_mouse_clicked(Mouse.Right)
     def teleport(self):
+        self._mouse_count += 1
         self.transform.position = Vector3.lerp(self.transform.position, Vector3(7, 4, 0),
                                                5 * Time.delta_time.seconds())
