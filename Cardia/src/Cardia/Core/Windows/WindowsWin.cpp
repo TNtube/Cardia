@@ -64,7 +64,6 @@ namespace Cardia
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* win)
 			{
 				const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
-				ScriptEngine::shutdown();
 				WindowCloseEvent event;
 				data->eventCallback(event);
 			});
