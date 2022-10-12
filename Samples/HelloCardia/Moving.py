@@ -1,14 +1,13 @@
-from cardia import Behavior, Input, Key, Serializable, on_key_pressed,\
-    Time, Vector3, on_mouse_clicked, Mouse, Transform
+from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform
 
 
 class Moving(Behavior):
-    def __init__(self):
-        super().__init__()
-        self.velocity: Serializable(int) = 0
+    velocity: int
+    _mouse_count: int
 
     def on_create(self):
         self.velocity = 5
+        self._mouse_count = 0
 
     def on_update(self):
         pass
