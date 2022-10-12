@@ -20,13 +20,11 @@ namespace pybind11::detail
 namespace Cardia
 {
 	namespace py = pybind11;
-	template<class T>
-	using type_caster = py::detail::type_caster<T>;
 
 	template<typename T>
 	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
 	{
-		static auto issubclass = py::module_::import("builtins").attr("issubclass");
+		auto issubclass = py::module_::import("builtins").attr("issubclass");
 		if (issubclass(cls, py::detail::get_type_handle(typeid(T), false)).cast<bool>()) {
 			out["output"] = py::cast(entity.getComponent<T>(), py::return_value_policy::reference);
 			return true;
