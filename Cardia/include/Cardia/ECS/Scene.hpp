@@ -22,9 +22,10 @@ namespace Cardia
 
 		void destroyEntity(entt::entity entity);
 
-		void onUpdateRuntime();
+		void onRuntimeUpdate();
+		void onRuntimeStart();
+		void onRuntimeStop();
 		void onUpdateEditor(Camera& editorCamera);
-		void onCreateRuntime();
 		void onViewportResize(float width, float height);
 		Entity getEntityByUUID(const UUID& uuid);
 		inline const char* getName() const { return m_Name.c_str(); }

@@ -1,5 +1,8 @@
 import cardia_native as _cd
 from .transform import Transform
+from typing import TypeVar
+
+T = TypeVar("T")
 
 
 class Behavior:
@@ -14,7 +17,7 @@ class Behavior:
     def transform(self, t: Transform):
         _cd.set_native_transform(self.id, t)
 
-    def get_component(self, component_type: type):
+    def get_component(self, component_type: type[T]) -> T:
         out = {'output': None}
         _cd.get_component(self.id, component_type, out)
         return out['output']

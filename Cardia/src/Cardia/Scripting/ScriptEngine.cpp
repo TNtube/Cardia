@@ -23,18 +23,18 @@ namespace Cardia
 	void ScriptEngine::onRuntimeStart(Scene* context)
 	{
 		const auto viewTransform = context->getRegistry().view<Component::Script, Component::ID>();
+		s_Data->pythonBuiltins = py::module::import("builtins");
+		s_Data->cardiaPy = py::module::import("cardia");
 		for (auto [entity, script, uuid] : viewTransform.each())
 		{
 			try {
 				const auto filename = std::filesystem::path(script.getPath()).filename().replace_extension().string();
-				auto builtins = py::module::import("builtins");
-				auto cardiapy = py::module::import("cardia");
 
 				auto globals = py::globals();
 
 				py::exec(script.getContent(), globals, globals);
 
-				if (builtins.attr("issubclass")(globals[filename.c_str()], cardiapy.attr("Behavior")))
+				if (s_Data->pythonBuiltins.attr("issubclass")(globals[filename.c_str()], s_Data->cardiaPy.attr("Behavior")))
 				{
 					std::string id = uuid.uuid;
 					if (!s_Data->classInstances.contains(id)) {
@@ -75,7 +75,7 @@ namespace Cardia
 			catch (const std::exception& e) {
 				Log::error("On Update : {0}", e.what());
 			}
-		};
+		}
 	}
 
 	void ScriptEngine::registerUpdateMethod(py::object& cls, std::string& name) {
@@ -84,8 +84,7 @@ namespace Cardia
 
 	ScriptData ScriptEngine::instantiatePythonClass(py::object& classObj, const std::string& id) {
 		py::object instance = classObj();
-		auto builtins = py::module::import("builtins");
-		builtins.attr("setattr")(instance, "id", id);
+		s_Data->pythonBuiltins.attr("setattr")(instance, "id", id);
 
 		ScriptData scriptData (instance);
 		instance.attr("on_create")();
@@ -101,5 +100,11 @@ namespace Cardia
 	void ScriptEngine::registerUpdateFunction(py::object &obj)
 	{
 		s_Data->onUpdateFunctions.push_back(obj);
+	}
+
+	void ScriptEngine::onRuntimeStop()
+	{
+		s_Data.reset();
+		s_Data = std::make_unique<ScriptEngineData>();
 	}
 }
