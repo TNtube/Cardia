@@ -41,7 +41,7 @@ namespace Cardia
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::onUpdateRuntime()
+	void Scene::onRuntimeUpdate()
 	{
 		ScriptEngine::onRuntimeUpdate();
 
@@ -109,7 +109,7 @@ namespace Cardia
 		m_Registry.clear();
 	}
 
-	void Scene::onCreateRuntime()
+	void Scene::onRuntimeStart()
 	{
 		ScriptEngine::onRuntimeStart(this);
 	}
@@ -126,5 +126,10 @@ namespace Cardia
 			}
 		}
 		return result;
+	}
+
+	void Scene::onRuntimeStop()
+	{
+		ScriptEngine::onRuntimeStop();
 	}
 }

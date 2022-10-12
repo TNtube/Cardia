@@ -47,7 +47,7 @@ namespace Cardia
 		}
 		if (m_EditorState == EditorState::Play)
 		{
-			m_CurrentScene->onUpdateRuntime();
+			m_CurrentScene->onRuntimeUpdate();
 		}
 
 		m_Framebuffer->unbind();
@@ -237,16 +237,18 @@ namespace Cardia
 		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x- size) * 0.5f);
 		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->getRendererID())), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0))
 		{
-			if (m_EditorState == EditorState::Edit)
+			switch (m_EditorState)
 			{
-				m_EditorState = EditorState::Play;
-				m_CurrentScene->onCreateRuntime();
-				m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
-			}
-			else if (m_EditorState == EditorState::Play)
-			{
-				m_EditorState = EditorState::Edit;
-				reloadScene();
+				case EditorState::Edit:
+					m_EditorState = EditorState::Play;
+					m_CurrentScene->onRuntimeStart();
+					m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
+					break;
+				case EditorState::Play:
+					m_CurrentScene->onRuntimeStop();
+					m_EditorState = EditorState::Edit;
+					reloadScene();
+					break;
 			}
 		}
 		ImGui::PopStyleVar(2);
