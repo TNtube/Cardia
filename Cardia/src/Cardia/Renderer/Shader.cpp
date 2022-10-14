@@ -9,7 +9,7 @@ namespace Cardia
 {
 	std::unique_ptr<Shader> Shader::create(std::initializer_list<std::string> filePaths)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:

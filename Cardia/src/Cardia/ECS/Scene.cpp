@@ -43,7 +43,7 @@ namespace Cardia
 
 	void Scene::onRuntimeUpdate()
 	{
-		ScriptEngine::onRuntimeUpdate();
+		ScriptEngine::Instance().OnRuntimeUpdate();
 
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 mainCameraTransform;
@@ -111,7 +111,7 @@ namespace Cardia
 
 	void Scene::onRuntimeStart()
 	{
-		ScriptEngine::onRuntimeStart(this);
+		ScriptEngine::Instance().OnRuntimeStart(this);
 	}
 
 	Entity Scene::getEntityByUUID(const UUID& uuid)
@@ -130,6 +130,5 @@ namespace Cardia
 
 	void Scene::onRuntimeStop()
 	{
-		ScriptEngine::onRuntimeStop();
 	}
 }

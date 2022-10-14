@@ -12,11 +12,6 @@
 #include "ScriptEngine.hpp"
 
 
-namespace pybind11::detail
-{
-}
-
-
 namespace Cardia
 {
 	namespace py = pybind11;
@@ -24,7 +19,7 @@ namespace Cardia
 	template<typename T>
 	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
 	{
-		auto issubclass = ScriptEngine::getPythonBuiltins().attr("issubclass");
+		auto issubclass = ScriptEngine::Instance().GetPythonBuiltins().attr("issubclass");
 		if (issubclass(cls, py::detail::get_type_handle(typeid(T), false)).cast<bool>()) {
 			out["output"] = py::cast(entity.getComponent<T>(), py::return_value_policy::reference);
 			return true;
@@ -99,14 +94,14 @@ namespace Cardia
 		m.def("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
 
 		m.def("get_native_transform", [](std::string& id) -> Component::Transform& {
-			auto scene = ScriptEngine::getSceneContext();
-			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+			auto& scene = ScriptEngine::Instance().GetSceneContext();
+			Entity entity = scene.getEntityByUUID(UUID::fromString(id));
 			return entity.getComponent<Component::Transform>();
 		}, py::return_value_policy::reference);
 
 		m.def("set_native_transform", [](std::string& id, Component::Transform transform){
-			auto scene = ScriptEngine::getSceneContext();
-			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+			auto& scene = ScriptEngine::Instance().GetSceneContext();
+			Entity entity = scene.getEntityByUUID(UUID::fromString(id));
 			auto& t = entity.getComponent<Component::Transform>();
 			t.position = transform.position;
 			t.rotation = transform.rotation;
@@ -114,19 +109,15 @@ namespace Cardia
 		}, py::return_value_policy::reference);
 
 		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {
-			auto scene = ScriptEngine::getSceneContext();
-			Entity entity = scene->getEntityByUUID(UUID::fromString(id));
+			auto& scene = ScriptEngine::Instance().GetSceneContext();
+			Entity entity = scene.getEntityByUUID(UUID::fromString(id));
 			if (GetComponent<Component::Transform>(entity, cls, out)) {
 				return;
 			}
 		});
 
 		m.def("register_update_method", [](py::object& cls, std::string& name) {
-		    ScriptEngine::registerUpdateMethod(cls, name);
-		});
-
-		m.def("register_update_function", [](py::object& func) {
-			ScriptEngine::registerUpdateFunction(func);
+			ScriptEngine::Instance().RegisterUpdateMethod(cls, name);
 		});
 
 		m.def("get_delta_time_seconds", []() {

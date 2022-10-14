@@ -9,7 +9,7 @@ namespace Cardia
 
 	std::unique_ptr<VertexArray> VertexArray::create()
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:

@@ -9,7 +9,7 @@ namespace Cardia
 
 	std::unique_ptr<Texture2D> Cardia::Texture2D::create(const std::string &path)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:
@@ -27,7 +27,7 @@ namespace Cardia
 
 	std::unique_ptr<Texture2D> Texture2D::create(int width, int height, void* data)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:

@@ -10,7 +10,7 @@ namespace Cardia
 
 	std::unique_ptr<VertexBuffer> VertexBuffer::create(float *vertices, uint32_t size)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:
@@ -28,7 +28,7 @@ namespace Cardia
 
 	std::unique_ptr<VertexBuffer> VertexBuffer::create(uint32_t size)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:
@@ -46,7 +46,7 @@ namespace Cardia
 
 	std::unique_ptr<IndexBuffer> IndexBuffer::create(uint32_t *indices, uint32_t count)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 			case RenderAPI::API::None:
@@ -64,7 +64,7 @@ namespace Cardia
 
 	std::unique_ptr<IndexBuffer> IndexBuffer::create(uint32_t count)
 	{
-		RenderAPI::API renderer = Renderer::getAPI();
+		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
 		{
 		case RenderAPI::API::None:

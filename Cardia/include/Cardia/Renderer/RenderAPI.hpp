@@ -32,7 +32,7 @@ namespace Cardia
 
 		virtual void drawIndexed(const VertexArray* vertexArray, uint32_t indexCount = 0) = 0;
 
-		static API getAPI() { return s_API; }
+		static API& getAPI() { return s_API; }
 		static RenderAPI& get() { cdCoreAssert(s_Instance.get(), "RenderAPI not initialized."); return *s_Instance; }
 
 	private:

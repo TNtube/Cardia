@@ -24,9 +24,4 @@ namespace Cardia
 		}
 		return id.value();
 	}
-
-	bool UUID::operator==(const UUID& other)
-	{
-		return other.m_UUID == m_UUID;
-	}
 }

@@ -5,6 +5,7 @@
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Core/Window.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
+#include "Cardia/Scripting/ScriptEngine.hpp"
 
 
 namespace Cardia
@@ -19,7 +20,7 @@ namespace Cardia
 	{
 	public:
 		Application();
-		virtual ~Application();
+		virtual ~Application() = default;
 
 		void Run();
 		virtual void onEvent(Event& e) = 0;
@@ -35,7 +36,7 @@ namespace Cardia
 	private:
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
-		DeltaTime m_DeltaTime;
+		ScriptEngine m_ScriptEngine;
 		bool m_Running = true;
 		inline static ProjectSettings s_ProjectSettings {};
 		static Application* s_Instance;

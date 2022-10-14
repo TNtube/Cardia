@@ -10,7 +10,7 @@ namespace Cardia
 {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application() : m_DeltaTime()
+	Application::Application()
 	{
 		cdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
@@ -25,12 +25,6 @@ namespace Cardia
 		});
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
-		ScriptEngine::init();
-	}
-
-	Application::~Application()
-	{
-		ScriptEngine::shutdown();
 	}
 
 	void Application::Run()

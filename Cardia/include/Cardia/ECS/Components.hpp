@@ -3,6 +3,7 @@
 #include "Cardia/Renderer/Texture.hpp"
 #include "SceneCamera.hpp"
 #include "Cardia/Core/UUID.hpp"
+#include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -91,9 +92,12 @@ namespace Cardia::Component
 	{
 		Script() = default;
 		Script(const Script&) { reloadFile(); }
-		explicit Script(std::string scriptPath) : m_Path(std::move(scriptPath)) { reloadFile(); }
+		explicit Script(std::string scriptPath) : m_Path(std::move(scriptPath)) {
+			reloadFile();
+		}
 		inline std::string getPath() const {return m_Path; }
 		inline void setPath(const std::string& newPath) { m_Path = newPath; reloadFile(); }
+		ScriptClass scriptClass;
 		std::string getContent() { return m_Content; }
 
 		inline void reset()
