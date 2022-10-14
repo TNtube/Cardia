@@ -31,8 +31,8 @@ local outputdir = "$(mode)-$(os)-$(arch)"
 
 rule("cp-assets")
     after_build(function (target)
-            os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
-        end)
+        os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
+    end)
 
 rule("python-env")
     on_load(function (target)
