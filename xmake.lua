@@ -31,8 +31,8 @@ local outputdir = "$(mode)-$(os)-$(arch)"
 
 rule("cp-assets")
     after_build(function (target)
-            os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
-        end)
+        os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
+    end)
 
 rule("python-env")
     on_load(function (target)
@@ -107,7 +107,7 @@ target("CardiaTor")
 
     add_headerfiles("CardiaTor/include/**.hpp")
     add_headerfiles("CardiaTor/assets/**") -- a hack for the moment
-    add_files("CardiaTor/src/**.cpp")
+    add_files("CardiaTor/src/**.cpp", "CardiaTor/assets/logo/resource.rc")
     add_includedirs("CardiaTor/include/", {public = true})
 
     add_packages("imguizmo")
