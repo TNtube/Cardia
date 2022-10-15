@@ -98,17 +98,15 @@ namespace Cardia::Component
 		inline std::string getPath() const {return m_Path; }
 		inline void setPath(const std::string& newPath) { m_Path = newPath; reloadFile(); }
 		ScriptClass scriptClass;
-		std::string getContent() { return m_Content; }
 
 		inline void reset()
 		{
 			m_Path.clear();
-			m_Content.clear();
+			scriptClass = ScriptClass();
 		}
 
 	private:
 		void reloadFile();
 		std::string m_Path;
-		std::string m_Content;
 	};
 }
