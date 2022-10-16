@@ -23,15 +23,15 @@ add_requires("jsoncpp 1.9.5")
 add_requires("imguizmo 1.83")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.83-docking", configs = {glfw_opengl3 = true}}) -- config sub imgui module
 
-add_requires("python")
+add_requires("python 3.9.13")
 add_requires("pybind11")
-add_requireconfs("pybind11.python", {override = true, config = {kind = "binary"}})
+add_requireconfs("pybind11.python", {override = true, config = {kind = "binary"}, version = "3.9.13"})
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
-rule("cp-assets")
+rule("cp-resources")
     after_build(function (target)
-        os.cp(target:name() .. "/assets", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
+        os.cp(target:name() .. "/resources", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
     end)
 
 rule("python-env")
@@ -78,7 +78,7 @@ target("Cardia")
 target("SandBox")
     set_kind("binary")
     set_runtimes("MT")
-    add_rules("cp-assets")
+    add_rules("cp-resources")
 
     set_targetdir("build/" .. outputdir .. "/SandBox/bin")
     set_objectdir("build/" .. outputdir .. "/SandBox/obj")
@@ -100,14 +100,14 @@ target("SandBox")
 target("CardiaTor")
     set_kind("binary")
     set_runtimes("MT")
-    add_rules("cp-assets")
+    add_rules("cp-resources")
 
     set_targetdir("build/" .. outputdir .. "/CardiaTor/bin")
     set_objectdir("build/" .. outputdir .. "/CardiaTor/obj")
 
     add_headerfiles("CardiaTor/include/**.hpp")
-    add_headerfiles("CardiaTor/assets/**") -- a hack for the moment
-    add_files("CardiaTor/src/**.cpp", "CardiaTor/assets/logo/resource.rc")
+    add_headerfiles("CardiaTor/resources/**") -- a hack for the moment
+    add_files("CardiaTor/src/**.cpp", "CardiaTor/resources/logo/resource.rc")
     add_includedirs("CardiaTor/include/", {public = true})
 
     add_packages("imguizmo")

@@ -32,7 +32,7 @@ namespace Cardia
 	{
 		s_Data = std::make_unique<Renderer2DData>();
 		s_Stats = std::make_unique<Renderer2D::Stats>();
-		s_Data->basicShader = Shader::create({"assets/shaders/basic.vert", "assets/shaders/basic.frag"});
+		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert", "resources/shaders/basic.frag"});
 		s_Data->batches.clear();
 		s_Data->vertexArray = VertexArray::create();
 

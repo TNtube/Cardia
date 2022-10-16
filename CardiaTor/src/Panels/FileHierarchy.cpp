@@ -11,8 +11,8 @@ namespace Cardia::Panel
 {
         FileHierarchy::FileHierarchy()
         {
-                m_FolderIcon = Texture2D::create("assets/icons/folder.png");
-                m_FileIcon = Texture2D::create("assets/icons/file.png");
+                m_FolderIcon = Texture2D::create("resources/icons/folder.png");
+                m_FileIcon = Texture2D::create("resources/icons/file.png");
         }
 
         void FileHierarchy::onImGuiRender()

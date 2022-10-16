@@ -16,7 +16,7 @@ namespace Cardia
 	{
 		const auto &window = getWindow();
 
-		m_CurrentScene = std::make_unique<Scene>("Default Scene");
+		m_CurrentScene = std::make_unique<Scene>("Defaultxmake Scene");
 
 		m_Panels = std::unordered_map<std::string, std::unique_ptr<IPanel>>();
 
@@ -25,11 +25,14 @@ namespace Cardia
 		m_Panels.insert({"Debug", std::make_unique<Panel::DebugPanel>()});
 		m_Panels.insert({"FileHierarchy", std::make_unique<Panel::FileHierarchy>()});
 
-		m_IconPlay = Texture2D::create("assets/icons/play.png");
-		m_IconStop = Texture2D::create("assets/icons/pause.png");
+		m_IconPlay = Texture2D::create("resources/icons/play.png");
+		m_IconStop = Texture2D::create("resources/icons/pause.png");
 
 		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 		m_Framebuffer = Framebuffer::create(spec);
+
+		ImGuiIO &io = ImGui::GetIO();
+		io.IniFilename = "resources/editorconfig.ini";
 	}
 
 

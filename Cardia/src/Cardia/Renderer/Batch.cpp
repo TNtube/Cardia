@@ -28,7 +28,7 @@ namespace Cardia
                 if (!m_Shader)
                 {
                         // TODO: Temporary, should change when Materials get implemented
-                        const auto shaderPath = "assets/shaders/" + specification.shader;
+                        const auto shaderPath = "resources/shaders/" + specification.shader;
                         m_Shader = ShaderManager::load(specification.shader, {shaderPath + ".vert", shaderPath + ".frag"});
                 }
 
