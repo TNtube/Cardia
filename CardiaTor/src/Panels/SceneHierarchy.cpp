@@ -1,6 +1,5 @@
 #include "Panels/SceneHierarchy.hpp"
 
-#include <entt/entt.hpp>
 #include <imgui.h>
 
 

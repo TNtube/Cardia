@@ -47,9 +47,6 @@ namespace Cardia
 		EditorCamera m_EditorCamera;
 		glm::vec4 m_ViewportBounds{};
 
-		float m_AspectRatio = static_cast<float>(getWindow().getWidth())
-				      / static_cast<float>(getWindow().getHeight());
-
 		bool m_HoverViewport = false;
 
 		EditorState m_EditorState = EditorState::Edit;

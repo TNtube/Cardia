@@ -295,8 +295,6 @@ namespace Cardia
 			ImGui::EndDragDropTarget();
 		}
 
-		m_AspectRatio = m_SceneSize.x / m_SceneSize.y;
-
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 
