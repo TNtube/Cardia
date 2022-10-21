@@ -95,13 +95,13 @@ namespace Cardia
 
 		m.def("get_native_transform", [](std::string& id) -> Component::Transform& {
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.getEntityByUUID(UUID::fromString(id));
+			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
 			return entity.getComponent<Component::Transform>();
 		}, py::return_value_policy::reference);
 
 		m.def("set_native_transform", [](std::string& id, Component::Transform transform){
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.getEntityByUUID(UUID::fromString(id));
+			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
 			auto& t = entity.getComponent<Component::Transform>();
 			t.position = transform.position;
 			t.rotation = transform.rotation;
@@ -110,7 +110,7 @@ namespace Cardia
 
 		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.getEntityByUUID(UUID::fromString(id));
+			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
 			if (GetComponent<Component::Transform>(entity, cls, out)) {
 				return;
 			}

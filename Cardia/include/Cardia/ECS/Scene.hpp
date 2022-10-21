@@ -17,26 +17,28 @@ namespace Cardia
 	public:
 		Scene(std::string name = "Default Scene");
 		virtual ~Scene() = default;
-		Entity createEntity(const std::string& name = "");
-		Entity createEntityFromId(UUID uuid);
+		Entity CreateEntity(const std::string& name = "");
+		Entity CreateEntityFromId(UUID uuid);
 
-		void destroyEntity(entt::entity entity);
+		void DestroyEntity(entt::entity entity);
 
-		void onRuntimeUpdate();
-		void onRuntimeStart();
-		void onRuntimeStop();
-		void onUpdateEditor(Camera& editorCamera);
-		void onViewportResize(float width, float height);
-		Entity getEntityByUUID(const UUID& uuid);
-		inline const char* getName() const { return m_Name.c_str(); }
-		inline entt::registry& getRegistry() { return m_Registry; }
+		void OnRuntimeUpdate();
+		void OnRuntimeStart();
+		void OnRuntimeStop();
+		void OnUpdateEditor(Camera& editorCamera);
+		void OnViewportResize(float width, float height);
+		Entity GetEntityByUUID(const UUID& uuid);
+		inline const char* GetName() const { return m_Name.c_str(); }
+		inline entt::registry& GetRegistry() { return m_Registry; }
 		void clear();
+		Entity GetCurrentEntity();
+		inline void SetCurrentEntity(UUID entityUUID) { m_CurrentEntity = entityUUID; }
 
 		std::filesystem::path path;
 	private:
+		UUID m_CurrentEntity;
 		std::string m_Name;
 		entt::registry m_Registry;
 		friend class Entity;
-		friend class Panel::SceneHierarchy;
 	};
 }

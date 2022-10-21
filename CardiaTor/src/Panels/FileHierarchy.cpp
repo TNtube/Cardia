@@ -15,7 +15,7 @@ namespace Cardia::Panel
                 m_FileIcon = Texture2D::create("resources/icons/file.png");
         }
 
-        void FileHierarchy::onImGuiRender()
+        void FileHierarchy::OnImGuiRender()
         {
                 ImGui::Begin("Files");
 
@@ -110,7 +110,7 @@ namespace Cardia::Panel
                 ImGui::End();
         }
 
-        void FileHierarchy::updateWorkspace()
+        void FileHierarchy::OnUpdateWorkspace()
         {
 		m_CurrentPath = Application::projectSettings().workspace;
         }

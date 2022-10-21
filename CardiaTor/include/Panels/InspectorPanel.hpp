@@ -12,10 +12,13 @@ namespace Cardia::Panel
         public:
                 InspectorPanel() = default;
                 ~InspectorPanel() override = default;
-                void onImGuiRender() override;
+                void OnImGuiRender() override;
+		void OnSceneLoad(Cardia::Scene *scene) override;
+
 
         private:
                 template<typename T>
-                void drawInspectorComponent(const char* name, std::function<void(T&)> func);
+                void drawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func);
+		Scene* m_CurrentScene;
         };
 }

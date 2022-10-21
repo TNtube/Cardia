@@ -10,6 +10,6 @@ namespace Cardia::Panel
         public:
                 DebugPanel() = default;
                 ~DebugPanel() override = default;
-                void onImGuiRender() override;
+                void OnImGuiRender() override;
         };        
 }

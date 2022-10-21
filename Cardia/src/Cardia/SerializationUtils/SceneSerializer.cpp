@@ -10,7 +10,7 @@ namespace Cardia::SerializerUtils
         std::string SerializeScene(Scene* scene, const std::string& workspace)
         {
                 Json::Value root;
-                const auto view = scene->getRegistry().view<Component::Name>();
+                const auto view = scene->GetRegistry().view<Component::Name>();
 
                 for (const auto entity_id : view)
                 {
@@ -98,7 +98,7 @@ namespace Cardia::SerializerUtils
                 const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
                 if (!reader->parse(serializedScene.c_str(), serializedScene.c_str() + serializedScene.length(), &root, &err))
                 {
-                        Log::coreError("Could not load scene {0} : {1}", scene.getName(), err);
+                        Log::coreError("Could not load scene {0} : {1}", scene.GetName(), err);
                         return false;
                 }
 
@@ -110,11 +110,11 @@ namespace Cardia::SerializerUtils
 			Entity entity;
 			try {
 				id = UUID::fromString(uuid);
-				entity = scene.createEntityFromId(id);
+				entity = scene.CreateEntityFromId(id);
 			}
 			catch (const std::invalid_argument& e) {
 				Log::warn("Entity with invalid UUID found");
-				entity = scene.createEntity();
+				entity = scene.CreateEntity();
 			}
 
                         auto& node = root[uuid];

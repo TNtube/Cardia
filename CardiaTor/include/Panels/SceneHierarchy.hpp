@@ -13,12 +13,11 @@ namespace Cardia :: Panel
 	public:
 		explicit SceneHierarchy(Scene* scene);
                 ~SceneHierarchy() override = default;
-		void onImGuiRender() override;
-		void setCurrentScene(Scene* scene) { m_Scene = scene; resetEntityClicked(); }
+		void OnImGuiRender() override;
+		void OnSceneLoad(Cardia::Scene *scene) override;
 
 	private:
 		void drawHierarchy();
-		void resetEntityClicked() { m_SelectedEntity = {}; }
 
 	private:
 		Scene* m_Scene;

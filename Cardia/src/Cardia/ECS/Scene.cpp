@@ -19,7 +19,7 @@ namespace Cardia
 	{
 	}
 
-	Entity Scene::createEntity(const std::string& name)
+	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = {m_Registry.create(), this};
 		entity.addComponent<Component::Transform>();
@@ -28,7 +28,7 @@ namespace Cardia
 		return entity;
 	}
 
-	Entity Scene::createEntityFromId(UUID uuid) {
+	Entity Scene::CreateEntityFromId(UUID uuid) {
 		Entity entity = {m_Registry.create(), this};
 		entity.addComponent<Component::Transform>();
 		entity.addComponent<Component::ID>(uuid);
@@ -36,12 +36,12 @@ namespace Cardia
 		return entity;
 	}
 
-	void Scene::destroyEntity(entt::entity entity)
+	void Scene::DestroyEntity(entt::entity entity)
 	{
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::onRuntimeUpdate()
+	void Scene::OnRuntimeUpdate()
 	{
 		ScriptEngine::Instance().OnRuntimeUpdate();
 
@@ -80,7 +80,7 @@ namespace Cardia
 		Renderer2D::endScene();
 	}
 
-	void Scene::onUpdateEditor(Camera& editorCamera)
+	void Scene::OnUpdateEditor(Camera& editorCamera)
 	{
 		Renderer2D::beginScene(editorCamera, editorCamera.getPosition());
 
@@ -94,7 +94,7 @@ namespace Cardia
 		Renderer2D::endScene();
 	}
 
-	void Scene::onViewportResize(float width, float height)
+	void Scene::OnViewportResize(float width, float height)
 	{
 		auto view = m_Registry.view<Component::Camera>();
 		for (auto entity : view)
@@ -109,12 +109,12 @@ namespace Cardia
 		m_Registry.clear();
 	}
 
-	void Scene::onRuntimeStart()
+	void Scene::OnRuntimeStart()
 	{
 		ScriptEngine::Instance().OnRuntimeStart(this);
 	}
 
-	Entity Scene::getEntityByUUID(const UUID& uuid)
+	Entity Scene::GetEntityByUUID(const UUID& uuid)
 	{
 		auto view = m_Registry.view<Component::ID>();
 		Entity result;
@@ -128,7 +128,12 @@ namespace Cardia
 		return result;
 	}
 
-	void Scene::onRuntimeStop()
+	void Scene::OnRuntimeStop()
 	{
+	}
+
+	Entity Scene::GetCurrentEntity()
+	{
+		return GetEntityByUUID(m_CurrentEntity);
 	}
 }

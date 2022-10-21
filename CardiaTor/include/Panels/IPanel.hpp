@@ -10,18 +10,8 @@ namespace Cardia
         {
         public:
                 virtual ~IPanel() = default;
-                virtual void onImGuiRender() = 0;
-                virtual void updateWorkspace() {}
-                virtual Entity& getSelectedEntity()
-                {
-                        return m_SelectedEntity;
-                }
-
-                virtual void updateSelectedEntity(const Entity& entity)
-                {
-                        m_SelectedEntity = entity;
-                }
-        protected:
-                Entity m_SelectedEntity;
+                virtual void OnImGuiRender() = 0;
+                virtual void OnUpdateWorkspace() {};
+		virtual void OnSceneLoad(Scene* scene) {};
         };
 }

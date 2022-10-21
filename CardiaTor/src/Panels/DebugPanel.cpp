@@ -10,7 +10,7 @@
 
 namespace Cardia::Panel
 {
-        void DebugPanel::onImGuiRender()
+        void DebugPanel::OnImGuiRender()
         {
                 enum ImGuiTheme
 		{

@@ -58,7 +58,7 @@ namespace Cardia
 	{
 		m_CurrentContext = context;
 
-		const auto view = context->getRegistry().view<Component::Transform, Component::Script, Component::ID>();
+		const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID>();
 		for (const auto entity : view)
 		{
 			auto [transform, script, uuid] = view.get<Component::Transform, Component::Script, Component::ID>(entity);

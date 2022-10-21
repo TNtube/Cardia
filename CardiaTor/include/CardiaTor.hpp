@@ -40,8 +40,7 @@ namespace Cardia
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
-		Entity m_SelectedEntity {};
-		std::unordered_map<std::string, std::unique_ptr<IPanel>> m_Panels;
+		std::vector<std::unique_ptr<IPanel>> m_Panels;
 
 		glm::vec2 m_SceneSize {};
 
