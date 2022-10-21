@@ -34,17 +34,6 @@ rule("cp-resources")
         os.cp(target:name() .. "/resources", "build/" .. outputdir .. "/" .. target:name() .. "/bin")
     end)
 
-rule("python-env")
-    on_load(function (target)
-		target:add("packages", "python")
-
-		local pythonDir = target:pkg("python"):installdir()
-        print("Python dir is : " .. pythonDir)
-        
-        os.setenv("PYTHONPATH", path.join(pythonDir, "Lib", "site-packages"))
-        os.setenv("PYTHONHOME", pythonDir)
-	end)
-
 target("Cardia")
     set_kind("static")
     set_runtimes("MT")
@@ -68,8 +57,17 @@ target("Cardia")
     add_packages("jsoncpp", { public = true })
     add_packages("python", { public = true })
     add_packages("pybind11", { public = true })
-    
-    add_rules("python-env")
+
+    after_build(function(target)
+        os.execv("py", {"-m", "pip", "install", target:scriptdir().."\\cardia.py\\dist\\cardia.py-0.0.1-py3-none-any.whl", "--force-reinstall"})
+    end)
+
+    on_load(function(target)
+        local pythonDir = target:pkg("python"):installdir()
+
+        os.setenv("PYTHONPATH", path.join(pythonDir, "Lib", "site-packages"))
+        os.setenv("PYTHONHOME", pythonDir)
+    end)
 
     if is_mode("debug") then
         add_defines("CD_DEBUG")
@@ -107,7 +105,7 @@ target("CardiaTor")
 
     add_headerfiles("CardiaTor/include/**.hpp")
     add_headerfiles("CardiaTor/resources/**") -- a hack for the moment
-    add_files("CardiaTor/src/**.cpp", "CardiaTor/resources/logo/resource.rc")
+    add_files("CardiaTor/src/**.cpp")
     add_includedirs("CardiaTor/include/", {public = true})
 
     add_packages("imguizmo")
