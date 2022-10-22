@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Cardia/ECS/Components.hpp"
@@ -40,18 +41,19 @@ namespace Cardia::Panel
 
 		// Transform Component
 
-		drawInspectorComponent<Component::Transform>("Transform", selectedEntity, [](Component::Transform& transform) {
-			ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f);
-			auto rotation = glm::degrees(transform.rotation);
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.2f))
-				transform.rotation = glm::radians(rotation);
+		DrawInspectorComponent<Component::Transform>("Transform", selectedEntity, [](Component::Transform& transform) {
+			DrawVec3DragFloat("Position", transform.position);
 
-			ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f);
+			auto rotation = glm::degrees(transform.rotation);
+			DrawVec3DragFloat("Rotation", rotation);
+			transform.rotation = glm::radians(rotation);
+
+			DrawVec3DragFloat("Scale", transform.scale, 1);
 		});
 
 		// SpriteRenderer Component
 
-		drawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", selectedEntity, [](Component::SpriteRenderer& sprite) {
+		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", selectedEntity, [](Component::SpriteRenderer& sprite) {
 			ImGui::ColorEdit4("Color", glm::value_ptr(sprite.color));
 			ImGui::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0);
 			uint32_t whiteColor = 0xffffffff;
@@ -80,7 +82,7 @@ namespace Cardia::Panel
 
 		// Camera Component
 
-		drawInspectorComponent<Component::Camera>("Camera", selectedEntity, [](Component::Camera& camera) {
+		DrawInspectorComponent<Component::Camera>("Camera", selectedEntity, [](Component::Camera& camera) {
 			SceneCamera& cam = camera.camera;
 
 			int type = static_cast<int>(cam.getProjectionType());
@@ -116,7 +118,7 @@ namespace Cardia::Panel
 			}
 		});
 
-		drawInspectorComponent<Component::Script>("Script", selectedEntity, [this](Component::Script& scriptComponent) {
+		DrawInspectorComponent<Component::Script>("Script", selectedEntity, [](Component::Script& scriptComponent) {
 			std::filesystem::path filepath = scriptComponent.getPath();
 			auto path = filepath.filename().string();
 
@@ -178,7 +180,7 @@ namespace Cardia::Panel
 
 
         template<typename T>
-	void InspectorPanel::drawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func)
+	void InspectorPanel::DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func)
         {
         	constexpr auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
@@ -210,5 +212,72 @@ namespace Cardia::Panel
 	void InspectorPanel::OnSceneLoad(Cardia::Scene *scene)
 	{
 		m_CurrentScene = scene;
+	}
+
+	void InspectorPanel::DrawVec3DragFloat(const std::string &label, glm::vec3 &vector, float reset,
+					       float columnWidth)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		auto boldFont = io.Fonts->Fonts[0];
+
+		ImGui::PushID(label.c_str());
+
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, columnWidth);
+		ImGui::Text("%s", label.c_str());
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("X", buttonSize))
+			vector.x = reset;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##X", &vector.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("Y", buttonSize))
+			vector.y = reset;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Y", &vector.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("Z", buttonSize))
+			vector.z = reset;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Z", &vector.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+
+		ImGui::PopStyleVar();
+
+		ImGui::Columns(1);
+
+		ImGui::PopID();
 	}
 }
