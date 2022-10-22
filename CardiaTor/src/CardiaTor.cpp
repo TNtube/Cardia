@@ -229,7 +229,7 @@ namespace Cardia
 		{
 			panel->OnImGuiRender();
 		}
-
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		m_HoverViewport = ImGui::IsWindowHovered();
@@ -251,6 +251,7 @@ namespace Cardia
 		static float zoom = 1.0f;
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
+
 		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
@@ -268,6 +269,8 @@ namespace Cardia
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2);
+		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1, 1, 1, 1));
 		const auto& colors = ImGui::GetStyle().Colors;
 		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
@@ -294,8 +297,8 @@ namespace Cardia
 			}
 		}
 
-		ImGui::PopStyleVar(2);
-		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(3);
+		ImGui::PopStyleColor(4);
 
 		if (ImGui::IsItemHovered())
 		{
@@ -336,8 +339,14 @@ namespace Cardia
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
 					     nullptr, nullptr);
 
+			static glm::vec3 position;
+			static bool isUsing = false;
 			if (ImGuizmo::IsUsing())
 			{
+				if (!isUsing) {
+					position = transformComponent.position;
+				}
+				isUsing = true;
 				glm::vec3 translation, scale, skew;
 				glm::quat rotation;
 				glm::vec4 perspective;
@@ -345,9 +354,16 @@ namespace Cardia
 				transformComponent.rotation = glm::eulerAngles(rotation);
 				transformComponent.position = translation;
 				transformComponent.scale = scale;
+			} else {
+				if (isUsing) {
+					isUsing = false;
+					Log::coreInfo("{}, {}, {}", position.x, position.y, position.z);
+					position = transformComponent.position;
+				}
 			}
 		}
 		ImGui::End();
+		ImGui::PopStyleVar();
 	}
 
 	void CardiaTor::onEvent(Event& event)
