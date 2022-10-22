@@ -230,40 +230,7 @@ namespace Cardia
 			panel->OnImGuiRender();
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-		const auto& colors = ImGui::GetStyle().Colors;
-		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
-		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
-
-		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-		float size = ImGui::GetWindowHeight() - 4.0f;
-		Texture2D* icon = m_EditorState == EditorState::Edit ? m_IconPlay.get() : m_IconStop.get();
-		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x- size) * 0.5f);
-		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->getRendererID())), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0))
-		{
-			switch (m_EditorState)
-			{
-				case EditorState::Edit:
-					m_EditorState = EditorState::Play;
-					m_CurrentScene->OnRuntimeStart();
-					m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
-					break;
-				case EditorState::Play: m_CurrentScene->OnRuntimeStop();
-					m_EditorState = EditorState::Edit;
-					reloadScene();
-					break;
-			}
-		}
-		ImGui::PopStyleVar(2);
-		ImGui::PopStyleColor(3);
-		ImGui::End();
-
-		ImGui::Begin("Edit");
+		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		m_HoverViewport = ImGui::IsWindowHovered();
 
@@ -280,7 +247,10 @@ namespace Cardia
 			m_Framebuffer->resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
 			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
 		}
+		auto io = ImGui::GetIO();
+		static float zoom = 1.0f;
 
+		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
 			     ImVec2{m_SceneSize.x, m_SceneSize.y},
 			     ImVec2{0, 1}, ImVec2{1, 0});
@@ -294,6 +264,57 @@ namespace Cardia
 			}
 			ImGui::EndDragDropTarget();
 		}
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		const auto& colors = ImGui::GetStyle().Colors;
+		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+		Texture2D* icon = m_EditorState == EditorState::Edit ? m_IconPlay.get() : m_IconStop.get();
+
+		const auto playButtonSize = 40;
+		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
+		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->getRendererID())), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
+		{
+			switch (m_EditorState)
+			{
+				case EditorState::Edit:
+					m_EditorState = EditorState::Play;
+					m_CurrentScene->OnRuntimeStart();
+					m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
+					break;
+				case EditorState::Play: m_CurrentScene->OnRuntimeStop();
+					m_EditorState = EditorState::Edit;
+					reloadScene();
+					break;
+			}
+		}
+
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+
+		if (ImGui::IsItemHovered())
+		{
+			zoom += io.MouseWheel / 10.0f;
+			zoom = std::max(zoom, 0.25f);
+		}
+		ImVec2 canvas_p1 = ImVec2(canvas_p0.x + m_SceneSize.x, canvas_p0.y + m_SceneSize.y);
+
+		auto drawLists = ImGui::GetWindowDrawList();
+
+		drawLists->PushClipRect(canvas_p0, canvas_p1, true);
+
+		const float GRID_STEP = 64.0f * zoom;
+		for (float x = fmodf(0, GRID_STEP); x < m_SceneSize.x; x += GRID_STEP)
+			drawLists->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y), IM_COL32(200, 200, 200, 40));
+		for (float y = fmodf(0, GRID_STEP); y < m_SceneSize.y; y += GRID_STEP)
+			drawLists->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
+
+		drawLists->PopClipRect();
 
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
