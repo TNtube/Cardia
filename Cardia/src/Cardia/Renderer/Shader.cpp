@@ -32,6 +32,8 @@ namespace Cardia
 
 	Shader* ShaderManager::load(const std::string &name, const std::initializer_list<std::string>& filePaths)
 	{
+		if (auto res = get(name))
+			return res;
 		add(name, Shader::create(filePaths));
 		return get(name);
 	}

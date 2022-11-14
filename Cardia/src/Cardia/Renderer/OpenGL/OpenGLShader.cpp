@@ -175,6 +175,11 @@ namespace Cardia
 		setUniformFloat4(name, value);
 	}
 
+	void OpenGLShader::setFloat3(const std::string &name, const glm::vec3 &value)
+	{
+		setUniformFloat3(name, value);
+	}
+
 	void OpenGLShader::setMat4(const std::string &name, const glm::mat4 &value)
 	{
 		setUniformMat4(name, value);

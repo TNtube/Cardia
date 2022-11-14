@@ -40,6 +40,7 @@ namespace Cardia
 
 		vbo->setLayout({
 			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float3, "a_Normal"},
 			{ShaderDataType::Float4, "a_Color"},
 			{ShaderDataType::Float2, "a_TexPos"},
 			{ShaderDataType::Float, "a_TexIndex"},
@@ -62,6 +63,7 @@ namespace Cardia
 		s_Data->batches.clear();
 		s_Data->cameraPosition = glm::vec3(transform[3]);
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
+		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
 		s_Data->viewProjectionMatrix = camera.getProjectionMatrix() * glm::inverse(transform);
 		s_Stats->drawCalls = 0;
 		s_Stats->triangleCount = 0;
@@ -144,10 +146,10 @@ namespace Cardia
 	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color, float tilingFactor, int32_t zIndex)
 	{
 		constexpr glm::vec2 texCoords[] {
-			{0.0f, 0.0f},
-			{1.0f, 0.0f},
-			{1.0f, 1.0f},
-			{0.0f, 1.0f}
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f }
 		};
 
 		constexpr glm::vec4 rectPositions[]
@@ -157,12 +159,14 @@ namespace Cardia
 			{  0.5f,  0.5f, 0.0f, 1.0f },
 			{ -0.5f,  0.5f, 0.0f, 1.0f },
 		};
+		constexpr glm::vec4 normal { 0.0f, 0.0f, 1.0f, 1.0f };
 
 		Mesh mesh;
 		for (int i = 0; i < 4; ++i)
 		{
 			auto vertex = Vertex();
 			vertex.position = transform * rectPositions[i];
+			vertex.normal = transform * normal;
 			vertex.color = color;
 			vertex.textureCoord = texCoords[i];
 			vertex.tilingFactor = tilingFactor;
