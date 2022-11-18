@@ -107,6 +107,7 @@ target("CardiaTor")
     add_headerfiles("CardiaTor/resources/**") -- a hack for the moment
     add_files("CardiaTor/src/**.cpp")
     add_includedirs("CardiaTor/include/", {public = true})
+    set_rundir("CardiaTor/")
 
     add_packages("imguizmo")
     add_packages("nativefiledialog")

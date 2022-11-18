@@ -11,24 +11,49 @@ in float o_TilingFactor;
 
 uniform sampler2D u_Textures[32];
 uniform vec3 u_ViewPosition;
-vec3 lightPos = vec3(1.0, 2.0, 1.0);
-vec3 lightColor = vec3(1.0);
+
+struct Light {
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+layout(std430, binding = 0) buffer lightBuffer
+{
+    Light lights[];
+};
+
+
+vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+    vec3 lightDir = normalize(light.position - fragPos);
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    // attenuation
+    float distance    = length(light.position - fragPos);
+    // combine results
+    vec3 ambient  = light.ambient;
+    vec3 diffuse  = light.diffuse  * diff;
+    vec3 specular = light.specular * spec;
+    return (ambient + diffuse + specular);
+}
 
 void main() {
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
-
     vec3 norm = normalize(o_Normal);
-    vec3 lightDir = normalize(lightPos - o_FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
-
-    float specularStrength = 0.5;
     vec3 viewDir = normalize(u_ViewPosition - o_FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0f);
-    vec3 specular = specularStrength * spec * lightColor;
 
-    vec4 result = vec4(ambient + diffuse + specular, 1.0f) * o_Color;
-    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * result;
+    vec3 result = vec3(0.0);
+    for (int i = 0; i < lights.length(); ++i)
+    {
+        Light currentLight = lights[i];
+        result += CalcLight(currentLight, norm, o_FragPos, viewDir);
+    }
+
+//    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * vec4(result, 1.0) * o_Color;
+    color = vec4(lights.length());
 }

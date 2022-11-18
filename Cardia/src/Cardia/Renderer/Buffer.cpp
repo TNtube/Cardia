@@ -79,4 +79,40 @@ namespace Cardia
 			return nullptr;
 		}
 	}
+
+	std::unique_ptr<StorageBuffer> StorageBuffer::create(uint32_t size)
+	{
+		RenderAPI::API& renderer = Renderer::getAPI();
+		switch (renderer)
+		{
+			case RenderAPI::API::None:
+				Log::coreError("{0} is not supported for the moment !", renderer);
+				cdCoreAssert(false, "Invalid API provided");
+				return nullptr;
+			case RenderAPI::API::OpenGL:
+				return std::make_unique<OpenGLStorageBuffer>(size);
+			default:
+				Log::coreError("{0} is not supported for the moment !", renderer);
+				cdCoreAssert(false, "Invalid API provided");
+				return nullptr;
+		}
+	}
+
+	std::unique_ptr<StorageBuffer> StorageBuffer::create(void *data, uint32_t size)
+	{
+		RenderAPI::API& renderer = Renderer::getAPI();
+		switch (renderer)
+		{
+			case RenderAPI::API::None:
+				Log::coreError("{0} is not supported for the moment !", renderer);
+				cdCoreAssert(false, "Invalid API provided");
+				return nullptr;
+			case RenderAPI::API::OpenGL:
+				return std::make_unique<OpenGLStorageBuffer>(data, size);
+			default:
+				Log::coreError("{0} is not supported for the moment !", renderer);
+				cdCoreAssert(false, "Invalid API provided");
+				return nullptr;
+		}
+	}
 }
