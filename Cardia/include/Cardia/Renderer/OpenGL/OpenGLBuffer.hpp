@@ -35,6 +35,20 @@ namespace Cardia
 
 	private:
 		uint32_t m_IndexBufferID {};
-		int m_Count {};
+		uint32_t m_Count {};
+	};
+
+	class OpenGLStorageBuffer : public StorageBuffer
+	{
+	public:
+		OpenGLStorageBuffer(void * data, uint32_t size);
+		explicit OpenGLStorageBuffer(uint32_t size);
+		~OpenGLStorageBuffer() override;
+		void bind(int index) const override;
+		void unbind() const override;
+		void setData(const void* data, uint32_t size) override;
+
+	private:
+		uint32_t m_StorageBufferID {};
 	};
 }

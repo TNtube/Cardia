@@ -79,4 +79,41 @@ namespace Cardia
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, data);
 	}
+
+	OpenGLStorageBuffer::OpenGLStorageBuffer(void *data, uint32_t size)
+	{
+		glGenBuffers(1, &m_StorageBufferID);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_StorageBufferID);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_DYNAMIC_COPY);
+	}
+
+	OpenGLStorageBuffer::OpenGLStorageBuffer(uint32_t size)
+	{
+		glGenBuffers(1, &m_StorageBufferID);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_StorageBufferID);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, size, nullptr, GL_DYNAMIC_COPY);
+	}
+
+	OpenGLStorageBuffer::~OpenGLStorageBuffer()
+	{
+		glDeleteBuffers(1, &m_StorageBufferID);
+	}
+
+	void OpenGLStorageBuffer::bind(int index) const
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_StorageBufferID);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_StorageBufferID);
+
+	}
+
+	void OpenGLStorageBuffer::unbind() const
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	}
+
+	void OpenGLStorageBuffer::setData(const void *data, uint32_t size)
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_StorageBufferID);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, data);
+	}
 }

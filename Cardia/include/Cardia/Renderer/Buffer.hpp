@@ -34,7 +34,7 @@ namespace Cardia
 
 	struct BufferElement
 	{
-		ShaderDataType type;
+		ShaderDataType type {};
 		std::string name;
 		uint32_t offset{};
 		int size{};
@@ -122,8 +122,20 @@ namespace Cardia
 		virtual int getCount() const = 0;
 
 		virtual void setData(const void* data, uint32_t size) = 0;
-		static std::unique_ptr<IndexBuffer> create(uint32_t* indices, uint32_t count);
 		static std::unique_ptr<IndexBuffer> create(uint32_t count);
+		static std::unique_ptr<IndexBuffer> create(uint32_t* indices, uint32_t count);
+	};
+
+	class StorageBuffer
+	{
+	public:
+		virtual ~StorageBuffer() = default;
+		virtual void bind(int index) const = 0;
+		virtual void unbind() const = 0;
+		virtual void setData(const void* data, uint32_t size) = 0;
+
+		static std::unique_ptr<StorageBuffer> create(uint32_t size);
+		static std::unique_ptr<StorageBuffer> create(void* data, uint32_t size);
 	};
 
 }

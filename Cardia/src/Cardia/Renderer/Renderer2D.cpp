@@ -23,7 +23,8 @@ namespace Cardia
 		glm::mat4 viewProjectionMatrix {};
 
 		std::unique_ptr<VertexArray> vertexArray;
-		
+		std::unique_ptr<StorageBuffer> lightBuffer;
+
 	};
 
 	static std::unique_ptr<Renderer2DData> s_Data {};
@@ -51,6 +52,25 @@ namespace Cardia
 
 		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
 		s_Data->vertexArray->setIndexBuffer(std::move(ibo));
+
+		struct Light
+		{
+			glm::vec3 position;
+
+			glm::vec3 ambient;
+			glm::vec3 diffuse;
+			glm::vec3 specular;
+		};
+
+		s_Data->lightBuffer = StorageBuffer::create(sizeof(Light));
+
+		Light light {};
+		light.position = glm::vec3(1.0f, 2.0f, 1.0f);
+		light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+		light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		s_Data->lightBuffer->setData(glm::value_ptr(light.position), sizeof(Light));
 	}
 
 	void Renderer2D::quit()
@@ -85,6 +105,7 @@ namespace Cardia
 		{
 			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
 		});
+		s_Data->lightBuffer->bind(0);
 		std::string lastLayer;
 		for (auto& batch : s_Data->batches)
 		{
