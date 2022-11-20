@@ -13,11 +13,11 @@ uniform sampler2D u_Textures[32];
 uniform vec3 u_ViewPosition;
 
 struct Light {
-    vec3 position;
+    vec4 position;
 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
 };
 
 layout(std430, binding = 0) buffer lightBuffer
@@ -28,18 +28,18 @@ layout(std430, binding = 0) buffer lightBuffer
 
 vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
-    vec3 lightDir = normalize(light.position - fragPos);
+    vec3 lightDir = normalize(light.position.xyz - fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     // attenuation
-    float distance    = length(light.position - fragPos);
+    float distance    = length(light.position.xyz - fragPos);
     // combine results
-    vec3 ambient  = light.ambient;
-    vec3 diffuse  = light.diffuse  * diff;
-    vec3 specular = light.specular * spec;
+    vec3 ambient  = light.ambient.xyz * 0;
+    vec3 diffuse  = light.diffuse.xyz  * diff;
+    vec3 specular = light.specular.xyz * spec;
     return (ambient + diffuse + specular);
 }
 
@@ -53,7 +53,8 @@ void main() {
         Light currentLight = lights[i];
         result += CalcLight(currentLight, norm, o_FragPos, viewDir);
     }
+//    Light currentLight = lights[0];
+//    result += CalcLight(currentLight, norm, o_FragPos, viewDir);
 
-//    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * vec4(result, 1.0) * o_Color;
-    color = vec4(lights.length());
+    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * vec4(result, 1.0) * o_Color;
 }

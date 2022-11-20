@@ -55,22 +55,30 @@ namespace Cardia
 
 		struct Light
 		{
-			glm::vec3 position;
+			glm::vec4 position;
 
-			glm::vec3 ambient;
-			glm::vec3 diffuse;
-			glm::vec3 specular;
+			glm::vec4 ambient;
+			glm::vec4 diffuse;
+			glm::vec4 specular;
 		};
 
-		s_Data->lightBuffer = StorageBuffer::create(sizeof(Light));
 
 		Light light {};
-		light.position = glm::vec3(1.0f, 2.0f, 1.0f);
-		light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-		light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		light.position = glm::vec4(1.0f, 2.0f, 1.0f, 1.0f);
+		light.ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		light.diffuse = glm::vec4(0.2f, 0.3f, 0.8f, 1.0f);
+		light.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-		s_Data->lightBuffer->setData(glm::value_ptr(light.position), sizeof(Light));
+		Light light2 {};
+		light2.position = glm::vec4(0.0f, -2.0f, 1.0f, 1.0f);
+		light2.ambient = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		light2.diffuse = glm::vec4(0.8f, 0.2f, 0.3f, 1.0f);
+		light2.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+		std::vector<Light> lights = {light, light2};
+
+		s_Data->lightBuffer = StorageBuffer::create(lights.size() * sizeof(Light));
+		s_Data->lightBuffer->setData(lights.data(), lights.size() * sizeof(Light));
 	}
 
 	void Renderer2D::quit()
