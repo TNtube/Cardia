@@ -118,6 +118,14 @@ namespace Cardia::Panel
 			}
 		});
 
+		// Transform Component
+
+		DrawInspectorComponent<Component::DirectionalLight>("Directional Light", selectedEntity, [](Component::DirectionalLight& light) {
+			ImGui::ColorEdit3("Ambient", glm::value_ptr(light.ambient));
+			ImGui::ColorEdit3("Diffuse", glm::value_ptr(light.diffuse));
+			ImGui::ColorEdit3("Specular", glm::value_ptr(light.specular));
+		});
+
 		DrawInspectorComponent<Component::Script>("Script", selectedEntity, [](Component::Script& scriptComponent) {
 			std::filesystem::path filepath = scriptComponent.getPath();
 			auto path = filepath.filename().string();
@@ -172,6 +180,12 @@ namespace Cardia::Panel
 			if (!selectedEntity.hasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
 			{
 				selectedEntity.addComponent<Component::Script>();
+				ImGui::EndPopup();
+			}
+
+			if (!selectedEntity.hasComponent<Component::DirectionalLight>() && ImGui::MenuItem("Directional Light"))
+			{
+				selectedEntity.addComponent<Component::DirectionalLight>();
 				ImGui::EndPopup();
 			}
 		}

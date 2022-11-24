@@ -88,6 +88,23 @@ namespace Cardia::Component
 		}
 	};
 
+
+	struct DirectionalLight
+	{
+		DirectionalLight() : ambient(1), diffuse(1), specular(1) {}
+		DirectionalLight(const DirectionalLight&) = default;
+
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+
+		inline void reset() {
+			ambient = glm::vec3(1);
+			diffuse = glm::vec3(1);
+			specular = glm::vec3(1);
+		}
+	};
+
 	struct Script
 	{
 		Script() = default;
