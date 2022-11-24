@@ -9,11 +9,21 @@
 #include <memory>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glm/gtx/quaternion.hpp>
 
 namespace Cardia
 {
 
 	static std::unique_ptr<Renderer2D::Stats> s_Stats;
+
+	struct DirectionalLight
+	{
+		glm::vec4 direction;
+
+		glm::vec4 ambient;
+		glm::vec4 diffuse;
+		glm::vec4 specular;
+	};
 
 	struct Renderer2DData
 	{
@@ -24,6 +34,7 @@ namespace Cardia
 
 		std::unique_ptr<VertexArray> vertexArray;
 		std::unique_ptr<StorageBuffer> lightBuffer;
+		std::vector<DirectionalLight> dirLights;
 
 	};
 
@@ -35,6 +46,7 @@ namespace Cardia
 		s_Stats = std::make_unique<Renderer2D::Stats>();
 		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert", "resources/shaders/basic.frag"});
 		s_Data->batches.clear();
+		s_Data->dirLights.clear();
 		s_Data->vertexArray = VertexArray::create();
 
 		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices * sizeof(Vertex));
@@ -52,33 +64,6 @@ namespace Cardia
 
 		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
 		s_Data->vertexArray->setIndexBuffer(std::move(ibo));
-
-		struct Light
-		{
-			glm::vec4 position;
-
-			glm::vec4 ambient;
-			glm::vec4 diffuse;
-			glm::vec4 specular;
-		};
-
-
-		Light light {};
-		light.position = glm::vec4(1.0f, 2.0f, 1.0f, 1.0f);
-		light.ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		light.diffuse = glm::vec4(0.2f, 0.3f, 0.8f, 1.0f);
-		light.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-		Light light2 {};
-		light2.position = glm::vec4(0.0f, -2.0f, 1.0f, 1.0f);
-		light2.ambient = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		light2.diffuse = glm::vec4(0.8f, 0.2f, 0.3f, 1.0f);
-		light2.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-		std::vector<Light> lights = {light, light2};
-
-		s_Data->lightBuffer = StorageBuffer::create(lights.size() * sizeof(Light));
-		s_Data->lightBuffer->setData(lights.data(), lights.size() * sizeof(Light));
 	}
 
 	void Renderer2D::quit()
@@ -89,6 +74,7 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, glm::mat4& transform)
 	{
 		s_Data->batches.clear();
+		s_Data->dirLights.clear();
 		s_Data->cameraPosition = glm::vec3(transform[3]);
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
 		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
@@ -100,6 +86,7 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, const glm::vec3& position)
 	{
 		s_Data->batches.clear();
+		s_Data->dirLights.clear();
 		s_Data->cameraPosition = position;
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->viewProjectionMatrix = camera.getViewProjectionMatrix();
@@ -109,6 +96,9 @@ namespace Cardia
 
 	void Renderer2D::endScene()
 	{
+		s_Data->lightBuffer = StorageBuffer::create(s_Data->dirLights.size() * sizeof(DirectionalLight));
+		s_Data->lightBuffer->setData(s_Data->dirLights.data(), s_Data->dirLights.size() * sizeof(DirectionalLight));
+
 		std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
 		{
 			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
@@ -182,28 +172,68 @@ namespace Cardia
 		};
 
 		constexpr glm::vec4 rectPositions[]
-		{
-			{ -0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f, 0.0f, 1.0f },
-			{ -0.5f,  0.5f, 0.0f, 1.0f },
+			{
+				{ -0.5f, -0.5f, -0.5f, 1.0f },
+				{  0.5f, -0.5f, -0.5f, 1.0f },
+				{  0.5f,  0.5f, -0.5f, 1.0f },
+				{ -0.5f,  0.5f, -0.5f, 1.0f },
+
+				{-0.5f, -0.5f,  0.5f, 1.0f },
+				{0.5f, -0.5f,  0.5f, 1.0f },
+				{0.5f,  0.5f,  0.5f, 1.0f },
+				{-0.5f,  0.5f,  0.5f, 1.0f },
+
+				{-0.5f,  0.5f,  0.5f, 1.0f},
+				{-0.5f,  0.5f, -0.5f, 1.0f},
+				{-0.5f, -0.5f, -0.5f, 1.0f},
+				{-0.5f, -0.5f,  0.5f, 1.0f},
+
+				{0.5f,  0.5f,  0.5f,  1.0f},
+				{0.5f,  0.5f, -0.5f,  1.0f},
+				{0.5f, -0.5f, -0.5f,  1.0f},
+				{0.5f, -0.5f,  0.5f,  1.0f},
+
+				{-0.5f, -0.5f, -0.5f,  1.0f},
+				{0.5f, -0.5f, -0.5f,  1.0f},
+				{0.5f, -0.5f,  0.5f,  1.0f},
+				{-0.5f, -0.5f,  0.5f,  1.0f},
+
+				{-0.5f,  0.5f, -0.5f,  1.0f},
+				{0.5f,  0.5f, -0.5f,  1.0f},
+				{0.5f,  0.5f,  0.5f,  1.0f},
+				{-0.5f,  0.5f,  0.5f,  1.0f},
+			};
+		constexpr glm::vec4 normals[] {
+			{0.0f, 0.0f, -1.0f, 1.0f},
+			{0.0f,  0.0f,  1.0f, 1.0f},
+			{-1.0f,  0.0f,  0.0f, 1.0f},
+			{1.0f,  0.0f,  0.0f, 1.0f},
+			{0.0f, -1.0f,  0.0f, 1.0f},
+			{0.0f,  1.0f,  0.0f, 1.0f},
 		};
-		constexpr glm::vec4 normal { 0.0f, 0.0f, 1.0f, 1.0f };
 
 		Mesh mesh;
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
 		{
 			auto vertex = Vertex();
 			vertex.position = transform * rectPositions[i];
-			vertex.normal = transform * normal;
+			vertex.normal = transform * normals[i / 4];
 			vertex.color = color;
-			vertex.textureCoord = texCoords[i];
+			vertex.textureCoord = texCoords[i % 4];
 			vertex.tilingFactor = tilingFactor;
 			mesh.vertices.push_back(vertex);
 		}
 
-		mesh.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
-		s_Stats->triangleCount += 2;
+		mesh.indices = std::vector<uint32_t>({
+			0, 1, 2, 2, 3, 0,
+			4, 5, 6, 6, 7, 4,
+			8, 9, 10, 10, 11, 8,
+			12, 13, 14, 14, 15, 12,
+			16, 17, 18, 18, 19, 16,
+			20, 21, 22, 22, 23, 20
+
+		});
+		s_Stats->triangleCount += 2*6;
 
 		BatchSpecification specification;
 		specification.alpha = color.a < 1.0f || (texture && texture->isTransparent());
@@ -217,5 +247,15 @@ namespace Cardia
 		}
 		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
 		batch.addMesh(mesh, texture);
+	}
+
+	void Renderer2D::addLight(const glm::vec3& direction, const Component::DirectionalLight& directionalLight)
+	{
+		auto& light = s_Data->dirLights.emplace_back();
+
+		light.direction = glm::vec4(direction, 1.0f);
+		light.ambient = glm::vec4(directionalLight.ambient, 1.0f);
+		light.diffuse = glm::vec4(directionalLight.diffuse, 1.0f);
+		light.specular = glm::vec4(directionalLight.specular, 1.0f);
 	}
 }

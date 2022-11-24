@@ -69,7 +69,7 @@ namespace Cardia
 
 	glm::quat EditorCamera::getOrientation() const
 	{
-		return {(glm::vec3(-m_Pitch, -m_Yaw, 0.0f))};
+		return {glm::vec3(-m_Pitch, -m_Yaw, 0.0f)};
 	}
 
 	void EditorCamera::updateProjection()

@@ -77,6 +77,16 @@ namespace Cardia
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 
+		const auto lightView = m_Registry.view<Component::Transform, Component::DirectionalLight>();
+		for (const auto entity : lightView)
+		{
+			auto [transform, dirLight] = lightView.get<Component::Transform, Component::DirectionalLight>(entity);
+
+			auto orientation = glm::quat(transform.rotation);
+			auto forward = glm::rotate(orientation, glm::vec3(0.0f, 0.0f, -1.0f));
+			Renderer2D::addLight(forward, dirLight);
+		}
+
 		Renderer2D::endScene();
 	}
 
@@ -90,6 +100,18 @@ namespace Cardia
 			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
+
+		const auto lightView = m_Registry.view<Component::Transform, Component::DirectionalLight>();
+		for (const auto entity : lightView)
+		{
+			auto [transform, dirLight] = lightView.get<Component::Transform, Component::DirectionalLight>(entity);
+
+
+			auto orientation = glm::quat(transform.rotation);
+			auto forward = glm::rotate(orientation, glm::vec3(0.0f, 0.0f, -1.0f));
+			Renderer2D::addLight(forward, dirLight);
+		}
+
 
 		Renderer2D::endScene();
 	}
