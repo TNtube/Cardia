@@ -85,6 +85,12 @@ namespace Cardia
 			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)
 			.def("reset", &Component::Transform::reset, py::return_value_policy::reference);
 
+		py::class_<Component::PointLight2D>(m, "PointLight2D")
+		        .def(py::init<>())
+			.def_readwrite("color", &Component::PointLight2D::color, py::return_value_policy::reference)
+			.def_readwrite("range", &Component::PointLight2D::range, py::return_value_policy::reference)
+			.def("reset", &Component::PointLight2D::reset, py::return_value_policy::reference);
+
 		// API Calls
 
 		m.def("is_key_pressed", &Input::isKeyPressed, py::return_value_policy::reference);
@@ -112,6 +118,9 @@ namespace Cardia
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
 			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
 			if (GetComponent<Component::Transform>(entity, cls, out)) {
+				return;
+			}
+			if (GetComponent<Component::PointLight2D>(entity, cls, out)) {
 				return;
 			}
 		});

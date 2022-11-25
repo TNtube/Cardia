@@ -16,13 +16,11 @@ namespace Cardia
 
 	static std::unique_ptr<Renderer2D::Stats> s_Stats;
 
-	struct DirectionalLight
+	struct PointLight2D
 	{
-		glm::vec4 direction;
+		glm::vec4 position;
 
-		glm::vec4 ambient;
-		glm::vec4 diffuse;
-		glm::vec4 specular;
+		glm::vec4 color;
 	};
 
 	struct Renderer2DData
@@ -34,7 +32,7 @@ namespace Cardia
 
 		std::unique_ptr<VertexArray> vertexArray;
 		std::unique_ptr<StorageBuffer> lightBuffer;
-		std::vector<DirectionalLight> dirLights;
+		std::vector<PointLight2D> pointLights2D;
 
 	};
 
@@ -46,7 +44,7 @@ namespace Cardia
 		s_Stats = std::make_unique<Renderer2D::Stats>();
 		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert", "resources/shaders/basic.frag"});
 		s_Data->batches.clear();
-		s_Data->dirLights.clear();
+		s_Data->pointLights2D.clear();
 		s_Data->vertexArray = VertexArray::create();
 
 		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices * sizeof(Vertex));
@@ -74,7 +72,7 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, glm::mat4& transform)
 	{
 		s_Data->batches.clear();
-		s_Data->dirLights.clear();
+		s_Data->pointLights2D.clear();
 		s_Data->cameraPosition = glm::vec3(transform[3]);
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
 		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
@@ -86,7 +84,7 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, const glm::vec3& position)
 	{
 		s_Data->batches.clear();
-		s_Data->dirLights.clear();
+		s_Data->pointLights2D.clear();
 		s_Data->cameraPosition = position;
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->viewProjectionMatrix = camera.getViewProjectionMatrix();
@@ -96,8 +94,8 @@ namespace Cardia
 
 	void Renderer2D::endScene()
 	{
-		s_Data->lightBuffer = StorageBuffer::create(s_Data->dirLights.size() * sizeof(DirectionalLight));
-		s_Data->lightBuffer->setData(s_Data->dirLights.data(), s_Data->dirLights.size() * sizeof(DirectionalLight));
+		s_Data->lightBuffer = StorageBuffer::create(s_Data->pointLights2D.size() * sizeof(PointLight2D));
+		s_Data->lightBuffer->setData(s_Data->pointLights2D.data(), s_Data->pointLights2D.size() * sizeof(PointLight2D));
 
 		std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
 		{
@@ -172,68 +170,28 @@ namespace Cardia
 		};
 
 		constexpr glm::vec4 rectPositions[]
-			{
-				{ -0.5f, -0.5f, -0.5f, 1.0f },
-				{  0.5f, -0.5f, -0.5f, 1.0f },
-				{  0.5f,  0.5f, -0.5f, 1.0f },
-				{ -0.5f,  0.5f, -0.5f, 1.0f },
-
-				{-0.5f, -0.5f,  0.5f, 1.0f },
-				{0.5f, -0.5f,  0.5f, 1.0f },
-				{0.5f,  0.5f,  0.5f, 1.0f },
-				{-0.5f,  0.5f,  0.5f, 1.0f },
-
-				{-0.5f,  0.5f,  0.5f, 1.0f},
-				{-0.5f,  0.5f, -0.5f, 1.0f},
-				{-0.5f, -0.5f, -0.5f, 1.0f},
-				{-0.5f, -0.5f,  0.5f, 1.0f},
-
-				{0.5f,  0.5f,  0.5f,  1.0f},
-				{0.5f,  0.5f, -0.5f,  1.0f},
-				{0.5f, -0.5f, -0.5f,  1.0f},
-				{0.5f, -0.5f,  0.5f,  1.0f},
-
-				{-0.5f, -0.5f, -0.5f,  1.0f},
-				{0.5f, -0.5f, -0.5f,  1.0f},
-				{0.5f, -0.5f,  0.5f,  1.0f},
-				{-0.5f, -0.5f,  0.5f,  1.0f},
-
-				{-0.5f,  0.5f, -0.5f,  1.0f},
-				{0.5f,  0.5f, -0.5f,  1.0f},
-				{0.5f,  0.5f,  0.5f,  1.0f},
-				{-0.5f,  0.5f,  0.5f,  1.0f},
-			};
-		constexpr glm::vec4 normals[] {
-			{0.0f, 0.0f, -1.0f, 1.0f},
-			{0.0f,  0.0f,  1.0f, 1.0f},
-			{-1.0f,  0.0f,  0.0f, 1.0f},
-			{1.0f,  0.0f,  0.0f, 1.0f},
-			{0.0f, -1.0f,  0.0f, 1.0f},
-			{0.0f,  1.0f,  0.0f, 1.0f},
+		{
+			{ -0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f,  0.5f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f, 0.0f, 1.0f },
 		};
+		constexpr glm::vec4 normal { 0.0f, 0.0f, -1.0f, 1.0f };
 
 		Mesh mesh;
 		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
 		{
 			auto vertex = Vertex();
 			vertex.position = transform * rectPositions[i];
-			vertex.normal = transform * normals[i / 4];
+			vertex.normal = transform * normal;
 			vertex.color = color;
 			vertex.textureCoord = texCoords[i % 4];
 			vertex.tilingFactor = tilingFactor;
 			mesh.vertices.push_back(vertex);
 		}
 
-		mesh.indices = std::vector<uint32_t>({
-			0, 1, 2, 2, 3, 0,
-			4, 5, 6, 6, 7, 4,
-			8, 9, 10, 10, 11, 8,
-			12, 13, 14, 14, 15, 12,
-			16, 17, 18, 18, 19, 16,
-			20, 21, 22, 22, 23, 20
-
-		});
-		s_Stats->triangleCount += 2*6;
+		mesh.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
+		s_Stats->triangleCount += 2;
 
 		BatchSpecification specification;
 		specification.alpha = color.a < 1.0f || (texture && texture->isTransparent());
@@ -249,13 +207,11 @@ namespace Cardia
 		batch.addMesh(mesh, texture);
 	}
 
-	void Renderer2D::addLight(const glm::vec3& direction, const Component::DirectionalLight& directionalLight)
+	void Renderer2D::addLight(const glm::vec3& position, const Component::PointLight2D& pointLight2D)
 	{
-		auto& light = s_Data->dirLights.emplace_back();
+		auto& light = s_Data->pointLights2D.emplace_back();
 
-		light.direction = glm::vec4(direction, 1.0f);
-		light.ambient = glm::vec4(directionalLight.ambient, 1.0f);
-		light.diffuse = glm::vec4(directionalLight.diffuse, 1.0f);
-		light.specular = glm::vec4(directionalLight.specular, 1.0f);
+		light.position = glm::vec4(position, pointLight2D.range);
+		light.color = glm::vec4(pointLight2D.color, 1.0f);
 	}
 }

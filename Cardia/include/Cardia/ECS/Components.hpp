@@ -89,19 +89,17 @@ namespace Cardia::Component
 	};
 
 
-	struct DirectionalLight
+	struct PointLight2D
 	{
-		DirectionalLight() : ambient(1), diffuse(1), specular(1) {}
-		DirectionalLight(const DirectionalLight&) = default;
+		PointLight2D() : color(1), range(2.0f) {}
+		PointLight2D(const PointLight2D&) = default;
 
-		glm::vec3 ambient;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
+		glm::vec3 color;
+		float range;
 
 		inline void reset() {
-			ambient = glm::vec3(1);
-			diffuse = glm::vec3(1);
-			specular = glm::vec3(1);
+			color = glm::vec3(1);
+			range = 2.0f;
 		}
 	};
 

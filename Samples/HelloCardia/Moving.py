@@ -1,16 +1,26 @@
-from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform
+from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight2D
+import colorsys
 
 
 class Moving(Behavior):
     velocity: int
-    _mouse_count: int
+    _tick_count: int
+    color: Vector3
 
     def on_create(self):
         self.velocity = 5
-        self._mouse_count = 0
+        self.color = self.get_component(PointLight2D).color
+        self._tick_count = int(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
 
     def on_update(self):
-        pass
+        self._tick_count += 1
+        self._tick_count %= 255.0
+        h = self._tick_count / 255
+
+        (r, g, b) = colorsys.hsv_to_rgb(h, 1, 1)
+        self.color.x = r
+        self.color.y = g
+        self.color.z = b
 
     @on_key_pressed(Key.Left)
     def move_left(self):
@@ -35,6 +45,4 @@ class Moving(Behavior):
 
     @on_mouse_clicked(Mouse.Right)
     def teleport(self):
-        self._mouse_count += 1
-        self.transform.position = Vector3.lerp(self.transform.position, Vector3(7, 4, 0),
-                                               5 * Time.delta_time.seconds())
+        ...
