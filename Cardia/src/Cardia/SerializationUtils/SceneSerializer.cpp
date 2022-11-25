@@ -72,6 +72,20 @@ namespace Cardia::SerializerUtils
                                 node.clear();
                         }
 
+			// PointLight2D
+			if (entity.hasComponent<Component::PointLight2D>())
+			{
+				const auto& light = entity.getComponent<Component::PointLight2D>();
+				node["color"]["r"] = light.color.r;
+				node["color"]["g"] = light.color.g;
+				node["color"]["b"] = light.color.b;
+
+				node["range"] = light.range;
+
+				root[uuid.uuid]["pointLight2D"] = node;
+				node.clear();
+			}
+
                         if (entity.hasComponent<Component::Script>())
                         {
                                 const auto& behavior = entity.getComponent<Component::Script>();
@@ -165,6 +179,18 @@ namespace Cardia::SerializerUtils
                                 camera.camera.setOrthographicNear(node["camera"]["orthoNear"].asFloat());
                                 camera.camera.setOrthographicFar(node["camera"]["orthoFar"].asFloat());
                         }
+
+			// PointLight2D
+			if (node.isMember("pointLight2D"))
+			{
+				auto& light = entity.addComponent<Component::PointLight2D>();
+				light.color.r = node["pointLight2D"]["color"]["r"].asFloat();
+				light.color.g = node["pointLight2D"]["color"]["g"].asFloat();
+				light.color.b = node["pointLight2D"]["color"]["b"].asFloat();
+
+				light.range = node["pointLight2D"]["range"].asFloat();
+
+			}
                         
                         if (node.isMember("behavior"))
                         {

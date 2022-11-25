@@ -77,14 +77,12 @@ namespace Cardia
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 
-		const auto lightView = m_Registry.view<Component::Transform, Component::DirectionalLight>();
+		const auto lightView = m_Registry.view<Component::Transform, Component::PointLight2D>();
 		for (const auto entity : lightView)
 		{
-			auto [transform, dirLight] = lightView.get<Component::Transform, Component::DirectionalLight>(entity);
+			auto [transform, pointLight] = lightView.get<Component::Transform, Component::PointLight2D>(entity);
 
-			auto orientation = glm::quat(transform.rotation);
-			auto forward = glm::rotate(orientation, glm::vec3(0.0f, 0.0f, -1.0f));
-			Renderer2D::addLight(forward, dirLight);
+			Renderer2D::addLight(transform.position, pointLight);
 		}
 
 		Renderer2D::endScene();
@@ -101,15 +99,11 @@ namespace Cardia
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 
-		const auto lightView = m_Registry.view<Component::Transform, Component::DirectionalLight>();
+		const auto lightView = m_Registry.view<Component::Transform, Component::PointLight2D>();
 		for (const auto entity : lightView)
 		{
-			auto [transform, dirLight] = lightView.get<Component::Transform, Component::DirectionalLight>(entity);
-
-
-			auto orientation = glm::quat(transform.rotation);
-			auto forward = glm::rotate(orientation, glm::vec3(0.0f, 0.0f, -1.0f));
-			Renderer2D::addLight(forward, dirLight);
+			auto [transform, pointLight] = lightView.get<Component::Transform, Component::PointLight2D>(entity);
+			Renderer2D::addLight(transform.position, pointLight);
 		}
 
 

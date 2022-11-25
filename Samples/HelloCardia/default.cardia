@@ -36,10 +36,6 @@
 	},
 	"6b560be1-869b-413f-a38d-f45f1463f5e6" : 
 	{
-		"behavior" : 
-		{
-			"path" : "Moving.py"
-		},
 		"name" : "WhiteSquare",
 		"spriteRenderer" : 
 		{
@@ -58,14 +54,53 @@
 		{
 			"position" : 
 			{
-				"x" : 2.5,
+				"x" : 0.0,
 				"y" : 0.0,
 				"z" : 0.0
 			},
 			"rotation" : 
 			{
 				"x" : 0.0,
-				"y" : -0.33859387040138245,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 20.0,
+				"y" : 10.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"a5ca0418-ecc5-4115-bac1-eded29f7da71" : 
+	{
+		"behavior" : 
+		{
+			"path" : "Moving.py"
+		},
+		"name" : "GreenLight",
+		"pointLight2D" : 
+		{
+			"color" : 
+			{
+				"b" : 1.0,
+				"g" : 1.0,
+				"r" : 0.0
+			},
+			"range" : 2.0
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : -4.3671417236328125,
+				"y" : -2.6386845111846924,
+				"z" : 2.9998812675476074
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : -0.0,
 				"z" : 0.0
 			},
 			"scale" : 
@@ -78,32 +113,33 @@
 	},
 	"d046873f-12fc-4d3f-b8e2-640d10c64804" : 
 	{
-		"name" : "DirectionalLight",
-		"spriteRenderer" : 
+		"behavior" : 
+		{
+			"path" : "Moving.py"
+		},
+		"name" : "BlueLight",
+		"pointLight2D" : 
 		{
 			"color" : 
 			{
-				"a" : 1.0,
 				"b" : 1.0,
-				"g" : 1.0,
-				"r" : 1.0
+				"g" : 0.0,
+				"r" : 0.0
 			},
-			"texture" : "",
-			"tillingFactor" : 1.0,
-			"zIndex" : 0
+			"range" : 2.0
 		},
 		"transform" : 
 		{
 			"position" : 
 			{
-				"x" : 3.1399726867675781,
-				"y" : 3.5011682510375977,
-				"z" : 2.8301441669464111
+				"x" : 4.3864049911499023,
+				"y" : 3.0016627311706543,
+				"z" : 3.0
 			},
 			"rotation" : 
 			{
-				"x" : -1.144935131072998,
-				"y" : 0.13439024984836578,
+				"x" : 0.0,
+				"y" : -0.0,
 				"z" : 3.7591862955821398e-09
 			},
 			"scale" : 
@@ -116,7 +152,7 @@
 	},
 	"d53632b9-e6f2-49e9-afc1-6561550fb07d" : 
 	{
-		"name" : "Folder",
+		"name" : "Damn",
 		"spriteRenderer" : 
 		{
 			"color" : 
@@ -126,7 +162,7 @@
 				"g" : 1.0,
 				"r" : 1.0
 			},
-			"texture" : "folder.png",
+			"texture" : "damnnn.jpg",
 			"tillingFactor" : 1.0,
 			"zIndex" : 0
 		},
@@ -134,9 +170,87 @@
 		{
 			"position" : 
 			{
-				"x" : -0.18029016256332397,
-				"y" : 0.0,
+				"x" : -0.17982876300811768,
+				"y" : -0.062454015016555786,
+				"z" : 0.89999997615814209
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : -0.0,
 				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 3.0,
+				"y" : 3.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"d8589cd5-7768-456a-9772-812a18c86fc8" : 
+	{
+		"behavior" : 
+		{
+			"path" : "Moving.py"
+		},
+		"name" : "RedLight",
+		"pointLight2D" : 
+		{
+			"color" : 
+			{
+				"b" : 0.0,
+				"g" : 0.0,
+				"r" : 1.0
+			},
+			"range" : 2.0
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : 3.4111988544464111,
+				"y" : -2.3652958869934082,
+				"z" : 2.99993896484375
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : -0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"eb37e9e3-5adb-47ab-b185-b03d85173bc3" : 
+	{
+		"behavior" : 
+		{
+			"path" : "Moving.py"
+		},
+		"name" : "YellowLight",
+		"pointLight2D" : 
+		{
+			"color" : 
+			{
+				"b" : 0.0,
+				"g" : 0.88690513372421265,
+				"r" : 1.0
+			},
+			"range" : 2.0
+		},
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : -2.8095948696136475,
+				"y" : 2.1643805503845215,
+				"z" : 2.9999406337738037
 			},
 			"rotation" : 
 			{
