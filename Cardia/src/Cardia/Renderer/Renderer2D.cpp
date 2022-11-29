@@ -176,14 +176,15 @@ namespace Cardia
 			{  0.5f,  0.5f, 0.0f, 1.0f },
 			{ -0.5f,  0.5f, 0.0f, 1.0f },
 		};
-		constexpr glm::vec4 normal { 0.0f, 0.0f, -1.0f, 1.0f };
+		constexpr glm::vec4 normal { 0.0f, 0.0f, 1.0f, 0.0f };
 
 		Mesh mesh;
+		const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
 		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
 		{
 			auto vertex = Vertex();
 			vertex.position = transform * rectPositions[i];
-			vertex.normal = transform * normal;
+			vertex.normal = finalNormal;
 			vertex.color = color;
 			vertex.textureCoord = texCoords[i % 4];
 			vertex.tilingFactor = tilingFactor;
