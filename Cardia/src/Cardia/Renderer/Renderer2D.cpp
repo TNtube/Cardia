@@ -26,9 +26,8 @@ namespace Cardia
 
 	struct LightData
 	{
-		uint32_t lightType {};
 		glm::vec4 positionAndRange {};
-		glm::vec4 direction {};
+		glm::vec4 directionAndType {};
 		glm::vec4 color {};
 	};
 
@@ -221,7 +220,7 @@ namespace Cardia
 	{
 		auto& light = s_Data->lightDataBuffer.emplace_back();
 
-		light.lightType = LightType::PointLight;
+		light.directionAndType.w = LightType::PointLight;
 		light.positionAndRange = glm::vec4(position, pointLight.range);
 		light.color = glm::vec4(pointLight.color, 1.0f);
 	}
@@ -229,8 +228,7 @@ namespace Cardia
 	void Renderer2D::addLight(const glm::vec3 &direction, const Component::DirectionalLight &directionalLight)
 	{
 		auto& light = s_Data->lightDataBuffer.emplace_back();
-		light.lightType = LightType::DirectionalLight;
-		light.direction = glm::vec4(direction, 0.0f);
+		light.directionAndType = glm::vec4(direction, LightType::DirectionalLight);
 		light.color = glm::vec4(directionalLight.color, 1.0f);
 
 	}

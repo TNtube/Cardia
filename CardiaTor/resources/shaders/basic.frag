@@ -14,9 +14,8 @@ uniform vec3 u_ViewPosition;
 
 
 struct Light {
-    uint lightType;
     vec4 positionAndRange;
-    vec4 direction;
+    vec4 directionAndType;
     vec4 color;
 };
 
@@ -29,7 +28,7 @@ layout(std430, binding = 0) buffer LightBuffer
 // calculates the color when using a directional light.
 vec3 CalcDirLight(Light light, vec3 normal)
 {
-    float result = dot(normal, light.direction.xyz);
+    float result = max(dot(normal, light.directionAndType.xyz), 0.0);
     return light.color.xyz * result;
 }
 
@@ -65,6 +64,9 @@ const uint SpotLight        = 0x00000004u;
 
 
 void main() {
+    if (o_Color.a == 0) {
+        discard;
+    }
     vec3 norm = normalize(o_Normal);
     vec3 viewDir = normalize(u_ViewPosition - o_FragPos);
 
@@ -72,10 +74,10 @@ void main() {
 
     for (int i = 0; i < lights.length(); ++i) {
         Light light = lights[i];
-        if (light.lightType == DirectionalLight) {
+        if (light.directionAndType.w == DirectionalLight) {
             result += CalcDirLight(light, norm);
         }
-        if (light.lightType == PointLight) {
+        if (light.directionAndType.w == PointLight) {
             result += CalcPointLight(light, norm, o_FragPos, viewDir);
         }
     }
