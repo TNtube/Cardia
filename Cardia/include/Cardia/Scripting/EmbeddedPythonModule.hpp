@@ -85,11 +85,11 @@ namespace Cardia
 			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)
 			.def("reset", &Component::Transform::reset, py::return_value_policy::reference);
 
-		py::class_<Component::PointLight2D>(m, "PointLight2D")
+		py::class_<Component::PointLight>(m, "PointLight")
 		        .def(py::init<>())
-			.def_readwrite("color", &Component::PointLight2D::color, py::return_value_policy::reference)
-			.def_readwrite("range", &Component::PointLight2D::range, py::return_value_policy::reference)
-			.def("reset", &Component::PointLight2D::reset, py::return_value_policy::reference);
+			.def_readwrite("color", &Component::PointLight::color, py::return_value_policy::reference)
+			.def_readwrite("range", &Component::PointLight::range, py::return_value_policy::reference)
+			.def("reset", &Component::PointLight::reset, py::return_value_policy::reference);
 
 		// API Calls
 
@@ -120,7 +120,7 @@ namespace Cardia
 			if (GetComponent<Component::Transform>(entity, cls, out)) {
 				return;
 			}
-			if (GetComponent<Component::PointLight2D>(entity, cls, out)) {
+			if (GetComponent<Component::PointLight>(entity, cls, out)) {
 				return;
 			}
 		});

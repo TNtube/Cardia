@@ -89,10 +89,10 @@ namespace Cardia::Component
 	};
 
 
-	struct PointLight2D
+	struct PointLight
 	{
-		PointLight2D() : color(1), range(2.0f) {}
-		PointLight2D(const PointLight2D&) = default;
+		PointLight() : color(1), range(2.0f) {}
+		PointLight(const PointLight&) = default;
 
 		glm::vec3 color;
 		float range;
@@ -100,6 +100,18 @@ namespace Cardia::Component
 		inline void reset() {
 			color = glm::vec3(1);
 			range = 2.0f;
+		}
+	};
+
+	struct DirectionalLight
+	{
+		DirectionalLight() : color(1) {}
+		DirectionalLight(const DirectionalLight&) = default;
+
+		glm::vec3 color;
+
+		inline void reset() {
+			color = glm::vec3(1);
 		}
 	};
 

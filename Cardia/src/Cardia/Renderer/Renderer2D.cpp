@@ -16,11 +16,20 @@ namespace Cardia
 
 	static std::unique_ptr<Renderer2D::Stats> s_Stats;
 
-	struct PointLight2D
-	{
-		glm::vec4 position;
+	namespace LightType {
+		enum LightType : uint32_t {
+			DirectionalLight = 0x00000001u,
+			PointLight       = 0x00000002u,
+			SpotLight        = 0x00000004u
+		};
+	}
 
-		glm::vec4 color;
+	struct LightData
+	{
+		uint32_t lightType {};
+		glm::vec4 positionAndRange {};
+		glm::vec4 direction {};
+		glm::vec4 color {};
 	};
 
 	struct Renderer2DData
@@ -31,8 +40,8 @@ namespace Cardia
 		glm::mat4 viewProjectionMatrix {};
 
 		std::unique_ptr<VertexArray> vertexArray;
-		std::unique_ptr<StorageBuffer> lightBuffer;
-		std::vector<PointLight2D> pointLights2D;
+		std::unique_ptr<StorageBuffer> lightStorageBuffer;
+		std::vector<LightData> lightDataBuffer;
 
 	};
 
@@ -44,7 +53,7 @@ namespace Cardia
 		s_Stats = std::make_unique<Renderer2D::Stats>();
 		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert", "resources/shaders/basic.frag"});
 		s_Data->batches.clear();
-		s_Data->pointLights2D.clear();
+		s_Data->lightDataBuffer.clear();
 		s_Data->vertexArray = VertexArray::create();
 
 		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices * sizeof(Vertex));
@@ -72,7 +81,7 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, glm::mat4& transform)
 	{
 		s_Data->batches.clear();
-		s_Data->pointLights2D.clear();
+		s_Data->lightDataBuffer.clear();
 		s_Data->cameraPosition = glm::vec3(transform[3]);
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
 		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
@@ -84,7 +93,7 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, const glm::vec3& position)
 	{
 		s_Data->batches.clear();
-		s_Data->pointLights2D.clear();
+		s_Data->lightDataBuffer.clear();
 		s_Data->cameraPosition = position;
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
 		s_Data->viewProjectionMatrix = camera.getViewProjectionMatrix();
@@ -94,14 +103,14 @@ namespace Cardia
 
 	void Renderer2D::endScene()
 	{
-		s_Data->lightBuffer = StorageBuffer::create(s_Data->pointLights2D.size() * sizeof(PointLight2D));
-		s_Data->lightBuffer->setData(s_Data->pointLights2D.data(), s_Data->pointLights2D.size() * sizeof(PointLight2D));
+		s_Data->lightStorageBuffer = StorageBuffer::create(s_Data->lightDataBuffer.size() * sizeof(LightData));
+		s_Data->lightStorageBuffer->setData(s_Data->lightDataBuffer.data(), s_Data->lightDataBuffer.size() * sizeof(LightData));
 
 		std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
 		{
 			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
 		});
-		s_Data->lightBuffer->bind(0);
+		s_Data->lightStorageBuffer->bind(0);
 		std::string lastLayer;
 		for (auto& batch : s_Data->batches)
 		{
@@ -208,11 +217,21 @@ namespace Cardia
 		batch.addMesh(mesh, texture);
 	}
 
-	void Renderer2D::addLight(const glm::vec3& position, const Component::PointLight2D& pointLight2D)
+	void Renderer2D::addLight(const glm::vec3& position, const Component::PointLight& pointLight)
 	{
-		auto& light = s_Data->pointLights2D.emplace_back();
+		auto& light = s_Data->lightDataBuffer.emplace_back();
 
-		light.position = glm::vec4(position, pointLight2D.range);
-		light.color = glm::vec4(pointLight2D.color, 1.0f);
+		light.lightType = LightType::PointLight;
+		light.positionAndRange = glm::vec4(position, pointLight.range);
+		light.color = glm::vec4(pointLight.color, 1.0f);
+	}
+
+	void Renderer2D::addLight(const glm::vec3 &direction, const Component::DirectionalLight &directionalLight)
+	{
+		auto& light = s_Data->lightDataBuffer.emplace_back();
+		light.lightType = LightType::DirectionalLight;
+		light.direction = glm::vec4(direction, 0.0f);
+		light.color = glm::vec4(directionalLight.color, 1.0f);
+
 	}
 }
