@@ -82,7 +82,17 @@ namespace Cardia::SerializerUtils
 
 				node["range"] = light.range;
 
-				root[uuid.uuid]["pointLight2D"] = node;
+				root[uuid.uuid]["pointLight"] = node;
+				node.clear();
+			}
+			if (entity.hasComponent<Component::DirectionalLight>())
+			{
+				const auto& light = entity.getComponent<Component::DirectionalLight>();
+				node["color"]["r"] = light.color.r;
+				node["color"]["g"] = light.color.g;
+				node["color"]["b"] = light.color.b;
+
+				root[uuid.uuid]["directionalLight"] = node;
 				node.clear();
 			}
 
@@ -181,14 +191,24 @@ namespace Cardia::SerializerUtils
                         }
 
 			// PointLight
-			if (node.isMember("pointLight2D"))
+			if (node.isMember("pointLight"))
 			{
 				auto& light = entity.addComponent<Component::PointLight>();
-				light.color.r = node["pointLight2D"]["color"]["r"].asFloat();
-				light.color.g = node["pointLight2D"]["color"]["g"].asFloat();
-				light.color.b = node["pointLight2D"]["color"]["b"].asFloat();
+				light.color.r = node["pointLight"]["color"]["r"].asFloat();
+				light.color.g = node["pointLight"]["color"]["g"].asFloat();
+				light.color.b = node["pointLight"]["color"]["b"].asFloat();
 
-				light.range = node["pointLight2D"]["range"].asFloat();
+				light.range = node["pointLight"]["range"].asFloat();
+
+			}
+
+			// PointLight
+			if (node.isMember("directionalLight"))
+			{
+				auto& light = entity.addComponent<Component::DirectionalLight>();
+				light.color.r = node["directionalLight"]["color"]["r"].asFloat();
+				light.color.g = node["directionalLight"]["color"]["g"].asFloat();
+				light.color.b = node["directionalLight"]["color"]["b"].asFloat();
 
 			}
                         

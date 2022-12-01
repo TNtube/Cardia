@@ -77,12 +77,21 @@ namespace Cardia
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 
-		const auto lightView = m_Registry.view<Component::Transform, Component::PointLight>();
-		for (const auto entity : lightView)
+		const auto pointLightView = m_Registry.view<Component::Transform, Component::PointLight>();
+		for (const auto entity : pointLightView)
 		{
-			auto [transform, pointLight] = lightView.get<Component::Transform, Component::PointLight>(entity);
+			auto [transform, pointLight] = pointLightView.get<Component::Transform, Component::PointLight>(entity);
 
 			Renderer2D::addLight(transform.position, pointLight);
+		}
+
+		const auto directionalLightView = m_Registry.view<Component::Transform, Component::DirectionalLight>();
+		for (const auto entity : directionalLightView)
+		{
+			auto [transform, directionalLight] = directionalLightView.get<Component::Transform, Component::DirectionalLight>(entity);
+
+			const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
+			Renderer2D::addLight(forward, directionalLight);
 		}
 
 		Renderer2D::endScene();
@@ -99,13 +108,22 @@ namespace Cardia
 			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex);
 		}
 
-		const auto lightView = m_Registry.view<Component::Transform, Component::PointLight>();
-		for (const auto entity : lightView)
+		const auto pointLightView = m_Registry.view<Component::Transform, Component::PointLight>();
+		for (const auto entity : pointLightView)
 		{
-			auto [transform, pointLight] = lightView.get<Component::Transform, Component::PointLight>(entity);
+			auto [transform, pointLight] = pointLightView.get<Component::Transform, Component::PointLight>(entity);
+
 			Renderer2D::addLight(transform.position, pointLight);
 		}
 
+		const auto directionalLightView = m_Registry.view<Component::Transform, Component::DirectionalLight>();
+		for (const auto entity : directionalLightView)
+		{
+			auto [transform, directionalLight] = directionalLightView.get<Component::Transform, Component::DirectionalLight>(entity);
+
+			const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
+			Renderer2D::addLight(forward, directionalLight);
+		}
 
 		Renderer2D::endScene();
 	}
