@@ -120,9 +120,13 @@ namespace Cardia::Panel
 
 		// Light Component
 
-		DrawInspectorComponent<Component::PointLight2D>("Point Light", selectedEntity, [](Component::PointLight2D& light) {
+		DrawInspectorComponent<Component::PointLight>("Point Light", selectedEntity, [](Component::PointLight& light) {
 			ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
 			ImGui::DragFloat("Range", &light.range, 0.01f);
+		});
+
+		DrawInspectorComponent<Component::DirectionalLight>("Directional Light", selectedEntity, [](Component::DirectionalLight& light) {
+			ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
 		});
 
 		DrawInspectorComponent<Component::Script>("Script", selectedEntity, [](Component::Script& scriptComponent) {
@@ -182,9 +186,15 @@ namespace Cardia::Panel
 				ImGui::EndPopup();
 			}
 
-			if (!selectedEntity.hasComponent<Component::PointLight2D>() && ImGui::MenuItem("Point Light"))
+			if (!selectedEntity.hasComponent<Component::PointLight>() && ImGui::MenuItem("Point Light"))
 			{
-				selectedEntity.addComponent<Component::PointLight2D>();
+				selectedEntity.addComponent<Component::PointLight>();
+				ImGui::EndPopup();
+			}
+
+			if (!selectedEntity.hasComponent<Component::DirectionalLight>() && ImGui::MenuItem("Directional Light"))
+			{
+				selectedEntity.addComponent<Component::DirectionalLight>();
 				ImGui::EndPopup();
 			}
 		}

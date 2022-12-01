@@ -13,37 +13,28 @@ uniform sampler2D u_Textures[32];
 uniform vec3 u_ViewPosition;
 
 
-struct PointLight {
+struct Light {
+    uint lightType;
     vec4 positionAndRange;
-    vec4 color;
-};
-
-
-struct DirLight {
     vec4 direction;
     vec4 color;
 };
 
 
-layout(std430, binding = 0) buffer pointLightsBuffer
+layout(std430, binding = 0) buffer LightBuffer
 {
-    PointLight pointLights[];
-};
-
-layout(std430, binding = 0) buffer dirLightsBuffer
-{
-    DirLight dirLights[];
+    Light lights[];
 };
 
 // calculates the color when using a directional light.
-vec3 CalcDirLight(DirLight light, vec3 normal)
+vec3 CalcDirLight(Light light, vec3 normal)
 {
     float result = dot(normal, light.direction.xyz);
     return light.color.xyz * result;
 }
 
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     float dist = length(light.positionAndRange.xyz - fragPos);
     if (dist > light.positionAndRange.w) {
@@ -68,19 +59,25 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
+const uint DirectionalLight = 0x00000001u;
+const uint PointLight       = 0x00000002u;
+const uint SpotLight        = 0x00000004u;
+
 
 void main() {
-    DirLight dirLight;
-    dirLight.direction = vec4(-0.5f, -0.7f, -1.0f, 1.0f);
-    dirLight.color = vec4(0.8, 0.8, 0.8, 1.0f) * 0.0f;
     vec3 norm = normalize(o_Normal);
     vec3 viewDir = normalize(u_ViewPosition - o_FragPos);
 
-    vec3 result = CalcDirLight(dirLight, norm);
+    vec3 result = vec3(0);
 
-    for (int i = 0; i < pointLights.length(); ++i) {
-        PointLight pointLight = pointLights[i];
-        result += CalcPointLight(pointLight, norm, o_FragPos, viewDir);
+    for (int i = 0; i < lights.length(); ++i) {
+        Light light = lights[i];
+        if (light.lightType == DirectionalLight) {
+            result += CalcDirLight(light, norm);
+        }
+        if (light.lightType == PointLight) {
+            result += CalcPointLight(light, norm, o_FragPos, viewDir);
+        }
     }
 
     color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * vec4(result, 1.0) * o_Color;

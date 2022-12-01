@@ -84,10 +84,6 @@
 	},
 	"92a0a32e-3b3c-4756-8643-7aec98f7477c" : 
 	{
-		"behavior" : 
-		{
-			"path" : "Moving.py"
-		},
 		"name" : "light",
 		"pointLight2D" : 
 		{

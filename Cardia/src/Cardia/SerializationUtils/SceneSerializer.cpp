@@ -72,10 +72,10 @@ namespace Cardia::SerializerUtils
                                 node.clear();
                         }
 
-			// PointLight2D
-			if (entity.hasComponent<Component::PointLight2D>())
+			// PointLight
+			if (entity.hasComponent<Component::PointLight>())
 			{
-				const auto& light = entity.getComponent<Component::PointLight2D>();
+				const auto& light = entity.getComponent<Component::PointLight>();
 				node["color"]["r"] = light.color.r;
 				node["color"]["g"] = light.color.g;
 				node["color"]["b"] = light.color.b;
@@ -180,10 +180,10 @@ namespace Cardia::SerializerUtils
                                 camera.camera.setOrthographicFar(node["camera"]["orthoFar"].asFloat());
                         }
 
-			// PointLight2D
+			// PointLight
 			if (node.isMember("pointLight2D"))
 			{
-				auto& light = entity.addComponent<Component::PointLight2D>();
+				auto& light = entity.addComponent<Component::PointLight>();
 				light.color.r = node["pointLight2D"]["color"]["r"].asFloat();
 				light.color.g = node["pointLight2D"]["color"]["g"].asFloat();
 				light.color.b = node["pointLight2D"]["color"]["b"].asFloat();
