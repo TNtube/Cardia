@@ -28,17 +28,14 @@ layout(std430, binding = 0) buffer LightBuffer
 // calculates the color when using a directional light.
 vec3 CalcDirLight(Light light, vec3 normal)
 {
-    float result = max(dot(normal, light.directionAndType.xyz), 0.0);
-    return light.color.xyz * result;
+    float diff = max(dot(normal, light.directionAndType.xyz), 0.0);
+    return light.color.xyz * diff * o_Color.rgb;
 }
 
 
 vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     float dist = length(light.positionAndRange.xyz - fragPos);
-    if (dist > light.positionAndRange.w) {
-        return vec3(0);
-    }
 
     vec3 lightDir = normalize(light.positionAndRange.xyz - fragPos);
     // diffuse shading
@@ -50,7 +47,7 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float attenuation = 1.0 / (1 + 0.14 * dist + 0.07 * (dist * dist));
     // combine results
     vec3 ambient = light.color.xyz;
-    vec3 diffuse = light.color.xyz;
+    vec3 diffuse = light.color.xyz * o_Color.rgb;
     vec3 specular = light.color.xyz;
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -82,5 +79,5 @@ void main() {
         }
     }
 
-    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * vec4(result, 1.0) * o_Color;
+    color = texture(u_Textures[int(o_TexIndex)], o_TexPos * o_TilingFactor) * vec4(result, 1.0);
 }
