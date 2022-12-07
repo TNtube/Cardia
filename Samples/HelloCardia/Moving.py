@@ -1,4 +1,4 @@
-from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight2D
+from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight
 import colorsys
 
 
@@ -9,7 +9,7 @@ class Moving(Behavior):
 
     def on_create(self):
         self.velocity = 5
-        self.color = self.get_component(PointLight2D).color
+        self.color = self.get_component(PointLight).color
         self._tick_count = int(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
 
     def on_update(self):
