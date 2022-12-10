@@ -14,7 +14,7 @@
 namespace Cardia::Component
 {
 	namespace LightType {
-		enum LightType : uint32_t {
+		enum LightType : int32_t {
 			DirectionalLight = 0,
 			PointLight,
 			SpotLight
@@ -99,7 +99,7 @@ namespace Cardia::Component
 	{
 		Light() = default;
 		Light(const Light&) = default;
-		uint32_t lightType {};
+		int32_t lightType {};
 		glm::vec3 color {};
 		float range = 2;
 		float angle = 35;
