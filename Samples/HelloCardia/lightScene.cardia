@@ -1,14 +1,18 @@
 {
 	"288551e5-22da-473c-acbc-18f0b2f24ca1" : 
 	{
-		"directionalLight" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
 				"b" : 1.0,
 				"g" : 1.0,
 				"r" : 1.0
-			}
+			},
+			"range" : 2.0,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
 		"name" : "dirLight",
 		"transform" : 
@@ -35,17 +39,20 @@
 	},
 	"3512c0ae-6595-4879-8582-643d0ce44533" : 
 	{
-		"name" : "light2",
-		"pointLight" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
 				"b" : 0.056316889822483063,
 				"g" : 0.05629441887140274,
 				"r" : 0.43037974834442139
 			},
-			"range" : 2.0
+			"range" : 11.020000457763672,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
+		"name" : "light2",
 		"spriteRenderer" : 
 		{
 			"color" : 
@@ -118,17 +125,20 @@
 	},
 	"92a0a32e-3b3c-4756-8643-7aec98f7477c" : 
 	{
-		"name" : "light",
-		"pointLight" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
 				"b" : 0.70886075496673584,
 				"g" : 0.0089743230491876602,
 				"r" : 0.0089729707688093185
 			},
-			"range" : 2.0
+			"range" : 2.0,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
+		"name" : "light",
 		"spriteRenderer" : 
 		{
 			"color" : 

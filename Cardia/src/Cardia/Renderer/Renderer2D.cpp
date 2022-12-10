@@ -16,19 +16,11 @@ namespace Cardia
 
 	static std::unique_ptr<Renderer2D::Stats> s_Stats;
 
-	namespace LightType {
-		enum LightType : uint32_t {
-			DirectionalLight = 0x00000001u,
-			PointLight       = 0x00000002u,
-			SpotLight        = 0x00000004u
-		};
-	}
-
 	struct LightData
 	{
-		glm::vec4 positionAndRange {};
-		glm::vec4 directionAndType {};
-		glm::vec4 color {};
+		glm::vec4 positionAndType {};
+		glm::vec4 directionAndRange {};
+		glm::vec4 colorAndCutOff {};
 	};
 
 	struct Renderer2DData
@@ -216,20 +208,14 @@ namespace Cardia
 		batch.addMesh(mesh, texture);
 	}
 
-	void Renderer2D::addLight(const glm::vec3& position, const Component::PointLight& pointLight)
+	void Renderer2D::addLight(const Component::Transform& transform, const Component::Light& lightComponent)
 	{
 		auto& light = s_Data->lightDataBuffer.emplace_back();
 
-		light.directionAndType.w = LightType::PointLight;
-		light.positionAndRange = glm::vec4(position, pointLight.range);
-		light.color = glm::vec4(pointLight.color, 1.0f);
-	}
+		light.positionAndType = glm::vec4(transform.position, static_cast<uint32_t>(lightComponent.lightType));
 
-	void Renderer2D::addLight(const glm::vec3 &direction, const Component::DirectionalLight &directionalLight)
-	{
-		auto& light = s_Data->lightDataBuffer.emplace_back();
-		light.directionAndType = glm::vec4(direction, LightType::DirectionalLight);
-		light.color = glm::vec4(directionalLight.color, 1.0f);
-
+		const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
+		light.directionAndRange = glm::vec4(forward, lightComponent.range);
+		light.colorAndCutOff = glm::vec4(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
 	}
 }

@@ -85,11 +85,14 @@ namespace Cardia
 			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)
 			.def("reset", &Component::Transform::reset, py::return_value_policy::reference);
 
-		py::class_<Component::PointLight>(m, "PointLight")
-		        .def(py::init<>())
-			.def_readwrite("color", &Component::PointLight::color, py::return_value_policy::reference)
-			.def_readwrite("range", &Component::PointLight::range, py::return_value_policy::reference)
-			.def("reset", &Component::PointLight::reset, py::return_value_policy::reference);
+		py::class_<Component::Light>(m, "Light")
+			.def(py::init<>())
+			.def_readwrite("type", &Component::Light::lightType, py::return_value_policy::reference)
+			.def_readwrite("color", &Component::Light::color, py::return_value_policy::reference)
+			.def_readwrite("range", &Component::Light::range, py::return_value_policy::reference)
+			.def_readwrite("angle", &Component::Light::angle, py::return_value_policy::reference)
+			.def_readwrite("smoothness", &Component::Light::smoothness, py::return_value_policy::reference)
+			.def("reset", &Component::Light::reset, py::return_value_policy::reference);
 
 		// API Calls
 
@@ -120,7 +123,7 @@ namespace Cardia
 			if (GetComponent<Component::Transform>(entity, cls, out)) {
 				return;
 			}
-			if (GetComponent<Component::PointLight>(entity, cls, out)) {
+			if (GetComponent<Component::Light>(entity, cls, out)) {
 				return;
 			}
 		});
