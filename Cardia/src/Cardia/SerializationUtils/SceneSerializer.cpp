@@ -187,7 +187,7 @@ namespace Cardia::SerializerUtils
 			if (node.isMember("light"))
 			{
 				auto& light = entity.addComponent<Component::Light>();
-				light.lightType = node["light"]["type"].asUInt();
+				light.lightType = node["light"]["type"].asInt();
 				light.color.r = node["light"]["color"]["r"].asFloat();
 				light.color.g = node["light"]["color"]["g"].asFloat();
 				light.color.b = node["light"]["color"]["b"].asFloat();
