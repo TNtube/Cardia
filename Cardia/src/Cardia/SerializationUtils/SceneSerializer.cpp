@@ -73,26 +73,19 @@ namespace Cardia::SerializerUtils
                         }
 
 			// PointLight
-			if (entity.hasComponent<Component::PointLight>())
+			if (entity.hasComponent<Component::Light>())
 			{
-				const auto& light = entity.getComponent<Component::PointLight>();
+				const auto& light = entity.getComponent<Component::Light>();
+				node["type"] = light.lightType;
 				node["color"]["r"] = light.color.r;
 				node["color"]["g"] = light.color.g;
 				node["color"]["b"] = light.color.b;
 
 				node["range"] = light.range;
+				node["angle"] = light.angle;
+				node["smoothness"] = light.smoothness;
 
-				root[uuid.uuid]["pointLight"] = node;
-				node.clear();
-			}
-			if (entity.hasComponent<Component::DirectionalLight>())
-			{
-				const auto& light = entity.getComponent<Component::DirectionalLight>();
-				node["color"]["r"] = light.color.r;
-				node["color"]["g"] = light.color.g;
-				node["color"]["b"] = light.color.b;
-
-				root[uuid.uuid]["directionalLight"] = node;
+				root[uuid.uuid]["light"] = node;
 				node.clear();
 			}
 
@@ -191,24 +184,17 @@ namespace Cardia::SerializerUtils
                         }
 
 			// PointLight
-			if (node.isMember("pointLight"))
+			if (node.isMember("light"))
 			{
-				auto& light = entity.addComponent<Component::PointLight>();
-				light.color.r = node["pointLight"]["color"]["r"].asFloat();
-				light.color.g = node["pointLight"]["color"]["g"].asFloat();
-				light.color.b = node["pointLight"]["color"]["b"].asFloat();
+				auto& light = entity.addComponent<Component::Light>();
+				light.lightType = node["light"]["type"].asUInt();
+				light.color.r = node["light"]["color"]["r"].asFloat();
+				light.color.g = node["light"]["color"]["g"].asFloat();
+				light.color.b = node["light"]["color"]["b"].asFloat();
 
-				light.range = node["pointLight"]["range"].asFloat();
-
-			}
-
-			// PointLight
-			if (node.isMember("directionalLight"))
-			{
-				auto& light = entity.addComponent<Component::DirectionalLight>();
-				light.color.r = node["directionalLight"]["color"]["r"].asFloat();
-				light.color.g = node["directionalLight"]["color"]["g"].asFloat();
-				light.color.b = node["directionalLight"]["color"]["b"].asFloat();
+				light.range = node["light"]["range"].asFloat();
+				light.angle = node["light"]["angle"].asFloat();
+				light.smoothness = node["light"]["smoothness"].asFloat();
 
 			}
                         

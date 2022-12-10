@@ -34,6 +34,44 @@
 			}
 		}
 	},
+	"52b8d3e3-263d-4efb-9710-6187a8776fc3" : 
+	{
+		"light" : 
+		{
+			"angle" : 35.0,
+			"color" : 
+			{
+				"b" : 0.99998998641967773,
+				"g" : 0.99998998641967773,
+				"r" : 1.0
+			},
+			"range" : 2.0,
+			"smoothness" : 1.0,
+			"type" : 0
+		},
+		"name" : "DirLight",
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
 	"6b560be1-869b-413f-a38d-f45f1463f5e6" : 
 	{
 		"name" : "WhiteSquare",
@@ -78,24 +116,27 @@
 		{
 			"path" : "Moving.py"
 		},
-		"name" : "GreenLight",
-		"pointLight2D" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
-				"b" : 1.0,
+				"b" : 0.025316476821899414,
 				"g" : 1.0,
 				"r" : 0.0
 			},
-			"range" : 2.0
+			"range" : 6.0399999618530273,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
+		"name" : "GreenLight",
 		"transform" : 
 		{
 			"position" : 
 			{
 				"x" : -4.3671417236328125,
 				"y" : -2.6386845111846924,
-				"z" : 2.9998812675476074
+				"z" : 0.38630843162536621
 			},
 			"rotation" : 
 			{
@@ -117,24 +158,27 @@
 		{
 			"path" : "Moving.py"
 		},
-		"name" : "BlueLight",
-		"pointLight2D" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
 				"b" : 1.0,
-				"g" : 0.0,
+				"g" : 0.10126590728759766,
 				"r" : 0.0
 			},
-			"range" : 2.0
+			"range" : 11.159999847412109,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
+		"name" : "BlueLight",
 		"transform" : 
 		{
 			"position" : 
 			{
 				"x" : 4.3864049911499023,
 				"y" : 3.0016627311706543,
-				"z" : 3.0
+				"z" : 0.12238359451293945
 			},
 			"rotation" : 
 			{
@@ -194,24 +238,27 @@
 		{
 			"path" : "Moving.py"
 		},
-		"name" : "RedLight",
-		"pointLight2D" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
 				"b" : 0.0,
 				"g" : 0.0,
 				"r" : 1.0
 			},
-			"range" : 2.0
+			"range" : 10.720000267028809,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
+		"name" : "RedLight",
 		"transform" : 
 		{
 			"position" : 
 			{
 				"x" : 3.4111988544464111,
 				"y" : -2.3652958869934082,
-				"z" : 2.99993896484375
+				"z" : 0.70022892951965332
 			},
 			"rotation" : 
 			{
@@ -233,24 +280,27 @@
 		{
 			"path" : "Moving.py"
 		},
-		"name" : "YellowLight",
-		"pointLight2D" : 
+		"light" : 
 		{
+			"angle" : 35.0,
 			"color" : 
 			{
 				"b" : 0.0,
-				"g" : 0.88690513372421265,
-				"r" : 1.0
+				"g" : 1.0,
+				"r" : 0.96590852737426758
 			},
-			"range" : 5.0999999046325684
+			"range" : 6.0199999809265137,
+			"smoothness" : 1.0,
+			"type" : 1
 		},
+		"name" : "YellowLight",
 		"transform" : 
 		{
 			"position" : 
 			{
 				"x" : -2.8095948696136475,
 				"y" : 2.1643805503845215,
-				"z" : 2.9999406337738037
+				"z" : 0.9367910623550415
 			},
 			"rotation" : 
 			{

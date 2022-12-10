@@ -120,13 +120,23 @@ namespace Cardia::Panel
 
 		// Light Component
 
-		DrawInspectorComponent<Component::PointLight>("Point Light", selectedEntity, [](Component::PointLight& light) {
-			ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
-			ImGui::DragFloat("Range", &light.range, 0.01f);
-		});
+		DrawInspectorComponent<Component::Light>("Light", selectedEntity, [](Component::Light& light) {
+			int item_current = light.lightType;
+			const char* items[] = { "Directional Light", "Point Light", "Spot Light" };
+			ImGui::Combo("Light Type", &item_current, items, IM_ARRAYSIZE(items));
 
-		DrawInspectorComponent<Component::DirectionalLight>("Directional Light", selectedEntity, [](Component::DirectionalLight& light) {
+			light.lightType = item_current;
+
 			ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
+			if (item_current == 0) return;
+
+			ImGui::DragFloat("Range", &light.range, 0.01f, 0.0f);
+
+			if (item_current == 1) return;
+
+			ImGui::DragFloat("Angle", &light.angle, 0.5f, 0.0f);
+
+			ImGui::DragFloat("Smoothness", &light.smoothness, 0.5f);
 		});
 
 		DrawInspectorComponent<Component::Script>("Script", selectedEntity, [](Component::Script& scriptComponent) {
@@ -186,15 +196,9 @@ namespace Cardia::Panel
 				ImGui::EndPopup();
 			}
 
-			if (!selectedEntity.hasComponent<Component::PointLight>() && ImGui::MenuItem("Point Light"))
+			if (!selectedEntity.hasComponent<Component::Light>() && ImGui::MenuItem("Light"))
 			{
-				selectedEntity.addComponent<Component::PointLight>();
-				ImGui::EndPopup();
-			}
-
-			if (!selectedEntity.hasComponent<Component::DirectionalLight>() && ImGui::MenuItem("Directional Light"))
-			{
-				selectedEntity.addComponent<Component::DirectionalLight>();
+				selectedEntity.addComponent<Component::Light>();
 				ImGui::EndPopup();
 			}
 		}

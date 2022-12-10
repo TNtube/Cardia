@@ -13,6 +13,14 @@
 
 namespace Cardia::Component
 {
+	namespace LightType {
+		enum LightType : uint32_t {
+			DirectionalLight = 0,
+			PointLight,
+			SpotLight
+		};
+	}
+
 	struct Name
 	{
 		Name() = default;
@@ -82,36 +90,26 @@ namespace Cardia::Component
 		Camera() = default;
 		Camera(const Camera&) = default;
 
-		inline void reset()
-		{
+		inline void reset() {
 			camera = SceneCamera();
 		}
 	};
 
-
-	struct PointLight
+	struct Light
 	{
-		PointLight() : color(1), range(2.0f) {}
-		PointLight(const PointLight&) = default;
-
-		glm::vec3 color;
-		float range;
+		Light() = default;
+		Light(const Light&) = default;
+		uint32_t lightType {};
+		glm::vec3 color {};
+		float range = 2;
+		float angle = 35;
+		float smoothness = 1;
 
 		inline void reset() {
-			color = glm::vec3(1);
-			range = 2.0f;
-		}
-	};
-
-	struct DirectionalLight
-	{
-		DirectionalLight() : color(1) {}
-		DirectionalLight(const DirectionalLight&) = default;
-
-		glm::vec3 color;
-
-		inline void reset() {
-			color = glm::vec3(1);
+			color = glm::vec3(0);
+			range = 2;
+			angle = 35;
+			smoothness = 1;
 		}
 	};
 
