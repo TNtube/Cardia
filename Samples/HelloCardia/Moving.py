@@ -13,15 +13,16 @@ class Moving(Behavior):
         self._tick_count = int(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
 
     def on_update(self):
-        ...
-        # self._tick_count += 1
-        # self._tick_count %= 255.0
-        # h = self._tick_count / 255
-        #
-        # (r, g, b) = colorsys.hsv_to_rgb(h, 1, 1)
-        # self.color.x = r
-        # self.color.y = g
-        # self.color.z = b
+        self._tick_count += 1
+        self._tick_count %= 255.0
+        h = self._tick_count / 255
+
+        (r, g, b) = colorsys.hsv_to_rgb(h, 1, 1)
+        self.color.x = r
+        self.color.y = g
+        self.color.z = b
+
+        self.transform.rotation.y += 10 * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Left)
     def move_left(self):
