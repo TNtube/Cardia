@@ -68,6 +68,10 @@ namespace Cardia
 		}
 	}
 
+	void ScriptEngine::OnRuntimeEnd() {
+		m_BehaviorInstances.clear();
+	}
+
 	Scene& ScriptEngine::GetSceneContext()
 	{
 		return *m_CurrentContext;
@@ -112,4 +116,5 @@ namespace Cardia
 
 		return ScriptClass(locals[name.c_str()]);
 	}
+
 }

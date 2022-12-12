@@ -144,6 +144,7 @@ namespace Cardia
 
 	void Scene::OnRuntimeStop()
 	{
+		ScriptEngine::Instance().OnRuntimeEnd();
 	}
 
 	Entity Scene::GetCurrentEntity()
