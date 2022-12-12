@@ -59,7 +59,7 @@ target("Cardia")
     add_packages("pybind11", { public = true })
 
     after_build(function(target)
-        os.execv("py", {"-m", "pip", "install", target:scriptdir().."\\cardia.py\\dist\\cardia.py-0.0.1-py3-none-any.whl", "--force-reinstall"})
+        os.execv("python", {"-m", "pip", "install", target:scriptdir().."\\cardia.py\\dist\\cardia.py-0.0.1-py3-none-any.whl", "--force-reinstall"})
     end)
 
     on_load(function(target)
