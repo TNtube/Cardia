@@ -65,6 +65,7 @@ namespace Cardia
 		~ScriptEngine();
 		ScriptClass GetClassFromPyFile(const std::string& name, const std::string& content);
 		void OnRuntimeStart(Scene* context);
+		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
 		Scene& GetSceneContext();
 		void RegisterUpdateMethod(py::object& cls, std::string& name);
