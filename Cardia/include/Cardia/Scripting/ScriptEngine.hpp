@@ -3,57 +3,9 @@
 #include <Cardia/ECS/Scene.hpp>
 #include <utility>
 #include <pybind11/pybind11.h>
+#include "Cardia/Scripting/ScriptClass.hpp"
 
 namespace py = pybind11;
-
-namespace Cardia
-{
-	class ScriptInstance
-	{
-		explicit ScriptInstance(py::object instance);
-		py::object GetMethod(const char* name);
-
-	private:
-		py::object m_Instance;
-		std::vector<std::string> m_OnUpdateCallbacks;
-
-		friend class ScriptClass;
-		friend class ScriptEngine;
-	};
-
-	class ScriptClass
-	{
-	public:
-		explicit ScriptClass(py::object cls);
-
-		ScriptClass(const ScriptClass &) = default;
-		ScriptClass() = default;
-
-		ScriptInstance Instantiate(const UUID &uuid);
-
-		operator py::handle() const
-		{
-			return m_PyClass;
-		}
-
-		inline bool operator== (const ScriptClass& rhs) const { return this->m_PyClass.is(rhs.m_PyClass); }
-
-	private:
-		py::object m_PyClass;
-	};
-}
-
-namespace std {
-	template<>
-	struct hash<Cardia::ScriptClass>
-	{
-		std::size_t operator()(const Cardia::ScriptClass& scriptClass) const
-		{
-			static auto h = std::hash<PyObject*>{};
-			return h(py::handle(scriptClass).ptr());
-		}
-	};
-}
 
 namespace Cardia
 {
@@ -73,6 +25,8 @@ namespace Cardia
 		static ScriptEngine& Instance() { return *s_Instance; }
 
 	private:
+		bool IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass);
+		bool IsSubClass(const py::handle& subClass, const py::handle& parentClass);
 		static ScriptEngine* s_Instance;
 		Scene* m_CurrentContext;
 		std::unordered_map<UUID, ScriptInstance> m_BehaviorInstances;

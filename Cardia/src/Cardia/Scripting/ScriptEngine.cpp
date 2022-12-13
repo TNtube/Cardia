@@ -6,38 +6,6 @@
 
 namespace Cardia
 {
-	namespace py = pybind11;
-
-
-	ScriptInstance::ScriptInstance(py::object instance): m_Instance(std::move(instance))
-	{
-		for (auto& unRegisteredCallback : ScriptEngine::Instance().m_EventMethods) {
-			if (py::isinstance(m_Instance, unRegisteredCallback.first)) {
-				m_OnUpdateCallbacks.insert(m_OnUpdateCallbacks.begin(),
-							   unRegisteredCallback.second.begin(),
-							   unRegisteredCallback.second.end());
-			}
-		}
-	}
-
-	py::object ScriptInstance::GetMethod(const char* name)
-	{
-		return m_Instance.attr(name);
-	}
-
-	ScriptClass::ScriptClass(py::object cls) : m_PyClass(std::move(cls))
-	{
-
-	}
-
-	ScriptInstance ScriptClass::Instantiate(const UUID& uuid)
-	{
-		py::object pyInstance = m_PyClass();
-		py::setattr(pyInstance, "id", py::str(uuid));
-
-		return ScriptInstance(pyInstance);
-	}
-
 	ScriptEngine* ScriptEngine::s_Instance = nullptr;
 
 	ScriptEngine::ScriptEngine() : m_CurrentContext(nullptr)
@@ -109,12 +77,20 @@ namespace Cardia
 
 		py::exec(content, locals, locals);
 
-		if (!locals.contains(name.c_str()) || !m_PythonBuiltins.attr("issubclass")(locals[name.c_str()], m_CardiaPythonAPI.attr("Behavior")))
+		if (!locals.contains(name.c_str()) || !IsSubClass(locals[name.c_str()], m_CardiaPythonAPI.attr("Behavior")))
 		{
 			Log::coreError("Cannot find {0} class child of Behavior", name);
 		}
 
 		return ScriptClass(locals[name.c_str()]);
+	}
+
+	bool ScriptEngine::IsSubClass(const ScriptClass &subClass, const ScriptClass &parentClass) {
+		return m_PythonBuiltins.attr("issubclass")(py::handle(subClass), py::handle(parentClass)).cast<bool>();
+	}
+
+	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {
+		return m_PythonBuiltins.attr("issubclass")(subClass, parentClass).cast<bool>();
 	}
 
 }
