@@ -16,6 +16,8 @@ namespace Cardia
 		ScriptEngine();
 		~ScriptEngine();
 		ScriptClass GetClassFromPyFile(const std::string& name, const std::string& content);
+		bool IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass);
+		bool IsSubClass(const py::handle& subClass, const py::handle& parentClass);
 		void OnRuntimeStart(Scene* context);
 		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
@@ -25,8 +27,6 @@ namespace Cardia
 		static ScriptEngine& Instance() { return *s_Instance; }
 
 	private:
-		bool IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass);
-		bool IsSubClass(const py::handle& subClass, const py::handle& parentClass);
 		static ScriptEngine* s_Instance;
 		Scene* m_CurrentContext;
 		std::unordered_map<UUID, ScriptInstance> m_BehaviorInstances;

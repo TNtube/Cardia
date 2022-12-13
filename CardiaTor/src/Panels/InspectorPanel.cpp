@@ -162,6 +162,14 @@ namespace Cardia::Panel
 				}
 				ImGui::EndDragDropTarget();
 			}
+
+			for (const auto& item: scriptComponent.scriptClass.Attributes())
+			{
+				auto fieldName = item.first;
+				char buff[50];
+				ImGui::InputText(fieldName.c_str(), buff, fieldName.size(), ImGuiInputTextFlags_ReadOnly);
+
+			}
 		});
 
 		ImGui::Separator();
