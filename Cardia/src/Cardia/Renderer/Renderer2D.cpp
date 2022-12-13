@@ -87,6 +87,7 @@ namespace Cardia
 		s_Data->lightDataBuffer.clear();
 		s_Data->cameraPosition = position;
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
+		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
 		s_Data->viewProjectionMatrix = camera.getViewProjectionMatrix();
 		s_Stats->drawCalls = 0;
 		s_Stats->triangleCount = 0;
@@ -197,7 +198,7 @@ namespace Cardia
 		BatchSpecification specification;
 		specification.alpha = color.a < 1.0f || (texture && texture->isTransparent());
 		specification.layer = zIndex;
-		specification.shader = "basic";
+		specification.shader = "light";
 
 		for (auto& batch : s_Data->batches)
 		{
