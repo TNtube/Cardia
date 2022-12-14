@@ -30,9 +30,14 @@ namespace Cardia
 		for (const auto entity : view)
 		{
 			auto [transform, script, uuid] = view.get<Component::Transform, Component::Script, Component::ID>(entity);
-			auto instance = script.scriptClass.Instantiate(uuid.uuid);
-			instance.GetMethod("on_create")();
-			m_BehaviorInstances.insert({uuid.uuid, instance});
+			try {
+				auto instance = script.scriptClass.Instantiate(uuid.uuid);
+				instance.GetMethod("on_create")();
+				m_BehaviorInstances.insert({uuid.uuid, instance});
+			}
+			catch (const std::exception& e) {
+				Log::error("On Create : {0}", e.what());
+			}
 		}
 	}
 

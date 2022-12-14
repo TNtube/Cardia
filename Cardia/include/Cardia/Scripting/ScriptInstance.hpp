@@ -7,7 +7,7 @@ namespace Cardia
 	class ScriptInstance
 	{
 	public:
-		ScriptInstance(py::handle instance);
+		ScriptInstance(py::object instance);
 		py::object GetMethod(const char* name);
 
 		operator py::handle() const
@@ -16,7 +16,7 @@ namespace Cardia
 		}
 
 	private:
-		py::handle m_Instance;
+		py::object m_Instance;
 		std::vector<std::string> m_OnUpdateCallbacks;
 
 		friend class ScriptClass;
