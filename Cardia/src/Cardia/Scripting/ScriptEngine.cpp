@@ -32,7 +32,7 @@ namespace Cardia
 			auto [transform, script, uuid] = view.get<Component::Transform, Component::Script, Component::ID>(entity);
 			try {
 				auto instance = script.scriptClass.Instantiate(uuid.uuid);
-				instance.GetMethod("on_create")();
+				instance.GetAttrOrMethod("on_create")();
 				m_BehaviorInstances.insert({uuid.uuid, instance});
 			}
 			catch (const std::exception& e) {
@@ -55,9 +55,9 @@ namespace Cardia
 		for (auto& [uuid, instance] : m_BehaviorInstances)  {
 			try {
 				for (auto& callback : instance.m_OnUpdateCallbacks) {
-					instance.GetMethod(callback.c_str())();
+					instance.GetAttrOrMethod(callback.c_str())();
 				}
-				instance.GetMethod("on_update")();
+				instance.GetAttrOrMethod("on_update")();
 			}
 			catch (const std::exception& e) {
 				Log::error("On Update : {0}", e.what());
@@ -96,6 +96,15 @@ namespace Cardia
 
 	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {
 		return m_PythonBuiltins.attr("issubclass")(subClass, parentClass).cast<bool>();
+	}
+
+	ScriptInstance* ScriptEngine::GetInstance(const UUID &uuid) {
+		auto it = m_BehaviorInstances.find(uuid);
+
+		if (it != m_BehaviorInstances.end()) {
+			return &it->second;
+		}
+		return nullptr;
 	}
 
 }

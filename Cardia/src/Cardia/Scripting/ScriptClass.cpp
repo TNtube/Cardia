@@ -4,36 +4,6 @@
 
 namespace Cardia
 {
-	ScriptFieldType PyHandleToFieldType(const py::handle &handle) {
-		auto pyInt   = py::int_().get_type();
-		auto pyFloat = py::float_().get_type();
-		auto pyStr   = py::str().get_type();
-		auto pyList  = py::list().get_type();
-		auto pyDict  = py::dict().get_type();
-
-		if (pyInt.equal(handle))
-		{
-			return ScriptFieldType::Int;
-		}
-		if (pyFloat.equal(handle))
-		{
-			return ScriptFieldType::Float;
-		}
-		if (pyStr.equal(handle))
-		{
-			return ScriptFieldType::String;
-		}
-		if (pyList.equal(handle))
-		{
-			return ScriptFieldType::List;
-		}
-		if (pyDict.equal(handle))
-		{
-			return ScriptFieldType::Dict;
-		}
-		return ScriptFieldType::PyObject;
-	}
-
 	ScriptClass::ScriptClass(py::object cls) : m_PyClass(std::move(cls)), m_Attributes()
 	{
 		py::dict annotations(m_PyClass.attr("__annotations__"));
@@ -42,7 +12,26 @@ namespace Cardia
 
 			ScriptField field{};
 			field.type = type;
-			field.instance = py::str();
+			switch (type) {
+				case ScriptFieldType::Int:
+					field.instance = py::int_();
+					break;
+				case ScriptFieldType::Float:
+					field.instance = py::float_();
+					break;
+				case ScriptFieldType::String:
+					field.instance = py::str();
+					break;
+				case ScriptFieldType::List:
+					field.instance = py::list();
+					break;
+				case ScriptFieldType::Dict:
+					field.instance = py::dict();
+					break;
+				case ScriptFieldType::PyObject:
+					field.instance = py::str();
+					break;
+			}
 
 			m_Attributes.insert({item.first.cast<std::string>(), field});
 		}

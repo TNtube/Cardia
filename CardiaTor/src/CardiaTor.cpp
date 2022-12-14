@@ -401,7 +401,7 @@ namespace Cardia
 				const auto view = m_CurrentScene->GetRegistry().view<Component::Script>();
 				for (auto [entity, behavior] : view.each())
 				{
-					behavior.setPath(behavior.getPath());
+//					behavior.setPath(behavior.getPath());
 				}
 			}
 		});

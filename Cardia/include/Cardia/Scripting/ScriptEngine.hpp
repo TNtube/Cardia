@@ -21,6 +21,7 @@ namespace Cardia
 		void OnRuntimeStart(Scene* context);
 		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
+		ScriptInstance* GetInstance(const UUID& uuid);
 		Scene& GetSceneContext();
 		void RegisterUpdateMethod(py::object& cls, std::string& name);
 		py::object& GetPythonBuiltins() { return m_PythonBuiltins; }

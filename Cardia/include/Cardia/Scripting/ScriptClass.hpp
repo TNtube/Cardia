@@ -4,13 +4,6 @@
 
 namespace Cardia
 {
-	enum class ScriptFieldType
-	{
-		Int, Float, String, List, Dict, PyObject
-	};
-
-	ScriptFieldType PyHandleToFieldType(const py::handle& handle);
-
 	struct ScriptField {
 		ScriptField() : instance(py::str()) {}
 		ScriptFieldType type {};
@@ -34,7 +27,7 @@ namespace Cardia
 
 		inline bool operator== (const ScriptClass& rhs) const { return this->m_PyClass.is(rhs.m_PyClass); }
 
-		const std::unordered_map<std::string, ScriptField>& Attributes() const { return m_Attributes; }
+		std::unordered_map<std::string, ScriptField>& Attributes() { return m_Attributes; }
 
 	private:
 		std::unordered_map<std::string, ScriptField> m_Attributes;
