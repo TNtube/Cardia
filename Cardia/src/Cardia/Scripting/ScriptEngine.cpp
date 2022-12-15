@@ -6,38 +6,6 @@
 
 namespace Cardia
 {
-	namespace py = pybind11;
-
-
-	ScriptInstance::ScriptInstance(py::object instance): m_Instance(std::move(instance))
-	{
-		for (auto& unRegisteredCallback : ScriptEngine::Instance().m_EventMethods) {
-			if (py::isinstance(m_Instance, unRegisteredCallback.first)) {
-				m_OnUpdateCallbacks.insert(m_OnUpdateCallbacks.begin(),
-							   unRegisteredCallback.second.begin(),
-							   unRegisteredCallback.second.end());
-			}
-		}
-	}
-
-	py::object ScriptInstance::GetMethod(const char* name)
-	{
-		return m_Instance.attr(name);
-	}
-
-	ScriptClass::ScriptClass(py::object cls) : m_PyClass(std::move(cls))
-	{
-
-	}
-
-	ScriptInstance ScriptClass::Instantiate(const UUID& uuid)
-	{
-		py::object pyInstance = m_PyClass();
-		py::setattr(pyInstance, "id", py::str(uuid));
-
-		return ScriptInstance(pyInstance);
-	}
-
 	ScriptEngine* ScriptEngine::s_Instance = nullptr;
 
 	ScriptEngine::ScriptEngine() : m_CurrentContext(nullptr)
@@ -62,9 +30,14 @@ namespace Cardia
 		for (const auto entity : view)
 		{
 			auto [transform, script, uuid] = view.get<Component::Transform, Component::Script, Component::ID>(entity);
-			auto instance = script.scriptClass.Instantiate(uuid.uuid);
-			instance.GetMethod("on_create")();
-			m_BehaviorInstances.insert({uuid.uuid, instance});
+			try {
+				auto instance = script.scriptClass.Instantiate(uuid.uuid);
+				instance.GetAttrOrMethod("on_create")();
+				m_BehaviorInstances.insert({uuid.uuid, instance});
+			}
+			catch (const std::exception& e) {
+				Log::error("On Create : {0}", e.what());
+			}
 		}
 	}
 
@@ -82,9 +55,9 @@ namespace Cardia
 		for (auto& [uuid, instance] : m_BehaviorInstances)  {
 			try {
 				for (auto& callback : instance.m_OnUpdateCallbacks) {
-					instance.GetMethod(callback.c_str())();
+					instance.GetAttrOrMethod(callback.c_str())();
 				}
-				instance.GetMethod("on_update")();
+				instance.GetAttrOrMethod("on_update")();
 			}
 			catch (const std::exception& e) {
 				Log::error("On Update : {0}", e.what());
@@ -109,12 +82,29 @@ namespace Cardia
 
 		py::exec(content, locals, locals);
 
-		if (!locals.contains(name.c_str()) || !m_PythonBuiltins.attr("issubclass")(locals[name.c_str()], m_CardiaPythonAPI.attr("Behavior")))
+		if (!locals.contains(name.c_str()) || !IsSubClass(locals[name.c_str()], m_CardiaPythonAPI.attr("Behavior")))
 		{
 			Log::coreError("Cannot find {0} class child of Behavior", name);
 		}
 
 		return ScriptClass(locals[name.c_str()]);
+	}
+
+	bool ScriptEngine::IsSubClass(const ScriptClass &subClass, const ScriptClass &parentClass) {
+		return PyObject_IsSubclass(py::handle(subClass).ptr(), py::handle(parentClass).ptr());
+	}
+
+	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {
+		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
+	}
+
+	ScriptInstance* ScriptEngine::GetInstance(const UUID &uuid) {
+		auto it = m_BehaviorInstances.find(uuid);
+
+		if (it != m_BehaviorInstances.end()) {
+			return &it->second;
+		}
+		return nullptr;
 	}
 
 }

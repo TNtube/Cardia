@@ -7,6 +7,18 @@
 
 namespace Cardia::SerializerUtils
 {
+	void SerializeVec2(Json::Value& node, const glm::vec2& vec);
+	void SerializeVec3(Json::Value& node, const glm::vec3& vec);
+	void SerializeVec4(Json::Value& node, const glm::vec4& vec);
+	void SerializeColorRgb(Json::Value& node, const glm::vec3& vec);
+	void SerializeColorRgba(Json::Value& node, const glm::vec4& vec);
+	
+	void DeserializeVec2(glm::vec2& vec, const Json::Value& node);
+	void DeserializeVec3(glm::vec3& vec, const Json::Value& node);
+	void DeserializeVec4(glm::vec4& vec, const Json::Value& node);
+	void DeserializeColorRgb(glm::vec3& vec, const Json::Value& node);
+	void DeserializeColorRgba(glm::vec4& vec, const Json::Value& node);
+
         std::string SerializeScene(Scene* scene, const std::string& workspace)
         {
                 Json::Value root;
@@ -24,15 +36,9 @@ namespace Cardia::SerializerUtils
 			Json::Value node;
                         // Transform
                         const auto& transform = entity.getComponent<Component::Transform>();
-                        node["position"]["x"] = transform.position.x;
-                        node["position"]["y"] = transform.position.y;
-                        node["position"]["z"] = transform.position.z;
-                        node["rotation"]["x"] = transform.rotation.x;
-                        node["rotation"]["y"] = transform.rotation.y;
-                        node["rotation"]["z"] = transform.rotation.z;
-                        node["scale"]["x"] = transform.scale.x;
-                        node["scale"]["y"] = transform.scale.y;
-                        node["scale"]["z"] = transform.scale.z;
+			SerializeVec3(node["position"], transform.position);
+			SerializeVec3(node["rotation"], transform.rotation);
+			SerializeVec3(node["scale"], transform.scale);
 
                         root[uuid.uuid]["transform"] = node;
                         node.clear();
@@ -41,10 +47,7 @@ namespace Cardia::SerializerUtils
                         if (entity.hasComponent<Component::SpriteRenderer>())
                         {
                                 const auto& spriteRenderer = entity.getComponent<Component::SpriteRenderer>();
-                                node["color"]["r"] = spriteRenderer.color.r;
-                                node["color"]["g"] = spriteRenderer.color.g;
-                                node["color"]["b"] = spriteRenderer.color.b;
-                                node["color"]["a"] = spriteRenderer.color.a;
+				SerializeColorRgba(node["color"], spriteRenderer.color);
                                 const auto path = spriteRenderer.texture ? spriteRenderer.texture->getPath() : "";
                                 
                                 node["texture"] = std::filesystem::relative(path, workspace).string();
@@ -77,9 +80,7 @@ namespace Cardia::SerializerUtils
 			{
 				const auto& light = entity.getComponent<Component::Light>();
 				node["type"] = light.lightType;
-				node["color"]["r"] = light.color.r;
-				node["color"]["g"] = light.color.g;
-				node["color"]["b"] = light.color.b;
+				SerializeColorRgb(node["color"], light.color);
 
 				node["range"] = light.range;
 				node["angle"] = light.angle;
@@ -93,7 +94,43 @@ namespace Cardia::SerializerUtils
                         {
                                 const auto& behavior = entity.getComponent<Component::Script>();
                                 node["path"] = std::filesystem::relative(behavior.getPath(), workspace).string();
-                                
+
+				auto& attrsNode = node["attributes"];
+				const auto attrs = behavior.scriptClass.Attributes();
+				for (const auto& item : attrs) {
+					auto& field = attrsNode[item.first.c_str()];
+					field["type"] = static_cast<int>(item.second.type);
+					switch (item.second.type) {
+						case ScriptFieldType::Int:
+							field["value"] = py::handle(item.second.instance).cast<int>();
+							break;
+						case ScriptFieldType::Float:
+							field["value"] = py::handle(item.second.instance).cast<float>();
+							break;
+						case ScriptFieldType::String:
+							field["value"] = py::handle(item.second.instance).cast<std::string>();
+							break;
+						case ScriptFieldType::List:
+							field["value"] = "list";
+							break;
+						case ScriptFieldType::Dict:
+							field["value"] = "dict";
+							break;
+						case ScriptFieldType::PyObject:
+							field["value"] = "uuid";
+							break;
+						case ScriptFieldType::Vector2:
+							SerializeVec2(field["value"], py::handle(item.second.instance).cast<glm::vec2>());
+							break;
+						case ScriptFieldType::Vector3:
+							SerializeVec3(field["value"], py::handle(item.second.instance).cast<glm::vec3>());
+							break;
+						case ScriptFieldType::Vector4:
+							SerializeVec4(field["value"], py::handle(item.second.instance).cast<glm::vec4>());
+							break;
+					}
+				}
+
                                 root[uuid.uuid]["behavior"] = node;
                                 node.clear();
                         }
@@ -139,25 +176,14 @@ namespace Cardia::SerializerUtils
 			name.name = node["name"].asString();
 
                         auto& component = entity.getComponent<Component::Transform>();
-                        component.position.x = node["transform"]["position"]["x"].asFloat();
-                        component.position.y = node["transform"]["position"]["y"].asFloat();
-                        component.position.z = node["transform"]["position"]["z"].asFloat();
-                        
-                        component.rotation.x = node["transform"]["rotation"]["x"].asFloat();
-                        component.rotation.y = node["transform"]["rotation"]["y"].asFloat();
-                        component.rotation.z = node["transform"]["rotation"]["z"].asFloat();
-                        
-                        component.scale.x = node["transform"]["scale"]["x"].asFloat();
-                        component.scale.y = node["transform"]["scale"]["y"].asFloat();
-                        component.scale.z = node["transform"]["scale"]["z"].asFloat();
+			DeserializeVec3(component.position, node["transform"]["position"]);
+			DeserializeVec3(component.rotation, node["transform"]["rotation"]);
+			DeserializeVec3(component.scale, node["transform"]["scale"]);
 
                         if (node.isMember("spriteRenderer"))
                         {
                                 auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
-                                spriteRenderer.color.r = node["spriteRenderer"]["color"]["r"].asFloat();
-                                spriteRenderer.color.g = node["spriteRenderer"]["color"]["g"].asFloat();
-                                spriteRenderer.color.b = node["spriteRenderer"]["color"]["b"].asFloat();
-                                spriteRenderer.color.a = node["spriteRenderer"]["color"]["a"].asFloat();
+				DeserializeColorRgba(spriteRenderer.color, node["spriteRenderer"]["color"]);
 
                                 const auto path = std::filesystem::path(workspace);
                                 auto texture = Texture2D::create((path / node["spriteRenderer"]["texture"].asString()).string());
@@ -188,9 +214,7 @@ namespace Cardia::SerializerUtils
 			{
 				auto& light = entity.addComponent<Component::Light>();
 				light.lightType = node["light"]["type"].asInt();
-				light.color.r = node["light"]["color"]["r"].asFloat();
-				light.color.g = node["light"]["color"]["g"].asFloat();
-				light.color.b = node["light"]["color"]["b"].asFloat();
+				DeserializeColorRgb(light.color, node["light"]["color"]);
 
 				light.range = node["light"]["range"].asFloat();
 				light.angle = node["light"]["angle"].asFloat();
@@ -203,9 +227,122 @@ namespace Cardia::SerializerUtils
                                 auto& behavior = entity.addComponent<Component::Script>();
                                 const auto path = std::filesystem::path(workspace);
                                 behavior.setPath((path /  node["behavior"]["path"].asString()).string());
-                        }
+
+				auto& attrsNode = node["behavior"]["attributes"];
+				auto& attrs = behavior.scriptClass.Attributes();
+				for (const auto& attrName: attrsNode.getMemberNames()) {
+					ScriptField field;
+					field.type = static_cast<ScriptFieldType>(attrsNode[attrName]["type"].asInt());
+					switch (field.type) {
+						case ScriptFieldType::Int:
+							field.instance = py::int_(attrsNode[attrName]["value"].asInt());
+							break;
+						case ScriptFieldType::Float:
+							field.instance = py::float_(attrsNode[attrName]["value"].asFloat());
+							break;
+						case ScriptFieldType::String:
+							field.instance = py::str(attrsNode[attrName]["value"].asString());
+							break;
+						case ScriptFieldType::List:
+							field.instance = py::list();
+							break;
+						case ScriptFieldType::Dict:
+							field.instance = py::dict();
+							break;
+						case ScriptFieldType::PyObject:
+							field.instance = py::str();
+							break;
+						case ScriptFieldType::Vector2:
+						{
+							auto vec = glm::vec2();
+							DeserializeVec2(vec, attrsNode[attrName]["value"]);
+							field.instance = py::cast(vec);
+							break;
+						}
+						case ScriptFieldType::Vector3:
+						{
+							auto vec = glm::vec3();
+							DeserializeVec3(vec, attrsNode[attrName]["value"]);
+							field.instance = py::cast(vec);
+							break;
+						}
+						case ScriptFieldType::Vector4:
+						{
+							auto vec = glm::vec4();
+							DeserializeVec4(vec, attrsNode[attrName]["value"]);
+							field.instance = py::cast(vec);
+							break;
+						}
+					}
+					attrs.insert_or_assign(attrName, field);
+				}
+
+			}
                 }
                 
                 return true;
         }
+
+	void SerializeVec2(Json::Value& node, const glm::vec2& vec) {
+		node["x"] = vec.x;
+		node["y"] = vec.y;
+	}
+
+	void SerializeVec3(Json::Value& node, const glm::vec3& vec) {
+		node["x"] = vec.x;
+		node["y"] = vec.y;
+		node["z"] = vec.z;
+	}
+
+	void SerializeVec4(Json::Value& node, const glm::vec4& vec) {
+		node["x"] = vec.x;
+		node["y"] = vec.y;
+		node["z"] = vec.z;
+		node["w"] = vec.z;
+	}
+
+	void SerializeColorRgb(Json::Value& node, const glm::vec3& vec) {
+		node["r"] = vec.r;
+		node["g"] = vec.g;
+		node["b"] = vec.b;
+	}
+
+	void SerializeColorRgba(Json::Value& node, const glm::vec4& vec) {
+		node["r"] = vec.r;
+		node["g"] = vec.g;
+		node["b"] = vec.b;
+		node["a"] = vec.a;
+	}
+
+	void DeserializeVec2(glm::vec2& vec, const Json::Value& node) {
+		vec.x = node["x"].asFloat();
+		vec.y = node["y"].asFloat();
+	}
+
+	void DeserializeVec3(glm::vec3& vec, const Json::Value& node) {
+		vec.x = node["x"].asFloat();
+		vec.y = node["y"].asFloat();
+		vec.z = node["z"].asFloat();
+	}
+
+	void DeserializeVec4(glm::vec4& vec, const Json::Value& node) {
+		vec.x = node["x"].asFloat();
+		vec.y = node["y"].asFloat();
+		vec.z = node["z"].asFloat();
+		vec.w = node["w"].asFloat();
+	}
+
+	void DeserializeColorRgb(glm::vec3& vec, const Json::Value& node) {
+		vec.r = node["r"].asFloat();
+		vec.g = node["g"].asFloat();
+		vec.b = node["b"].asFloat();
+	}
+
+	void DeserializeColorRgba(glm::vec4& vec, const Json::Value& node) {
+		vec.r = node["r"].asFloat();
+		vec.g = node["g"].asFloat();
+		vec.b = node["b"].asFloat();
+		vec.a = node["a"].asFloat();
+	}
+
 }

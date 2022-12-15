@@ -4,13 +4,14 @@ import colorsys
 
 class Moving(Behavior):
     velocity: int
-    _tick_count: int
+    _tick_count: float
+    text: str
     color: Vector3
 
     def on_create(self):
-        self.velocity = 5
+        # self.velocity = 5
         self.color = self.get_component(PointLight).color
-        self._tick_count = int(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
+        # self._tick_count = float(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
 
     def on_update(self):
         self._tick_count += 1
@@ -22,7 +23,7 @@ class Moving(Behavior):
         self.color.y = g
         self.color.z = b
 
-        self.transform.rotation.y += 10 * Time.delta_time.seconds()
+        self.transform.rotation.y += self.velocity * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Left)
     def move_left(self):
@@ -34,8 +35,8 @@ class Moving(Behavior):
 
     @on_key_pressed(Key.Down)
     def move_down(self):
-        self.transform.position.y -= self.velocity * Time.delta_time.seconds()
+        self.transform.position.z -= self.velocity * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Up)
     def move_top(self):
-        self.transform.position.y += self.velocity * Time.delta_time.seconds()
+        self.transform.position.z += self.velocity * Time.delta_time.seconds()

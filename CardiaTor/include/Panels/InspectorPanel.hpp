@@ -3,6 +3,8 @@
 
 #include "IPanel.hpp"
 #include "Cardia/ECS/Entity.hpp"
+#include "Cardia/Scripting/ScriptInstance.hpp"
+#include "Cardia/Scripting/ScriptClass.hpp"
 
 
 namespace Cardia::Panel
@@ -17,6 +19,8 @@ namespace Cardia::Panel
 
 
         private:
+		template<typename T>
+		void SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, std::function<T(T&)> imGuiCallback);
                 template<typename T>
                 void DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func);
 		Scene* m_CurrentScene {nullptr};
