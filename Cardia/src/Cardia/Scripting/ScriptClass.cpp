@@ -31,6 +31,15 @@ namespace Cardia
 				case ScriptFieldType::PyObject:
 					field.instance = py::str();
 					break;
+				case ScriptFieldType::Vector2:
+					field.instance = py::cast(glm::vec2());
+					break;
+				case ScriptFieldType::Vector3:
+					field.instance = py::cast(glm::vec3(), py::return_value_policy::reference);
+					break;
+				case ScriptFieldType::Vector4:
+					field.instance = py::cast(glm::vec4());
+					break;
 			}
 
 			m_Attributes.insert({item.first.cast<std::string>(), field});

@@ -206,6 +206,24 @@ namespace Cardia::Panel
 					}
 					case ScriptFieldType::PyObject:
 						break;
+					case ScriptFieldType::Vector2:
+						SetDataToField<glm::vec2>(instance, item, [&](glm::vec2& field) {
+							ImGui::DragFloat2(fieldName.c_str(), glm::value_ptr(field), 0.1f);
+							return field;
+						});
+						break;
+					case ScriptFieldType::Vector3:
+						SetDataToField<glm::vec3>(instance, item, [&](glm::vec3& field) {
+							DrawVec3DragFloat(fieldName, field);
+							return field;
+						});
+						break;
+					case ScriptFieldType::Vector4:
+						SetDataToField<glm::vec4>(instance, item, [&](glm::vec4& field) {
+							ImGui::DragFloat4(fieldName.c_str(), glm::value_ptr(field), 0.1f);
+							return field;
+						});
+						break;
 				}
 
 			}
@@ -254,15 +272,15 @@ namespace Cardia::Panel
 
 
 	template<typename T>
-	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, std::function<T(T)> imGuiCallback) {
+	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, std::function<T(T&)> imGuiCallback) {
 		auto fieldName = item.first;
 		if (instance) {
 			T field = instance->GetAttrOrMethod(fieldName.c_str()).cast<T>();
-			item.second.instance = py::cast(imGuiCallback(field));
+			item.second.instance = py::cast(imGuiCallback(field), py::return_value_policy::reference);
 			instance->SetAttr(fieldName.c_str(), item.second.instance);
 		} else {
 			T field = py::handle(item.second.instance).cast<T>();
-			item.second.instance = py::cast(imGuiCallback(field));
+			item.second.instance = py::cast(imGuiCallback(field), py::return_value_policy::reference);
 		}
 	}
 

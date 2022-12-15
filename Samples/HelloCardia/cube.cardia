@@ -12,8 +12,13 @@
 				},
 				"color" : 
 				{
-					"type" : 5,
-					"value" : "uuid"
+					"type" : 7,
+					"value" : 
+					{
+						"x" : 0.0,
+						"y" : 0.0,
+						"z" : 0.0
+					}
 				},
 				"text" : 
 				{

@@ -91,11 +91,11 @@ namespace Cardia
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass &subClass, const ScriptClass &parentClass) {
-		return m_PythonBuiltins.attr("issubclass")(py::handle(subClass), py::handle(parentClass)).cast<bool>();
+		return PyObject_IsSubclass(py::handle(subClass).ptr(), py::handle(parentClass).ptr());
 	}
 
 	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {
-		return m_PythonBuiltins.attr("issubclass")(subClass, parentClass).cast<bool>();
+		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
 	}
 
 	ScriptInstance* ScriptEngine::GetInstance(const UUID &uuid) {

@@ -27,7 +27,6 @@ class Moving(Behavior):
 
     @on_key_pressed(Key.Left)
     def move_left(self):
-        print(f"Hello from python : {self.text}")
         self.transform.position.x -= self.velocity * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Right)

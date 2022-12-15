@@ -6,7 +6,7 @@ namespace Cardia
 {
 	enum class ScriptFieldType
 	{
-		Int, Float, String, List, Dict, PyObject
+		Int, Float, String, List, Dict, PyObject, Vector2, Vector3, Vector4
 	};
 
 	ScriptFieldType PyHandleToFieldType(const py::handle& handle);

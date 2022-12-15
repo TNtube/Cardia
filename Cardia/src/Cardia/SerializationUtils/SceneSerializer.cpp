@@ -119,6 +119,15 @@ namespace Cardia::SerializerUtils
 						case ScriptFieldType::PyObject:
 							field["value"] = "uuid";
 							break;
+						case ScriptFieldType::Vector2:
+							SerializeVec2(field["value"], py::handle(item.second.instance).cast<glm::vec2>());
+							break;
+						case ScriptFieldType::Vector3:
+							SerializeVec3(field["value"], py::handle(item.second.instance).cast<glm::vec3>());
+							break;
+						case ScriptFieldType::Vector4:
+							SerializeVec4(field["value"], py::handle(item.second.instance).cast<glm::vec4>());
+							break;
 					}
 				}
 
@@ -243,6 +252,27 @@ namespace Cardia::SerializerUtils
 						case ScriptFieldType::PyObject:
 							field.instance = py::str();
 							break;
+						case ScriptFieldType::Vector2:
+						{
+							auto vec = glm::vec2();
+							DeserializeVec2(vec, attrsNode[attrName]["value"]);
+							field.instance = py::cast(vec);
+							break;
+						}
+						case ScriptFieldType::Vector3:
+						{
+							auto vec = glm::vec3();
+							DeserializeVec3(vec, attrsNode[attrName]["value"]);
+							field.instance = py::cast(vec);
+							break;
+						}
+						case ScriptFieldType::Vector4:
+						{
+							auto vec = glm::vec4();
+							DeserializeVec4(vec, attrsNode[attrName]["value"]);
+							field.instance = py::cast(vec);
+							break;
+						}
 					}
 					attrs.insert_or_assign(attrName, field);
 				}

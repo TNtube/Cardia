@@ -41,6 +41,9 @@ namespace Cardia
 		auto pyStr   = py::str().get_type();
 		auto pyList  = py::list().get_type();
 		auto pyDict  = py::dict().get_type();
+		auto pyVec2  = py::cast(glm::vec2()).get_type();
+		auto pyVec3  = py::cast(glm::vec3()).get_type();
+		auto pyVec4  = py::cast(glm::vec4()).get_type();
 
 		if (pyInt.equal(handle))
 		{
@@ -61,6 +64,18 @@ namespace Cardia
 		if (pyDict.equal(handle))
 		{
 			return ScriptFieldType::Dict;
+		}
+		if (ScriptEngine::Instance().IsSubClass(handle, pyVec2))
+		{
+			return ScriptFieldType::Vector2;
+		}
+		if (ScriptEngine::Instance().IsSubClass(handle, pyVec3))
+		{
+			return ScriptFieldType::Vector3;
+		}
+		if (ScriptEngine::Instance().IsSubClass(handle, pyVec4))
+		{
+			return ScriptFieldType::Vector4;
 		}
 		return ScriptFieldType::PyObject;
 	}
