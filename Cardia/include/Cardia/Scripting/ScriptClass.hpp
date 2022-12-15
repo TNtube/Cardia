@@ -28,6 +28,7 @@ namespace Cardia
 		inline bool operator== (const ScriptClass& rhs) const { return this->m_PyClass.is(rhs.m_PyClass); }
 
 		std::unordered_map<std::string, ScriptField>& Attributes() { return m_Attributes; }
+		const std::unordered_map<std::string, ScriptField>& Attributes() const { return m_Attributes; }
 
 	private:
 		std::unordered_map<std::string, ScriptField> m_Attributes;

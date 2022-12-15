@@ -3,6 +3,29 @@
 	{
 		"behavior" : 
 		{
+			"attributes" : 
+			{
+				"_tick_count" : 
+				{
+					"type" : 1,
+					"value" : 15.100000381469727
+				},
+				"color" : 
+				{
+					"type" : 5,
+					"value" : "uuid"
+				},
+				"text" : 
+				{
+					"type" : 2,
+					"value" : "Hello"
+				},
+				"velocity" : 
+				{
+					"type" : 0,
+					"value" : 20
+				}
+			},
 			"path" : "Moving.py"
 		},
 		"light" : 
@@ -35,9 +58,9 @@
 			},
 			"scale" : 
 			{
-				"x" : 0.9999929666519165,
-				"y" : 0.9999886155128479,
-				"z" : 0.99998432397842407
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
 			}
 		}
 	},
