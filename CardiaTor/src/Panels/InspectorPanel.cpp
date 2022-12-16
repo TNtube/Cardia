@@ -171,27 +171,33 @@ namespace Cardia::Panel
 				auto type = instance ? ScriptInstance(instance->GetAttrOrMethod(fieldName.c_str())).GetType() : item.second.type;
 				switch (type) {
 					case ScriptFieldType::Int:
-						SetDataToField<int>(instance, item, [&](int field) {
+						SetDataToField<int>(instance, item, [&](py::object& pyField) {
+							auto field = pyField.cast<int>();
 							ImGui::DragInt(fieldName.c_str(), &field, 0.1f);
-							return field;
+							pyField = py::cast(field);
+							return true;
 						});
 						break;
 					case ScriptFieldType::Float:
 					{
-						SetDataToField<float>(instance, item, [&](float field) {
+						SetDataToField<float>(instance, item, [&](py::object& pyField) {
+							auto field = pyField.cast<float>();
 							ImGui::DragFloat(fieldName.c_str(), &field, 0.1f);
-							return field;
+							pyField = py::cast(field);
+							return true;
 						});
 						break;
 					}
 					case ScriptFieldType::String:
 					{
-						SetDataToField<std::string>(instance, item, [&](const std::string& field) {
+						SetDataToField<std::string>(instance, item, [&](py::object& pyField) {
+							auto field = pyField.cast<std::string>();
 							char buff[128] {0};
 							constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
 							field.copy(buff, bufferSize);
 							ImGui::InputText(fieldName.c_str(), buff, IM_ARRAYSIZE(buff));
-							return std::string(buff);
+							pyField = py::cast(std::string(buff));
+							return true;
 						});
 						break;
 					}
@@ -207,21 +213,33 @@ namespace Cardia::Panel
 					case ScriptFieldType::PyObject:
 						break;
 					case ScriptFieldType::Vector2:
-						SetDataToField<glm::vec2>(instance, item, [&](glm::vec2& field) {
+						SetDataToField<glm::vec2>(instance, item, [&](py::object& pyField) {
+							auto field = pyField.cast<glm::vec2>();
 							ImGui::DragFloat2(fieldName.c_str(), glm::value_ptr(field), 0.1f);
-							return field;
+							py::setattr(pyField, "x", py::cast(field.x));
+							py::setattr(pyField, "y", py::cast(field.y));
+							return false;
 						});
 						break;
 					case ScriptFieldType::Vector3:
-						SetDataToField<glm::vec3>(instance, item, [&](glm::vec3& field) {
+						SetDataToField<glm::vec3>(instance, item, [&](py::object& pyField) {
+							auto field = pyField.cast<glm::vec3>();
 							DrawVec3DragFloat(fieldName, field);
-							return field;
+							py::setattr(pyField, "x", py::cast(field.x));
+							py::setattr(pyField, "y", py::cast(field.y));
+							py::setattr(pyField, "z", py::cast(field.z));
+							return false;
 						});
 						break;
 					case ScriptFieldType::Vector4:
-						SetDataToField<glm::vec4>(instance, item, [&](glm::vec4& field) {
+						SetDataToField<glm::vec4>(instance, item, [&](py::object& pyField) {
+							auto field = pyField.cast<glm::vec4>();
 							ImGui::DragFloat4(fieldName.c_str(), glm::value_ptr(field), 0.1f);
-							return field;
+							py::setattr(pyField, "x", py::cast(field.x));
+							py::setattr(pyField, "y", py::cast(field.y));
+							py::setattr(pyField, "z", py::cast(field.z));
+							py::setattr(pyField, "w", py::cast(field.w));
+							return false;
 						});
 						break;
 				}
@@ -272,15 +290,19 @@ namespace Cardia::Panel
 
 
 	template<typename T>
-	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, std::function<T(T&)> imGuiCallback) {
+	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback) {
 		auto fieldName = item.first;
 		if (instance) {
-			T field = instance->GetAttrOrMethod(fieldName.c_str()).cast<T>();
-			item.second.instance = py::cast(imGuiCallback(field), py::return_value_policy::reference);
-			instance->SetAttr(fieldName.c_str(), item.second.instance);
+			auto field = instance->GetAttrOrMethod(fieldName.c_str());
+			auto res = imGuiCallback(field);
+			item.second.instance = field;
+			if (res) {
+				instance->SetAttr(fieldName.c_str(), field);
+			}
 		} else {
-			T field = py::handle(item.second.instance).cast<T>();
-			item.second.instance = py::cast(imGuiCallback(field), py::return_value_policy::reference);
+			auto field = py::object(item.second.instance);
+			imGuiCallback(field);
+			item.second.instance = field;
 		}
 	}
 

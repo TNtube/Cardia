@@ -24,6 +24,11 @@ namespace Cardia
 			return m_Instance;
 		}
 
+		operator py::object() const
+		{
+			return m_Instance;
+		}
+
 	private:
 		py::object m_Instance;
 		std::vector<std::string> m_OnUpdateCallbacks;
