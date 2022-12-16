@@ -19,8 +19,7 @@ namespace Cardia
 	template<typename T>
 	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
 	{
-		auto issubclass = ScriptEngine::Instance().GetPythonBuiltins().attr("issubclass");
-		if (issubclass(cls, py::detail::get_type_handle(typeid(T), false)).cast<bool>()) {
+		if (ScriptEngine::IsSubClass(cls, py::detail::get_type_handle(typeid(T), false))) {
 			out["output"] = py::cast(entity.getComponent<T>(), py::return_value_policy::reference);
 			return true;
 		}

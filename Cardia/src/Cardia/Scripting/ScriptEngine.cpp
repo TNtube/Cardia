@@ -91,7 +91,7 @@ namespace Cardia
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass &subClass, const ScriptClass &parentClass) {
-		return PyObject_IsSubclass(py::handle(subClass).ptr(), py::handle(parentClass).ptr());
+		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
 	}
 
 	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {
