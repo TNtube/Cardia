@@ -18,7 +18,7 @@ namespace Cardia
 		ScriptClass(const ScriptClass &) = default;
 		ScriptClass() = default;
 
-		ScriptInstance Instantiate(const UUID &uuid);
+		ScriptInstance Instantiate(const UUID &uuid, const std::string& name);
 		PyObject* ptr() const { return m_PyClass.ptr(); }
 
 		operator py::handle() const

@@ -11,6 +11,22 @@
 
 namespace Cardia::Panel
 {
+	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback) {
+		auto fieldName = item.first;
+		if (instance) {
+			auto field = instance->GetAttrOrMethod(fieldName.c_str());
+			auto res = imGuiCallback(field);
+			item.second.instance = field;
+			if (res) {
+				instance->SetAttr(fieldName.c_str(), field);
+			}
+		} else {
+			auto field = py::object(item.second.instance);
+			imGuiCallback(field);
+			item.second.instance = field;
+		}
+	}
+
         void InspectorPanel::OnImGuiRender()
         {
                 ImGui::Begin("Inspector");
@@ -171,7 +187,7 @@ namespace Cardia::Panel
 				auto type = instance ? ScriptInstance(instance->GetAttrOrMethod(fieldName.c_str())).GetType() : item.second.type;
 				switch (type) {
 					case ScriptFieldType::Int:
-						SetDataToField<int>(instance, item, [&](py::object& pyField) {
+						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<int>();
 							ImGui::DragInt(fieldName.c_str(), &field, 0.1f);
 							pyField = py::cast(field);
@@ -180,7 +196,7 @@ namespace Cardia::Panel
 						break;
 					case ScriptFieldType::Float:
 					{
-						SetDataToField<float>(instance, item, [&](py::object& pyField) {
+						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<float>();
 							ImGui::DragFloat(fieldName.c_str(), &field, 0.1f);
 							pyField = py::cast(field);
@@ -190,7 +206,7 @@ namespace Cardia::Panel
 					}
 					case ScriptFieldType::String:
 					{
-						SetDataToField<std::string>(instance, item, [&](py::object& pyField) {
+						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<std::string>();
 							char buff[128] {0};
 							constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
@@ -210,10 +226,37 @@ namespace Cardia::Panel
 						auto dict = py::dict(instance->GetAttrOrMethod(fieldName.c_str()));
 						break;
 					}
-					case ScriptFieldType::PyObject:
+					case ScriptFieldType::PyBehavior:
+						SetDataToField(instance, item, [&](py::object& pyField) {
+							char buff[128] {0};
+							constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
+							if (py::hasattr(pyField, "id")) {
+								auto uuid = pyField.attr("id").cast<std::string>();
+								auto pyInstance = ScriptEngine::Instance().GetInstance(UUID::fromString(uuid));
+								auto instanceName = pyInstance->GetAttrOrMethod("cd__name").cast<std::string>();
+								instanceName.copy(buff, bufferSize);
+							}
+							ImGui::InputText(fieldName.c_str(), buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
+							if (ImGui::BeginDragDropTarget())
+							{
+								if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
+								{
+									const char* str = static_cast<const char*>(payload->Data);
+									auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
+									if (script) {
+										pyField = *script;
+										ImGui::EndDragDropTarget();
+										return true;
+									}
+								}
+								ImGui::EndDragDropTarget();
+							}
+
+							return false;
+						});
 						break;
 					case ScriptFieldType::Vector2:
-						SetDataToField<glm::vec2>(instance, item, [&](py::object& pyField) {
+						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<glm::vec2>();
 							ImGui::DragFloat2(fieldName.c_str(), glm::value_ptr(field), 0.1f);
 							py::setattr(pyField, "x", py::cast(field.x));
@@ -222,7 +265,7 @@ namespace Cardia::Panel
 						});
 						break;
 					case ScriptFieldType::Vector3:
-						SetDataToField<glm::vec3>(instance, item, [&](py::object& pyField) {
+						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<glm::vec3>();
 							DrawVec3DragFloat(fieldName, field);
 							py::setattr(pyField, "x", py::cast(field.x));
@@ -232,7 +275,7 @@ namespace Cardia::Panel
 						});
 						break;
 					case ScriptFieldType::Vector4:
-						SetDataToField<glm::vec4>(instance, item, [&](py::object& pyField) {
+						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<glm::vec4>();
 							ImGui::DragFloat4(fieldName.c_str(), glm::value_ptr(field), 0.1f);
 							py::setattr(pyField, "x", py::cast(field.x));
@@ -287,24 +330,6 @@ namespace Cardia::Panel
 		}
 		ImGui::End();
         }
-
-
-	template<typename T>
-	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback) {
-		auto fieldName = item.first;
-		if (instance) {
-			auto field = instance->GetAttrOrMethod(fieldName.c_str());
-			auto res = imGuiCallback(field);
-			item.second.instance = field;
-			if (res) {
-				instance->SetAttr(fieldName.c_str(), field);
-			}
-		} else {
-			auto field = py::object(item.second.instance);
-			imGuiCallback(field);
-			item.second.instance = field;
-		}
-	}
 
 
         template<typename T>

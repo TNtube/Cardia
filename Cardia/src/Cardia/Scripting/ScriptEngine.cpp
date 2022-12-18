@@ -26,12 +26,12 @@ namespace Cardia
 	{
 		m_CurrentContext = context;
 
-		const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID>();
+		const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID, Component::Name>();
 		for (const auto entity : view)
 		{
-			auto [transform, script, uuid] = view.get<Component::Transform, Component::Script, Component::ID>(entity);
+			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Name>(entity);
 			try {
-				auto instance = script.scriptClass.Instantiate(uuid.uuid);
+				auto instance = script.scriptClass.Instantiate(uuid.uuid, name.name);
 				instance.GetAttrOrMethod("on_create")();
 				m_BehaviorInstances.insert({uuid.uuid, instance});
 			}
@@ -90,7 +90,15 @@ namespace Cardia
 		return ScriptClass(locals[name.c_str()]);
 	}
 
-	bool ScriptEngine::IsSubClass(const ScriptClass &subClass, const ScriptClass &parentClass) {
+	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass) {
+		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
+	}
+
+	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const py::handle& parentClass) {
+		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
+	}
+
+	bool ScriptEngine::IsSubClass(const py::handle& subClass, const ScriptClass &parentClass) {
 		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
 	}
 
@@ -105,6 +113,10 @@ namespace Cardia
 			return &it->second;
 		}
 		return nullptr;
+	}
+
+	bool ScriptEngine::IsBehavior(const py::handle &scriptClass) {
+		return IsSubClass(scriptClass, m_CardiaPythonAPI.attr("Behavior"));
 	}
 
 }
