@@ -93,7 +93,7 @@ namespace Cardia::SerializerUtils
                         if (entity.hasComponent<Component::Script>())
                         {
                                 const auto& behavior = entity.getComponent<Component::Script>();
-                                node["path"] = std::filesystem::relative(behavior.getPath(), workspace).string();
+                                node["path"] = behavior.getPath();
 
 				auto& attrsNode = node["attributes"];
 				const auto attrs = behavior.scriptClass.Attributes();
@@ -117,7 +117,8 @@ namespace Cardia::SerializerUtils
 							field["value"] = "dict";
 							break;
 						case ScriptFieldType::PyBehavior:
-							field["value"] = item.second.instance.GetAttrOrMethod("id").cast<std::string>();
+							if (py::hasattr(item.second.instance, "id"))
+								field["value"] = item.second.instance.GetAttrOrMethod("id").cast<std::string>();
 							break;
 						case ScriptFieldType::Vector2:
 							SerializeVec2(field["value"], py::handle(item.second.instance).cast<glm::vec2>());
@@ -228,7 +229,7 @@ namespace Cardia::SerializerUtils
                         {
                                 auto& behavior = entity.addComponent<Component::Script>();
                                 const auto path = std::filesystem::path(workspace);
-                                behavior.setPath((path /  node["behavior"]["path"].asString()).string());
+                                behavior.setPath(node["behavior"]["path"].asString());
 
 				auto& attrsNode = node["behavior"]["attributes"];
 				auto& attrs = behavior.scriptClass.Attributes();

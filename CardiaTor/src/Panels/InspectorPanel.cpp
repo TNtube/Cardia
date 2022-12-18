@@ -184,7 +184,7 @@ namespace Cardia::Panel
 			{
 				auto fieldName = item.first;
 				auto instance = ScriptEngine::Instance().GetInstance(uuid.uuid);
-				auto type = instance ? ScriptInstance(instance->GetAttrOrMethod(fieldName.c_str())).GetType() : item.second.type;
+				auto type = item.second.type;
 				switch (type) {
 					case ScriptFieldType::Int:
 						SetDataToField(instance, item, [&](py::object& pyField) {

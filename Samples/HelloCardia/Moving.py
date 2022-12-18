@@ -1,5 +1,6 @@
 from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight
 import colorsys
+from Greeting import Greeting
 
 
 class Moving(Behavior):
@@ -7,7 +8,7 @@ class Moving(Behavior):
     _tick_count: float
     text: str
     color: Vector3
-    greeting: Behavior
+    greeting: Greeting
 
     def on_create(self):
         # self.velocity = 5
@@ -43,5 +44,5 @@ class Moving(Behavior):
         self.transform.position.z += self.velocity * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Space)
-    def greeting(self):
+    def greet(self):
         self.greeting.hello_world()

@@ -54,10 +54,13 @@ namespace Cardia
 	{
 		for (auto& [uuid, instance] : m_BehaviorInstances)  {
 			try {
-				for (auto& callback : instance.m_OnUpdateCallbacks) {
-					instance.GetAttrOrMethod(callback.c_str())();
-				}
 				instance.GetAttrOrMethod("on_update")();
+				for (auto& callback : instance.m_OnUpdateCallbacks) {
+					auto method = instance.GetAttrOrMethod(callback.c_str());
+					if (m_PythonBuiltins.attr("callable")(method).cast<bool>()) {
+						method();
+					}
+				}
 			}
 			catch (const std::exception& e) {
 				Log::error("On Update : {0}", e.what());
@@ -76,18 +79,18 @@ namespace Cardia
 		}
 	}
 
-	ScriptClass ScriptEngine::GetClassFromPyFile(const std::string& name, const std::string& content)
+	ScriptClass ScriptEngine::GetClassFromPyFile(std::filesystem::path& relativePath)
 	{
-		auto locals = py::dict();
+		auto fileName = relativePath.filename().replace_extension().string();
+		auto path = relativePath.replace_extension();
+		auto importedFile = py::module_::import(path.string().c_str());
 
-		py::exec(content, locals, locals);
-
-		if (!locals.contains(name.c_str()) || !IsSubClass(locals[name.c_str()], m_CardiaPythonAPI.attr("Behavior")))
+		if (!py::hasattr(importedFile, fileName.c_str()) && !IsSubClass(importedFile.attr(fileName.c_str()), m_CardiaPythonAPI.attr("Behavior")))
 		{
-			Log::coreError("Cannot find {0} class child of Behavior", name);
+			Log::coreError("Cannot find {0} class child of Behavior", fileName);
 		}
 
-		return ScriptClass(locals[name.c_str()]);
+		return ScriptClass(importedFile.attr(fileName.c_str()));
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass) {
@@ -117,6 +120,12 @@ namespace Cardia
 
 	bool ScriptEngine::IsBehavior(const py::handle &scriptClass) {
 		return IsSubClass(scriptClass, m_CardiaPythonAPI.attr("Behavior"));
+	}
+
+	void ScriptEngine::UpdateWorkspace()
+	{
+		auto sys = py::module::import("sys");
+		sys.attr("path").attr("append")(Application::projectSettings().workspace);
 	}
 
 }

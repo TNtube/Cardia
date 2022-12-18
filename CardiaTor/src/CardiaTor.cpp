@@ -151,6 +151,7 @@ namespace Cardia
 		{
 			panel->OnUpdateWorkspace();
 		}
+		ScriptEngine::UpdateWorkspace();
 	}
 
 	void CardiaTor::saveScene() const
@@ -178,7 +179,7 @@ namespace Cardia
 
 	void CardiaTor::openScene(const std::filesystem::path& scenePath)
 	{
-		const std::ifstream t(scenePath);
+		const std::ifstream t(projectSettings().workspace / scenePath);
 		std::stringstream buffer;
 		buffer << t.rdbuf();
 

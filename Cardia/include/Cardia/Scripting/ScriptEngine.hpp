@@ -15,10 +15,11 @@ namespace Cardia
 	public:
 		ScriptEngine();
 		~ScriptEngine();
-		ScriptClass GetClassFromPyFile(const std::string& name, const std::string& content);
+		ScriptClass GetClassFromPyFile(std::filesystem::path& relativePath);
 		void OnRuntimeStart(Scene* context);
 		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
+		static void UpdateWorkspace();
 		ScriptInstance* GetInstance(const UUID& uuid);
 		Scene& GetSceneContext();
 		void RegisterUpdateMethod(py::object& cls, std::string& name);

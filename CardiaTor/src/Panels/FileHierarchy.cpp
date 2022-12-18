@@ -27,8 +27,8 @@ namespace Cardia::Panel
                         return;
                 }
                 
-                const auto pathFromWorkspace = std::filesystem::relative(m_CurrentPath, workspace).string();
-                ImGui::Text("%s", pathFromWorkspace != "." ? pathFromWorkspace.c_str() : "");
+                const auto pathFromWorkspace = std::filesystem::relative(m_CurrentPath, workspace);
+                ImGui::Text("%s", pathFromWorkspace != "." ? pathFromWorkspace.string().c_str() : "");
 
                 if (m_CurrentPath != workspace)
                 {
@@ -94,7 +94,7 @@ namespace Cardia::Panel
                         
                         if (ImGui::BeginDragDropSource())
                         {
-                                std::string itemPath = (m_CurrentPath / path).string();
+                                std::string itemPath = (pathFromWorkspace / path).string();
                                 ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
                                 ImGui::EndDragDropSource();
                         }
