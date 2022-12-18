@@ -93,7 +93,7 @@ namespace Cardia::SerializerUtils
                         if (entity.hasComponent<Component::Script>())
                         {
                                 const auto& behavior = entity.getComponent<Component::Script>();
-                                node["path"] = std::filesystem::relative(behavior.getPath(), workspace).string();
+                                node["path"] = behavior.getPath();
 
 				auto& attrsNode = node["attributes"];
 				const auto attrs = behavior.scriptClass.Attributes();
@@ -116,8 +116,8 @@ namespace Cardia::SerializerUtils
 						case ScriptFieldType::Dict:
 							field["value"] = "dict";
 							break;
-						case ScriptFieldType::PyObject:
-							field["value"] = "uuid";
+						case ScriptFieldType::PyBehavior:
+							field["value"] = py::handle(item.second.instance).cast<std::string>();
 							break;
 						case ScriptFieldType::Vector2:
 							SerializeVec2(field["value"], py::handle(item.second.instance).cast<glm::vec2>());
@@ -226,7 +226,7 @@ namespace Cardia::SerializerUtils
                         {
                                 auto& behavior = entity.addComponent<Component::Script>();
                                 const auto path = std::filesystem::path(workspace);
-                                behavior.setPath((path /  node["behavior"]["path"].asString()).string());
+                                behavior.setPath(node["behavior"]["path"].asString());
 
 				auto& attrsNode = node["behavior"]["attributes"];
 				auto& attrs = behavior.scriptClass.Attributes();
@@ -249,8 +249,8 @@ namespace Cardia::SerializerUtils
 						case ScriptFieldType::Dict:
 							field.instance = py::dict();
 							break;
-						case ScriptFieldType::PyObject:
-							field.instance = py::str();
+						case ScriptFieldType::PyBehavior:
+							field.instance = py::str(attrsNode[attrName]["value"].asString());
 							break;
 						case ScriptFieldType::Vector2:
 						{
@@ -273,6 +273,7 @@ namespace Cardia::SerializerUtils
 							field.instance = py::cast(vec);
 							break;
 						}
+						case ScriptFieldType::Unserializable:break;
 					}
 					attrs.insert_or_assign(attrName, field);
 				}

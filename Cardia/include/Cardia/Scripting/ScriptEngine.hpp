@@ -15,16 +15,20 @@ namespace Cardia
 	public:
 		ScriptEngine();
 		~ScriptEngine();
-		ScriptClass GetClassFromPyFile(const std::string& name, const std::string& content);
-		bool IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass);
-		bool IsSubClass(const py::handle& subClass, const py::handle& parentClass);
+		ScriptClass GetClassFromPyFile(std::filesystem::path& relativePath);
 		void OnRuntimeStart(Scene* context);
 		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
+		static void UpdateWorkspace();
 		ScriptInstance* GetInstance(const UUID& uuid);
 		Scene& GetSceneContext();
 		void RegisterUpdateMethod(py::object& cls, std::string& name);
 		py::object& GetPythonBuiltins() { return m_PythonBuiltins; }
+		bool IsBehavior(const py::handle& scriptClass);
+		static bool IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass);
+		static bool IsSubClass(const py::handle& subClass, const ScriptClass& parentClass);
+		static bool IsSubClass(const ScriptClass& subClass, const py::handle& parentClass);
+		static bool IsSubClass(const py::handle& subClass, const py::handle& parentClass);
 		static ScriptEngine& Instance() { return *s_Instance; }
 
 	private:

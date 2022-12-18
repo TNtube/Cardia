@@ -28,7 +28,7 @@ namespace Cardia
 				case ScriptFieldType::Dict:
 					field.instance = py::dict();
 					break;
-				case ScriptFieldType::PyObject:
+				case ScriptFieldType::PyBehavior:
 					field.instance = py::str();
 					break;
 				case ScriptFieldType::Vector2:
@@ -46,15 +46,11 @@ namespace Cardia
 		}
 	}
 
-	ScriptInstance ScriptClass::Instantiate(const UUID& uuid)
+	ScriptInstance ScriptClass::Instantiate(const UUID& uuid, const std::string& name)
 	{
 		py::object pyInstance = m_PyClass();
 		py::setattr(pyInstance, "id", py::str(uuid));
-
-		for (const auto& item: m_Attributes)
-		{
-			py::setattr(pyInstance, item.first.c_str(), item.second.instance);
-		}
+		py::setattr(pyInstance, "cd__name", py::cast(name));
 
 		return {pyInstance};
 	}

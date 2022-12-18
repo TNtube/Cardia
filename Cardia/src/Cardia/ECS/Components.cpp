@@ -10,7 +10,7 @@ namespace Cardia::Component
                 const std::ifstream t(m_Path);
                 std::stringstream buffer;
                 buffer << t.rdbuf();
-		auto filename = std::filesystem::path(m_Path).filename().replace_extension().string();
-		scriptClass = ScriptEngine::Instance().GetClassFromPyFile(filename, buffer.str());
+		auto filePath = std::filesystem::path(m_Path);
+		scriptClass = ScriptEngine::Instance().GetClassFromPyFile(filePath);
         }
 }

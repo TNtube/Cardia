@@ -26,11 +26,18 @@ namespace Cardia :: Panel
 		{
 			auto selectedEntity = m_Scene->GetCurrentEntity();
 			auto name = view.get<Component::Name>(entity);
+			auto uuid = view.get<Component::ID>(entity);
 			auto node_flags = ((selectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity))), node_flags, "%s", name.name.c_str())) {
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				if (ImGui::BeginDragDropSource())
+				{
+					std::string itemUuid = uuid.uuid;
+					ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (strlen(itemUuid.c_str()) + 1) * sizeof(char));
+					ImGui::EndDragDropSource();
+				}
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Middle)) {
 					m_Scene->SetCurrentEntity(view.get<Component::ID>(entity).uuid);
 				}
 				if (ImGui::BeginPopupContextItem())

@@ -19,8 +19,7 @@ namespace Cardia::Panel
 
 
         private:
-		template<typename T>
-		void SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, std::function<T(T&)> imGuiCallback);
+		void SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback);
                 template<typename T>
                 void DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func);
 		Scene* m_CurrentScene {nullptr};

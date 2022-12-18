@@ -20,7 +20,7 @@ namespace Cardia
 		}
 	}
 
-	py::object ScriptInstance::GetAttrOrMethod(const char* name)
+	py::object ScriptInstance::GetAttrOrMethod(const char* name) const
 	{
 		return m_Instance.attr(name);
 	}
@@ -65,18 +65,22 @@ namespace Cardia
 		{
 			return ScriptFieldType::Dict;
 		}
-		if (ScriptEngine::Instance().IsSubClass(handle, pyVec2))
+		if (ScriptEngine::Instance().IsBehavior(handle))
+		{
+			return ScriptFieldType::PyBehavior;
+		}
+		if (ScriptEngine::IsSubClass(handle, pyVec2))
 		{
 			return ScriptFieldType::Vector2;
 		}
-		if (ScriptEngine::Instance().IsSubClass(handle, pyVec3))
+		if (ScriptEngine::IsSubClass(handle, pyVec3))
 		{
 			return ScriptFieldType::Vector3;
 		}
-		if (ScriptEngine::Instance().IsSubClass(handle, pyVec4))
+		if (ScriptEngine::IsSubClass(handle, pyVec4))
 		{
 			return ScriptFieldType::Vector4;
 		}
-		return ScriptFieldType::PyObject;
+		return ScriptFieldType::Unserializable;
 	}
 }
