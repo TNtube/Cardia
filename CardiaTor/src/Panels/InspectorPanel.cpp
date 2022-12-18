@@ -227,34 +227,37 @@ namespace Cardia::Panel
 						break;
 					}
 					case ScriptFieldType::PyBehavior:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							char buff[128] {0};
-							constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
-							if (py::hasattr(pyField, "id")) {
-								auto uuid = pyField.attr("id").cast<std::string>();
-								auto pyInstance = ScriptEngine::Instance().GetInstance(UUID::fromString(uuid));
-								auto instanceName = pyInstance->GetAttrOrMethod("cd__name").cast<std::string>();
+					{
+						char buff[128]{0};
+						constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
+						auto id = py::handle(item.second.instance).cast<std::string>();
+						try {
+							auto entity = m_CurrentScene->GetEntityByUUID(UUID::fromString(id));
+
+							if (entity) {
+								auto instanceName = entity.getComponent<Component::Name>().name;
 								instanceName.copy(buff, bufferSize);
 							}
-							ImGui::InputText(fieldName.c_str(), buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
-							if (ImGui::BeginDragDropTarget())
-							{
-								if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
-								{
-									const char* str = static_cast<const char*>(payload->Data);
-									auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
-									if (script) {
-										pyField = *script;
-										ImGui::EndDragDropTarget();
-										return true;
-									}
-								}
-								ImGui::EndDragDropTarget();
-							}
+						} catch (std::exception& e) {
 
-							return false;
-						});
+						}
+						ImGui::InputText(fieldName.c_str(), buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
+						if (ImGui::BeginDragDropTarget())
+						{
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
+							{
+								const char* str = static_cast<const char*>(payload->Data);
+								item.second.instance = py::cast(str);
+								auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
+								if (script && instance)
+								{
+									instance->SetAttr(fieldName.c_str(), *script);
+								}
+							}
+							ImGui::EndDragDropTarget();
+						}
 						break;
+					}
 					case ScriptFieldType::Vector2:
 						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<glm::vec2>();

@@ -32,8 +32,35 @@ namespace Cardia
 			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Name>(entity);
 			try {
 				auto instance = script.scriptClass.Instantiate(uuid.uuid, name.name);
-				instance.GetAttrOrMethod("on_create")();
 				m_BehaviorInstances.insert({uuid.uuid, instance});
+			}
+			catch (const std::exception& e) {
+				Log::error("Instantiating : {0}", e.what());
+			}
+		}
+		for (const auto entity : view)
+		{
+			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Name>(entity);
+			try {
+				auto behavior = m_BehaviorInstances.at(uuid.uuid);
+				for (const auto& item: script.scriptClass.Attributes())
+				{
+					if (item.second.type == ScriptFieldType::PyBehavior) {
+						try {
+							auto refBehavior = ScriptEngine::Instance().GetInstance(
+								UUID::fromString(py::handle(item.second.instance).cast<std::string>()));
+							if (refBehavior)
+							{
+								py::setattr(behavior, item.first.c_str(), py::handle(*refBehavior));
+							}
+						} catch (const std::exception& e) {
+							py::setattr(behavior, item.first.c_str(), py::none());
+						}
+					} else {
+						py::setattr(behavior, item.first.c_str(), item.second.instance);
+					}
+				}
+				behavior.GetAttrOrMethod("on_create")();
 			}
 			catch (const std::exception& e) {
 				Log::error("On Create : {0}", e.what());

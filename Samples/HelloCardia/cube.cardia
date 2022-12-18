@@ -20,6 +20,11 @@
 						"z" : 0.0
 					}
 				},
+				"greeting" : 
+				{
+					"type" : 5,
+					"value" : "877ee625-a775-4108-a4d8-09960f748900"
+				},
 				"text" : 
 				{
 					"type" : 2,
@@ -78,7 +83,7 @@
 				"message" : 
 				{
 					"type" : 2,
-					"value" : "Hello"
+					"value" : "I'm from Greeting.py"
 				}
 			},
 			"path" : "Greeting.py"

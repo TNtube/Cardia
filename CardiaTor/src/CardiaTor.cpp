@@ -173,18 +173,20 @@ namespace Cardia
 		
 		std::ofstream file;
 		file.open(m_CurrentScene->path);
-		file << SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
+		auto serializedScene = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
+		file << serializedScene;
 		file.close();
 	}
 
 	void CardiaTor::openScene(const std::filesystem::path& scenePath)
 	{
-		const std::ifstream t(projectSettings().workspace / scenePath);
+		auto absoluteScenePath = projectSettings().workspace / scenePath;
+		const std::ifstream t(absoluteScenePath);
 		std::stringstream buffer;
 		buffer << t.rdbuf();
 
-		auto newScene = std::make_unique<Scene>(scenePath.filename().string());
-		newScene->path = scenePath;
+		auto newScene = std::make_unique<Scene>(absoluteScenePath.filename().string());
+		newScene->path = absoluteScenePath;
 
 		UUID lastEntity;
 		if (m_CurrentScene && m_CurrentScene->GetCurrentEntity())
@@ -387,6 +389,7 @@ namespace Cardia
 					openWorkspace();
 					break;
 				case Key::S:
+					Log::coreInfo("Saving...");
 					saveScene();
 					break;
 				default:

@@ -117,8 +117,7 @@ namespace Cardia::SerializerUtils
 							field["value"] = "dict";
 							break;
 						case ScriptFieldType::PyBehavior:
-							if (py::hasattr(item.second.instance, "id"))
-								field["value"] = item.second.instance.GetAttrOrMethod("id").cast<std::string>();
+							field["value"] = py::handle(item.second.instance).cast<std::string>();
 							break;
 						case ScriptFieldType::Vector2:
 							SerializeVec2(field["value"], py::handle(item.second.instance).cast<glm::vec2>());
@@ -129,8 +128,6 @@ namespace Cardia::SerializerUtils
 						case ScriptFieldType::Vector4:
 							SerializeVec4(field["value"], py::handle(item.second.instance).cast<glm::vec4>());
 							break;
-						case ScriptFieldType::Unserializable:
-							continue;
 					}
 				}
 
@@ -253,7 +250,7 @@ namespace Cardia::SerializerUtils
 							field.instance = py::dict();
 							break;
 						case ScriptFieldType::PyBehavior:
-							field.instance = py::str();
+							field.instance = py::str(attrsNode[attrName]["value"].asString());
 							break;
 						case ScriptFieldType::Vector2:
 						{
@@ -276,6 +273,7 @@ namespace Cardia::SerializerUtils
 							field.instance = py::cast(vec);
 							break;
 						}
+						case ScriptFieldType::Unserializable:break;
 					}
 					attrs.insert_or_assign(attrName, field);
 				}

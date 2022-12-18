@@ -52,11 +52,6 @@ namespace Cardia
 		py::setattr(pyInstance, "id", py::str(uuid));
 		py::setattr(pyInstance, "cd__name", py::cast(name));
 
-		for (const auto& item: m_Attributes)
-		{
-			py::setattr(pyInstance, item.first.c_str(), item.second.instance);
-		}
-
 		return {pyInstance};
 	}
 }
