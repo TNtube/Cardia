@@ -5,11 +5,6 @@
 		{
 			"attributes" : 
 			{
-				"_tick_count" : 
-				{
-					"type" : 1,
-					"value" : 15.100000381469727
-				},
 				"color" : 
 				{
 					"type" : 7,
@@ -33,7 +28,7 @@
 				"velocity" : 
 				{
 					"type" : 0,
-					"value" : 20
+					"value" : 10
 				}
 			},
 			"path" : "Moving.py"

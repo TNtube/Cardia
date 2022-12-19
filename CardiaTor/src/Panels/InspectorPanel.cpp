@@ -11,7 +11,7 @@
 
 namespace Cardia::Panel
 {
-	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<const std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback) {
+	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback) {
 		auto fieldName = item.first;
 		if (instance) {
 			auto field = instance->GetAttrOrMethod(fieldName.c_str());
@@ -288,6 +288,7 @@ namespace Cardia::Panel
 							return false;
 						});
 						break;
+					case ScriptFieldType::Unserializable:break;
 				}
 
 			}

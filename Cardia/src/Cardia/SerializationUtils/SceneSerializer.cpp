@@ -275,7 +275,14 @@ namespace Cardia::SerializerUtils
 						}
 						case ScriptFieldType::Unserializable:break;
 					}
-					attrs.insert_or_assign(attrName, field);
+					auto attrPair = std::find_if(attrs.begin(), attrs.end(), [&](auto& attr) {
+						return attr.first == attrName;
+					});
+					if (attrPair != attrs.end()) {
+						attrPair->second = field;
+					} else {
+						attrs.emplace_back(attrName, field);
+					}
 				}
 
 			}

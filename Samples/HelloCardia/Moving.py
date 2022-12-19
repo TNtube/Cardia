@@ -13,7 +13,7 @@ class Moving(Behavior):
     def on_create(self):
         # self.velocity = 5
         self.color = self.get_component(PointLight).color
-        # self._tick_count = float(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
+        self._tick_count = float(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
 
     def on_update(self):
         self._tick_count += 1
