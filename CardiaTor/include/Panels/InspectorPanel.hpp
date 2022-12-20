@@ -23,6 +23,5 @@ namespace Cardia::Panel
                 template<typename T>
                 void DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func);
 		Scene* m_CurrentScene {nullptr};
-		static void DrawVec3DragFloat(const std::string& label, glm::vec3& vector, float reset = 0.0f, float columnWidth = 100.0f);
         };
 }
