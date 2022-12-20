@@ -1,6 +1,7 @@
 #pragma once
 #include "ScriptInstance.hpp"
 #include "Cardia/Core/UUID.hpp"
+#include <map>
 
 namespace Cardia
 {
@@ -9,6 +10,8 @@ namespace Cardia
 		ScriptFieldType type {};
 		ScriptInstance instance;
 	};
+
+	using AttributesVector = std::vector<std::pair<std::string, ScriptField>>;
 
 	class ScriptClass
 	{
@@ -28,11 +31,11 @@ namespace Cardia
 
 		inline bool operator== (const ScriptClass& rhs) const { return this->m_PyClass.is(rhs.m_PyClass); }
 
-		std::unordered_map<std::string, ScriptField>& Attributes() { return m_Attributes; }
-		const std::unordered_map<std::string, ScriptField>& Attributes() const { return m_Attributes; }
+		AttributesVector& Attributes() { return m_Attributes; }
+		const AttributesVector& Attributes() const { return m_Attributes; }
 
 	private:
-		std::unordered_map<std::string, ScriptField> m_Attributes;
+		AttributesVector m_Attributes;
 		py::object m_PyClass;
 	};
 }

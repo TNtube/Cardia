@@ -8,6 +8,9 @@ namespace Cardia
 	{
 		py::dict annotations(m_PyClass.attr("__annotations__"));
 		for (const auto &item: annotations) {
+			if (item.first.cast<std::string>().starts_with('_')) {
+				continue;
+			}
 			const auto type = PyHandleToFieldType(item.second);
 
 			ScriptField field{};
@@ -40,9 +43,10 @@ namespace Cardia
 				case ScriptFieldType::Vector4:
 					field.instance = py::cast(glm::vec4());
 					break;
+				case ScriptFieldType::Unserializable:break;
 			}
 
-			m_Attributes.insert({item.first.cast<std::string>(), field});
+			m_Attributes.emplace_back(item.first.cast<std::string>(), field);
 		}
 	}
 
@@ -50,7 +54,7 @@ namespace Cardia
 	{
 		py::object pyInstance = m_PyClass();
 		py::setattr(pyInstance, "id", py::str(uuid));
-		py::setattr(pyInstance, "cd__name", py::cast(name));
+		py::setattr(pyInstance, "_cd__name", py::cast(name));
 
 		return {pyInstance};
 	}
