@@ -104,12 +104,12 @@ namespace Cardia::Panel
 
 			int type = static_cast<int>(cam.getProjectionType());
 			const char *cameraTypes[] = {"Perspective", "Orthographic"};
-			if (ImGui::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes) / sizeof(char *)))
+			if (EditorUI::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes) / sizeof(char *)))
 				cam.setProjectionType(static_cast<SceneCamera::ProjectionType>(type));
 
 			auto& isPrimary = camera.primary;
 
-			ImGui::Checkbox("Primary", &isPrimary);
+			EditorUI::Checkbox("Primary", &isPrimary);
 
 			if (cam.getProjectionType() == SceneCamera::ProjectionType::Perspective) {
 				float pFov = glm::degrees(cam.getPerspectiveFov());
@@ -145,14 +145,12 @@ namespace Cardia::Panel
 			light.lightType = item_current;
 
 			EditorUI::ColorEdit3("Color", glm::value_ptr(light.color));
-			if (item_current == 0) return;
 
+			if (item_current == 0) return;
 			EditorUI::DragFloat("Range", &light.range, 0.01f, 0.0f);
 
 			if (item_current == 1) return;
-
 			EditorUI::DragFloat("Angle", &light.angle, 0.5f, 0.0f);
-
 			EditorUI::DragFloat("Smoothness", &light.smoothness, 0.5f);
 		});
 

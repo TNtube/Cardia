@@ -198,4 +198,23 @@ namespace Cardia::EditorUI
 
 		return res;
 	}
+
+	bool Checkbox(const char *label, bool *v)
+	{
+		ImGui::PushID(label);
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+
+		ImGui::Text("%s", label);
+
+		ImGui::NextColumn();
+
+		ImGui::SetNextItemWidth(-0.01f);
+		bool res = ImGui::Checkbox(label, v);
+		ImGui::Columns(1);
+
+		ImGui::PopID();
+
+		return res;
+	}
 }
