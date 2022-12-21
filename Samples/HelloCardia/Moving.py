@@ -16,7 +16,7 @@ class Moving(Behavior):
         self._tick_count = float(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
 
     def on_update(self):
-        self._tick_count += 1
+        self._tick_count += 50 * Time.delta_time.seconds()
         self._tick_count %= 255.0
         h = self._tick_count / 255
 

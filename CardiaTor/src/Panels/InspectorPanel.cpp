@@ -193,7 +193,6 @@ namespace Cardia::Panel
 						});
 						break;
 					case ScriptFieldType::Float:
-					{
 						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<float>();
 							EditorUI::DragFloat(fieldName.c_str(), &field, 0.1f);
@@ -201,9 +200,7 @@ namespace Cardia::Panel
 							return true;
 						});
 						break;
-					}
 					case ScriptFieldType::String:
-					{
 						SetDataToField(instance, item, [&](py::object& pyField) {
 							auto field = pyField.cast<std::string>();
 							char buff[128] {0};
@@ -214,7 +211,6 @@ namespace Cardia::Panel
 							return true;
 						});
 						break;
-					}
 					case ScriptFieldType::List:
 					{
 						auto list = py::list(instance->GetAttrOrMethod(fieldName.c_str()));
@@ -286,7 +282,8 @@ namespace Cardia::Panel
 							return false;
 						});
 						break;
-					case ScriptFieldType::Unserializable:break;
+					case ScriptFieldType::Unserializable:
+						break;
 				}
 
 			}

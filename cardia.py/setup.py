@@ -10,7 +10,7 @@ setup(
     description="Python API for Cardia Engine",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/TNtube/cardia.py",
+    url="https://github.com/TNtube/Cardia",
     author="TNtube",
     author_email="tntube.dev@gmail.com",
     classifiers=[

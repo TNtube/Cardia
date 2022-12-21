@@ -26,11 +26,21 @@ namespace Cardia
 					field.instance = py::str();
 					break;
 				case ScriptFieldType::List:
+				{
+					auto listType = item.second.attr("__args__").begin();
+					field.valueType = PyHandleToFieldType(listType);
 					field.instance = py::list();
 					break;
+				}
 				case ScriptFieldType::Dict:
+				{
+					auto keyType = item.second.attr("__args__").begin();
+					auto valueType = keyType++;
+					field.keyType = PyHandleToFieldType(keyType);
+					field.valueType = PyHandleToFieldType(valueType);
 					field.instance = py::dict();
 					break;
+				}
 				case ScriptFieldType::PyBehavior:
 					field.instance = py::str();
 					break;
@@ -46,7 +56,9 @@ namespace Cardia
 				case ScriptFieldType::Unserializable:break;
 			}
 
-			m_Attributes.emplace_back(item.first.cast<std::string>(), field);
+			if (field.type != ScriptFieldType::Unserializable && field.valueType != ScriptFieldType::Unserializable && field.keyType != ScriptFieldType::Unserializable) {
+				m_Attributes.emplace_back(item.first.cast<std::string>(), field);
+			}
 		}
 	}
 

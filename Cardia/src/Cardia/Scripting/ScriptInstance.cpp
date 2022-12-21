@@ -36,6 +36,10 @@ namespace Cardia
 
 
 	ScriptFieldType PyHandleToFieldType(const py::handle &handle) {
+		auto typing = py::module_::import("typing");
+
+		auto genericAlias = typing.attr("GenericAlias");
+
 		auto pyInt   = py::int_().get_type();
 		auto pyFloat = py::float_().get_type();
 		auto pyStr   = py::str().get_type();
@@ -44,6 +48,19 @@ namespace Cardia
 		auto pyVec2  = py::cast(glm::vec2()).get_type();
 		auto pyVec3  = py::cast(glm::vec3()).get_type();
 		auto pyVec4  = py::cast(glm::vec4()).get_type();
+
+		if (handle.get_type().is(genericAlias))
+		{
+			auto origin = handle.attr("__origin__");
+			if (pyList.equal(origin))
+			{
+				return ScriptFieldType::List;
+			}
+			if (pyDict.equal(origin))
+			{
+				return ScriptFieldType::Dict;
+			}
+		}
 
 		if (pyInt.equal(handle))
 		{
