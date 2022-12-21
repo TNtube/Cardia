@@ -13,6 +13,8 @@ namespace Cardia
 		ScriptInstance instance;
 	};
 
+	py::object DefaultObjectFromScriptFieldType(ScriptFieldType type);
+
 	using AttributesVector = std::vector<std::pair<std::string, ScriptField>>;
 
 	class ScriptClass

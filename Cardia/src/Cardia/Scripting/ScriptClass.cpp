@@ -4,6 +4,23 @@
 
 namespace Cardia
 {
+
+	py::object DefaultObjectFromScriptFieldType(ScriptFieldType type) {
+		switch (type)
+		{
+			case ScriptFieldType::Int: 		return py::int_();
+			case ScriptFieldType::Float: 		return py::float_();
+			case ScriptFieldType::String: 		return py::str("hello");
+			case ScriptFieldType::List: 		return py::list();
+			case ScriptFieldType::Dict: 		return py::dict();
+			case ScriptFieldType::PyBehavior: 	return py::str();
+			case ScriptFieldType::Vector2:		return py::cast(glm::vec2());
+			case ScriptFieldType::Vector3: 		return py::cast(glm::vec3(), py::return_value_policy::reference);
+			case ScriptFieldType::Vector4: 		return py::cast(glm::vec4());
+			case ScriptFieldType::Unserializable: 	return py::none();
+		}
+	}
+
 	ScriptClass::ScriptClass(py::object cls) : m_PyClass(std::move(cls)), m_Attributes()
 	{
 		py::dict annotations(m_PyClass.attr("__annotations__"));
@@ -15,45 +32,23 @@ namespace Cardia
 
 			ScriptField field{};
 			field.type = type;
+			field.instance = DefaultObjectFromScriptFieldType(type);
 			switch (type) {
-				case ScriptFieldType::Int:
-					field.instance = py::int_();
-					break;
-				case ScriptFieldType::Float:
-					field.instance = py::float_();
-					break;
-				case ScriptFieldType::String:
-					field.instance = py::str();
-					break;
 				case ScriptFieldType::List:
 				{
 					auto listType = item.second.attr("__args__").begin();
-					field.valueType = PyHandleToFieldType(listType);
-					field.instance = py::list();
+					field.valueType = PyHandleToFieldType(*listType);
 					break;
 				}
 				case ScriptFieldType::Dict:
 				{
 					auto keyType = item.second.attr("__args__").begin();
 					auto valueType = keyType++;
-					field.keyType = PyHandleToFieldType(keyType);
-					field.valueType = PyHandleToFieldType(valueType);
-					field.instance = py::dict();
+					field.keyType = PyHandleToFieldType(*keyType);
+					field.valueType = PyHandleToFieldType(*valueType);
 					break;
 				}
-				case ScriptFieldType::PyBehavior:
-					field.instance = py::str();
-					break;
-				case ScriptFieldType::Vector2:
-					field.instance = py::cast(glm::vec2());
-					break;
-				case ScriptFieldType::Vector3:
-					field.instance = py::cast(glm::vec3(), py::return_value_policy::reference);
-					break;
-				case ScriptFieldType::Vector4:
-					field.instance = py::cast(glm::vec4());
-					break;
-				case ScriptFieldType::Unserializable:break;
+				default:break;
 			}
 
 			if (field.type != ScriptFieldType::Unserializable && field.valueType != ScriptFieldType::Unserializable && field.keyType != ScriptFieldType::Unserializable) {
@@ -68,6 +63,6 @@ namespace Cardia
 		py::setattr(pyInstance, "id", py::str(uuid));
 		py::setattr(pyInstance, "_cd__name", py::cast(name));
 
-		return {pyInstance};
+		return {pyInstance, true};
 	}
 }

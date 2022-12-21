@@ -14,10 +14,11 @@ namespace Cardia
 	class ScriptInstance
 	{
 	public:
-		ScriptInstance(py::object instance);
+		ScriptInstance(py::object instance, bool registerCallback = false);
 		py::object GetAttrOrMethod(const char* name) const;
 		void SetAttr(const char* name, const py::handle& value);
 		ScriptFieldType GetType();
+		py::object& object() { return m_Instance; }
 
 		operator py::handle() const
 		{

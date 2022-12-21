@@ -1,4 +1,4 @@
-from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight
+from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight, Vector2
 import colorsys
 from Greeting import Greeting
 
@@ -9,6 +9,7 @@ class Moving(Behavior):
     text: str
     color: Vector3
     greeting: Greeting
+    lst: list[int]
 
     def on_create(self):
         # self.velocity = 5
@@ -45,4 +46,6 @@ class Moving(Behavior):
 
     @on_key_pressed(Key.Space)
     def greet(self):
-        self.greeting.hello_world()
+        # self.greeting.hello_world()
+        print("message from python")
+        print("|".join(map(str, self.lst)))

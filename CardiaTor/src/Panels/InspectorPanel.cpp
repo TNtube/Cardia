@@ -8,25 +8,11 @@
 #include "Cardia/ECS/Entity.hpp"
 #include "EditorUI/DragData.hpp"
 
+#define PYBIND11_DETAILED_ERROR_MESSAGES
+
 
 namespace Cardia::Panel
 {
-	void InspectorPanel::SetDataToField(ScriptInstance* instance, std::pair<std::string, ScriptField>& item, const std::function<bool(py::object&)>& imGuiCallback) {
-		auto fieldName = item.first;
-		if (instance) {
-			auto field = instance->GetAttrOrMethod(fieldName.c_str());
-			auto res = imGuiCallback(field);
-			item.second.instance = field;
-			if (res) {
-				instance->SetAttr(fieldName.c_str(), field);
-			}
-		} else {
-			auto field = py::object(item.second.instance);
-			imGuiCallback(field);
-			item.second.instance = field;
-		}
-	}
-
         void InspectorPanel::OnImGuiRender()
         {
                 ImGui::Begin("Inspector");
@@ -178,112 +164,52 @@ namespace Cardia::Panel
 				ImGui::EndDragDropTarget();
 			}
 
-			for (auto& item: scriptComponent.scriptClass.Attributes())
+			for (auto& attribute: scriptComponent.scriptClass.Attributes())
 			{
-				auto fieldName = item.first;
+				auto fieldName = attribute.first;
 				auto instance = ScriptEngine::Instance().GetInstance(uuid.uuid);
-				auto type = item.second.type;
+				auto type = attribute.second.type;
+				DrawField(instance, attribute);
 				switch (type) {
-					case ScriptFieldType::Int:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							auto field = pyField.cast<int>();
-							EditorUI::DragInt(fieldName.c_str(), &field, 0.1f);
-							pyField = py::cast(field);
-							return true;
-						});
-						break;
-					case ScriptFieldType::Float:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							auto field = pyField.cast<float>();
-							EditorUI::DragFloat(fieldName.c_str(), &field, 0.1f);
-							pyField = py::cast(field);
-							return true;
-						});
-						break;
-					case ScriptFieldType::String:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							auto field = pyField.cast<std::string>();
-							char buff[128] {0};
-							constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
-							field.copy(buff, bufferSize);
-							EditorUI::InputText(fieldName.c_str(), buff, IM_ARRAYSIZE(buff));
-							pyField = py::cast(std::string(buff));
-							return true;
-						});
-						break;
 					case ScriptFieldType::List:
 					{
-						auto list = py::list(instance->GetAttrOrMethod(fieldName.c_str()));
+						py::list list;
+						if (instance) {
+							list = instance->GetAttrOrMethod(fieldName.c_str());
+						} else {
+							list = attribute.second.instance.object();
+						}
+						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
+						{
+							int index = 0;
+							for (auto& el : list) {
+								ScriptField scriptField;
+								scriptField.type = attribute.second.valueType;
+								scriptField.instance = py::reinterpret_steal<py::object>(el);
+								auto fieldData = std::pair(std::to_string(index), scriptField);
+								// TODO : fix crash
+								if (DrawField(nullptr, fieldData)) {
+									list.attr("__setitem__")(py::cast(index), fieldData.second.instance.object());
+								}
+								index++;
+							}
+							const auto textWidth   = ImGui::CalcTextSize("  +  ").x;
+
+							ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
+							if (ImGui::Button("  +  ")) {
+								list.append(DefaultObjectFromScriptFieldType(attribute.second.valueType));
+							}
+
+							ImGui::TreePop();
+						}
 						break;
 					}
 					case ScriptFieldType::Dict: {
 						auto dict = py::dict(instance->GetAttrOrMethod(fieldName.c_str()));
 						break;
 					}
-					case ScriptFieldType::PyBehavior:
-					{
-						char buff[128]{0};
-						constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
-						auto id = py::handle(item.second.instance).cast<std::string>();
-						try {
-							auto entity = m_CurrentScene->GetEntityByUUID(UUID::fromString(id));
 
-							if (entity) {
-								auto instanceName = entity.getComponent<Component::Name>().name;
-								instanceName.copy(buff, bufferSize);
-							}
-						} catch (std::exception& e) {
-
-						}
-						EditorUI::InputText(fieldName.c_str(), buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
-						if (ImGui::BeginDragDropTarget())
-						{
-							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
-							{
-								const char* str = static_cast<const char*>(payload->Data);
-								item.second.instance = py::cast(str);
-								auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
-								if (script && instance)
-								{
-									instance->SetAttr(fieldName.c_str(), *script);
-								}
-							}
-							ImGui::EndDragDropTarget();
-						}
-						break;
-					}
-					case ScriptFieldType::Vector2:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							auto field = pyField.cast<glm::vec2>();
-							ImGui::DragFloat2(fieldName.c_str(), glm::value_ptr(field), 0.1f);
-							py::setattr(pyField, "x", py::cast(field.x));
-							py::setattr(pyField, "y", py::cast(field.y));
-							return false;
-						});
-						break;
-					case ScriptFieldType::Vector3:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							auto field = pyField.cast<glm::vec3>();
-							EditorUI::DragFloat3(fieldName, field);
-							py::setattr(pyField, "x", py::cast(field.x));
-							py::setattr(pyField, "y", py::cast(field.y));
-							py::setattr(pyField, "z", py::cast(field.z));
-							return false;
-						});
-						break;
-					case ScriptFieldType::Vector4:
-						SetDataToField(instance, item, [&](py::object& pyField) {
-							auto field = pyField.cast<glm::vec4>();
-							ImGui::DragFloat4(fieldName.c_str(), glm::value_ptr(field), 0.1f);
-							py::setattr(pyField, "x", py::cast(field.x));
-							py::setattr(pyField, "y", py::cast(field.y));
-							py::setattr(pyField, "z", py::cast(field.z));
-							py::setattr(pyField, "w", py::cast(field.w));
-							return false;
-						});
-						break;
-					case ScriptFieldType::Unserializable:
-						break;
+					default: break;
 				}
 
 			}
@@ -364,5 +290,134 @@ namespace Cardia::Panel
 	void InspectorPanel::OnSceneLoad(Cardia::Scene *scene)
 	{
 		m_CurrentScene = scene;
+	}
+
+	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, std::pair<std::string, ScriptField>& fieldData) {
+		auto fieldName = fieldData.first.c_str();
+		auto& scriptField = fieldData.second;
+		py::handle field;
+		if (behaviorInstance) {
+			field = behaviorInstance->GetAttrOrMethod(fieldName);
+		} else {
+			field = scriptField.instance.object();
+		}
+
+		switch (scriptField.type) {
+			case ScriptFieldType::Int:
+			{
+				auto castedField = field.cast<int>();
+				if (EditorUI::DragInt(fieldName, &castedField, 0.1f)) {
+					auto pyField = py::cast(castedField);
+					if (behaviorInstance) {
+						behaviorInstance->SetAttr(fieldName, pyField);
+					}
+					scriptField.instance = pyField;
+					return true;
+				}
+				return false;
+			}
+			case ScriptFieldType::Float:
+			{
+				auto castedField = field.cast<float>();
+				if (EditorUI::DragFloat(fieldName, &castedField, 0.1f))
+				{
+					auto pyField = py::cast(castedField);
+					if (behaviorInstance)
+					{
+						behaviorInstance->SetAttr(fieldName, pyField);
+					}
+					scriptField.instance = pyField;
+					return true;
+				}
+				return false;
+			}
+			case ScriptFieldType::String:
+			{
+				auto castedField = field.cast<std::string>();
+				char buff[128] {0};
+				constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
+				castedField.copy(buff, bufferSize);
+				if (EditorUI::InputText(fieldName, buff, IM_ARRAYSIZE(buff)))
+				{
+					auto pyField = py::cast(castedField);
+					if (behaviorInstance)
+					{
+						behaviorInstance->SetAttr(fieldName, pyField);
+					}
+					scriptField.instance = pyField;
+					return true;
+				}
+				return false;
+			}
+			case ScriptFieldType::PyBehavior:
+			{
+				char buff[128]{0};
+				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
+				auto id = py::handle(scriptField.instance).cast<std::string>();
+				try {
+					auto entity = m_CurrentScene->GetEntityByUUID(UUID::fromString(id));
+
+					if (entity) {
+						auto instanceName = entity.getComponent<Component::Name>().name;
+						instanceName.copy(buff, bufferSize);
+					}
+				} catch (std::exception& e) {
+
+				}
+				EditorUI::InputText(fieldName, buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
+					{
+						const char* str = static_cast<const char*>(payload->Data);
+						scriptField.instance = py::cast(str);
+						auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
+						if (script && behaviorInstance)
+						{
+							behaviorInstance->SetAttr(fieldName, *script);
+						}
+						return true;
+					}
+					ImGui::EndDragDropTarget();
+				}
+				return false;
+			}
+			case ScriptFieldType::Vector2:
+			{
+				auto castedField = field.cast<glm::vec2>();
+				if (ImGui::DragFloat2(fieldName, glm::value_ptr(castedField), 0.1f)) {
+					py::setattr(field, "x", py::cast(castedField.x));
+					py::setattr(field, "y", py::cast(castedField.y));
+				}
+				return false;
+			}
+			case ScriptFieldType::Vector3:
+			{
+				auto castedField = field.cast<glm::vec3>();
+				if (EditorUI::DragFloat3(fieldName, castedField, 0.1f)) {
+					py::setattr(field, "x", py::cast(castedField.x));
+					py::setattr(field, "y", py::cast(castedField.y));
+					py::setattr(field, "z", py::cast(castedField.z));
+				}
+				return false;
+			}
+			case ScriptFieldType::Vector4:
+			{
+				auto castedField = field.cast<glm::vec4>();
+				if (ImGui::DragFloat4(fieldName, glm::value_ptr(castedField), 0.1f)) {
+					py::setattr(field, "x", py::cast(castedField.x));
+					py::setattr(field, "y", py::cast(castedField.y));
+					py::setattr(field, "z", py::cast(castedField.z));
+					py::setattr(field, "w", py::cast(castedField.w));
+				}
+				return false;
+			}
+
+			case ScriptFieldType::List:
+			case ScriptFieldType::Dict:
+			case ScriptFieldType::Unserializable:
+				return false;
+		}
+
 	}
 }

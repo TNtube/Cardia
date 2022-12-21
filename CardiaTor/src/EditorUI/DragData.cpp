@@ -108,8 +108,9 @@ namespace Cardia::EditorUI
 		return res;
 	}
 
-	void DragFloat3(const std::string &label, glm::vec3 &vector, float reset)
+	bool DragFloat3(const std::string &label, glm::vec3 &vector, float reset)
 	{
+		bool res = false;
 		ImGuiIO& io = ImGui::GetIO();
 		auto boldFont = io.Fonts->Fonts[0];
 
@@ -134,13 +135,16 @@ namespace Cardia::EditorUI
 		if (ImGui::Button("X", buttonSize))
 		{
 			vector.x = reset;
+			res = true;
 		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(item_width);
-		ImGui::DragFloat("##X", &vector.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		if (ImGui::DragFloat("##X", &vector.x, 0.1f, 0.0f, 0.0f, "%.2f")) {
+			res = true;
+		}
 		ImGui::SameLine();
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
@@ -149,13 +153,18 @@ namespace Cardia::EditorUI
 		ImGui::PushFont(boldFont);
 		ImGui::SetNextItemWidth(buttonSize.x);
 		if (ImGui::Button("Y", buttonSize))
+		{
 			vector.y = reset;
+			res = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(item_width);
-		ImGui::DragFloat("##Y", &vector.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		if (ImGui::DragFloat("##Y", &vector.y, 0.1f, 0.0f, 0.0f, "%.2f")) {
+			res = true;
+		}
 		ImGui::SameLine();
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
@@ -164,19 +173,25 @@ namespace Cardia::EditorUI
 		ImGui::PushFont(boldFont);
 		ImGui::SetNextItemWidth(buttonSize.x);
 		if (ImGui::Button("Z", buttonSize))
+		{
 			vector.z = reset;
+			res = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(item_width);
-		ImGui::DragFloat("##Z", &vector.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		if (ImGui::DragFloat("##Z", &vector.z, 0.1f, 0.0f, 0.0f, "%.2f")) {
+			res = true;
+		}
 
 		ImGui::PopStyleVar();
 
 		ImGui::Columns(1);
 
 		ImGui::PopID();
+		return res;
 	}
 
 	bool Combo(const char* label, int* current_item, const char* const items[], int items_count,
