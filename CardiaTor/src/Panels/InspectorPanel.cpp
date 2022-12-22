@@ -166,10 +166,10 @@ namespace Cardia::Panel
 
 			for (auto& attribute: scriptComponent.scriptClass.Attributes())
 			{
-				auto fieldName = attribute.first;
+				auto fieldName = attribute.fieldName;
 				auto instance = ScriptEngine::Instance().GetInstance(uuid.uuid);
-				auto type = attribute.second.type;
-				DrawField(instance, attribute);
+				auto type = attribute.type;
+				DrawField(instance, type, fieldName.c_str(), attribute.instance.object());
 				switch (type) {
 					case ScriptFieldType::List:
 					{
@@ -177,27 +177,26 @@ namespace Cardia::Panel
 						if (instance) {
 							list = instance->GetAttrOrMethod(fieldName.c_str());
 						} else {
-							list = attribute.second.instance.object();
+							list = attribute.instance.object();
 						}
 						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
 						{
 							int index = 0;
-							for (auto& el : list) {
-								ScriptField scriptField;
-								scriptField.type = attribute.second.valueType;
-								scriptField.instance = py::reinterpret_steal<py::object>(el);
-								auto fieldData = std::pair(std::to_string(index), scriptField);
+							auto it = list.begin();
+							while (it != list.end()) {
 								// TODO : fix crash
-								if (DrawField(nullptr, fieldData)) {
-									list.attr("__setitem__")(py::cast(index), fieldData.second.instance.object());
+								py::handle handle(*it);
+								if (DrawField(nullptr, attribute.valueType, std::to_string(index).c_str(), handle)) {
+									list.attr("__setitem__")(py::cast(index), handle);
 								}
+								it++;
 								index++;
 							}
 							const auto textWidth   = ImGui::CalcTextSize("  +  ").x;
 
 							ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
 							if (ImGui::Button("  +  ")) {
-								list.append(DefaultObjectFromScriptFieldType(attribute.second.valueType));
+								list.append(DefaultObjectFromScriptFieldType(attribute.valueType));
 							}
 
 							ImGui::TreePop();
@@ -292,33 +291,32 @@ namespace Cardia::Panel
 		m_CurrentScene = scene;
 	}
 
-	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, std::pair<std::string, ScriptField>& fieldData) {
-		auto fieldName = fieldData.first.c_str();
-		auto& scriptField = fieldData.second;
-		py::handle field;
+	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::handle& field) {
+		py::handle value;
 		if (behaviorInstance) {
-			field = behaviorInstance->GetAttrOrMethod(fieldName);
+			value = behaviorInstance->GetAttrOrMethod(fieldName);
 		} else {
-			field = scriptField.instance.object();
+			value = field;
 		}
 
-		switch (scriptField.type) {
+
+		switch (type) {
 			case ScriptFieldType::Int:
 			{
-				auto castedField = field.cast<int>();
+				auto castedField = value.cast<int>();
 				if (EditorUI::DragInt(fieldName, &castedField, 0.1f)) {
 					auto pyField = py::cast(castedField);
 					if (behaviorInstance) {
 						behaviorInstance->SetAttr(fieldName, pyField);
 					}
-					scriptField.instance = pyField;
+					field = pyField;
 					return true;
 				}
 				return false;
 			}
 			case ScriptFieldType::Float:
 			{
-				auto castedField = field.cast<float>();
+				auto castedField = value.cast<float>();
 				if (EditorUI::DragFloat(fieldName, &castedField, 0.1f))
 				{
 					auto pyField = py::cast(castedField);
@@ -326,14 +324,14 @@ namespace Cardia::Panel
 					{
 						behaviorInstance->SetAttr(fieldName, pyField);
 					}
-					scriptField.instance = pyField;
+					field = pyField;
 					return true;
 				}
 				return false;
 			}
 			case ScriptFieldType::String:
 			{
-				auto castedField = field.cast<std::string>();
+				auto castedField = value.cast<std::string>();
 				char buff[128] {0};
 				constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
 				castedField.copy(buff, bufferSize);
@@ -344,7 +342,7 @@ namespace Cardia::Panel
 					{
 						behaviorInstance->SetAttr(fieldName, pyField);
 					}
-					scriptField.instance = pyField;
+					field = pyField;
 					return true;
 				}
 				return false;
@@ -353,7 +351,7 @@ namespace Cardia::Panel
 			{
 				char buff[128]{0};
 				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
-				auto id = py::handle(scriptField.instance).cast<std::string>();
+				auto id = field.cast<std::string>();
 				try {
 					auto entity = m_CurrentScene->GetEntityByUUID(UUID::fromString(id));
 
@@ -370,7 +368,7 @@ namespace Cardia::Panel
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
 					{
 						const char* str = static_cast<const char*>(payload->Data);
-						scriptField.instance = py::cast(str);
+						field = py::cast(str);
 						auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
 						if (script && behaviorInstance)
 						{
@@ -384,7 +382,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector2:
 			{
-				auto castedField = field.cast<glm::vec2>();
+				auto castedField = value.cast<glm::vec2>();
 				if (ImGui::DragFloat2(fieldName, glm::value_ptr(castedField), 0.1f)) {
 					py::setattr(field, "x", py::cast(castedField.x));
 					py::setattr(field, "y", py::cast(castedField.y));
@@ -393,7 +391,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector3:
 			{
-				auto castedField = field.cast<glm::vec3>();
+				auto castedField = value.cast<glm::vec3>();
 				if (EditorUI::DragFloat3(fieldName, castedField, 0.1f)) {
 					py::setattr(field, "x", py::cast(castedField.x));
 					py::setattr(field, "y", py::cast(castedField.y));
@@ -403,7 +401,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector4:
 			{
-				auto castedField = field.cast<glm::vec4>();
+				auto castedField = value.cast<glm::vec4>();
 				if (ImGui::DragFloat4(fieldName, glm::value_ptr(castedField), 0.1f)) {
 					py::setattr(field, "x", py::cast(castedField.x));
 					py::setattr(field, "y", py::cast(castedField.y));
@@ -412,10 +410,7 @@ namespace Cardia::Panel
 				}
 				return false;
 			}
-
-			case ScriptFieldType::List:
-			case ScriptFieldType::Dict:
-			case ScriptFieldType::Unserializable:
+			default:
 				return false;
 		}
 

@@ -21,8 +21,10 @@ namespace Cardia
 		}
 	}
 
-	ScriptClass::ScriptClass(py::object cls) : m_PyClass(std::move(cls)), m_Attributes()
+	ScriptClass::ScriptClass(py::object cls, bool registerAttributes) : m_PyClass(std::move(cls)), m_Attributes()
 	{
+		if (!registerAttributes) return;
+
 		py::dict annotations(m_PyClass.attr("__annotations__"));
 		for (const auto &item: annotations) {
 			if (item.first.cast<std::string>().starts_with('_')) {
@@ -52,7 +54,8 @@ namespace Cardia
 			}
 
 			if (field.type != ScriptFieldType::Unserializable && field.valueType != ScriptFieldType::Unserializable && field.keyType != ScriptFieldType::Unserializable) {
-				m_Attributes.emplace_back(item.first.cast<std::string>(), field);
+				field.fieldName = item.first.cast<std::string>();
+				m_Attributes.push_back(field);
 			}
 		}
 	}

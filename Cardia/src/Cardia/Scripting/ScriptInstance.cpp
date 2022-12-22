@@ -9,8 +9,9 @@ namespace Cardia
 
 	namespace py = pybind11;
 
-	ScriptInstance::ScriptInstance(py::object instance): m_Instance(std::move(instance))
+	ScriptInstance::ScriptInstance(py::object instance, bool registerCallback): m_Instance(std::move(instance))
 	{
+		if (!registerCallback) return;
 		for (auto& unRegisteredCallback : ScriptEngine::Instance().m_EventMethods) {
 			if (py::isinstance(m_Instance, unRegisteredCallback.first)) {
 				m_OnUpdateCallbacks.insert(m_OnUpdateCallbacks.begin(),

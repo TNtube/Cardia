@@ -45,19 +45,19 @@ namespace Cardia
 				auto behavior = m_BehaviorInstances.at(uuid.uuid);
 				for (const auto& item: script.scriptClass.Attributes())
 				{
-					if (item.second.type == ScriptFieldType::PyBehavior) {
+					if (item.type == ScriptFieldType::PyBehavior) {
 						try {
 							auto refBehavior = ScriptEngine::Instance().GetInstance(
-								UUID::fromString(py::handle(item.second.instance).cast<std::string>()));
+								UUID::fromString(py::handle(item.instance).cast<std::string>()));
 							if (refBehavior)
 							{
-								py::setattr(behavior, item.first.c_str(), py::handle(*refBehavior));
+								py::setattr(behavior, item.fieldName.c_str(), py::handle(*refBehavior));
 							}
 						} catch (const std::exception& e) {
-							py::setattr(behavior, item.first.c_str(), py::none());
+							py::setattr(behavior, item.fieldName.c_str(), py::none());
 						}
 					} else {
-						py::setattr(behavior, item.first.c_str(), item.second.instance);
+						py::setattr(behavior, item.fieldName.c_str(), item.instance);
 					}
 				}
 				behavior.GetAttrOrMethod("on_create")();
@@ -117,7 +117,7 @@ namespace Cardia
 			Log::coreError("Cannot find {0} class child of Behavior", fileName);
 		}
 
-		return ScriptClass(importedFile.attr(fileName.c_str()));
+		return ScriptClass(importedFile.attr(fileName.c_str()), true);
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass) {

@@ -7,7 +7,7 @@ class Moving(Behavior):
     velocity: int
     _tick_count: float
     text: str
-    color: Vector3
+    # color: Vector3
     greeting: Greeting
     lst: list[int]
 

@@ -96,19 +96,19 @@ namespace Cardia::SerializerUtils
                                 node["path"] = behavior.getPath();
 
 				auto& attrsNode = node["attributes"];
-				const auto attrs = behavior.scriptClass.Attributes();
-				for (const auto& item : attrs) {
-					auto& field = attrsNode[item.first.c_str()];
-					field["type"] = static_cast<int>(item.second.type);
-					switch (item.second.type) {
+				auto attrs = behavior.scriptClass.Attributes();
+				for (auto& item : attrs) {
+					auto& field = attrsNode[item.fieldName.c_str()];
+					field["type"] = static_cast<int>(item.type);
+					switch (item.type) {
 						case ScriptFieldType::Int:
-							field["value"] = py::handle(item.second.instance).cast<int>();
+							field["value"] = py::handle(item.instance).cast<int>();
 							break;
 						case ScriptFieldType::Float:
-							field["value"] = py::handle(item.second.instance).cast<float>();
+							field["value"] = py::handle(item.instance).cast<float>();
 							break;
 						case ScriptFieldType::String:
-							field["value"] = py::handle(item.second.instance).cast<std::string>();
+							field["value"] = py::handle(item.instance).cast<std::string>();
 							break;
 						case ScriptFieldType::List:
 							field["value"] = "list";
@@ -117,16 +117,16 @@ namespace Cardia::SerializerUtils
 							field["value"] = "dict";
 							break;
 						case ScriptFieldType::PyBehavior:
-							field["value"] = py::handle(item.second.instance).cast<std::string>();
+							field["value"] = py::handle(item.instance).cast<std::string>();
 							break;
 						case ScriptFieldType::Vector2:
-							SerializeVec2(field["value"], py::handle(item.second.instance).cast<glm::vec2>());
+							SerializeVec2(field["value"], py::handle(item.instance).cast<glm::vec2>());
 							break;
 						case ScriptFieldType::Vector3:
-							SerializeVec3(field["value"], py::handle(item.second.instance).cast<glm::vec3>());
+							SerializeVec3(field["value"], item.instance.object().cast<glm::vec3>());
 							break;
 						case ScriptFieldType::Vector4:
-							SerializeVec4(field["value"], py::handle(item.second.instance).cast<glm::vec4>());
+							SerializeVec4(field["value"], py::handle(item.instance).cast<glm::vec4>());
 							break;
 					}
 				}
@@ -232,6 +232,7 @@ namespace Cardia::SerializerUtils
 				auto& attrs = behavior.scriptClass.Attributes();
 				for (const auto& attrName: attrsNode.getMemberNames()) {
 					ScriptField field;
+					field.fieldName = attrName;
 					field.type = static_cast<ScriptFieldType>(attrsNode[attrName]["type"].asInt());
 					switch (field.type) {
 						case ScriptFieldType::Int:
@@ -276,12 +277,12 @@ namespace Cardia::SerializerUtils
 						case ScriptFieldType::Unserializable:break;
 					}
 					auto attrPair = std::find_if(attrs.begin(), attrs.end(), [&](auto& attr) {
-						return attr.first == attrName;
+						return attr.fieldName == attrName;
 					});
 					if (attrPair != attrs.end()) {
-						attrPair->second = field;
+						*attrPair = field;
 					} else {
-						attrs.emplace_back(attrName, field);
+						attrs.push_back(field);
 					}
 				}
 

@@ -21,7 +21,7 @@ namespace Cardia::Panel
         private:
                 template<typename T>
                 void DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func);
-		bool DrawField(ScriptInstance* behaviorInstance, std::pair<std::string, ScriptField>& fieldData);
+		bool DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::handle& field);
 		Scene* m_CurrentScene {nullptr};
         };
 }

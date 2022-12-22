@@ -19,7 +19,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::DragInt("", data, speed, v_min, v_max);
+		bool res = ImGui::DragInt("##int", data, speed, v_min, v_max);
 
 		ImGui::Columns(1);
 
@@ -39,7 +39,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::DragFloat("", data, speed, v_min, v_max);
+		bool res = ImGui::DragFloat("##flt", data, speed, v_min, v_max);
 
 		ImGui::Columns(1);
 
@@ -59,7 +59,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::InputText("", buffer, size, flags);
+		bool res = ImGui::InputText("##txt", buffer, size, flags);
 
 		ImGui::Columns(1);
 
@@ -79,7 +79,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::ColorEdit3("", col, flags);
+		bool res = ImGui::ColorEdit3("##ce3", col, flags);
 
 		ImGui::Columns(1);
 
@@ -99,7 +99,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::ColorEdit4("", col, flags);
+		bool res = ImGui::ColorEdit4("##ce4", col, flags);
 
 		ImGui::Columns(1);
 
@@ -206,7 +206,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::Combo("", current_item, items, items_count, popup_max_height_in_items);
+		bool res = ImGui::Combo("##cmb", current_item, items, items_count, popup_max_height_in_items);
 		ImGui::Columns(1);
 
 		ImGui::PopID();
@@ -225,7 +225,7 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::Checkbox(label, v);
+		bool res = ImGui::Checkbox("##lbl", v);
 		ImGui::Columns(1);
 
 		ImGui::PopID();
