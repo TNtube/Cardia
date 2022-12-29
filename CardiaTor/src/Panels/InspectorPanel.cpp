@@ -181,18 +181,15 @@ namespace Cardia::Panel
 						}
 						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
 						{
-							int index = 0;
-							auto it = list.begin();
-							while (it != list.end()) {
-								// TODO : fix crash
-								py::handle handle(*it);
-								if (DrawField(nullptr, attribute.valueType, std::to_string(index).c_str(), handle)) {
-									list.attr("__setitem__")(py::cast(index), handle);
+							for (int index = 0; index < list.size(); index++){
+								py::object object(list[index]);
+								auto str = std::to_string(index);
+								if (DrawField(nullptr, attribute.valueType, str.c_str(), object)) {
+									list[index] = object;
 								}
-								it++;
 								index++;
 							}
-							const auto textWidth   = ImGui::CalcTextSize("  +  ").x;
+							const auto textWidth = ImGui::CalcTextSize("  +  ").x;
 
 							ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
 							if (ImGui::Button("  +  ")) {
@@ -291,8 +288,8 @@ namespace Cardia::Panel
 		m_CurrentScene = scene;
 	}
 
-	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::handle& field) {
-		py::handle value;
+	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field) {
+		py::object value;
 		if (behaviorInstance) {
 			value = behaviorInstance->GetAttrOrMethod(fieldName);
 		} else {
