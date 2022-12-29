@@ -164,7 +164,9 @@ namespace Cardia::Panel
 				ImGui::EndDragDropTarget();
 			}
 
-			for (auto& attribute: scriptComponent.scriptClass.Attributes())
+			auto attributes = scriptComponent.scriptClass.Attributes();
+
+			for (auto& attribute: attributes)
 			{
 				auto fieldName = attribute.fieldName;
 				auto instance = ScriptEngine::Instance().GetInstance(uuid.uuid);
@@ -181,13 +183,12 @@ namespace Cardia::Panel
 						}
 						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
 						{
-							for (int index = 0; index < list.size(); index++){
+							for (int index = 0; index < py::len(list); index++) {
 								py::object object(list[index]);
 								auto str = std::to_string(index);
 								if (DrawField(nullptr, attribute.valueType, str.c_str(), object)) {
 									list[index] = object;
 								}
-								index++;
 							}
 							const auto textWidth = ImGui::CalcTextSize("  +  ").x;
 

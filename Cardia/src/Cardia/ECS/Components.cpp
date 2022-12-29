@@ -12,5 +12,6 @@ namespace Cardia::Component
                 buffer << t.rdbuf();
 		auto filePath = std::filesystem::path(m_Path);
 		scriptClass = ScriptEngine::Instance().GetClassFromPyFile(filePath);
+		scriptClass.RegisterAttributes();
         }
 }

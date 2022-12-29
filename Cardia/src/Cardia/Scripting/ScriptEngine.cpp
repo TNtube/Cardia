@@ -117,7 +117,7 @@ namespace Cardia
 			Log::coreError("Cannot find {0} class child of Behavior", fileName);
 		}
 
-		return ScriptClass(importedFile.attr(fileName.c_str()), true);
+		return ScriptClass(importedFile.attr(fileName.c_str()));
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass) {

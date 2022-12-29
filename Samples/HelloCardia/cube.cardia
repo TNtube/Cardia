@@ -3,29 +3,7 @@
 	{
 		"behavior" : 
 		{
-			"attributes" : 
-			{
-				"greeting" : 
-				{
-					"type" : 5,
-					"value" : "877ee625-a775-4108-a4d8-09960f748900"
-				},
-				"lst" :
-				{
-					"type" : 3,
-					"value" : "list"
-				},
-				"text" : 
-				{
-					"type" : 2,
-					"value" : "Hello"
-				},
-				"velocity" : 
-				{
-					"type" : 0,
-					"value" : 10
-				}
-			},
+			"attributes" : {},
 			"path" : "Moving.py"
 		},
 		"light" : 

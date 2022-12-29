@@ -9,8 +9,8 @@ namespace Cardia
 		ScriptField() : instance(py::str()) {}
 		std::string fieldName;
 		ScriptFieldType type { ScriptFieldType::Unserializable };
-		ScriptFieldType keyType {};
-		ScriptFieldType valueType {};
+		ScriptFieldType keyType { ScriptFieldType::Unserializable };
+		ScriptFieldType valueType { ScriptFieldType::Unserializable };
 		ScriptInstance instance;
 	};
 
@@ -20,7 +20,7 @@ namespace Cardia
 	class ScriptClass
 	{
 	public:
-		explicit ScriptClass(py::object cls, bool registerAttributes = false);
+		explicit ScriptClass(py::object cls);
 
 		ScriptClass(const ScriptClass &) = default;
 		ScriptClass() = default;
@@ -35,6 +35,7 @@ namespace Cardia
 
 		inline bool operator== (const ScriptClass& rhs) const { return this->m_PyClass.is(rhs.m_PyClass); }
 
+		void RegisterAttributes();
 		std::vector<ScriptField>& Attributes() { return m_Attributes; }
 		const std::vector<ScriptField>& Attributes() const { return m_Attributes; }
 

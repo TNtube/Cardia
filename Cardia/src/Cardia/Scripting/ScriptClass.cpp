@@ -21,10 +21,12 @@ namespace Cardia
 		}
 	}
 
-	ScriptClass::ScriptClass(py::object cls, bool registerAttributes) : m_PyClass(std::move(cls)), m_Attributes()
+	ScriptClass::ScriptClass(py::object cls) : m_PyClass(std::move(cls)), m_Attributes()
 	{
-		if (!registerAttributes) return;
+	}
 
+	void ScriptClass::RegisterAttributes()
+	{
 		py::dict annotations(m_PyClass.attr("__annotations__"));
 		for (const auto &item: annotations) {
 			if (item.first.cast<std::string>().starts_with('_')) {
@@ -45,17 +47,17 @@ namespace Cardia
 				case ScriptFieldType::Dict:
 				{
 					auto keyType = item.second.attr("__args__").begin();
-					auto valueType = keyType++;
 					field.keyType = PyHandleToFieldType(*keyType);
-					field.valueType = PyHandleToFieldType(*valueType);
+					keyType++;
+					field.valueType = PyHandleToFieldType(*keyType);
 					break;
 				}
 				default:break;
 			}
 
-			if (field.type != ScriptFieldType::Unserializable && field.valueType != ScriptFieldType::Unserializable && field.keyType != ScriptFieldType::Unserializable) {
+			if (field.type != ScriptFieldType::Unserializable) {
 				field.fieldName = item.first.cast<std::string>();
-				m_Attributes.push_back(field);
+				m_Attributes.emplace_back(field);
 			}
 		}
 	}
