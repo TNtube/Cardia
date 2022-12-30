@@ -51,13 +51,13 @@ namespace Cardia
 								UUID::fromString(py::handle(item.instance).cast<std::string>()));
 							if (refBehavior)
 							{
-								py::setattr(behavior, item.fieldName.c_str(), py::handle(*refBehavior));
+								py::setattr(behavior, item.name.c_str(), py::handle(*refBehavior));
 							}
 						} catch (const std::exception& e) {
-							py::setattr(behavior, item.fieldName.c_str(), py::none());
+							py::setattr(behavior, item.name.c_str(), py::none());
 						}
 					} else {
-						py::setattr(behavior, item.fieldName.c_str(), item.instance);
+						py::setattr(behavior, item.name.c_str(), item.instance);
 					}
 				}
 				behavior.GetAttrOrMethod("on_create")();

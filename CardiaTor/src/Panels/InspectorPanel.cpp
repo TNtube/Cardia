@@ -168,7 +168,7 @@ namespace Cardia::Panel
 
 			for (auto& attribute: attributes)
 			{
-				auto fieldName = attribute.fieldName;
+				auto fieldName = attribute.name;
 				auto instance = ScriptEngine::Instance().GetInstance(uuid.uuid);
 				auto type = attribute.type;
 				DrawField(instance, type, fieldName.c_str(), attribute.instance.object());
@@ -183,7 +183,8 @@ namespace Cardia::Panel
 						}
 						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
 						{
-							for (int index = 0; index < py::len(list); index++) {
+							auto len = py::len(list);
+							for (int index = 0; index < len; index++) {
 								py::object object(list[index]);
 								auto str = std::to_string(index);
 								if (DrawField(nullptr, attribute.valueType, str.c_str(), object)) {

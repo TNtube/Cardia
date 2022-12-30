@@ -7,7 +7,7 @@ namespace Cardia
 {
 	struct ScriptField {
 		ScriptField() : instance(py::str()) {}
-		std::string fieldName;
+		std::string name;
 		ScriptFieldType type { ScriptFieldType::Unserializable };
 		ScriptFieldType keyType { ScriptFieldType::Unserializable };
 		ScriptFieldType valueType { ScriptFieldType::Unserializable };

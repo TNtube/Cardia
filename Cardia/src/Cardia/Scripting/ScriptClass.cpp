@@ -17,7 +17,7 @@ namespace Cardia
 			case ScriptFieldType::Vector2:		return py::cast(glm::vec2());
 			case ScriptFieldType::Vector3: 		return py::cast(glm::vec3(), py::return_value_policy::reference);
 			case ScriptFieldType::Vector4: 		return py::cast(glm::vec4());
-			case ScriptFieldType::Unserializable: 	return py::none();
+			default:				return py::none();
 		}
 	}
 
@@ -56,7 +56,7 @@ namespace Cardia
 			}
 
 			if (field.type != ScriptFieldType::Unserializable) {
-				field.fieldName = item.first.cast<std::string>();
+				field.name = item.first.cast<std::string>();
 				m_Attributes.emplace_back(field);
 			}
 		}

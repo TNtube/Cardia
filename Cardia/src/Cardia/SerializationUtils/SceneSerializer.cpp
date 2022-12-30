@@ -5,6 +5,7 @@
 #include <json/json.h>
 
 namespace Json {
+	using namespace Cardia;
 	template <> glm::vec2 Value::as<glm::vec2>() const {
 		glm::vec3 out;
 		out.x = this->operator[]("x").asFloat();
@@ -28,16 +29,136 @@ namespace Json {
 		out.w = this->operator[]("w").asFloat();
 		return out;
 	}
+
+	template <> Cardia::ScriptField Value::as<ScriptField>() const {
+		auto node = *this;
+		Cardia::ScriptField out;
+
+		out.name = node["name"].asString();
+		out.type = static_cast<ScriptFieldType>(node["type"].asInt());
+
+		switch (out.type) {
+			case ScriptFieldType::Int:
+				out.instance = py::cast(node["value"].asInt());
+				break;
+			case ScriptFieldType::Float:
+				out.instance = py::cast(node["value"].asFloat());
+				break;
+			case ScriptFieldType::String:
+				out.instance = py::cast(node["value"].asString());
+				break;
+			case ScriptFieldType::List:
+			{
+				py::list list;
+				for (auto& subNode: node["value"]) {
+					auto subField = subNode.as<ScriptField>();
+					out.valueType = subField.type;
+					list.attr("append")(subField.instance.object());
+				}
+				out.instance = list;
+				break;
+			}
+			case ScriptFieldType::Dict:break;
+			case ScriptFieldType::PyBehavior:
+				out.instance = py::cast(node["value"].asString());
+				break;
+			case ScriptFieldType::Vector2:
+				out.instance = py::cast(node["value"].as<glm::vec2>());
+				break;
+			case ScriptFieldType::Vector3:
+				out.instance = py::cast(node["value"].as<glm::vec3>());
+				break;
+			case ScriptFieldType::Vector4:
+				out.instance = py::cast(node["value"].as<glm::vec4>());
+				break;
+			case ScriptFieldType::Unserializable:break;
+		}
+		return out;
+	}
 }
 
 
 namespace Cardia::SerializerUtils
 {
-	void SerializeVec2(Json::Value& node, const glm::vec2& vec);
-	void SerializeVec3(Json::Value& node, const glm::vec3& vec);
-	void SerializeVec4(Json::Value& node, const glm::vec4& vec);
-	void SerializeColorRgb(Json::Value& node, const glm::vec3& vec);
-	void SerializeColorRgba(Json::Value& node, const glm::vec4& vec);
+
+	Json::Value ToJson(const glm::vec2& value) {
+		Json::Value out;
+		out["x"] = value.x;
+		out["y"] = value.y;
+		return out;
+	}
+
+	Json::Value ToJson(const glm::vec3& value) {
+		Json::Value out;
+		out["x"] = value.x;
+		out["y"] = value.y;
+		out["z"] = value.z;
+		return out;
+	}
+
+	Json::Value ToJson(const glm::vec4& value) {
+		Json::Value out;
+		out["x"] = value.x;
+		out["y"] = value.y;
+		out["z"] = value.z;
+		out["w"] = value.w;
+		return out;
+	}
+
+	Json::Value ToJson(const ScriptField& field) {
+		Json::Value out;
+		out["type"] = static_cast<int>(field.type);
+		out["name"] = field.name;
+
+		switch (field.type) {
+			case ScriptFieldType::Int:
+				out["value"] = py::handle(field.instance).cast<int>();
+				break;
+			case ScriptFieldType::Float:
+				out["value"] = py::handle(field.instance).cast<float>();
+				break;
+			case ScriptFieldType::String:
+				out["value"] = py::handle(field.instance).cast<std::string>();
+				break;
+			case ScriptFieldType::List:
+			{
+				py::list list(field.instance);
+				for (int index = 0; index < py::len(list); index++) {
+					ScriptField subField;
+					subField.name = std::to_string(index);
+					subField.instance = py::object(list[index]);
+					switch (subField.valueType) {
+						case ScriptFieldType::List:
+						case ScriptFieldType::Dict:
+							subField.type = ScriptFieldType::Unserializable;
+							break;
+						default:
+							subField.type = field.valueType;
+							break;
+					}
+					out["value"].append(ToJson(subField));
+				}
+				break;
+			}
+			case ScriptFieldType::Dict:break;
+			case ScriptFieldType::PyBehavior:
+				out["value"] = py::handle(field.instance).cast<std::string>();
+				break;
+			case ScriptFieldType::Vector2:
+				out["value"] = ToJson(py::handle(field.instance).cast<glm::vec2>());
+				break;
+			case ScriptFieldType::Vector3:
+				out["value"] = ToJson(py::handle(field.instance).cast<glm::vec3>());
+				break;
+			case ScriptFieldType::Vector4:
+				out["value"] = ToJson(py::handle(field.instance).cast<glm::vec4>());
+				break;
+			case ScriptFieldType::Unserializable:break;
+		}
+
+		return out;
+
+	}
 
         std::string SerializeScene(Scene* scene, const std::string& workspace)
         {
@@ -56,9 +177,9 @@ namespace Cardia::SerializerUtils
 			Json::Value node;
                         // Transform
                         const auto& transform = entity.getComponent<Component::Transform>();
-			SerializeVec3(node["position"], transform.position);
-			SerializeVec3(node["rotation"], transform.rotation);
-			SerializeVec3(node["scale"], transform.scale);
+			node["position"] = ToJson(transform.position);
+			node["rotation"] = ToJson(transform.rotation);
+			node["scale"] = ToJson(transform.scale);
 
                         root[uuid.uuid]["transform"] = node;
                         node.clear();
@@ -67,7 +188,7 @@ namespace Cardia::SerializerUtils
                         if (entity.hasComponent<Component::SpriteRenderer>())
                         {
                                 const auto& spriteRenderer = entity.getComponent<Component::SpriteRenderer>();
-				SerializeColorRgba(node["color"], spriteRenderer.color);
+				node["color"] = ToJson(spriteRenderer.color);
                                 const auto path = spriteRenderer.texture ? spriteRenderer.texture->getPath() : "";
                                 
                                 node["texture"] = std::filesystem::relative(path, workspace).string();
@@ -100,7 +221,7 @@ namespace Cardia::SerializerUtils
 			{
 				const auto& light = entity.getComponent<Component::Light>();
 				node["type"] = light.lightType;
-				SerializeColorRgb(node["color"], light.color);
+				node["color"] = ToJson(light.color);
 
 				node["range"] = light.range;
 				node["angle"] = light.angle;
@@ -115,48 +236,9 @@ namespace Cardia::SerializerUtils
                                 const auto& behavior = entity.getComponent<Component::Script>();
                                 node["path"] = behavior.getPath();
 
-				auto& attrsNode = node["attributes"];
-				auto attrs = behavior.scriptClass.Attributes();
-				for (auto& item : attrs) {
-					auto& field = attrsNode[item.fieldName.c_str()];
-					field["type"] = static_cast<int>(item.type);
-					switch (item.type) {
-						case ScriptFieldType::Int:
-							field["value"] = py::handle(item.instance).cast<int>();
-							break;
-						case ScriptFieldType::Float:
-							field["value"] = py::handle(item.instance).cast<float>();
-							break;
-						case ScriptFieldType::String:
-							field["value"] = py::handle(item.instance).cast<std::string>();
-							break;
-						case ScriptFieldType::List:
-						{
-//							auto arr = Json::Value();
-//
-//							for (size_t i; i < py::len(item.instance.object()); i++) {
-//								arr.append(item.instance.object().cast<int>());
-//							}
-							break;
-						}
-						case ScriptFieldType::Dict:
-							field["value"] = "dict";
-							break;
-						case ScriptFieldType::PyBehavior:
-							field["value"] = py::handle(item.instance).cast<std::string>();
-							break;
-						case ScriptFieldType::Vector2:
-							SerializeVec2(field["value"], py::handle(item.instance).cast<glm::vec2>());
-							break;
-						case ScriptFieldType::Vector3:
-							SerializeVec3(field["value"], item.instance.object().cast<glm::vec3>());
-							break;
-						case ScriptFieldType::Vector4:
-							SerializeVec4(field["value"], py::handle(item.instance).cast<glm::vec4>());
-							break;
-					}
+				for (auto& item : behavior.scriptClass.Attributes()) {
+					node["attributes"].append(ToJson(item));
 				}
-
                                 root[uuid.uuid]["behavior"] = node;
                                 node.clear();
                         }
@@ -256,51 +338,10 @@ namespace Cardia::SerializerUtils
 
 				auto& attrsNode = node["behavior"]["attributes"];
 				auto& attrs = behavior.scriptClass.Attributes();
-				for (const auto& attrName: attrsNode.getMemberNames()) {
-					ScriptField field;
-					field.fieldName = attrName;
-					field.type = static_cast<ScriptFieldType>(attrsNode[attrName]["type"].asInt());
-					switch (field.type) {
-						case ScriptFieldType::Int:
-							field.instance = py::int_(attrsNode[attrName]["value"].asInt());
-							break;
-						case ScriptFieldType::Float:
-							field.instance = py::float_(attrsNode[attrName]["value"].asFloat());
-							break;
-						case ScriptFieldType::String:
-							field.instance = py::str(attrsNode[attrName]["value"].asString());
-							break;
-						case ScriptFieldType::List:
-							field.instance = py::list();
-							break;
-						case ScriptFieldType::Dict:
-							field.instance = py::dict();
-							break;
-						case ScriptFieldType::PyBehavior:
-							field.instance = py::str(attrsNode[attrName]["value"].asString());
-							break;
-						case ScriptFieldType::Vector2:
-						{
-							auto vec = attrsNode[attrName]["value"].as<glm::vec2>();
-							field.instance = py::cast(vec);
-							break;
-						}
-						case ScriptFieldType::Vector3:
-						{
-							auto vec = attrsNode[attrName]["value"].as<glm::vec3>();
-							field.instance = py::cast(vec);
-							break;
-						}
-						case ScriptFieldType::Vector4:
-						{
-							auto vec = attrsNode[attrName]["value"].as<glm::vec4>();
-							field.instance = py::cast(vec);
-							break;
-						}
-						case ScriptFieldType::Unserializable:break;
-					}
+				for (const auto& subNode: attrsNode) {
+					auto field = subNode.as<ScriptField>();
 					auto attrPair = std::find_if(attrs.begin(), attrs.end(), [&](auto& attr) {
-						return attr.fieldName == attrName;
+						return attr.name == field.name;
 					});
 					if (attrPair != attrs.end()) {
 						*attrPair = field;
@@ -308,42 +349,11 @@ namespace Cardia::SerializerUtils
 						attrs.push_back(field);
 					}
 				}
+				Cardia::Log::error("Pause here");
 
 			}
                 }
                 
                 return true;
         }
-
-	void SerializeVec2(Json::Value& node, const glm::vec2& vec) {
-		node["x"] = vec.x;
-		node["y"] = vec.y;
-	}
-
-	void SerializeVec3(Json::Value& node, const glm::vec3& vec) {
-		node["x"] = vec.x;
-		node["y"] = vec.y;
-		node["z"] = vec.z;
-	}
-
-	void SerializeVec4(Json::Value& node, const glm::vec4& vec) {
-		node["x"] = vec.x;
-		node["y"] = vec.y;
-		node["z"] = vec.z;
-		node["w"] = vec.z;
-	}
-
-	void SerializeColorRgb(Json::Value& node, const glm::vec3& vec) {
-		node["x"] = vec.r;
-		node["y"] = vec.g;
-		node["z"] = vec.b;
-	}
-
-	void SerializeColorRgba(Json::Value& node, const glm::vec4& vec) {
-		node["x"] = vec.r;
-		node["y"] = vec.g;
-		node["z"] = vec.b;
-		node["w"] = vec.a;
-	}
-
 }
