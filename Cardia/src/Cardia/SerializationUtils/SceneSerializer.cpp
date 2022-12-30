@@ -4,6 +4,32 @@
 #include "Cardia/ECS/Components.hpp"
 #include <json/json.h>
 
+namespace Json {
+	template <> glm::vec2 Value::as<glm::vec2>() const {
+		glm::vec3 out;
+		out.x = this->operator[]("x").asFloat();
+		out.y = this->operator[]("y").asFloat();
+		return out;
+	}
+
+	template <> glm::vec3 Value::as<glm::vec3>() const {
+		glm::vec3 out;
+		out.x = this->operator[]("x").asFloat();
+		out.y = this->operator[]("y").asFloat();
+		out.z = this->operator[]("z").asFloat();
+		return out;
+	}
+
+	template <> glm::vec4 Value::as<glm::vec4>() const {
+		glm::vec4 out;
+		out.x = this->operator[]("x").asFloat();
+		out.y = this->operator[]("y").asFloat();
+		out.z = this->operator[]("z").asFloat();
+		out.w = this->operator[]("w").asFloat();
+		return out;
+	}
+}
+
 
 namespace Cardia::SerializerUtils
 {
@@ -12,12 +38,6 @@ namespace Cardia::SerializerUtils
 	void SerializeVec4(Json::Value& node, const glm::vec4& vec);
 	void SerializeColorRgb(Json::Value& node, const glm::vec3& vec);
 	void SerializeColorRgba(Json::Value& node, const glm::vec4& vec);
-	
-	void DeserializeVec2(glm::vec2& vec, const Json::Value& node);
-	void DeserializeVec3(glm::vec3& vec, const Json::Value& node);
-	void DeserializeVec4(glm::vec4& vec, const Json::Value& node);
-	void DeserializeColorRgb(glm::vec3& vec, const Json::Value& node);
-	void DeserializeColorRgba(glm::vec4& vec, const Json::Value& node);
 
         std::string SerializeScene(Scene* scene, const std::string& workspace)
         {
@@ -111,8 +131,14 @@ namespace Cardia::SerializerUtils
 							field["value"] = py::handle(item.instance).cast<std::string>();
 							break;
 						case ScriptFieldType::List:
-							field["value"] = "list";
+						{
+//							auto arr = Json::Value();
+//
+//							for (size_t i; i < py::len(item.instance.object()); i++) {
+//								arr.append(item.instance.object().cast<int>());
+//							}
 							break;
+						}
 						case ScriptFieldType::Dict:
 							field["value"] = "dict";
 							break;
@@ -176,14 +202,14 @@ namespace Cardia::SerializerUtils
 			name.name = node["name"].asString();
 
                         auto& component = entity.getComponent<Component::Transform>();
-			DeserializeVec3(component.position, node["transform"]["position"]);
-			DeserializeVec3(component.rotation, node["transform"]["rotation"]);
-			DeserializeVec3(component.scale, node["transform"]["scale"]);
+			component.position = node["transform"]["position"].as<glm::vec3>();
+			component.rotation = node["transform"]["rotation"].as<glm::vec3>();
+			component.scale = node["transform"]["scale"].as<glm::vec3>();
 
                         if (node.isMember("spriteRenderer"))
                         {
                                 auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
-				DeserializeColorRgba(spriteRenderer.color, node["spriteRenderer"]["color"]);
+				spriteRenderer.color = node["spriteRenderer"]["color"].as<glm::vec4>();
 
                                 const auto path = std::filesystem::path(workspace);
                                 auto texture = Texture2D::create((path / node["spriteRenderer"]["texture"].asString()).string());
@@ -192,7 +218,7 @@ namespace Cardia::SerializerUtils
                                         spriteRenderer.texture = std::move(texture);
                                 }
                                 
-                                spriteRenderer.color.a = node["spriteRenderer"]["tillingFactor"].asFloat();
+                                spriteRenderer.tillingFactor = node["spriteRenderer"]["tillingFactor"].asFloat();
                                 spriteRenderer.zIndex = node["spriteRenderer"]["zIndex"].asInt();
                         }
 
@@ -214,7 +240,7 @@ namespace Cardia::SerializerUtils
 			{
 				auto& light = entity.addComponent<Component::Light>();
 				light.lightType = node["light"]["type"].asInt();
-				DeserializeColorRgb(light.color, node["light"]["color"]);
+				light.color = node["light"]["color"].as<glm::vec3>();
 
 				light.range = node["light"]["range"].asFloat();
 				light.angle = node["light"]["angle"].asFloat();
@@ -255,22 +281,19 @@ namespace Cardia::SerializerUtils
 							break;
 						case ScriptFieldType::Vector2:
 						{
-							auto vec = glm::vec2();
-							DeserializeVec2(vec, attrsNode[attrName]["value"]);
+							auto vec = attrsNode[attrName]["value"].as<glm::vec2>();
 							field.instance = py::cast(vec);
 							break;
 						}
 						case ScriptFieldType::Vector3:
 						{
-							auto vec = glm::vec3();
-							DeserializeVec3(vec, attrsNode[attrName]["value"]);
+							auto vec = attrsNode[attrName]["value"].as<glm::vec3>();
 							field.instance = py::cast(vec);
 							break;
 						}
 						case ScriptFieldType::Vector4:
 						{
-							auto vec = glm::vec4();
-							DeserializeVec4(vec, attrsNode[attrName]["value"]);
+							auto vec = attrsNode[attrName]["value"].as<glm::vec4>();
 							field.instance = py::cast(vec);
 							break;
 						}
@@ -311,47 +334,16 @@ namespace Cardia::SerializerUtils
 	}
 
 	void SerializeColorRgb(Json::Value& node, const glm::vec3& vec) {
-		node["r"] = vec.r;
-		node["g"] = vec.g;
-		node["b"] = vec.b;
+		node["x"] = vec.r;
+		node["y"] = vec.g;
+		node["z"] = vec.b;
 	}
 
 	void SerializeColorRgba(Json::Value& node, const glm::vec4& vec) {
-		node["r"] = vec.r;
-		node["g"] = vec.g;
-		node["b"] = vec.b;
-		node["a"] = vec.a;
-	}
-
-	void DeserializeVec2(glm::vec2& vec, const Json::Value& node) {
-		vec.x = node["x"].asFloat();
-		vec.y = node["y"].asFloat();
-	}
-
-	void DeserializeVec3(glm::vec3& vec, const Json::Value& node) {
-		vec.x = node["x"].asFloat();
-		vec.y = node["y"].asFloat();
-		vec.z = node["z"].asFloat();
-	}
-
-	void DeserializeVec4(glm::vec4& vec, const Json::Value& node) {
-		vec.x = node["x"].asFloat();
-		vec.y = node["y"].asFloat();
-		vec.z = node["z"].asFloat();
-		vec.w = node["w"].asFloat();
-	}
-
-	void DeserializeColorRgb(glm::vec3& vec, const Json::Value& node) {
-		vec.r = node["r"].asFloat();
-		vec.g = node["g"].asFloat();
-		vec.b = node["b"].asFloat();
-	}
-
-	void DeserializeColorRgba(glm::vec4& vec, const Json::Value& node) {
-		vec.r = node["r"].asFloat();
-		vec.g = node["g"].asFloat();
-		vec.b = node["b"].asFloat();
-		vec.a = node["a"].asFloat();
+		node["x"] = vec.r;
+		node["y"] = vec.g;
+		node["z"] = vec.b;
+		node["w"] = vec.a;
 	}
 
 }
