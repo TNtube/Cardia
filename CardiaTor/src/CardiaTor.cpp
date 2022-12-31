@@ -26,7 +26,8 @@ namespace Cardia
 		m_IconPlay = Texture2D::create("resources/icons/play.png");
 		m_IconStop = Texture2D::create("resources/icons/pause.png");
 
-		const FramebufferSpec spec{ window.getWidth(), window.getHeight() };
+		FramebufferSpec spec{ window.getWidth(), window.getHeight() };
+		spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		m_Framebuffer = Framebuffer::create(spec);
 
 		ImGuiIO &io = ImGui::GetIO();
@@ -36,9 +37,10 @@ namespace Cardia
 
 	void CardiaTor::onUpdate()
 	{
-		m_Framebuffer->bind();
+		m_Framebuffer->Bind();
 		RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
 		RenderAPI::get().clear();
+		m_Framebuffer->ClearAttachment(1, -1);
 
 
 		if (m_EditorState == EditorState::Edit)
@@ -51,7 +53,27 @@ namespace Cardia
 			m_CurrentScene->OnRuntimeUpdate();
 		}
 
-		m_Framebuffer->unbind();
+		auto[mx, my] = ImGui::GetMousePos();
+		mx -= m_ViewportBounds.x;
+		my -= m_ViewportBounds.y;
+
+		glm::vec2 viewportSize = glm::vec2(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
+		my = viewportSize.y - my;
+		int mouseX = (int)mx;
+		int mouseY = (int)my;
+
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && m_CurrentScene)
+		{
+			if (!(mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y))
+				return;
+			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+			auto entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
+			if (entity) {
+				m_CurrentScene->SetCurrentEntity(entity.getComponent<Component::ID>().uuid);
+			}
+		}
+
+		m_Framebuffer->Unbind();
 	}
 
 	void CardiaTor::enableDocking()
@@ -242,12 +264,12 @@ namespace Cardia
 		const auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		const uint32_t textureID = m_Framebuffer->getColorAttachmentRendererID();
+		const uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
 		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
 		{
-			m_Framebuffer->resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
+			m_Framebuffer->Resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
 			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
 		}
 		auto io = ImGui::GetIO();

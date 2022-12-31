@@ -32,7 +32,7 @@ namespace Cardia
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f);
 		static void drawRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f);
 		static void drawRect(const glm::mat4& transform, const glm::vec4& color);
-		static void drawRect(const glm::mat4& transform, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f, int32_t zIndex = 0);
+		static void drawRect(const glm::mat4& transform, const Texture2D* texture, const glm::vec4& color, float tilingFactor = 1.0f, int32_t zIndex = 0, float entityID = -1);
 
 		static void addLight(const Component::Transform& transform, const Component::Light& lightComponent);
 	};

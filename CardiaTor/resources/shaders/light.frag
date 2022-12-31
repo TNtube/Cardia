@@ -1,6 +1,7 @@
 #version 460 core
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 OutColor;
+layout(location = 1) out int OutEntityID;
 
 
 struct Vertex {
@@ -18,8 +19,9 @@ struct Light {
 };
 
 
-in Vertex o_Vertex;
-in flat float o_TexIndex;
+layout (location = 0) in Vertex o_Vertex;
+layout (location = 5) in flat float o_TexIndex;
+layout (location = 6) in flat float o_EntityID;
 
 uniform sampler2D u_Textures[32];
 uniform vec3 u_ViewPosition;
@@ -90,5 +92,6 @@ void main() {
         }
     }
 
-    color = texture(u_Textures[int(o_TexIndex)], o_Vertex.texturePosition * o_Vertex.tilingFactor) * vec4(result, 1.0);
+    OutColor = texture(u_Textures[int(o_TexIndex)], o_Vertex.texturePosition * o_Vertex.tilingFactor) * vec4(result, 1.0);
+    OutEntityID = int(o_EntityID);
 }

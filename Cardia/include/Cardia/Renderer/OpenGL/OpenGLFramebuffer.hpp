@@ -11,20 +11,27 @@ namespace Cardia
 		explicit OpenGLFramebuffer(FramebufferSpec spec);
 		virtual ~OpenGLFramebuffer() override;
 
-		void bind() const override;
-		void unbind() const override;
+		void Bind() const override;
+		void Unbind() const override;
 
-		void resize(int width, int height) override;
+		void Resize(int width, int height) override;
+		int ReadPixel(uint32_t attachmentIndex, int x, int y) override;
 
-		inline uint32_t getColorAttachmentRendererID() const override { return m_ColorAttachment; }
+		void ClearAttachment(uint32_t attachmentIndex, int value) override;
+
+		inline uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { return m_ColorAttachments[index]; }
 
 	private:
-		void createFramebuffer();
+		void GenerateFramebuffer();
 
 	private:
 		uint32_t m_FramebufferID {};
-		uint32_t m_ColorAttachment {};
-		uint32_t m_RenderAttachment {};
 		FramebufferSpec m_Spec;
+
+		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
+		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
+
+		std::vector<uint32_t> m_ColorAttachments;
+		uint32_t m_DepthAttachment = 0;
  	};
 }

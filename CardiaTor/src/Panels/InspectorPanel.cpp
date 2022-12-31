@@ -332,7 +332,7 @@ namespace Cardia::Panel
 			{
 				auto castedField = value.cast<std::string>();
 				char buff[128] {0};
-				constexpr size_t bufferSize = sizeof(buff)/sizeof(char);
+				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
 				castedField.copy(buff, bufferSize);
 				if (EditorUI::InputText(fieldName, buff, IM_ARRAYSIZE(buff)))
 				{

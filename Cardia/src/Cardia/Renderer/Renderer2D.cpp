@@ -55,7 +55,8 @@ namespace Cardia
 			{ShaderDataType::Float4, "a_Color"},
 			{ShaderDataType::Float2, "a_TexPos"},
 			{ShaderDataType::Float, "a_TexIndex"},
-			{ShaderDataType::Float, "a_TilingFactor"}
+			{ShaderDataType::Float, "a_TilingFactor"},
+			{ShaderDataType::Float, "a_EntityID"}
 		});
 
 		s_Data->vertexArray->setVertexBuffer(std::move(vbo));
@@ -161,7 +162,7 @@ namespace Cardia
 		drawRect(transform, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color, float tilingFactor, int32_t zIndex)
+	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color, float tilingFactor, int32_t zIndex, float entityID)
 	{
 		constexpr glm::vec2 texCoords[] {
 			{ 0.0f, 0.0f },
@@ -189,6 +190,7 @@ namespace Cardia
 			vertex.color = color;
 			vertex.textureCoord = texCoords[i % 4];
 			vertex.tilingFactor = tilingFactor;
+			vertex.entityID = entityID;
 			mesh.vertices.push_back(vertex);
 		}
 

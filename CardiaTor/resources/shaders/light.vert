@@ -6,6 +6,7 @@ layout(location = 2) in vec4 a_Color;
 layout(location = 3) in vec2 a_TexPos;
 layout(location = 4) in float a_TexIndex;
 layout(location = 5) in float a_TilingFactor;
+layout(location = 6) in float a_EntityID;
 
 
 struct Vertex {
@@ -16,8 +17,9 @@ struct Vertex {
     float tilingFactor;
 };
 
-out Vertex o_Vertex;
-out flat float o_TexIndex;
+layout (location = 0) out Vertex o_Vertex;
+layout (location = 5) out flat float o_TexIndex;
+layout (location = 6) out flat float o_EntityID;
 
 uniform mat4 u_ViewProjection;
 
@@ -28,5 +30,6 @@ void main() {
     o_Vertex.texturePosition = a_TexPos;
     o_Vertex.tilingFactor = a_TilingFactor;
     o_TexIndex = a_TexIndex;
+    o_EntityID = a_EntityID;
     gl_Position = u_ViewProjection * vec4(a_Position, 1.0f);
 }

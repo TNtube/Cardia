@@ -7,7 +7,7 @@
 namespace Cardia
 {
 
-	std::unique_ptr<Framebuffer> Framebuffer::create(FramebufferSpec spec)
+	std::unique_ptr<Framebuffer> Framebuffer::create(const FramebufferSpec& spec)
 	{
 		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)

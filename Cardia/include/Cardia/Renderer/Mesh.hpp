@@ -11,6 +11,7 @@ namespace Cardia
                 glm::vec2 textureCoord;
                 float textureIndex;
                 float tilingFactor;
+                float entityID;
         };
         
         struct Mesh
