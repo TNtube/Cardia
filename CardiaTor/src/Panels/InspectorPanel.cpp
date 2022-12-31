@@ -164,7 +164,7 @@ namespace Cardia::Panel
 				ImGui::EndDragDropTarget();
 			}
 
-			auto attributes = scriptComponent.scriptClass.Attributes();
+			auto& attributes = scriptComponent.scriptClass.Attributes();
 
 			for (auto& attribute: attributes)
 			{
@@ -336,7 +336,7 @@ namespace Cardia::Panel
 				castedField.copy(buff, bufferSize);
 				if (EditorUI::InputText(fieldName, buff, IM_ARRAYSIZE(buff)))
 				{
-					auto pyField = py::cast(castedField);
+					auto pyField = py::cast(std::string(buff));
 					if (behaviorInstance)
 					{
 						behaviorInstance->SetAttr(fieldName, pyField);

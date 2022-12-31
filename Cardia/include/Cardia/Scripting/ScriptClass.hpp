@@ -12,6 +12,10 @@ namespace Cardia
 		ScriptFieldType keyType { ScriptFieldType::Unserializable };
 		ScriptFieldType valueType { ScriptFieldType::Unserializable };
 		ScriptInstance instance;
+
+		inline bool operator==(const ScriptField& other) const {
+			return name == other.name && type == other.type && valueType == other.valueType && keyType == other.keyType;
+		}
 	};
 
 	py::object DefaultObjectFromScriptFieldType(ScriptFieldType type);

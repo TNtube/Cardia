@@ -9,7 +9,7 @@ class Moving(Behavior):
     text: str
     color: Vector3
     greeting: Greeting
-    lst: list[Vector3]
+    lst: list[str]
 
     def on_create(self):
         # self.velocity = 5

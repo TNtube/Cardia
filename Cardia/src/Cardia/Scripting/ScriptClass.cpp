@@ -10,7 +10,7 @@ namespace Cardia
 		{
 			case ScriptFieldType::Int: 		return py::int_();
 			case ScriptFieldType::Float: 		return py::float_();
-			case ScriptFieldType::String: 		return py::str("hello");
+			case ScriptFieldType::String: 		return py::str();
 			case ScriptFieldType::List: 		return py::list();
 			case ScriptFieldType::Dict: 		return py::dict();
 			case ScriptFieldType::PyBehavior: 	return py::str();

@@ -341,16 +341,12 @@ namespace Cardia::SerializerUtils
 				for (const auto& subNode: attrsNode) {
 					auto field = subNode.as<ScriptField>();
 					auto attrPair = std::find_if(attrs.begin(), attrs.end(), [&](auto& attr) {
-						return attr.name == field.name;
+						return attr == field;
 					});
 					if (attrPair != attrs.end()) {
 						*attrPair = field;
-					} else {
-						attrs.push_back(field);
 					}
 				}
-				Cardia::Log::error("Pause here");
-
 			}
                 }
                 
