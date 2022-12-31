@@ -71,7 +71,13 @@ namespace Cardia
 			.def_readwrite("r", &glm::vec4::r, py::return_value_policy::reference)
 			.def_readwrite("g", &glm::vec4::g, py::return_value_policy::reference)
 			.def_readwrite("b", &glm::vec4::b, py::return_value_policy::reference)
-			.def_readwrite("a", &glm::vec4::a, py::return_value_policy::reference);
+			.def_readwrite("a", &glm::vec4::a, py::return_value_policy::reference)
+			.def("length", [](glm::vec4& self) {
+				return glm::length(self);
+			},py::return_value_policy::reference)
+			.def_static("lerp", [](glm::vec4& start, glm::vec4& end, float step){
+				return glm::mix(start, end, step);
+			}, py::return_value_policy::reference);
 
 
 		// Components

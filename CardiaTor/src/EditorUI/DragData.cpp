@@ -8,7 +8,7 @@ namespace Cardia::EditorUI
 {
 	constexpr float COLUMN_SIZE = 80.0f;
 
-	bool EditorUI::DragInt(const char *label, int *data, float speed, int v_min, int v_max)
+	bool DragInt(const char *label, int *data, float speed, int v_min, int v_max)
 	{
 		ImGui::PushID(label);
 		ImGui::Columns(2);
@@ -28,7 +28,7 @@ namespace Cardia::EditorUI
 		return res;
 	}
 
-	bool EditorUI::DragFloat(const char *label, float *data, float speed, float v_min, float v_max)
+	bool DragFloat(const char *label, float *data, float speed, float v_min, float v_max)
 	{
 		ImGui::PushID(label);
 		ImGui::Columns(2);
@@ -108,8 +108,15 @@ namespace Cardia::EditorUI
 		return res;
 	}
 
-	bool DragFloat3(const std::string &label, glm::vec3 &vector, float reset)
+	template <typename T>
+	static bool InternalDragFloat4(const std::string &label, T& vector, float reset)
 	{
+		auto returnCallback = []() {
+			ImGui::PopStyleVar();
+			ImGui::Columns(1);
+			ImGui::PopID();
+		};
+
 		bool res = false;
 		ImGuiIO& io = ImGui::GetIO();
 		auto boldFont = io.Fonts->Fonts[0];
@@ -125,7 +132,7 @@ namespace Cardia::EditorUI
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
-		const auto item_width = (ImGui::GetContentRegionAvail().x / 3.0f) - buttonSize.x;
+		const auto item_width = (ImGui::GetContentRegionAvail().x / static_cast<float>(vector.length())) - buttonSize.x;
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
@@ -145,53 +152,94 @@ namespace Cardia::EditorUI
 		if (ImGui::DragFloat("##X", &vector.x, 0.1f, 0.0f, 0.0f, "%.2f")) {
 			res = true;
 		}
-		ImGui::SameLine();
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-		ImGui::PushFont(boldFont);
-		ImGui::SetNextItemWidth(buttonSize.x);
-		if (ImGui::Button("Y", buttonSize))
-		{
-			vector.y = reset;
-			res = true;
-		}
-		ImGui::PopFont();
-		ImGui::PopStyleColor(3);
+		if constexpr (std::is_assignable_v<glm::vec2, T>) {
+			ImGui::SameLine();
 
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(item_width);
-		if (ImGui::DragFloat("##Y", &vector.y, 0.1f, 0.0f, 0.0f, "%.2f")) {
-			res = true;
-		}
-		ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+			ImGui::PushFont(boldFont);
+			ImGui::SetNextItemWidth(buttonSize.x);
+			if (ImGui::Button("Y", buttonSize))
+			{
+				vector.y = reset;
+				res = true;
+			}
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-		ImGui::PushFont(boldFont);
-		ImGui::SetNextItemWidth(buttonSize.x);
-		if (ImGui::Button("Z", buttonSize))
-		{
-			vector.z = reset;
-			res = true;
-		}
-		ImGui::PopFont();
-		ImGui::PopStyleColor(3);
-
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(item_width);
-		if (ImGui::DragFloat("##Z", &vector.z, 0.1f, 0.0f, 0.0f, "%.2f")) {
-			res = true;
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(item_width);
+			if (ImGui::DragFloat("##Y", &vector.y, 0.1f, 0.0f, 0.0f, "%.2f")) {
+				res = true;
+			}
 		}
 
-		ImGui::PopStyleVar();
+		if constexpr (std::is_assignable_v<glm::vec3, T>) {
+			ImGui::SameLine();
 
-		ImGui::Columns(1);
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+			ImGui::PushFont(boldFont);
+			ImGui::SetNextItemWidth(buttonSize.x);
+			if (ImGui::Button("Z", buttonSize))
+			{
+				vector.z = reset;
+				res = true;
+			}
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
 
-		ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(item_width);
+			if (ImGui::DragFloat("##Z", &vector.z, 0.1f, 0.0f, 0.0f, "%.2f")) {
+				res = true;
+			}
+		}
+
+		if constexpr (std::is_assignable_v<glm::vec4, T>) {
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.6f, 0.6f, 0.6f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.7f, 0.7f, 0.7f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.6f, 0.6f, 0.6f, 1.0f });
+			ImGui::PushFont(boldFont);
+			ImGui::SetNextItemWidth(buttonSize.x);
+			if (ImGui::Button("W", buttonSize))
+			{
+				vector.w = reset;
+				res = true;
+			}
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(item_width);
+			if (ImGui::DragFloat("##W", &vector.w, 0.1f, 0.0f, 0.0f, "%.2f")) {
+				res = true;
+			}
+		}
+
+		returnCallback();
 		return res;
+	}
+
+	bool DragFloat2(const std::string &label, glm::vec2 &vector, float reset)
+	{
+		return InternalDragFloat4(label, vector, reset);
+	}
+
+	bool DragFloat3(const std::string &label, glm::vec3 &vector, float reset)
+	{
+		return InternalDragFloat4(label, vector, reset);
+	}
+
+	bool DragFloat4(const std::string &label, glm::vec4 &vector, float reset)
+	{
+		return InternalDragFloat4(label, vector, reset);
 	}
 
 	bool Combo(const char* label, int* current_item, const char* const items[], int items_count,

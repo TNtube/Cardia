@@ -4,16 +4,11 @@
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Cardia/Renderer/Camera.hpp"
-#include "Cardia/Core/Input.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
-#include <pybind11/embed.h>
 
 
 namespace Cardia
 {
-	namespace py = pybind11;
-	using namespace py::literals;
-
 	Scene::Scene(std::string name)
 		: m_Name(std::move(name))
 	{

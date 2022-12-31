@@ -382,7 +382,7 @@ namespace Cardia::Panel
 			case ScriptFieldType::Vector2:
 			{
 				auto castedField = value.cast<glm::vec2>();
-				if (ImGui::DragFloat2(fieldName, glm::value_ptr(castedField), 0.1f)) {
+				if (EditorUI::DragFloat2(fieldName, castedField, 0.1f)) {
 					py::setattr(field, "x", py::cast(castedField.x));
 					py::setattr(field, "y", py::cast(castedField.y));
 				}
@@ -401,7 +401,7 @@ namespace Cardia::Panel
 			case ScriptFieldType::Vector4:
 			{
 				auto castedField = value.cast<glm::vec4>();
-				if (ImGui::DragFloat4(fieldName, glm::value_ptr(castedField), 0.1f)) {
+				if (EditorUI::DragFloat4(fieldName, castedField, 0.1f)) {
 					py::setattr(field, "x", py::cast(castedField.x));
 					py::setattr(field, "y", py::cast(castedField.y));
 					py::setattr(field, "z", py::cast(castedField.z));

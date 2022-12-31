@@ -10,7 +10,7 @@ class ClassProperty:
 
 
 class Vector2(_cd.vec2):
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int = 0, y: int = 0):
         self.x: int
         self.y: int
         super().__init__(x, y)
@@ -24,7 +24,7 @@ class Vector2(_cd.vec2):
 
 
 class Vector3(_cd.vec3):
-    def __init__(self, x: int, y: int, z: int):
+    def __init__(self, x: int = 0, y: int = 0, z: int = 0):
         self.x: int
         self.y: int
         self.z: int
@@ -44,3 +44,19 @@ class Vector3(_cd.vec3):
     @ClassProperty
     def one(cls):
         return Vector3(1, 1, 1)
+
+
+class Vector4(_cd.vec4):
+    def __init__(self, x: int = 0, y: int = 0, z: int = 0, w: int = 0):
+        self.x: int
+        self.y: int
+        self.z: int
+        self.w: int
+        super().__init__(x, y, z, w)
+
+    def length(self) -> float:
+        pass
+
+    @classmethod
+    def lerp(cls, start: 'Vector4', end: 'Vector4', step: float):
+        return super().lerp(start, end, step)
