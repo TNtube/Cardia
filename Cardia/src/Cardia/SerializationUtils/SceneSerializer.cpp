@@ -8,30 +8,33 @@ namespace Json {
 	using namespace Cardia;
 	template <> glm::vec2 Value::as<glm::vec2>() const {
 		glm::vec3 out;
-		out.x = this->operator[]("x").asFloat();
-		out.y = this->operator[]("y").asFloat();
+		auto& node = *this;
+		out.x = node["x"].asFloat();
+		out.y = node["y"].asFloat();
 		return out;
 	}
 
 	template <> glm::vec3 Value::as<glm::vec3>() const {
 		glm::vec3 out;
-		out.x = this->operator[]("x").asFloat();
-		out.y = this->operator[]("y").asFloat();
-		out.z = this->operator[]("z").asFloat();
+		auto& node = *this;
+		out.x = node["x"].asFloat();
+		out.y = node["y"].asFloat();
+		out.z = node["z"].asFloat();
 		return out;
 	}
 
 	template <> glm::vec4 Value::as<glm::vec4>() const {
 		glm::vec4 out;
-		out.x = this->operator[]("x").asFloat();
-		out.y = this->operator[]("y").asFloat();
-		out.z = this->operator[]("z").asFloat();
-		out.w = this->operator[]("w").asFloat();
+		auto& node = *this;
+		out.x = node["x"].asFloat();
+		out.y = node["y"].asFloat();
+		out.z = node["z"].asFloat();
+		out.w = node["w"].asFloat();
 		return out;
 	}
 
 	template <> Cardia::ScriptField Value::as<ScriptField>() const {
-		auto node = *this;
+		auto& node = *this;
 		Cardia::ScriptField out;
 
 		out.name = node["name"].asString();
@@ -349,7 +352,6 @@ namespace Cardia::SerializerUtils
 				}
 			}
                 }
-                
                 return true;
         }
 }

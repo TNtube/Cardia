@@ -13,7 +13,7 @@
 				{
 					"name" : "text",
 					"type" : 2,
-					"value" : "hello"
+					"value" : "Text from Moving"
 				},
 				{
 					"name" : "color",
@@ -37,13 +37,13 @@
 					[
 						{
 							"name" : "0",
-							"type" : 5,
-							"value" : "877ee625-a775-4108-a4d8-09960f748900"
+							"type" : 2,
+							"value" : "Hello"
 						},
 						{
 							"name" : "1",
-							"type" : 5,
-							"value" : "877ee625-a775-4108-a4d8-09960f748900"
+							"type" : 2,
+							"value" : "World"
 						}
 					]
 				}
