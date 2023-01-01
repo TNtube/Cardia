@@ -3,12 +3,14 @@
 
 #include <Cardia.hpp>
 #include <random>
+#include <stack>
 
 #include "EditorCamera.hpp"
 #include "Panels/SceneHierarchy.hpp"
 #include "Panels/DebugPanel.hpp"
 #include "Panels/FileHierarchy.hpp"
 #include "Panels/InspectorPanel.hpp"
+#include "Command/Commands.hpp"
 
 
 namespace Cardia
@@ -41,6 +43,8 @@ namespace Cardia
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::vector<std::unique_ptr<IPanel>> m_Panels;
+		std::stack<std::unique_ptr<Command>> m_UnusedCommand;
+		std::stack<std::unique_ptr<Command>> m_UsedCommand;
 
 		glm::vec2 m_SceneSize {};
 

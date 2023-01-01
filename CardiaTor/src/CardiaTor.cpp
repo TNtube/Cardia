@@ -383,6 +383,8 @@ namespace Cardia
 				if (isUsing) {
 					isUsing = false;
 					Log::coreInfo("{}, {}, {}", position.x, position.y, position.z);
+					m_UnusedCommand.emplace(std::make_unique<UpdateTransformPositionCommand>(transformComponent, position));
+					m_UsedCommand = std::stack<std::unique_ptr<Command>>();
 					position = transformComponent.position;
 				}
 			}
@@ -403,7 +405,9 @@ namespace Cardia
 		// shortcuts
 		dispatcher.dispatch<KeyDownEvent>([this](const KeyDownEvent& e)
 		{
-			if (Input::isKeyPressed(Key::LeftCtrl) || Input::isKeyPressed(Key::RightCtrl))
+			auto ctrl = Input::isKeyPressed(Key::LeftCtrl) || Input::isKeyPressed(Key::RightCtrl);
+			auto shift = Input::isKeyPressed(Key::LeftShift) || Input::isKeyPressed(Key::LeftShift);
+			if (ctrl)
 			{
 				switch (e.getKeyCode())
 				{
@@ -411,8 +415,29 @@ namespace Cardia
 					break;
 				case Key::S:
 					Log::coreInfo("Saving...");
-						SaveScene();
+					SaveScene();
 					break;
+				case Key::W:
+				{
+					if (shift) {
+						if (m_UsedCommand.empty()) break;
+						auto command = std::move(m_UsedCommand.top());
+						Log::coreInfo("Redo...");
+						command->Redo();
+
+						m_UsedCommand.pop();
+						m_UnusedCommand.push(std::move(command));
+						break;
+					}
+					if (m_UnusedCommand.empty()) break;
+					auto command = std::move(m_UnusedCommand.top());
+					Log::coreInfo("Undo...");
+					command->Undo();
+
+					m_UnusedCommand.pop();
+					m_UsedCommand.push(std::move(command));
+					break;
+				}
 				default:
 					break;
 				}

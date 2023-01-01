@@ -60,10 +60,12 @@ namespace Cardia::Key {
 		Down				= 264,
 		Up				= 265,
 
-		LeftAlt				= 342,
-		RightAlt			= 346,
+		LeftShift			= 340,
 		LeftCtrl			= 341,
-		RightCtrl			= 345
+		LeftAlt				= 342,
+		RightShift			= 344,
+		RightCtrl			= 345,
+		RightAlt			= 346
 
 		// MISSING A LOT OF KEY CODES
 	};
