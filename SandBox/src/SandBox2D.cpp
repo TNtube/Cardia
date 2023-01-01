@@ -13,7 +13,7 @@ SandBox2D::SandBox2D()
 	applePos = {dist(random), dist(random), 0.0f};
 }
 
-void SandBox2D::onUpdate()
+void SandBox2D::OnUpdate()
 {
 	if (Cardia::Input::isKeyPressed(Cardia::Key::Left)) {
 		vx = -1;
@@ -67,7 +67,7 @@ void SandBox2D::onUpdate()
 	Cardia::Renderer2D::endScene();
 }
 
-void SandBox2D::onImGuiDraw()
+void SandBox2D::OnImGuiDraw()
 {
 	enum ImGuiTheme
 	{
@@ -162,7 +162,7 @@ void SandBox2D::onImGuiDraw()
 	ImGui::End();
 }
 
-void SandBox2D::onEvent(Cardia::Event &event)
+void SandBox2D::OnEvent(Cardia::Event &event)
 {
 	Cardia::EventDispatcher dispatcher(event);
 	dispatcher.dispatch<Cardia::WindowResizeEvent>(CD_BIND_EVENT_FN(onResize));

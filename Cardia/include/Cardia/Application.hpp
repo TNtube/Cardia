@@ -23,9 +23,9 @@ namespace Cardia
 		virtual ~Application() = default;
 
 		void Run();
-		virtual void onEvent(Event& e) = 0;
-		virtual void onUpdate() = 0;
-		virtual void onImGuiDraw() = 0;
+		virtual void OnEvent(Event& e) = 0;
+		virtual void OnUpdate() = 0;
+		virtual void OnImGuiDraw() = 0;
 		bool onWinClose(WindowCloseEvent& e);
 
 		inline static ProjectSettings& projectSettings() { return s_ProjectSettings; };

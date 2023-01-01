@@ -21,7 +21,7 @@ namespace Cardia
 			EventDispatcher dispatcher(e);
 			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
 			m_ImGuiLayer->onEvent(e);
-			onEvent(e);
+			OnEvent(e);
 		});
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
@@ -38,10 +38,10 @@ namespace Cardia
 			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
 			time += Time::m_DeltaTime.seconds();
 
-			onUpdate();
+			OnUpdate();
 
 			m_ImGuiLayer->Begin();
-			onImGuiDraw();
+			OnImGuiDraw();
 			m_ImGuiLayer->End();
 
 			m_Window->onUpdate();

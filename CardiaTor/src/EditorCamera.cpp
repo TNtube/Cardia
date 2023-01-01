@@ -13,7 +13,7 @@ namespace Cardia
 		updateView();
 	}
 
-	void EditorCamera::onUpdate()
+	void EditorCamera::OnUpdate()
 	{
 		const glm::vec2& mouse{ Input::getMouseX(), Input::getMouseY() };
 		glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
@@ -41,7 +41,7 @@ namespace Cardia
 		updateView();
 	}
 
-	void EditorCamera::onEvent(Event &e)
+	void EditorCamera::OnEvent(Event &e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& event) -> bool {

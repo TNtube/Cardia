@@ -35,7 +35,7 @@ namespace Cardia
 	}
 
 
-	void CardiaTor::onUpdate()
+	void CardiaTor::OnUpdate()
 	{
 		m_Framebuffer->Bind();
 		RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
@@ -46,7 +46,7 @@ namespace Cardia
 		if (m_EditorState == EditorState::Edit)
 		{
 			m_CurrentScene->OnUpdateEditor(m_EditorCamera);
-			m_EditorCamera.onUpdate();
+			m_EditorCamera.OnUpdate();
 		}
 		if (m_EditorState == EditorState::Play)
 		{
@@ -76,7 +76,7 @@ namespace Cardia
 		m_Framebuffer->Unbind();
 	}
 
-	void CardiaTor::enableDocking()
+	void CardiaTor::EnableDocking()
 	{
 		// Note: Switch this to true to enable dockspace
 		static bool dockingEnabled = true;
@@ -138,7 +138,7 @@ namespace Cardia
 					//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 					if (ImGui::MenuItem("Open", "CTRL+O"))
 					{
-						openWorkspace();
+						OpenWorkspace();
 					}
 
 					if (ImGui::MenuItem("Exit"))
@@ -154,7 +154,7 @@ namespace Cardia
 		}
 	}
 
-	void CardiaTor::openWorkspace()
+	void CardiaTor::OpenWorkspace()
 	{
 		char *outPath = nullptr;
 		const nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
@@ -162,12 +162,12 @@ namespace Cardia
 		if ( result == NFD_OKAY ) {
 			auto& settings = projectSettings();
 			settings.workspace = std::string(outPath);
-			invalidateWorkspace();
+			InvalidateWorkspace();
 			Log::coreInfo("Workspace : {0}", settings.workspace);
 		}
 	}
 
-	void CardiaTor::invalidateWorkspace() const
+	void CardiaTor::InvalidateWorkspace() const
 	{
 		for (const auto& panel : m_Panels)
 		{
@@ -176,7 +176,7 @@ namespace Cardia
 		ScriptEngine::UpdateWorkspace();
 	}
 
-	void CardiaTor::saveScene() const
+	void CardiaTor::SaveScene() const
 	{
 		if (m_CurrentScene->path.empty())
 		{
@@ -200,7 +200,7 @@ namespace Cardia
 		file.close();
 	}
 
-	void CardiaTor::openScene(const std::filesystem::path& scenePath)
+	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
 	{
 		auto absoluteScenePath = projectSettings().workspace / scenePath;
 		const std::ifstream t(absoluteScenePath);
@@ -227,7 +227,7 @@ namespace Cardia
 		}
 	}
 
-	void CardiaTor::reloadScene()
+	void CardiaTor::ReloadScene()
 	{
 		const auto scenePath = m_CurrentScene->path;
 		UUID lastEntity;
@@ -246,9 +246,9 @@ namespace Cardia
 		}
 	}
 
-	void CardiaTor::onImGuiDraw()
+	void CardiaTor::OnImGuiDraw()
 	{
-		enableDocking();
+		EnableDocking();
 
 		for (const auto& panel : m_Panels)
 		{
@@ -286,7 +286,7 @@ namespace Cardia
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 			{
 				const auto* path = static_cast<const char*>(payload->Data);
-				openScene(path);
+				OpenScene(path);
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -317,7 +317,7 @@ namespace Cardia
 					break;
 				case EditorState::Play: m_CurrentScene->OnRuntimeStop();
 					m_EditorState = EditorState::Edit;
-					reloadScene();
+					ReloadScene();
 					break;
 			}
 		}
@@ -391,12 +391,12 @@ namespace Cardia
 		ImGui::PopStyleVar();
 	}
 
-	void CardiaTor::onEvent(Event& event)
+	void CardiaTor::OnEvent(Event& event)
 	{
 		if (m_HoverViewport)
 		{
 			// Mouse inside viewport
-			m_EditorCamera.onEvent(event);
+			m_EditorCamera.OnEvent(event);
 		}
 
 		EventDispatcher dispatcher(event);
@@ -407,12 +407,11 @@ namespace Cardia
 			{
 				switch (e.getKeyCode())
 				{
-				case Key::O:
-					openWorkspace();
+				case Key::O: OpenWorkspace();
 					break;
 				case Key::S:
 					Log::coreInfo("Saving...");
-					saveScene();
+						SaveScene();
 					break;
 				default:
 					break;

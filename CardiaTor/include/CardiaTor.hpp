@@ -24,17 +24,17 @@ namespace Cardia
 		CardiaTor();
 
 		~CardiaTor() override = default;
-		void onUpdate() override;
-		void onEvent(Event& event) override;
-		void onImGuiDraw() override;
+		void OnUpdate() override;
+		void OnEvent(Event& event) override;
+		void OnImGuiDraw() override;
 
 	private:
-		void enableDocking();
-		void openWorkspace();
-		void invalidateWorkspace() const;
-		void saveScene() const;
-		void openScene(const std::filesystem::path& scenePath);
-		void reloadScene();
+		void EnableDocking();
+		void OpenWorkspace();
+		void InvalidateWorkspace() const;
+		void SaveScene() const;
+		void OpenScene(const std::filesystem::path& scenePath);
+		void ReloadScene();
 		std::unique_ptr<Texture2D> m_IconPlay;
 		std::unique_ptr<Texture2D> m_IconStop;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
