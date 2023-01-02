@@ -383,8 +383,7 @@ namespace Cardia
 				if (isUsing) {
 					isUsing = false;
 					Log::coreInfo("{}, {}, {}", position.x, position.y, position.z);
-					m_UnusedCommand.emplace(std::make_unique<UpdateTransformPositionCommand>(transformComponent, position));
-					m_UsedCommand = std::stack<std::unique_ptr<Command>>();
+					AddCommand(std::make_unique<UpdateTransformPositionCommand>(transformComponent, position));
 					position = transformComponent.position;
 				}
 			}
@@ -455,5 +454,10 @@ namespace Cardia
 				}
 			}
 		});
+	}
+
+	void CardiaTor::AddCommand(std::unique_ptr<Command> command) {
+		m_UnusedCommand.emplace(std::move(command));
+		if (!m_UnusedCommand.empty()) m_UsedCommand = std::stack<std::unique_ptr<Command>>();
 	}
 }

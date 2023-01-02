@@ -26,6 +26,7 @@ namespace Cardia
 		CardiaTor();
 
 		~CardiaTor() override = default;
+		void AddCommand(std::unique_ptr<Command> command);
 		void OnUpdate() override;
 		void OnEvent(Event& event) override;
 		void OnImGuiDraw() override;
