@@ -13,6 +13,7 @@ public:
 	void OnUpdate() override;
 	void OnEvent(Cardia::Event& event) override;
 	void OnImGuiDraw() override;
+	Cardia::Scene* GetCurrentScene() override{ return nullptr; }
 
 private:
 	void onResize(const Cardia::WindowResizeEvent& e);

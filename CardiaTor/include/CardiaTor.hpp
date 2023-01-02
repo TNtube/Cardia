@@ -31,6 +31,8 @@ namespace Cardia
 		void OnEvent(Event& event) override;
 		void OnImGuiDraw() override;
 
+		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
+
 	private:
 		void EnableDocking();
 		void OpenWorkspace();
@@ -38,6 +40,8 @@ namespace Cardia
 		void SaveScene() const;
 		void OpenScene(const std::filesystem::path& scenePath);
 		void ReloadScene();
+		void UndoCommand();
+		void RedoCommand();
 		std::unique_ptr<Texture2D> m_IconPlay;
 		std::unique_ptr<Texture2D> m_IconStop;
 		std::unique_ptr<Framebuffer> m_Framebuffer;

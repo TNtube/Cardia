@@ -357,7 +357,8 @@ namespace Cardia
 			// Editor camera
 			const glm::mat4& cameraProjection = m_EditorCamera.getProjectionMatrix();
 			glm::mat4 cameraView = m_EditorCamera.getViewMatrix();
-			auto& transformComponent = m_CurrentScene->GetCurrentEntity().getComponent<Component::Transform>();
+			auto currentEntity = m_CurrentScene->GetCurrentEntity();
+			auto& transformComponent = currentEntity.getComponent<Component::Transform>();
 			glm::mat4 transform = transformComponent.getTransform();
 
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
@@ -383,7 +384,8 @@ namespace Cardia
 				if (isUsing) {
 					isUsing = false;
 					Log::coreInfo("{}, {}, {}", position.x, position.y, position.z);
-					AddCommand(std::make_unique<UpdateTransformPositionCommand>(transformComponent, position));
+					auto& uuid = currentEntity.getComponent<Component::ID>();
+					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.uuid, position));
 					position = transformComponent.position;
 				}
 			}
@@ -419,22 +421,10 @@ namespace Cardia
 				case Key::W:
 				{
 					if (shift) {
-						if (m_UsedCommand.empty()) break;
-						auto command = std::move(m_UsedCommand.top());
-						Log::coreInfo("Redo...");
-						command->Redo();
-
-						m_UsedCommand.pop();
-						m_UnusedCommand.push(std::move(command));
+						RedoCommand();
 						break;
 					}
-					if (m_UnusedCommand.empty()) break;
-					auto command = std::move(m_UnusedCommand.top());
-					Log::coreInfo("Undo...");
-					command->Undo();
-
-					m_UnusedCommand.pop();
-					m_UsedCommand.push(std::move(command));
+					UndoCommand();
 					break;
 				}
 				default:
@@ -459,5 +449,27 @@ namespace Cardia
 	void CardiaTor::AddCommand(std::unique_ptr<Command> command) {
 		m_UnusedCommand.emplace(std::move(command));
 		if (!m_UnusedCommand.empty()) m_UsedCommand = std::stack<std::unique_ptr<Command>>();
+	}
+
+	void CardiaTor::UndoCommand()
+	{
+		if (m_UnusedCommand.empty()) return;
+		auto command = std::move(m_UnusedCommand.top());
+		Log::coreInfo("Undo...");
+		command->Undo(this);
+
+		m_UnusedCommand.pop();
+		m_UsedCommand.push(std::move(command));
+	}
+
+	void CardiaTor::RedoCommand()
+	{
+		if (m_UsedCommand.empty()) return;
+		auto command = std::move(m_UsedCommand.top());
+		Log::coreInfo("Redo...");
+		command->Redo(this);
+
+		m_UsedCommand.pop();
+		m_UnusedCommand.push(std::move(command));
 	}
 }

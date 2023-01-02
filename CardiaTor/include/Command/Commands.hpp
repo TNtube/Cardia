@@ -9,21 +9,18 @@ namespace Cardia
 	{
 	public:
 		virtual ~Command() = default;
-		virtual void Redo() = 0;
-		virtual void Undo() = 0;
+		virtual void Redo(Application* ctx) = 0;
+		virtual void Undo(Application* ctx) = 0;
 	};
-
-
-	using namespace Component;
 
 	class UpdateTransformPositionCommand : public Command
 	{
 	public:
-		UpdateTransformPositionCommand(Component::Transform& transform, glm::vec3 oldPosition);
-		void Redo() override;
-		void Undo() override;
+		UpdateTransformPositionCommand(const UUID& uuid, glm::vec3 oldPosition);
+		void Redo(Application* ctx) override;
+		void Undo(Application* ctx) override;
 	private:
-		Component::Transform& m_Transform;
+		UUID m_UUID;
 		glm::vec3 m_OldPosition;
 	};
 }

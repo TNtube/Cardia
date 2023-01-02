@@ -1,23 +1,26 @@
 #include "Command/Commands.hpp"
+#include "Cardia/Application.hpp"
 
 namespace Cardia
 {
 
-	UpdateTransformPositionCommand::UpdateTransformPositionCommand(Transform& transform, glm::vec3 oldPosition)
-		: m_Transform(transform), m_OldPosition(oldPosition) {}
+	UpdateTransformPositionCommand::UpdateTransformPositionCommand(const UUID& uuid, glm::vec3 oldPosition)
+		: m_UUID(uuid), m_OldPosition(oldPosition) {}
 
-	void UpdateTransformPositionCommand::Redo()
+	void UpdateTransformPositionCommand::Redo(Application* ctx)
 	{
-		auto temp = m_Transform.position;
-		m_Transform.position = m_OldPosition;
+		auto& transform = ctx->GetCurrentScene()->GetEntityByUUID(m_UUID).getComponent<Component::Transform>();
+		auto temp = transform.position;
+		transform.position = m_OldPosition;
 
 		m_OldPosition = temp;
 	}
 
-	void UpdateTransformPositionCommand::Undo()
+	void UpdateTransformPositionCommand::Undo(Application* ctx)
 	{
-		auto temp = m_Transform.position;
-		m_Transform.position = m_OldPosition;
+		auto& transform = ctx->GetCurrentScene()->GetEntityByUUID(m_UUID).getComponent<Component::Transform>();
+		auto temp = transform.position;
+		transform.position = m_OldPosition;
 
 		m_OldPosition = temp;
 	}

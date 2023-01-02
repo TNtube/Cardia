@@ -26,6 +26,7 @@ namespace Cardia
 		virtual void OnEvent(Event& e) = 0;
 		virtual void OnUpdate() = 0;
 		virtual void OnImGuiDraw() = 0;
+		virtual Scene* GetCurrentScene() = 0;
 		bool onWinClose(WindowCloseEvent& e);
 
 		inline static ProjectSettings& projectSettings() { return s_ProjectSettings; };
