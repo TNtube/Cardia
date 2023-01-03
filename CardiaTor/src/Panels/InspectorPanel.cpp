@@ -184,12 +184,20 @@ namespace Cardia::Panel
 						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
 						{
 							auto len = py::len(list);
+							auto index_to_del = -1;
 							for (int index = 0; index < len; index++) {
 								py::object object(list[index]);
 								auto str = std::to_string(index);
+								if (ImGui::Button(" - ")) {
+									index_to_del = index;
+								}
+								ImGui::SameLine();
 								if (DrawField(nullptr, attribute.valueType, str.c_str(), object)) {
 									list[index] = object;
 								}
+							}
+							if (index_to_del >= 0) {
+								list.attr("pop")(index_to_del);
 							}
 							const auto textWidth = ImGui::CalcTextSize("  +  ").x;
 
