@@ -265,33 +265,33 @@ namespace Cardia::Panel
 
         template<typename T>
 	void InspectorPanel::DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func)
-        {
-        	constexpr auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
+	{
+		if (!entity.hasComponent<T>())
+			return;
 
-        	if (entity.hasComponent<T>()) {
-        		auto& component = entity.getComponent<T>();
-        		if(ImGui::TreeNodeEx(static_cast<void*>(&component), componentFlags, "%s", name))
-        		{
-        			if (ImGui::BeginPopupContextItem())
-        			{
-        				if (ImGui::MenuItem("Reset Component"))
-        				{
-        					component.reset();
-        					ImGui::EndPopup();
-        				}
+		constexpr auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-        				if (!std::is_same_v<T, Component::Transform> && ImGui::MenuItem("Remove Component"))
-        				{
-						entity.removeComponent<T>();
-        					ImGui::EndPopup();
-        				}
-        				ImGui::EndPopup();
-        			}
-        			func(component);
-        			ImGui::TreePop();
-        		}
-        	}
-        }
+		auto& component = entity.getComponent<T>();
+		if(!ImGui::TreeNodeEx(static_cast<void*>(&component), componentFlags, "%s", name))
+			return;
+
+
+		if (ImGui::BeginPopupContextItem()) {
+			if (ImGui::MenuItem("Reset Component"))
+			{
+				component.reset();
+				ImGui::EndPopup();
+			}
+			if (!std::is_same_v<T, Component::Transform> && ImGui::MenuItem("Remove Component"))
+			{
+				entity.removeComponent<T>();
+				ImGui::EndPopup();
+			}
+			ImGui::EndPopup();
+		}
+		func(component);
+		ImGui::TreePop();
+	}
 
 	void InspectorPanel::OnSceneLoad(Cardia::Scene *scene)
 	{
@@ -306,35 +306,34 @@ namespace Cardia::Panel
 			value = field;
 		}
 
-
 		switch (type) {
 			case ScriptFieldType::Int:
 			{
 				auto castedField = value.cast<int>();
-				if (EditorUI::DragInt(fieldName, &castedField, 0.1f)) {
-					auto pyField = py::cast(castedField);
-					if (behaviorInstance) {
-						behaviorInstance->SetAttr(fieldName, pyField);
-					}
-					field = pyField;
-					return true;
+				if (!EditorUI::DragInt(fieldName, &castedField, 0.1f))
+					return false;
+
+				auto pyField = py::cast(castedField);
+				if (behaviorInstance)
+				{
+					behaviorInstance->SetAttr(fieldName, pyField);
 				}
-				return false;
+				field = pyField;
+				return true;
 			}
 			case ScriptFieldType::Float:
 			{
 				auto castedField = value.cast<float>();
-				if (EditorUI::DragFloat(fieldName, &castedField, 0.1f))
+				if (!EditorUI::DragFloat(fieldName, &castedField, 0.1f))
+					return false;
+
+				auto pyField = py::cast(castedField);
+				if (behaviorInstance)
 				{
-					auto pyField = py::cast(castedField);
-					if (behaviorInstance)
-					{
-						behaviorInstance->SetAttr(fieldName, pyField);
-					}
-					field = pyField;
-					return true;
+					behaviorInstance->SetAttr(fieldName, pyField);
 				}
-				return false;
+				field = pyField;
+				return true;
 			}
 			case ScriptFieldType::String:
 			{
@@ -342,17 +341,15 @@ namespace Cardia::Panel
 				char buff[128] {0};
 				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
 				castedField.copy(buff, bufferSize);
-				if (EditorUI::InputText(fieldName, buff, IM_ARRAYSIZE(buff)))
+				if (!EditorUI::InputText(fieldName, buff, IM_ARRAYSIZE(buff)))
+					return false;
+				auto pyField = py::cast(std::string(buff));
+				if (behaviorInstance)
 				{
-					auto pyField = py::cast(std::string(buff));
-					if (behaviorInstance)
-					{
-						behaviorInstance->SetAttr(fieldName, pyField);
-					}
-					field = pyField;
-					return true;
+					behaviorInstance->SetAttr(fieldName, pyField);
 				}
-				return false;
+				field = pyField;
+				return true;
 			}
 			case ScriptFieldType::PyBehavior:
 			{
@@ -370,52 +367,50 @@ namespace Cardia::Panel
 
 				}
 				EditorUI::InputText(fieldName, buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
-					{
-						const char* str = static_cast<const char*>(payload->Data);
-						field = py::cast(str);
-						auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
-						if (script && behaviorInstance)
-						{
-							behaviorInstance->SetAttr(fieldName, *script);
-						}
-						return true;
-					}
+				if (!ImGui::BeginDragDropTarget())
+					return false;
+
+				const ImGuiPayload* payload;
+				if (!(payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))){
 					ImGui::EndDragDropTarget();
+					return false;
 				}
-				return false;
+				const char* str = static_cast<const char*>(payload->Data);
+				field = py::cast(str);
+				auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
+				if (script && behaviorInstance)
+				{
+					behaviorInstance->SetAttr(fieldName, *script);
+				}
+				ImGui::EndDragDropTarget();
+				return true;
 			}
 			case ScriptFieldType::Vector2:
 			{
 				auto castedField = value.cast<glm::vec2>();
-				if (EditorUI::DragFloat2(fieldName, castedField, 0.1f)) {
-					py::setattr(field, "x", py::cast(castedField.x));
-					py::setattr(field, "y", py::cast(castedField.y));
-				}
-				return false;
+				if (!EditorUI::DragFloat2(fieldName, castedField, 0.1f))
+					return false;
+				py::setattr(field, "x", py::cast(castedField.x));
+				py::setattr(field, "y", py::cast(castedField.y));
 			}
 			case ScriptFieldType::Vector3:
 			{
 				auto castedField = value.cast<glm::vec3>();
-				if (EditorUI::DragFloat3(fieldName, castedField, 0.1f)) {
-					py::setattr(field, "x", py::cast(castedField.x));
-					py::setattr(field, "y", py::cast(castedField.y));
-					py::setattr(field, "z", py::cast(castedField.z));
-				}
-				return false;
+				if (!EditorUI::DragFloat3(fieldName, castedField, 0.1f))
+					return false;
+				py::setattr(field, "x", py::cast(castedField.x));
+				py::setattr(field, "y", py::cast(castedField.y));
+				py::setattr(field, "z", py::cast(castedField.z));
 			}
 			case ScriptFieldType::Vector4:
 			{
 				auto castedField = value.cast<glm::vec4>();
-				if (EditorUI::DragFloat4(fieldName, castedField, 0.1f)) {
-					py::setattr(field, "x", py::cast(castedField.x));
-					py::setattr(field, "y", py::cast(castedField.y));
-					py::setattr(field, "z", py::cast(castedField.z));
-					py::setattr(field, "w", py::cast(castedField.w));
-				}
-				return false;
+				if (!EditorUI::DragFloat4(fieldName, castedField, 0.1f))
+					return false;
+				py::setattr(field, "x", py::cast(castedField.x));
+				py::setattr(field, "y", py::cast(castedField.y));
+				py::setattr(field, "z", py::cast(castedField.z));
+				py::setattr(field, "w", py::cast(castedField.w));
 			}
 			default:
 				return false;
