@@ -15,13 +15,13 @@ namespace Cardia::Panel
                 InspectorPanel() = default;
                 ~InspectorPanel() override = default;
                 void OnImGuiRender() override;
-		void OnSceneLoad(Cardia::Scene *scene) override;
+		void SetSelectedEntity(Entity entity);
 
 
         private:
                 template<typename T>
-                void DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func);
-		bool DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field);
-		Scene* m_CurrentScene {nullptr};
+                void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
+	        bool DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field);
+	        Entity m_SelectedEntity;
         };
 }

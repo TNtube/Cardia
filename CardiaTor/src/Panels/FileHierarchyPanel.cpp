@@ -1,4 +1,4 @@
-﻿#include "Panels/FileHierarchy.hpp"
+﻿#include "Panels/FileHierarchyPanel.hpp"
 
 #include <filesystem>
 #include <imgui.h>
@@ -9,19 +9,19 @@
 
 namespace Cardia::Panel
 {
-        FileHierarchy::FileHierarchy()
+        FileHierarchyPanel::FileHierarchyPanel()
         {
                 m_FolderIcon = Texture2D::create("resources/icons/folder.png");
                 m_FileIcon = Texture2D::create("resources/icons/file.png");
         }
 
-        void FileHierarchy::OnImGuiRender()
+        void FileHierarchyPanel::OnImGuiRender()
         {
                 ImGui::Begin("Files");
 
 		auto workspace = Application::projectSettings().workspace;
 
-                if (workspace.length() == 0)
+                if (!workspace.length())
                 {
                         ImGui::End();
                         return;
@@ -110,7 +110,7 @@ namespace Cardia::Panel
                 ImGui::End();
         }
 
-        void FileHierarchy::OnUpdateWorkspace()
+        void FileHierarchyPanel::OnUpdateWorkspace()
         {
 		m_CurrentPath = Application::projectSettings().workspace;
         }

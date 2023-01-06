@@ -16,12 +16,18 @@ namespace Cardia
 	{
 		const auto &window = getWindow();
 
+		auto& hierarchyPanel = m_Panels.emplace_back(std::make_unique<Panel::SceneHierarchyPanel>());
+		m_CurrentSceneHierarchyPanel = dynamic_cast<Panel::SceneHierarchyPanel*>(hierarchyPanel.get());
+		auto& inspectorPanel = m_Panels.emplace_back(std::make_unique<Panel::InspectorPanel>());
+		m_CurrentInspectorPanel = dynamic_cast<Panel::InspectorPanel*>(inspectorPanel.get());
+		m_Panels.push_back(std::make_unique<Panel::DebugPanel>());
+		m_Panels.push_back(std::make_unique<Panel::FileHierarchyPanel>());
+
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 
-		m_Panels.push_back(std::make_unique<Panel::SceneHierarchy>(m_CurrentScene.get()));
-		m_Panels.push_back(std::make_unique<Panel::InspectorPanel>());
-		m_Panels.push_back(std::make_unique<Panel::DebugPanel>());
-		m_Panels.push_back(std::make_unique<Panel::FileHierarchy>());
+		for (auto& panel: m_Panels) {
+			panel->OnSceneLoad(m_CurrentScene.get());
+		}
 
 		m_IconPlay = Texture2D::create("resources/icons/play.png");
 		m_IconStop = Texture2D::create("resources/icons/pause.png");
@@ -62,16 +68,19 @@ namespace Cardia
 		int mouseX = (int)mx;
 		int mouseY = (int)my;
 
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && m_CurrentScene)
+		if (m_CurrentScene)
 		{
 			if (!(mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y))
 				return;
 			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-			auto entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
-			if (entity) {
-				m_CurrentScene->SetCurrentEntity(entity.getComponent<Component::ID>().uuid);
+			m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+				m_CurrentSceneHierarchyPanel->SetSelectedEntity(m_HoveredEntity);
+				m_CurrentInspectorPanel->SetSelectedEntity(m_HoveredEntity);
 			}
 		}
+
+		m_CurrentInspectorPanel->SetSelectedEntity(m_CurrentSceneHierarchyPanel->GetSelectedEntity());
 
 		m_Framebuffer->Unbind();
 	}
@@ -209,20 +218,16 @@ namespace Cardia
 
 		auto newScene = std::make_unique<Scene>(absoluteScenePath.filename().string());
 		newScene->path = absoluteScenePath;
-
-		UUID lastEntity;
-		if (m_CurrentScene && m_CurrentScene->GetCurrentEntity())
-			lastEntity = m_CurrentScene->GetCurrentEntity().getComponent<Component::ID>().uuid;
 		
 		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene, projectSettings().workspace))
 		{
 			Log::coreInfo("Unable to load {0}", scenePath.string());
-		} else
+		}
+		else
 		{
 			m_CurrentScene = std::move(newScene);
-			m_CurrentScene->SetCurrentEntity(lastEntity);
 		}
-		for(const auto& panel: m_Panels) {
+		for (auto& panel: m_Panels) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 	}
@@ -230,9 +235,6 @@ namespace Cardia
 	void CardiaTor::ReloadScene()
 	{
 		const auto scenePath = m_CurrentScene->path;
-		UUID lastEntity;
-		if (m_CurrentScene && m_CurrentScene->GetCurrentEntity())
-			lastEntity = m_CurrentScene->GetCurrentEntity().getComponent<Component::ID>().uuid;
 		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
 		m_CurrentScene->path = scenePath;
 
@@ -242,20 +244,19 @@ namespace Cardia
 		}
 		for(const auto& panel: m_Panels) {
 			panel->OnSceneLoad(m_CurrentScene.get());
-			m_CurrentScene->SetCurrentEntity(lastEntity);
 		}
 	}
 
 	void CardiaTor::OnImGuiDraw()
 	{
 		EnableDocking();
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		for (const auto& panel : m_Panels)
 		{
 			panel->OnImGuiRender();
 		}
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		m_HoverViewport = ImGui::IsWindowHovered();
 
@@ -347,7 +348,9 @@ namespace Cardia
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 
-		if (m_CurrentScene && m_CurrentScene->GetCurrentEntity() && m_EditorState == EditorState::Edit)
+		auto currentEntity = m_CurrentSceneHierarchyPanel->GetSelectedEntity();
+
+		if (currentEntity && m_EditorState == EditorState::Edit)
 		{
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
@@ -357,7 +360,6 @@ namespace Cardia
 			// Editor camera
 			const glm::mat4& cameraProjection = m_EditorCamera.getProjectionMatrix();
 			glm::mat4 cameraView = m_EditorCamera.getViewMatrix();
-			auto currentEntity = m_CurrentScene->GetCurrentEntity();
 			auto& transformComponent = currentEntity.getComponent<Component::Transform>();
 			glm::mat4 transform = transformComponent.getTransform();
 

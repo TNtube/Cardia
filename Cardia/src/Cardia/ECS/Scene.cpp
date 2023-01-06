@@ -141,9 +141,4 @@ namespace Cardia
 	{
 		ScriptEngine::Instance().OnRuntimeEnd();
 	}
-
-	Entity Scene::GetCurrentEntity()
-	{
-		return GetEntityByUUID(m_CurrentEntity);
-	}
 }

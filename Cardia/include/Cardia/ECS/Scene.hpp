@@ -11,7 +11,6 @@
 namespace Cardia
 {
 	class Entity;
-	namespace Panel { class SceneHierarchy; }
 	class Scene
 	{
 	public:
@@ -31,12 +30,9 @@ namespace Cardia
 		inline const char* GetName() const { return m_Name.c_str(); }
 		inline entt::registry& GetRegistry() { return m_Registry; }
 		void clear();
-		Entity GetCurrentEntity();
-		inline void SetCurrentEntity(UUID entityUUID) { m_CurrentEntity = entityUUID; }
 
 		std::filesystem::path path;
 	private:
-		UUID m_CurrentEntity;
 		std::string m_Name;
 		entt::registry m_Registry;
 		friend class Entity;

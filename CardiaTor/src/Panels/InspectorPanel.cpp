@@ -23,15 +23,14 @@ namespace Cardia::Panel
 			return;
 		}
 
-		auto selectedEntity = m_CurrentScene->GetCurrentEntity();
-		if(!selectedEntity)
+		if(!m_SelectedEntity)
 		{
 			ImGui::End();
 			return;
 		}
 		// Name Component
-		auto& name = selectedEntity.getComponent<Component::Name>();
-		auto& uuid = selectedEntity.getComponent<Component::ID>();
+		auto& name = m_SelectedEntity.getComponent<Component::Name>();
+		auto& uuid = m_SelectedEntity.getComponent<Component::ID>();
 
 		char buffer[128] {0};
 		constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
@@ -44,7 +43,7 @@ namespace Cardia::Panel
 
 		// Transform Component
 
-		DrawInspectorComponent<Component::Transform>("Transform", selectedEntity, [](Component::Transform& transform) {
+		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
 			EditorUI::DragFloat3("Position", transform.position);
 
 			auto rotation = glm::degrees(transform.rotation);
@@ -56,7 +55,7 @@ namespace Cardia::Panel
 
 		// SpriteRenderer Component
 
-		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", selectedEntity, [](Component::SpriteRenderer& sprite) {
+		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
 			EditorUI::ColorEdit4("Color", glm::value_ptr(sprite.color));
 			EditorUI::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0);
 			uint32_t whiteColor = 0xffffffff;
@@ -85,7 +84,7 @@ namespace Cardia::Panel
 
 		// Camera Component
 
-		DrawInspectorComponent<Component::Camera>("Camera", selectedEntity, [](Component::Camera& camera) {
+		DrawInspectorComponent<Component::Camera>("Camera", [](Component::Camera& camera) {
 			SceneCamera& cam = camera.camera;
 
 			int type = static_cast<int>(cam.getProjectionType());
@@ -123,7 +122,7 @@ namespace Cardia::Panel
 
 		// Light Component
 
-		DrawInspectorComponent<Component::Light>("Light", selectedEntity, [](Component::Light& light) {
+		DrawInspectorComponent<Component::Light>("Light", [](Component::Light& light) {
 			int item_current = light.lightType;
 			const char* items[] = { "Directional Light", "Point Light", "Spot Light" };
 			EditorUI::Combo("Light Type", &item_current, items, IM_ARRAYSIZE(items));
@@ -140,7 +139,7 @@ namespace Cardia::Panel
 			EditorUI::DragFloat("Smoothness", &light.smoothness, 0.5f);
 		});
 
-		DrawInspectorComponent<Component::Script>("Script", selectedEntity, [&](Component::Script& scriptComponent) {
+		DrawInspectorComponent<Component::Script>("Script", [&](Component::Script& scriptComponent) {
 			std::filesystem::path filepath = scriptComponent.getPath();
 			auto path = filepath.filename().string();
 
@@ -235,27 +234,27 @@ namespace Cardia::Panel
 		// Add component button
 		if (ImGui::BeginPopup("Add Component"))
 		{
-			if (!selectedEntity.hasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
+			if (!m_SelectedEntity.hasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
 			{
-				selectedEntity.addComponent<Component::Camera>();
+				m_SelectedEntity.addComponent<Component::Camera>();
 				ImGui::EndPopup();
 			}
 
-			if (!selectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
+			if (!m_SelectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
 			{
-				selectedEntity.addComponent<Component::SpriteRenderer>();
+				m_SelectedEntity.addComponent<Component::SpriteRenderer>();
 				ImGui::EndPopup();
 			}
 
-			if (!selectedEntity.hasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
+			if (!m_SelectedEntity.hasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
 			{
-				selectedEntity.addComponent<Component::Script>();
+				m_SelectedEntity.addComponent<Component::Script>();
 				ImGui::EndPopup();
 			}
 
-			if (!selectedEntity.hasComponent<Component::Light>() && ImGui::MenuItem("Light"))
+			if (!m_SelectedEntity.hasComponent<Component::Light>() && ImGui::MenuItem("Light"))
 			{
-				selectedEntity.addComponent<Component::Light>();
+				m_SelectedEntity.addComponent<Component::Light>();
 				ImGui::EndPopup();
 			}
 		}
@@ -264,14 +263,14 @@ namespace Cardia::Panel
 
 
         template<typename T>
-	void InspectorPanel::DrawInspectorComponent(const char* name, Entity entity, std::function<void(T&)> func)
+	void InspectorPanel::DrawInspectorComponent(const char* name, std::function<void(T&)> func)
 	{
-		if (!entity.hasComponent<T>())
+		if (!m_SelectedEntity.hasComponent<T>())
 			return;
 
 		constexpr auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		auto& component = entity.getComponent<T>();
+		auto& component = m_SelectedEntity.getComponent<T>();
 		if(!ImGui::TreeNodeEx(static_cast<void*>(&component), componentFlags, "%s", name))
 			return;
 
@@ -284,18 +283,13 @@ namespace Cardia::Panel
 			}
 			if (!std::is_same_v<T, Component::Transform> && ImGui::MenuItem("Remove Component"))
 			{
-				entity.removeComponent<T>();
+				m_SelectedEntity.removeComponent<T>();
 				ImGui::EndPopup();
 			}
 			ImGui::EndPopup();
 		}
 		func(component);
 		ImGui::TreePop();
-	}
-
-	void InspectorPanel::OnSceneLoad(Cardia::Scene *scene)
-	{
-		m_CurrentScene = scene;
 	}
 
 	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field) {
@@ -416,5 +410,10 @@ namespace Cardia::Panel
 				return false;
 		}
 
+	}
+
+	void InspectorPanel::SetSelectedEntity(Entity entity)
+	{
+		m_SelectedEntity = entity;
 	}
 }

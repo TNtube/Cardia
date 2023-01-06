@@ -7,11 +7,11 @@
 
 namespace Cardia::Panel
 {
-        class FileHierarchy : public IPanel
+        class FileHierarchyPanel : public IPanel
         {
         public:
-                FileHierarchy();
-                ~FileHierarchy() override = default;
+                FileHierarchyPanel();
+                ~FileHierarchyPanel() override = default;
                 void OnImGuiRender() override;
                 void OnUpdateWorkspace() override;
 
