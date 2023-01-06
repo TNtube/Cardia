@@ -416,4 +416,10 @@ namespace Cardia::Panel
 	{
 		m_SelectedEntity = entity;
 	}
+
+	void InspectorPanel::OnSceneLoad(Scene *scene)
+	{
+		IPanel::OnSceneLoad(scene);
+		m_SelectedEntity = Entity();
+	}
 }

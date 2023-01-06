@@ -16,6 +16,7 @@ namespace Cardia::Panel
                 ~InspectorPanel() override = default;
                 void OnImGuiRender() override;
 		void SetSelectedEntity(Entity entity);
+		void OnSceneLoad(Scene* scene) override;
 
 
         private:

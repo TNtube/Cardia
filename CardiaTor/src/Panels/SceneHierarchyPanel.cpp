@@ -62,6 +62,12 @@ namespace Cardia :: Panel
 		ImGui::End();
 	}
 
+	void SceneHierarchyPanel::OnSceneLoad(Scene *scene)
+	{
+		IPanel::OnSceneLoad(scene);
+		m_SelectedEntity = Entity();
+	}
+
 	void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
 	{
 		m_SelectedEntity = entity;

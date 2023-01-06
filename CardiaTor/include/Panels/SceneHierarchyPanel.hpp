@@ -15,6 +15,7 @@ namespace Cardia :: Panel
                 ~SceneHierarchyPanel() override = default;
 		void OnImGuiRender() override;
 		void SetSelectedEntity(Entity entity);
+		void OnSceneLoad(Scene* scene) override;
 		Entity GetSelectedEntity() { return m_SelectedEntity; }
 
 	private:
