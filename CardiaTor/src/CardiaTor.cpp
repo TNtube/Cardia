@@ -70,13 +70,14 @@ namespace Cardia
 
 		if (m_CurrentScene)
 		{
-			if (!(mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y))
-				return;
-			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-			m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-				m_CurrentSceneHierarchyPanel->SetSelectedEntity(m_HoveredEntity);
-				m_CurrentInspectorPanel->SetSelectedEntity(m_HoveredEntity);
+			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+			{
+				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+					m_CurrentSceneHierarchyPanel->SetSelectedEntity(m_HoveredEntity);
+					m_CurrentInspectorPanel->SetSelectedEntity(m_HoveredEntity);
+				}
 			}
 		}
 
@@ -250,13 +251,13 @@ namespace Cardia
 	void CardiaTor::OnImGuiDraw()
 	{
 		EnableDocking();
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		for (const auto& panel : m_Panels)
 		{
 			panel->OnImGuiRender();
 		}
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		m_HoverViewport = ImGui::IsWindowHovered();
 
