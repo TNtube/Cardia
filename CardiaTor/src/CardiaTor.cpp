@@ -74,10 +74,6 @@ namespace Cardia
 			{
 				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
 				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-					m_CurrentSceneHierarchyPanel->SetSelectedEntity(m_HoveredEntity);
-					m_CurrentInspectorPanel->SetSelectedEntity(m_HoveredEntity);
-				}
 			}
 		}
 
@@ -436,15 +432,11 @@ namespace Cardia
 			}
 		});
 
-		dispatcher.dispatch<WindowFocusEvent>([this](const WindowFocusEvent& e)
+		dispatcher.dispatch<MouseButtonDownEvent>([this](const MouseButtonDownEvent& e)
 		{
-			if (e.isFocused())
+			if (e.getButton() == Mouse::Left && !ImGuizmo::IsOver())
 			{
-				const auto view = m_CurrentScene->GetRegistry().view<Component::Script>();
-				for (auto [entity, behavior] : view.each())
-				{
-//					behavior.setPath(behavior.getPath());
-				}
+				m_CurrentSceneHierarchyPanel->SetSelectedEntity(m_HoveredEntity);
 			}
 		});
 	}
