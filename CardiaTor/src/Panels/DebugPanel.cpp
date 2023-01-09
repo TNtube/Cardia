@@ -6,6 +6,7 @@
 #include "Cardia/Core/Window.hpp"
 #include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
+#include "Panels/PanelManager.hpp"
 
 
 namespace Cardia::Panel
@@ -33,6 +34,10 @@ namespace Cardia::Panel
 		static int selectedTheme = THEME_DARK;
 
 		ImGui::Begin("Debug tools");
+
+	        if (ImGui::IsWindowFocused()) {
+		        m_PanelManager->SetFocused<DebugPanel>(this);
+	        }
 
 		// Section: Rendering
 		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))

@@ -6,10 +6,11 @@
 
 #include "Cardia/Core/Log.hpp"
 #include "Cardia/Application.hpp"
+#include "Panels/PanelManager.hpp"
 
 namespace Cardia::Panel
 {
-        FileHierarchyPanel::FileHierarchyPanel()
+        FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager)
         {
                 m_FolderIcon = Texture2D::create("resources/icons/folder.png");
                 m_FileIcon = Texture2D::create("resources/icons/file.png");
@@ -18,6 +19,10 @@ namespace Cardia::Panel
         void FileHierarchyPanel::OnImGuiRender()
         {
                 ImGui::Begin("Files");
+
+	        if (ImGui::IsWindowFocused()) {
+		        m_PanelManager->SetFocused<FileHierarchyPanel>(this);
+	        }
 
 		auto workspace = Application::projectSettings().workspace;
 

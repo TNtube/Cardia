@@ -7,6 +7,7 @@
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/ECS/Entity.hpp"
 #include "EditorUI/DragData.hpp"
+#include "Panels/PanelManager.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 
@@ -16,6 +17,10 @@ namespace Cardia::Panel
         void InspectorPanel::OnImGuiRender()
         {
                 ImGui::Begin("Inspector");
+
+		if (ImGui::IsWindowFocused()) {
+			m_PanelManager->SetFocused<InspectorPanel>(this);
+		}
 
 		if(!m_CurrentScene)
 		{

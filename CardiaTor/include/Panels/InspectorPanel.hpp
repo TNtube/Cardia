@@ -12,7 +12,7 @@ namespace Cardia::Panel
         class InspectorPanel : public IPanel
         {
         public:
-                InspectorPanel() = default;
+	        explicit InspectorPanel(PanelManager* manager) : IPanel(manager) {}
                 ~InspectorPanel() override = default;
                 void OnImGuiRender() override;
 		void SetSelectedEntity(Entity entity);

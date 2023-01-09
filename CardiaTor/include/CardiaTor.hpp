@@ -6,10 +6,7 @@
 #include <stack>
 
 #include "EditorCamera.hpp"
-#include "Panels/SceneHierarchyPanel.hpp"
-#include "Panels/DebugPanel.hpp"
-#include "Panels/FileHierarchyPanel.hpp"
-#include "Panels/InspectorPanel.hpp"
+#include "Panels/PanelManager.hpp"
 #include "Command/Commands.hpp"
 
 
@@ -36,7 +33,7 @@ namespace Cardia
 	private:
 		void EnableDocking();
 		void OpenWorkspace();
-		void InvalidateWorkspace() const;
+		void InvalidateWorkspace();
 		void SaveScene() const;
 		void OpenScene(const std::filesystem::path& scenePath);
 		void ReloadScene();
@@ -47,12 +44,11 @@ namespace Cardia
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
-		std::vector<std::unique_ptr<Panel::IPanel>> m_Panels;
+
+		PanelManager m_PanelManager;
+
 		std::stack<std::unique_ptr<Command>> m_UnusedCommand;
 		std::stack<std::unique_ptr<Command>> m_UsedCommand;
-
-		Panel::InspectorPanel* m_CurrentInspectorPanel = nullptr;
-		Panel::SceneHierarchyPanel* m_CurrentSceneHierarchyPanel = nullptr;
 
 		Entity m_HoveredEntity;
 

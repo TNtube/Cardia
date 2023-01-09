@@ -9,23 +9,26 @@
 #include <ranges>
 #include <Cardia/SerializationUtils/SceneSerializer.hpp>
 
+#include "Panels/SceneHierarchyPanel.hpp"
+#include "Panels/DebugPanel.hpp"
+#include "Panels/FileHierarchyPanel.hpp"
+#include "Panels/InspectorPanel.hpp"
+
 
 namespace Cardia
 {
-	CardiaTor::CardiaTor() : m_Panels()
+	CardiaTor::CardiaTor()
 	{
 		const auto &window = getWindow();
 
-		auto& hierarchyPanel = m_Panels.emplace_back(std::make_unique<Panel::SceneHierarchyPanel>());
-		m_CurrentSceneHierarchyPanel = dynamic_cast<Panel::SceneHierarchyPanel*>(hierarchyPanel.get());
-		auto& inspectorPanel = m_Panels.emplace_back(std::make_unique<Panel::InspectorPanel>());
-		m_CurrentInspectorPanel = dynamic_cast<Panel::InspectorPanel*>(inspectorPanel.get());
-		m_Panels.push_back(std::make_unique<Panel::DebugPanel>());
-		m_Panels.push_back(std::make_unique<Panel::FileHierarchyPanel>());
+		m_PanelManager.CreatePanel<Panel::SceneHierarchyPanel>();
+		m_PanelManager.CreatePanel<Panel::InspectorPanel>();
+		m_PanelManager.CreatePanel<Panel::DebugPanel>();
+		m_PanelManager.CreatePanel<Panel::FileHierarchyPanel>();
 
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 
-		for (auto& panel: m_Panels) {
+		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
@@ -77,7 +80,8 @@ namespace Cardia
 			}
 		}
 
-		m_CurrentInspectorPanel->SetSelectedEntity(m_CurrentSceneHierarchyPanel->GetSelectedEntity());
+		// TODO : move to InspectorPanel
+		m_PanelManager.GetLastFocused<Panel::InspectorPanel>()->SetSelectedEntity(m_PanelManager.GetLastFocused<Panel::SceneHierarchyPanel>()->GetSelectedEntity());
 
 		m_Framebuffer->Unbind();
 	}
@@ -173,9 +177,9 @@ namespace Cardia
 		}
 	}
 
-	void CardiaTor::InvalidateWorkspace() const
+	void CardiaTor::InvalidateWorkspace()
 	{
-		for (const auto& panel : m_Panels)
+		for (auto& panel : m_PanelManager.Panels())
 		{
 			panel->OnUpdateWorkspace();
 		}
@@ -224,7 +228,7 @@ namespace Cardia
 		{
 			m_CurrentScene = std::move(newScene);
 		}
-		for (auto& panel: m_Panels) {
+		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 	}
@@ -239,7 +243,7 @@ namespace Cardia
 		{
 			Log::coreInfo("Unable to reload {0}", m_CurrentScene->path.filename().string());
 		}
-		for(const auto& panel: m_Panels) {
+		for(const auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 	}
@@ -248,7 +252,7 @@ namespace Cardia
 	{
 		EnableDocking();
 
-		for (const auto& panel : m_Panels)
+		for (const auto& panel : m_PanelManager.Panels())
 		{
 			panel->OnImGuiRender();
 		}
@@ -345,7 +349,7 @@ namespace Cardia
 		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
 		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 
-		auto currentEntity = m_CurrentSceneHierarchyPanel->GetSelectedEntity();
+		auto currentEntity = m_PanelManager.GetLastFocused<Panel::SceneHierarchyPanel>()->GetSelectedEntity();
 
 		if (currentEntity && m_EditorState == EditorState::Edit)
 		{
@@ -436,7 +440,7 @@ namespace Cardia
 		{
 			if (e.getButton() == Mouse::Left && !ImGuizmo::IsOver())
 			{
-				m_CurrentSceneHierarchyPanel->SetSelectedEntity(m_HoveredEntity);
+				m_PanelManager.GetLastFocused<Panel::SceneHierarchyPanel>()->SetSelectedEntity(m_HoveredEntity);
 			}
 		});
 	}

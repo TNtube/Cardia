@@ -8,7 +8,7 @@ namespace Cardia::Panel
         class DebugPanel : public IPanel
         {
         public:
-                DebugPanel() = default;
+		explicit DebugPanel(PanelManager* manager) : IPanel(manager) {}
                 ~DebugPanel() override = default;
                 void OnImGuiRender() override;
         };        

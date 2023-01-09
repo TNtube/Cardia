@@ -11,7 +11,7 @@ namespace Cardia :: Panel
 	class SceneHierarchyPanel : public IPanel
 	{
 	public:
-		SceneHierarchyPanel() = default;
+		explicit SceneHierarchyPanel(PanelManager* manager) : IPanel(manager) {}
                 ~SceneHierarchyPanel() override = default;
 		void OnImGuiRender() override;
 		void SetSelectedEntity(Entity entity);

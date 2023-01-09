@@ -1,6 +1,8 @@
 #include "Panels/SceneHierarchyPanel.hpp"
 
 #include <imgui.h>
+#include "Panels/PanelManager.hpp"
+#include "Panels/InspectorPanel.hpp"
 
 
 namespace Cardia :: Panel
@@ -13,6 +15,11 @@ namespace Cardia :: Panel
 	void SceneHierarchyPanel::drawHierarchy()
 	{
 		ImGui::Begin("Current Scene");
+
+		if (ImGui::IsWindowFocused()) {
+			m_PanelManager->SetFocused<SceneHierarchyPanel>(this);
+		}
+
 		if (!m_CurrentScene) {
 			ImGui::End();
 			return;
@@ -70,6 +77,7 @@ namespace Cardia :: Panel
 
 	void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
 	{
+		m_PanelManager->GetLastFocused<InspectorPanel>()->SetSelectedEntity(entity);
 		m_SelectedEntity = entity;
 	}
 }
