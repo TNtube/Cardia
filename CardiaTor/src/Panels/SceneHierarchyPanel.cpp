@@ -41,15 +41,15 @@ namespace Cardia :: Panel
 					ImGui::EndDragDropSource();
 				}
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Middle)) {
-					m_SelectedEntity = Entity(entity, m_CurrentScene);
+					SetSelectedEntity(Entity(entity, m_CurrentScene));
 				}
 				if (ImGui::BeginPopupContextItem())
 				{
-					m_SelectedEntity = Entity(entity, m_CurrentScene);
+					SetSelectedEntity(Entity(entity, m_CurrentScene));
 					if (ImGui::MenuItem("Delete Entity"))
 					{
 						m_CurrentScene->DestroyEntity(entity);
-						m_SelectedEntity = Entity();
+						SetSelectedEntity(Entity());
 					}
 					ImGui::EndPopup();
 				}
@@ -57,7 +57,7 @@ namespace Cardia :: Panel
 			}
 		}
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
-			m_SelectedEntity = Entity();
+			SetSelectedEntity(Entity());
 		}
 		if (ImGui::BeginPopupContextWindow(nullptr, 1, false))
 		{

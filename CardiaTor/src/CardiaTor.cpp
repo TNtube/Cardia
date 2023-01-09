@@ -80,9 +80,6 @@ namespace Cardia
 			}
 		}
 
-		// TODO : move to InspectorPanel
-		m_PanelManager.GetLastFocused<Panel::InspectorPanel>()->SetSelectedEntity(m_PanelManager.GetLastFocused<Panel::SceneHierarchyPanel>()->GetSelectedEntity());
-
 		m_Framebuffer->Unbind();
 	}
 
