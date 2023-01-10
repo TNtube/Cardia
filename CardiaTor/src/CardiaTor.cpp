@@ -251,7 +251,7 @@ namespace Cardia
 
 		for (const auto& panel : m_PanelManager.Panels())
 		{
-			panel->OnImGuiRender();
+			if (panel) panel->OnImGuiRender();
 		}
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);

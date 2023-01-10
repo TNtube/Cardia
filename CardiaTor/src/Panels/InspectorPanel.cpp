@@ -16,7 +16,11 @@ namespace Cardia::Panel
 {
         void InspectorPanel::OnImGuiRender()
         {
-                ImGui::Begin("Inspector");
+                if (!ImGui::Begin("Inspector", &m_IsOpen)) {
+			ImGui::End();
+			m_PanelManager->DeletePanel(this);
+			return;
+		}
 
 		if (ImGui::IsWindowFocused()) {
 			m_PanelManager->SetFocused<InspectorPanel>(this);

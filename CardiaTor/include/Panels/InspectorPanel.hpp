@@ -24,5 +24,7 @@ namespace Cardia::Panel
                 void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
 	        bool DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field);
 	        Entity m_SelectedEntity;
+
+		bool m_IsOpen = true;
         };
 }
