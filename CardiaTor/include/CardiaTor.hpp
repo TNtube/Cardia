@@ -27,6 +27,7 @@ namespace Cardia
 		void OnUpdate() override;
 		void OnEvent(Event& event) override;
 		void OnImGuiDraw() override;
+		void SetSelectedEntity(Entity entity);
 
 		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
 
@@ -34,6 +35,7 @@ namespace Cardia
 		void EnableDocking();
 		void OpenWorkspace();
 		void InvalidateWorkspace();
+		void InvalidateScene();
 		void SaveScene() const;
 		void OpenScene(const std::filesystem::path& scenePath);
 		void ReloadScene();
@@ -51,6 +53,7 @@ namespace Cardia
 		std::stack<std::unique_ptr<Command>> m_UsedCommand;
 
 		Entity m_HoveredEntity;
+		Entity m_SelectedEntity;
 
 		glm::vec2 m_SceneSize {};
 

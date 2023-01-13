@@ -14,11 +14,15 @@
 
 namespace Cardia::Panel
 {
-        void InspectorPanel::OnImGuiRender()
+	int InspectorPanel::m_LastWindowId = 0;
+        void InspectorPanel::OnImGuiRender(CardiaTor* appContext)
         {
-                if (!ImGui::Begin("Inspector", &m_IsOpen)) {
-			ImGui::End();
-			m_PanelManager->DeletePanel(this);
+		char buff[64];
+	        sprintf(buff, "Inspector##%i", m_WindowId);
+		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+                if (!ImGui::Begin(buff, &m_IsOpen)) {
+	                m_PanelManager->DeletePanel(this);
+	                ImGui::End();
 			return;
 		}
 

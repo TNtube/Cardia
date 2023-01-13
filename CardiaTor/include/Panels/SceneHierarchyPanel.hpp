@@ -11,17 +11,22 @@ namespace Cardia :: Panel
 	class SceneHierarchyPanel : public IPanel
 	{
 	public:
-		explicit SceneHierarchyPanel(PanelManager* manager) : IPanel(manager) {}
+		explicit SceneHierarchyPanel(PanelManager* manager) : IPanel(manager), m_WindowId(m_LastWindowId++) {}
                 ~SceneHierarchyPanel() override = default;
-		void OnImGuiRender() override;
+		void OnImGuiRender(CardiaTor* appContext) override;
 		void SetSelectedEntity(Entity entity);
 		void OnSceneLoad(Scene* scene) override;
-		Entity GetSelectedEntity() { return m_SelectedEntity; }
 
 	private:
-		void drawHierarchy();
+		void SetSelectedEntityFromItself(Entity entity, CardiaTor* appCtx);
 
 	private:
 		Entity m_SelectedEntity;
+
+		bool m_IsOpen;
+
+		int m_WindowId;
+
+		static int m_LastWindowId;
 	};
 }

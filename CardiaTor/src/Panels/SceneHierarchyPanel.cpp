@@ -3,18 +3,22 @@
 #include <imgui.h>
 #include "Panels/PanelManager.hpp"
 #include "Panels/InspectorPanel.hpp"
+#include "CardiaTor.hpp"
 
 
 namespace Cardia :: Panel
 {
-	void SceneHierarchyPanel::OnImGuiRender()
+	int SceneHierarchyPanel::m_LastWindowId = 0;
+	void SceneHierarchyPanel::OnImGuiRender(CardiaTor* appContext)
 	{
-		drawHierarchy();
-	}
-
-	void SceneHierarchyPanel::drawHierarchy()
-	{
-		ImGui::Begin("Current Scene");
+		char buff[64];
+		sprintf(buff, "Current Scene##%i", m_WindowId);
+		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+		if (!ImGui::Begin(buff, &m_IsOpen)) {
+			m_PanelManager->DeletePanel(this);
+			ImGui::End();
+			return;
+		}
 
 		if (ImGui::IsWindowFocused()) {
 			m_PanelManager->SetFocused<SceneHierarchyPanel>(this);
@@ -41,15 +45,15 @@ namespace Cardia :: Panel
 					ImGui::EndDragDropSource();
 				}
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Middle)) {
-					SetSelectedEntity(Entity(entity, m_CurrentScene));
+					SetSelectedEntityFromItself(Entity(entity, m_CurrentScene), appContext);
 				}
 				if (ImGui::BeginPopupContextItem())
 				{
-					SetSelectedEntity(Entity(entity, m_CurrentScene));
+					SetSelectedEntityFromItself(Entity(entity, m_CurrentScene), appContext);
 					if (ImGui::MenuItem("Delete Entity"))
 					{
 						m_CurrentScene->DestroyEntity(entity);
-						SetSelectedEntity(Entity());
+						SetSelectedEntityFromItself(Entity(), appContext);
 					}
 					ImGui::EndPopup();
 				}
@@ -57,7 +61,7 @@ namespace Cardia :: Panel
 			}
 		}
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
-			SetSelectedEntity(Entity());
+			SetSelectedEntityFromItself(Entity(), appContext);
 		}
 		if (ImGui::BeginPopupContextWindow(nullptr, 1, false))
 		{
@@ -75,8 +79,15 @@ namespace Cardia :: Panel
 		m_SelectedEntity = Entity();
 	}
 
+	// Should be called only from outside
 	void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
 	{
+		m_SelectedEntity = entity;
+	}
+
+	void SceneHierarchyPanel::SetSelectedEntityFromItself(Entity entity, CardiaTor* appCtx)
+	{
+		appCtx->SetSelectedEntity(entity);
 		m_PanelManager->GetLastFocused<InspectorPanel>()->SetSelectedEntity(entity);
 		m_SelectedEntity = entity;
 	}

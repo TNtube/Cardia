@@ -7,6 +7,7 @@
 namespace Cardia
 {
 	class PanelManager;
+	class CardiaTor;
 	namespace Panel
 	{
 		class IPanel
@@ -14,7 +15,7 @@ namespace Cardia
 		public:
 			explicit IPanel(PanelManager* manager) : m_PanelManager(manager) {}
 			virtual ~IPanel() = default;
-			virtual void OnImGuiRender() = 0;
+			virtual void OnImGuiRender(CardiaTor* appContext) = 0;
 			virtual void OnUpdateWorkspace() {}
 			virtual void OnSceneLoad(Scene* scene) { m_CurrentScene = scene; }
 

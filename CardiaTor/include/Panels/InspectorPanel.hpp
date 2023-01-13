@@ -12,9 +12,9 @@ namespace Cardia::Panel
         class InspectorPanel : public IPanel
         {
         public:
-	        explicit InspectorPanel(PanelManager* manager) : IPanel(manager) {}
+	        explicit InspectorPanel(PanelManager* manager) : IPanel(manager), m_WindowId(m_LastWindowId++) {}
                 ~InspectorPanel() override = default;
-                void OnImGuiRender() override;
+                void OnImGuiRender(CardiaTor* appContext) override;
 		void SetSelectedEntity(Entity entity);
 		void OnSceneLoad(Scene* scene) override;
 
@@ -26,5 +26,9 @@ namespace Cardia::Panel
 	        Entity m_SelectedEntity;
 
 		bool m_IsOpen = true;
+
+		int m_WindowId;
+
+		static int m_LastWindowId;
         };
 }
