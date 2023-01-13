@@ -156,6 +156,10 @@ namespace Cardia
 				}
 				if (ImGui::BeginMenu("Panels"))
 				{
+					if (ImGui::MenuItem("SceneHierarchy")) {
+						auto panel = m_PanelManager.CreatePanel<Panel::SceneHierarchyPanel>();
+						panel->OnSceneLoad(m_CurrentScene.get());
+					}
 					if (ImGui::MenuItem("Inspector")) {
 						auto panel = m_PanelManager.CreatePanel<Panel::InspectorPanel>();
 						panel->OnSceneLoad(m_CurrentScene.get());
@@ -166,6 +170,7 @@ namespace Cardia
 					if (ImGui::MenuItem("FileHierarchy")) {
 						auto panel = m_PanelManager.CreatePanel<Panel::FileHierarchyPanel>();
 						panel->OnSceneLoad(m_CurrentScene.get());
+						panel->OnUpdateWorkspace();
 					}
 					ImGui::EndMenu();
 				}

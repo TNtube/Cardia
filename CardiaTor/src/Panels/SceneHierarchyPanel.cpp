@@ -28,6 +28,13 @@ namespace Cardia :: Panel
 			ImGui::End();
 			return;
 		}
+
+		if (!ImGui::TreeNodeEx(m_CurrentScene, ImGuiTreeNodeFlags_SpanAvailWidth, "%s", m_CurrentScene->GetName())) {
+			ImGui::TreePop();
+			ImGui::End();
+			return;
+		}
+
 		const auto view = m_CurrentScene->GetRegistry().view<Component::Name, Component::ID>();
 
 		for (auto entity : view)
