@@ -9,7 +9,7 @@ namespace Cardia
 		RecomputeProjection();
 	}
 	
-	void SceneCamera::setPerspective(float verticalFOV, float nearClip, float farClip)
+	void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
 	{
 		m_ProjectionType = ProjectionType::Perspective;
 		m_PersFOV = verticalFOV;
@@ -18,13 +18,23 @@ namespace Cardia
 		RecomputeProjection();
 	}
 
-	void SceneCamera::setOrthographic(float size, float nearClip, float farClip)
+	void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
 	{
 		m_ProjectionType = ProjectionType::Orthographic;
 		m_OrthoSize = size;
 		m_OrthoNear = nearClip;
 		m_OrthoFar = farClip;
 		RecomputeProjection();
+	}
+
+	glm::vec3 SceneCamera::GetPerspective() const
+	{
+		return {m_PersFOV, m_PersNear, m_PersFar};
+	}
+
+	glm::vec3 SceneCamera::GetOrthographic() const
+	{
+		return {m_OrthoSize, m_OrthoNear, m_OrthoFar};
 	}
 
 	void SceneCamera::RecomputeProjection()

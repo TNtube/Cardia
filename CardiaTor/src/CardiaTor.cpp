@@ -54,7 +54,7 @@ namespace Cardia
 
 		if (m_EditorState == EditorState::Edit)
 		{
-			m_CurrentScene->OnUpdateEditor(m_EditorCamera);
+			m_CurrentScene->OnUpdateEditor(m_EditorCamera.GetCamera(), m_EditorCamera.GetTransform());
 			m_EditorCamera.OnUpdate();
 		}
 		if (m_EditorState == EditorState::Play)
@@ -374,15 +374,15 @@ namespace Cardia
 
 		drawLists->PopClipRect();
 
-		m_EditorCamera.setViewportSize(m_SceneSize.x, m_SceneSize.y);
+		m_EditorCamera.SetViewportSize(m_SceneSize.x, m_SceneSize.y);
 		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 
 		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
 		{
 
 			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.getProjectionMatrix();
-			glm::mat4 cameraView = m_EditorCamera.getViewMatrix();
+			const glm::mat4& cameraProjection = m_EditorCamera.GetCamera().getProjectionMatrix();
+			glm::mat4 cameraView = m_EditorCamera.GetCamera().getViewMatrix();
 			auto& transformComponent = m_SelectedEntity.getComponent<Component::Transform>();
 			glm::mat4 transform = transformComponent.getTransform();
 

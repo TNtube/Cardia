@@ -6,7 +6,7 @@ namespace Cardia
 {
 	std::unique_ptr<Renderer::SceneData> Renderer::s_SceneData = std::make_unique<Renderer::SceneData>();
 
-	void Renderer::beginScene(OrthographicCamera& camera)
+	void Renderer::beginScene(Camera& camera)
 	{
 		s_SceneData->ViewProjectionMatrix = camera.getViewProjectionMatrix();
 	}

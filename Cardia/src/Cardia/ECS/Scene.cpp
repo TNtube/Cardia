@@ -82,9 +82,9 @@ namespace Cardia
 		Renderer2D::endScene();
 	}
 
-	void Scene::OnUpdateEditor(Camera& editorCamera)
+	void Scene::OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform)
 	{
-		Renderer2D::beginScene(editorCamera, editorCamera.getPosition());
+		Renderer2D::beginScene(editorCamera, editorCameraTransform);
 
 		const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
 		for (const auto entity : view)
@@ -109,7 +109,7 @@ namespace Cardia
 		for (auto entity : view)
 		{
 			auto& cameraComponent = view.get<Component::Camera>(entity);
-			cameraComponent.camera.setViewportSize((float)width, (float)height);
+			cameraComponent.camera.SetViewportSize((float) width, (float) height);
 		}
 	}
 

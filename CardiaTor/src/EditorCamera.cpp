@@ -7,10 +7,9 @@
 
 namespace Cardia
 {
-	EditorCamera::EditorCamera(float fov, float nearClip, float farClip, float aspectRatio)
-		: m_FOV(fov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip)
+	EditorCamera::EditorCamera(float fov, float nearClip, float farClip)
 	{
-		updateView();
+		m_Camera.SetPerspective(fov, nearClip, farClip);
 	}
 
 	void EditorCamera::OnUpdate()
@@ -31,14 +30,12 @@ namespace Cardia
 				mousePan(glm::vec2(-0.02f, 0.0f));
 			}
 			if (Input::isKeyPressed(Key::W)) {
-				mouseZoom(0.09f);
+				m_Transform.position.z += 0.09f;
 			}
 			if (Input::isKeyPressed(Key::S)) {
-				mouseZoom(-0.09f);
+				m_Transform.position.z += -0.09f;
 			}
 		}
-
-		updateView();
 	}
 
 	void EditorCamera::OnEvent(Event &e)
@@ -46,97 +43,28 @@ namespace Cardia
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& event) -> bool {
 			float delta = event.getOffSetY() * 0.1f;
-			mouseZoom(delta);
-			updateView();
+			m_Transform.position.z += delta;
 			return false;
 		});
 	}
 
-	glm::vec3 EditorCamera::getUpDirection() const
-	{
-		return glm::rotate(getOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-
-	glm::vec3 EditorCamera::getRightDirection() const
-	{
-		return glm::rotate(getOrientation(), glm::vec3(1.0f, 0.0f, 0.0f));
-	}
-
-	glm::vec3 EditorCamera::getForwardDirection() const
-	{
-		return glm::rotate(getOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
-	}
-
-	glm::quat EditorCamera::getOrientation() const
-	{
-		return {glm::vec3(-m_Pitch, -m_Yaw, 0.0f)};
-	}
-
-	void EditorCamera::updateProjection()
-	{
-		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-		m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
-	}
-
-	void EditorCamera::updateView()
-	{
-		m_Position = calculatePosition();
-
-		glm::quat orientation = getOrientation();
-		m_ViewMatrix = glm::inverse(glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation));
-	}
-
 	void EditorCamera::mousePan(const glm::vec2 &delta)
 	{
-		auto speed = panSpeed();
-		m_FocalPoint += -getRightDirection() * delta.x * speed.x * m_Distance;
-		m_FocalPoint += getUpDirection() * delta.y * speed.y * m_Distance;
+		auto speed = 5.f;
+		m_Transform.position += -m_Transform.Right() * delta.x * speed;
+		m_Transform.position += m_Transform.Up() * delta.y * speed;
 	}
 
 	void EditorCamera::mouseRotate(const glm::vec2 &delta)
 	{
-		float yawSign = getUpDirection().y < 0 ? -1.0f : 1.0f;
-		m_Yaw += yawSign * delta.x * rotationSpeed();
-		m_Pitch += delta.y * rotationSpeed();
+		float yawSign = m_Transform.Up().y < 0 ? -1.0f : 1.0f;
+		m_Transform.rotation.y += yawSign * delta.x * rotationSpeed();
+		m_Transform.rotation.x += delta.y * rotationSpeed();
 	}
 
-	void EditorCamera::mouseZoom(float delta)
-	{
-		m_Distance -= delta * zoomSpeed();
-		if (m_Distance < 1.0f)
-		{
-			m_FocalPoint += getForwardDirection();
-			m_Distance = 1.0f;
-		}
-	}
-
-	glm::vec3 EditorCamera::calculatePosition() const
-	{
-		return m_FocalPoint - getForwardDirection() * m_Distance;
-	}
-
-	glm::vec2 EditorCamera::panSpeed() const
-	{
-		float x = std::min(m_ViewportWidth / 1000.0f, 2.4f); // max = 2.4f
-		float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
-
-		float y = std::min(m_ViewportHeight / 1000.0f, 2.4f); // max = 2.4f
-		float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
-
-		return { xFactor, yFactor };
-	}
 
 	float EditorCamera::rotationSpeed() const
 	{
 		return 0.8f;
-	}
-
-	float EditorCamera::zoomSpeed() const
-	{
-		float distance = m_Distance * 0.2f;
-		distance = std::max(distance, 0.0f);
-		float speed = distance * distance;
-		speed = std::min(speed, 10.0f); // max speed = 10
-		return speed;
 	}
 }

@@ -11,7 +11,7 @@ namespace Cardia
 	class Renderer
 	{
 	public:
-		static void beginScene(OrthographicCamera& camera);
+		static void beginScene(Camera& camera);
 		static void endScene();
 		static void submit(const VertexArray* vertexArray,
 				   const Shader* shader, const glm::mat4& transform = glm::mat4(1.0f));

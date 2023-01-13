@@ -14,4 +14,19 @@ namespace Cardia::Component
 		scriptClass = ScriptEngine::Instance().GetClassFromPyFile(filePath);
 		scriptClass.RegisterAttributes();
         }
+
+	glm::vec3 Transform::Forward() const
+	{
+		return rotation * glm::vec3{0, 0, 1.0f};
+	}
+
+	glm::vec3 Transform::Up() const
+	{
+		return rotation * glm::vec3{0, 1.0f, 0};
+	}
+
+	glm::vec3 Transform::Right() const
+	{
+		return rotation * glm::vec3{1.0f, 0, 0};
+	}
 }

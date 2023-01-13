@@ -14,8 +14,7 @@ namespace Cardia
 	public:
 		static void init();
 		static void quit();
-		static void beginScene(Camera& camera, glm::mat4& transform);
-		static void beginScene(Camera& camera, const glm::vec3& position);
+		static void beginScene(Camera& camera, const glm::mat4& transform);
 		static void endScene();
 
 		struct Stats {

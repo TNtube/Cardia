@@ -100,36 +100,48 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::Camera>("Camera", [](Component::Camera& camera) {
 			SceneCamera& cam = camera.camera;
 
-			int type = static_cast<int>(cam.getProjectionType());
+			int type = static_cast<int>(cam.GetProjectionType());
 			const char *cameraTypes[] = {"Perspective", "Orthographic"};
 			if (EditorUI::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes) / sizeof(char *)))
-				cam.setProjectionType(static_cast<SceneCamera::ProjectionType>(type));
+				cam.SetProjectionType(static_cast<SceneCamera::ProjectionType>(type));
 
 			auto& isPrimary = camera.primary;
 
 			EditorUI::Checkbox("Primary", &isPrimary);
 
-			if (cam.getProjectionType() == SceneCamera::ProjectionType::Perspective) {
-				float pFov = glm::degrees(cam.getPerspectiveFov());
-				if (EditorUI::DragFloat("Fov", &pFov, 0.05f))
-					cam.setPerspectiveFov(glm::radians(pFov));
-				float pFar = cam.getPerspectiveFar();
-				if (EditorUI::DragFloat("Far", &pFar, 0.05f))
-					cam.setPerspectiveFar(pFar);
-				float pNear = cam.getPerspectiveNear();
-				if (EditorUI::DragFloat("Near", &pNear, 0.05f))
-					cam.setPerspectiveNear(pNear);
+			if (cam.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
+				auto perspective = cam.GetPerspective();
+
+				bool edited = false;
+
+				float pFov = glm::degrees(perspective.x);
+				edited = EditorUI::DragFloat("Fov", &pFov, 0.05f);
+
+				float pNear = perspective.y;
+				edited = EditorUI::DragFloat("Near", &pNear, 0.05f);
+
+				float pFar = perspective.z;
+				edited = (EditorUI::DragFloat("Far", &pFar, 0.05f));
+
+				if (edited)
+					cam.SetPerspective(glm::radians(pFov), pNear, pFar);
 			}
-			else if (cam.getProjectionType() == SceneCamera::ProjectionType::Orthographic) {
-				float oSize = cam.getOrthographicSize();
-				if (EditorUI::DragFloat("Size", &oSize, 0.05f))
-					cam.setOrthographicSize(oSize);
-				float oFar = cam.getOrthographicFar();
-				if (EditorUI::DragFloat("Far", &oFar, 0.05f))
-					cam.setOrthographicFar(oFar);
-				float oNear = cam.getOrthographicNear();
-				if (EditorUI::DragFloat("Near", &oNear, 0.05f))
-					cam.setOrthographicNear(oNear);
+			else if (cam.GetProjectionType() == SceneCamera::ProjectionType::Orthographic) {
+				auto orthographic = cam.GetOrthographic();
+
+				bool edited = false;
+
+				float oSize = orthographic.x;
+				edited = EditorUI::DragFloat("Size", &oSize, 0.05f);
+
+				float oNear = orthographic.y;
+				edited = EditorUI::DragFloat("Near", &oNear, 0.05f);
+
+				float oFar = orthographic.z;
+				edited = (EditorUI::DragFloat("Far", &oFar, 0.05f));
+
+				if (edited)
+					cam.SetOrthographic(oSize, oNear, oFar);
 			}
 		});
 

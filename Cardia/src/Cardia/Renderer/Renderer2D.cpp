@@ -70,7 +70,7 @@ namespace Cardia
 		s_Data.reset();
 	}
 
-	void Renderer2D::beginScene(Camera& camera, glm::mat4& transform)
+	void Renderer2D::beginScene(Camera& camera, const glm::mat4& transform)
 	{
 		s_Data->batches.clear();
 		s_Data->lightDataBuffer.clear();
@@ -78,18 +78,6 @@ namespace Cardia
 		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
 		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
 		s_Data->viewProjectionMatrix = camera.getProjectionMatrix() * glm::inverse(transform);
-		s_Stats->drawCalls = 0;
-		s_Stats->triangleCount = 0;
-	}
-
-	void Renderer2D::beginScene(Camera& camera, const glm::vec3& position)
-	{
-		s_Data->batches.clear();
-		s_Data->lightDataBuffer.clear();
-		s_Data->cameraPosition = position;
-		s_Data->basicShader->setMat4("u_ViewProjection", camera.getViewProjectionMatrix());
-		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
-		s_Data->viewProjectionMatrix = camera.getViewProjectionMatrix();
 		s_Stats->drawCalls = 0;
 		s_Stats->triangleCount = 0;
 	}

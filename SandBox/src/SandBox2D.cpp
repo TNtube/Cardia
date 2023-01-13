@@ -47,24 +47,6 @@ void SandBox2D::OnUpdate()
 
 	Cardia::RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
 	Cardia::RenderAPI::get().clear();
-
-	Cardia::Renderer2D::beginScene(m_Camera, m_Camera.getPosition());
-
-	for (int i = -9; i < 10; ++i)
-	{
-		for (int j = -9; j < 10; ++j)
-		{
-			auto x = static_cast<float>(i), y = static_cast<float>(j);
-			if (std::find(snakePos.begin(), snakePos.end(), glm::vec3(i, j, 0.0f)) != snakePos.end())
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, m_TextureSquare.get(), 2);
-			else if (applePos == glm::vec3(i, j, 0.0f))
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f}, 45,m_TextureBox.get(), {0.8f, 0.3f, 0.2f, 0.5f});
-			else
-				Cardia::Renderer2D::drawRect({x, y, 0.0f}, {0.95f, 0.95f},{(x + 10.0f) / 20.0f, (y + 10.0f) / 20.0f, 0.3f, 0.8f});
-		}
-	}
-
-	Cardia::Renderer2D::endScene();
 }
 
 void SandBox2D::OnImGuiDraw()
@@ -171,5 +153,4 @@ void SandBox2D::OnEvent(Cardia::Event &event)
 void SandBox2D::onResize(const Cardia::WindowResizeEvent &e)
 {
 	m_AspectRatio = static_cast<float>(e.getW()) / static_cast<float>(e.getH());
-	m_Camera.setBounds(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 }

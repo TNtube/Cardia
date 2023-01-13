@@ -206,14 +206,16 @@ namespace Cardia::SerializerUtils
                         if (entity.hasComponent<Component::Camera>())
                         {
                                 const auto& camera = entity.getComponent<Component::Camera>();
-                                node["type"] = static_cast<int>(camera.camera.getProjectionType());
-                                node["perspectiveFov"] = camera.camera.getPerspectiveFov();
-                                node["perspectiveFar"] = camera.camera.getPerspectiveFar();
-                                node["perspectiveNear"] = camera.camera.getPerspectiveNear();
-                                
-                                node["orthoSize"] =camera.camera.getOrthographicSize();
-                                node["orthoNear"] = camera.camera.getOrthographicNear();
-                                node["orthoFar"] = camera.camera.getOrthographicFar();
+                                node["type"] = static_cast<int>(camera.camera.GetProjectionType());
+				auto pers = camera.camera.GetPerspective();
+                                node["perspectiveFov"] = pers.x;
+                                node["perspectiveFar"] = pers.y;
+                                node["perspectiveNear"] = pers.z;
+
+	                        auto ortho = camera.camera.GetOrthographic();
+                                node["orthoSize"] = ortho.x;
+                                node["orthoNear"] = ortho.y;
+                                node["orthoFar"] = ortho.z;
                                 
                                 root[uuid.uuid]["camera"] = node;
                                 node.clear();
@@ -310,14 +312,20 @@ namespace Cardia::SerializerUtils
                         if (node.isMember("camera"))
                         {
                                 auto& camera = entity.addComponent<Component::Camera>();
-                                camera.camera.setProjectionType(static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
-                                camera.camera.setPerspectiveFov(node["camera"]["perspectiveFov"].asFloat());
-                                camera.camera.setPerspectiveFar(node["camera"]["perspectiveNear"].asFloat());
-                                camera.camera.setPerspectiveFar(node["camera"]["perspectiveFar"].asFloat());
 
-                                camera.camera.setOrthographicSize(node["camera"]["orthoSize"].asFloat());
-                                camera.camera.setOrthographicNear(node["camera"]["orthoNear"].asFloat());
-                                camera.camera.setOrthographicFar(node["camera"]["orthoFar"].asFloat());
+                                auto pFov = node["camera"]["perspectiveFov"].asFloat();
+	                        auto pNear = node["camera"]["perspectiveNear"].asFloat();
+	                        auto pFar = node["camera"]["perspectiveFar"].asFloat();
+				camera.camera.SetPerspective(pFov, pNear, pFar);
+
+
+	                        auto oSize = node["camera"]["orthoSize"].asFloat();
+	                        auto oNear = node["camera"]["orthoNear"].asFloat();
+	                        auto oFar = node["camera"]["orthoFar"].asFloat();
+	                        camera.camera.SetOrthographic(oSize, oNear, oFar);
+
+	                        camera.camera.SetProjectionType(
+		                        static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
                         }
 
 			// PointLight

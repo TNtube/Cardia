@@ -57,6 +57,10 @@ namespace Cardia::Component
 			     * glm::scale(glm::mat4(1.0f), scale);
 		}
 
+		glm::vec3 Forward() const;
+		glm::vec3 Up() const;
+		glm::vec3 Right() const;
+
 		inline void reset() {
 			position = glm::vec3(0);
 			rotation = glm::vec3(0);

@@ -3,70 +3,44 @@
 #include "Cardia/Core/Event.hpp"
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
+#include "Cardia/ECS/Components.hpp"
 
 #include <glm/gtc/quaternion.hpp>
 
 
 namespace Cardia
 {
-	class EditorCamera : public Camera
+	class EditorCamera
 	{
 	public:
-		EditorCamera(float fov, float nearClip, float farClip, float aspectRatio);
+		EditorCamera(float fov, float nearClip, float farClip);
 		EditorCamera() = default;
-
-		~EditorCamera() override = default;
 
 		void OnUpdate();
 		void OnEvent(Event& e);
 
-		inline float getDistance() const { return m_Distance; }
-		inline void setDistance(float distance) { m_Distance = distance; }
+		inline void SetViewportSize(float width, float height) { m_Camera.SetViewportSize(width, height); }
 
-		inline void setViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; updateProjection(); }
-		const glm::mat4& getViewProjectionMatrix() override
+		glm::mat4 GetTransform() const
 		{
-			m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-			return m_ViewProjectionMatrix;
+			return m_Transform.getTransform();
 		}
 
-		glm::vec3 getUpDirection() const;
-		glm::vec3 getRightDirection() const;
-		glm::vec3 getForwardDirection() const;
-		glm::quat getOrientation() const;
-
-		const glm::vec3& getPosition() override
+		SceneCamera& GetCamera()
 		{
-			return m_Position;
+			return m_Camera;
 		}
-
-		float getPitch() const { return m_Pitch; }
-		float getYaw() const { return m_Yaw; }
-
 	private:
-		void updateProjection();
-		void updateView();
 
 		void mousePan(const glm::vec2& delta);
 		void mouseRotate(const glm::vec2& delta);
-		void mouseZoom(float delta);
-
-		glm::vec3 calculatePosition() const;
-
-		glm::vec2 panSpeed() const;
 		float rotationSpeed() const;
-		float zoomSpeed() const;
 
 	private:
-		float m_FOV = 45.0f, m_AspectRatio = 1.778f, m_NearClip = 0.1f, m_FarClip = 1000.0f;
-		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
+		SceneCamera m_Camera;
+		Component::Transform m_Transform;
 
 		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };
-
-		float m_Distance = 10.0f;
-		float m_Pitch = 0.0f, m_Yaw = 0.0f;
-
-		float m_ViewportWidth = 1280, m_ViewportHeight = 720;
 
 	};
 }

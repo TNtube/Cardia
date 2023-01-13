@@ -24,7 +24,7 @@ namespace Cardia
 		void OnRuntimeUpdate();
 		void OnRuntimeStart();
 		void OnRuntimeStop();
-		void OnUpdateEditor(Camera& editorCamera);
+		void OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform);
 		void OnViewportResize(float width, float height);
 		Entity GetEntityByUUID(const UUID& uuid);
 		inline const char* GetName() const { return m_Name.c_str(); }
