@@ -40,7 +40,8 @@ namespace Cardia
 		SceneCamera m_Camera;
 		Component::Transform m_Transform;
 
-		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };
+		glm::vec2 m_InitialMousePosition { 0.0f, 0.0f };
+		float m_MovementSpeed = 30;
 
 	};
 }

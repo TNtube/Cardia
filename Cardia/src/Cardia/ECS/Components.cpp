@@ -17,16 +17,26 @@ namespace Cardia::Component
 
 	glm::vec3 Transform::Forward() const
 	{
-		return rotation * glm::vec3{0, 0, 1.0f};
+		glm::vec3 forward;
+
+		forward.x = cos(rotation.x) * sin(rotation.y);
+		forward.y = -sin(rotation.x);
+		forward.z = cos(rotation.x) * cos(rotation.y);
+
+		return forward;
 	}
 
 	glm::vec3 Transform::Up() const
 	{
-		return rotation * glm::vec3{0, 1.0f, 0};
+		return glm::cross(Forward(), Right());
 	}
 
 	glm::vec3 Transform::Right() const
 	{
-		return rotation * glm::vec3{1.0f, 0, 0};
+		glm::vec3 right;
+		right.x =  cos(rotation.y);
+		right.y =  0;
+		right.z = -sin(rotation.y);
+		return right;
 	}
 }

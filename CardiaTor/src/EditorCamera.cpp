@@ -2,8 +2,6 @@
 #include "Cardia/Core/Input.hpp"
 #include "Cardia/Core/KeyCodes.hpp"
 
-#include <glm/gtx/quaternion.hpp>
-
 
 namespace Cardia
 {
@@ -24,16 +22,40 @@ namespace Cardia
 		{
 			mouseRotate(delta);
 			if (Input::isKeyPressed(Key::A)) {
-				mousePan(glm::vec2(0.02f, 0.0f));
+				m_Transform.position +=
+					-m_Transform.Right()
+					* m_MovementSpeed
+					* Time::deltaTime().seconds();
 			}
 			if (Input::isKeyPressed(Key::D)) {
-				mousePan(glm::vec2(-0.02f, 0.0f));
+				m_Transform.position +=
+					m_Transform.Right()
+					* m_MovementSpeed
+					* Time::deltaTime().seconds();
 			}
 			if (Input::isKeyPressed(Key::W)) {
-				m_Transform.position.z += 0.09f;
+				m_Transform.position +=
+					-m_Transform.Forward()
+					* m_MovementSpeed
+					* Time::deltaTime().seconds();
 			}
 			if (Input::isKeyPressed(Key::S)) {
-				m_Transform.position.z += -0.09f;
+				m_Transform.position +=
+					m_Transform.Forward()
+					* m_MovementSpeed *
+					Time::deltaTime().seconds();
+			}
+			if (Input::isKeyPressed(Key::Q)) {
+				m_Transform.position +=
+					-m_Transform.Up()
+					* m_MovementSpeed *
+					Time::deltaTime().seconds();
+			}
+			if (Input::isKeyPressed(Key::E)) {
+				m_Transform.position +=
+					m_Transform.Up()
+					* m_MovementSpeed *
+					Time::deltaTime().seconds();
 			}
 		}
 	}
@@ -42,24 +64,33 @@ namespace Cardia
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& event) -> bool {
-			float delta = event.getOffSetY() * 0.1f;
-			m_Transform.position.z += delta;
+			float delta = event.getOffSetY();
+			m_Transform.position +=
+				m_Transform.Forward()
+				* delta
+				* m_MovementSpeed
+				* Time::deltaTime().seconds();
 			return false;
 		});
 	}
 
 	void EditorCamera::mousePan(const glm::vec2 &delta)
 	{
-		auto speed = 5.f;
-		m_Transform.position += -m_Transform.Right() * delta.x * speed;
-		m_Transform.position += m_Transform.Up() * delta.y * speed;
+		m_Transform.position +=
+			m_Transform.Right()
+			* (delta.x * 2.f)
+			* m_MovementSpeed
+			* Time::deltaTime().seconds();
+		m_Transform.position +=
+			-m_Transform.Up()
+			* (delta.y * 2.f)
+			* m_MovementSpeed
+			* Time::deltaTime().seconds();
 	}
 
 	void EditorCamera::mouseRotate(const glm::vec2 &delta)
 	{
-		float yawSign = m_Transform.Up().y < 0 ? -1.0f : 1.0f;
-		m_Transform.rotation.y += yawSign * delta.x * rotationSpeed();
-		m_Transform.rotation.x += delta.y * rotationSpeed();
+		m_Transform.rotation += glm::vec3(delta.y, delta.x, 0) * rotationSpeed();
 	}
 
 
