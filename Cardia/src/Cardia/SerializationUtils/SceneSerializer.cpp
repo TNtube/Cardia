@@ -209,8 +209,8 @@ namespace Cardia::SerializerUtils
                                 node["type"] = static_cast<int>(camera.camera.GetProjectionType());
 				auto pers = camera.camera.GetPerspective();
                                 node["perspectiveFov"] = pers.x;
-                                node["perspectiveFar"] = pers.y;
-                                node["perspectiveNear"] = pers.z;
+				node["perspectiveNear"] = pers.y;
+				node["perspectiveFar"] = pers.z;
 
 	                        auto ortho = camera.camera.GetOrthographic();
                                 node["orthoSize"] = ortho.x;

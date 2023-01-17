@@ -111,10 +111,8 @@ namespace Cardia
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRenderer>(entity);
-			Log::coreError("Meshes size {0}", meshRenderer.mesh.size());
 			for (auto& mesh : meshRenderer.mesh) {
-				Log::coreError("Mesh size {0}", mesh->vertices.size());
-				Renderer2D::drawMesh(transform.getTransform(), mesh.get());
+				Renderer2D::drawMesh(transform.getTransform(), mesh.get(), 0, static_cast<float>(entity));
 			}
 		}
 

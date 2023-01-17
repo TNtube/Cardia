@@ -217,6 +217,13 @@ namespace Cardia
 		specification.alpha = false;
 		specification.layer = zIndex;
 		specification.shader = "light";
+		s_Stats->triangleCount += mesh->indices.size() / 3;
+
+		for (auto& vertex : mesh->vertices) {
+			vertex.entityID = entityID;
+			vertex.normal = glm::mat3(glm::transpose(glm::inverse(transform))) * vertex.normal;
+			vertex.position = transform * glm::vec4(vertex.position, 1.0f);
+		}
 		for (auto& batch : s_Data->batches)
 		{
 			if (batch.specification == specification && batch.addMesh(mesh, nullptr))
