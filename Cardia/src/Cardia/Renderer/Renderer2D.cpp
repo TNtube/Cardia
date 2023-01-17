@@ -186,17 +186,17 @@ namespace Cardia
 		s_Stats->triangleCount += 2;
 
 		BatchSpecification specification;
-		specification.alpha = color.a < 1.0f || (texture && texture->isTransparent());
+		specification.alpha = color.a < 1.0f;
 		specification.layer = zIndex;
 		specification.shader = "light";
 
 		for (auto& batch : s_Data->batches)
 		{
-			if (batch.specification == specification && batch.addMesh(mesh, texture))
+			if (batch.specification == specification && batch.addMesh(&mesh, texture))
 				return;
 		}
 		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
-		batch.addMesh(mesh, texture);
+		batch.addMesh(&mesh, texture);
 	}
 
 	void Renderer2D::addLight(const Component::Transform& transform, const Component::Light& lightComponent)
@@ -208,5 +208,21 @@ namespace Cardia
 		const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
 		light.directionAndRange = glm::vec4(forward, lightComponent.range);
 		light.colorAndCutOff = glm::vec4(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
+	}
+
+	void Renderer2D::drawMesh(const glm::mat4 &transform, Mesh *mesh, int32_t zIndex, float entityID)
+	{
+		if (!mesh) return;
+		BatchSpecification specification;
+		specification.alpha = false;
+		specification.layer = zIndex;
+		specification.shader = "light";
+		for (auto& batch : s_Data->batches)
+		{
+			if (batch.specification == specification && batch.addMesh(mesh, nullptr))
+				return;
+		}
+		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
+		batch.addMesh(mesh, nullptr);
 	}
 }

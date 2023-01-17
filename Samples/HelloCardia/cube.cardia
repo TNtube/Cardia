@@ -124,7 +124,7 @@
 			},
 			"rotation" : 
 			{
-				"x" : 1.5707963705062866,
+				"x" : 0.0,
 				"y" : 0.0,
 				"z" : 0.0
 			},
@@ -295,9 +295,9 @@
 			"orthoFar" : 1.0,
 			"orthoNear" : -1.0,
 			"orthoSize" : 10.0,
-			"perspectiveFar" : 1000.0,
+			"perspectiveFar" : 0.0099999997764825821,
 			"perspectiveFov" : 1.0471975803375244,
-			"perspectiveNear" : 0.0099999997764825821,
+			"perspectiveNear" : 1000.0,
 			"type" : 0
 		},
 		"name" : "Camera",

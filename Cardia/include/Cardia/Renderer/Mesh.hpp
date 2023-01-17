@@ -18,5 +18,7 @@ namespace Cardia
         {
                 std::vector<Vertex> vertices;
                 std::vector<uint32_t> indices;
+
+		static std::vector<std::shared_ptr<Mesh>> ReadMeshFromFile(const std::string& path);
         };
 }

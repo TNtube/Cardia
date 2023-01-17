@@ -79,6 +79,13 @@ namespace Cardia
 			Renderer2D::addLight(transform, light);
 		}
 
+		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRenderer>();
+		for (const auto entity : meshView)
+		{
+			auto [transform, mesh] = meshView.get<Component::Transform, Component::MeshRenderer>(entity);
+//			Renderer2D::drawMesh(transform.getTransform(), mesh.mesh.get());
+		}
+
 		Renderer2D::endScene();
 	}
 
@@ -98,6 +105,17 @@ namespace Cardia
 		{
 			auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
 			Renderer2D::addLight(transform, light);
+		}
+
+		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRenderer>();
+		for (const auto entity : meshView)
+		{
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRenderer>(entity);
+			Log::coreError("Meshes size {0}", meshRenderer.mesh.size());
+			for (auto& mesh : meshRenderer.mesh) {
+				Log::coreError("Mesh size {0}", mesh->vertices.size());
+				Renderer2D::drawMesh(transform.getTransform(), mesh.get());
+			}
 		}
 
 		Renderer2D::endScene();

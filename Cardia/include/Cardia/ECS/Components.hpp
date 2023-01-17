@@ -4,6 +4,7 @@
 #include "SceneCamera.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
+#include "Cardia/Renderer/Mesh.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -85,6 +86,22 @@ namespace Cardia::Component
 			tillingFactor = 1.0f;
 			color = glm::vec4(1.0f);
 		}
+	};
+
+	struct MeshRenderer
+	{
+		MeshRenderer() = default;
+		MeshRenderer(const MeshRenderer&) = default;
+
+
+		std::vector<std::shared_ptr<Mesh>> mesh;
+		std::string path;
+
+		inline void reset() {
+			mesh = {};
+			path = "";
+		}
+
 	};
 
 	struct Camera

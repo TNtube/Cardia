@@ -90,7 +90,7 @@ namespace Cardia
                 RenderAPI::get().drawIndexed(vertexArray, vertexCount);
         }
 
-        bool Batch::addMesh(Mesh& mesh, const Texture2D* texture)
+        bool Batch::addMesh(Mesh* mesh, const Texture2D* texture)
         {
                 if (vertexCount >= maxIndices)
                         return false;
@@ -111,24 +111,24 @@ namespace Cardia
                         textureIndex = static_cast<float>(textureSlotIndex);
                         textureSlotIndex++;
                 }
-                for (auto& vertex : mesh.vertices)
+                for (auto& vertex : mesh->vertices)
                 {
                         vertex.textureIndex = textureIndex;
                 }
 
-                vertexBufferData.reserve( vertexBufferData.size() + mesh.vertices.size() );
-                vertexBufferData.insert(vertexBufferData.end(), mesh.vertices.begin(), mesh.vertices.end());
+                vertexBufferData.reserve( vertexBufferData.size() + mesh->vertices.size() );
+                vertexBufferData.insert(vertexBufferData.end(), mesh->vertices.begin(), mesh->vertices.end());
 
-                indexBufferData.reserve(indexBufferData.size() + mesh.indices.size());
-                for (auto& index: mesh.indices)
+                indexBufferData.reserve(indexBufferData.size() + mesh->indices.size());
+                for (auto& index: mesh->indices)
                 {
                         index += indexOffset;
                 }
 
-                indexBufferData.push_back(mesh.indices);
+                indexBufferData.push_back(mesh->indices);
 
-                indexOffset += mesh.vertices.size();
-                vertexCount += mesh.indices.size();
+                indexOffset += mesh->vertices.size();
+                vertexCount += mesh->indices.size();
 
                 return true;
         }

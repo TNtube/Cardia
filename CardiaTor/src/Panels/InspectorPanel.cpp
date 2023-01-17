@@ -8,6 +8,7 @@
 #include "Cardia/ECS/Entity.hpp"
 #include "EditorUI/DragData.hpp"
 #include "Panels/PanelManager.hpp"
+#include "Cardia/Application.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 
@@ -93,6 +94,28 @@ namespace Cardia::Panel
 			ImGui::SameLine();
 			ImGui::Text("Texture");
 			EditorUI::DragInt("zIndex", &sprite.zIndex, 0.05f);
+		});
+
+
+		// MeshRenderer Component
+
+		DrawInspectorComponent<Component::MeshRenderer>("Mesh Renderer", [](Component::MeshRenderer& mesh) {
+			char buffer[128] {0};
+			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
+			mesh.path.copy(buffer, bufferSize);
+
+			EditorUI::InputText("Mesh path", buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+				{
+					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
+					mesh.path = path.string();
+					auto& spec = Application::projectSettings();
+					mesh.mesh = Mesh::ReadMeshFromFile((spec.workspace / path).string());
+				}
+				ImGui::EndDragDropTarget();
+			}
 		});
 
 		// Camera Component
@@ -268,6 +291,12 @@ namespace Cardia::Panel
 			if (!m_SelectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
 			{
 				m_SelectedEntity.addComponent<Component::SpriteRenderer>();
+				ImGui::EndPopup();
+			}
+
+			if (!m_SelectedEntity.hasComponent<Component::MeshRenderer>() && ImGui::MenuItem("Mesh Renderer"))
+			{
+				m_SelectedEntity.addComponent<Component::MeshRenderer>();
 				ImGui::EndPopup();
 			}
 
