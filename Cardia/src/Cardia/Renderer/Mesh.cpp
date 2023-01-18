@@ -9,11 +9,19 @@
 
 namespace Cardia
 {
+	Mesh::Mesh(std::vector<Vertex> verts, std::vector<uint32_t> inds)
+		: vertices(std::move(verts)), indices(std::move(inds))
+		{}
+
 	std::vector<std::shared_ptr<Mesh>> Mesh::ReadMeshFromFile(const std::string &path)
 	{
 		std::vector<std::shared_ptr<Mesh>> meshes;
 		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene *scene = importer.ReadFile(path,
+							 aiProcess_FlipUVs |
+							 aiProcess_JoinIdenticalVertices |
+							 aiProcess_OptimizeMeshes
+							 );
 
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
@@ -21,11 +29,13 @@ namespace Cardia
 			return {};
 		}
 
-
-		for (int ind = 0; ind < scene->mNumMeshes; ind++) {
-			Mesh mesh;
+		Log::coreWarn("Num of meshes loaded : {0}", scene->mNumMeshes);
+		for (int ind = 0; ind < std::min(5u, scene->mNumMeshes); ind++) {
+			std::vector<Vertex> vertices;
+			std::vector<uint32_t> indices;
 			aiMesh* ai_mesh = scene->mMeshes[ind];
 			// walk through each of the mesh's vertices
+			vertices.reserve(ai_mesh->mNumVertices);
 			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {
 				Vertex vertex{};
 				vertex.color = {1.0f, 0.5f, 0.2f, 1.0f};
@@ -33,9 +43,6 @@ namespace Cardia
 				vector.x = ai_mesh->mVertices[i].x;
 				vector.y = ai_mesh->mVertices[i].y;
 				vector.z = ai_mesh->mVertices[i].z;
-
-				vertex.position = vector;
-
 				if (ai_mesh->HasNormals())
 				{
 					vector.x = ai_mesh->mNormals[i].x;
@@ -55,17 +62,17 @@ namespace Cardia
 				}
 				else
 					vertex.textureCoord = glm::vec2(0.0f, 0.0f);
-
-				for (unsigned int faceIndex = 0; faceIndex < ai_mesh->mNumFaces; faceIndex++)
-				{
-					aiFace face = ai_mesh->mFaces[faceIndex];
-					// retrieve all indices of the face and store them in the indices vector
-					for(unsigned int j = 0; j < face.mNumIndices; j++)
-						mesh.indices.push_back(face.mIndices[j]);
-				}
-				mesh.vertices.emplace_back(vertex);
+				vertices.emplace_back(vertex);
 			}
-			meshes.emplace_back(std::make_shared<Mesh>(mesh));
+
+			for (unsigned int faceIndex = 0; faceIndex < ai_mesh->mNumFaces; faceIndex++)
+			{
+				aiFace face = ai_mesh->mFaces[faceIndex];
+				// retrieve all indices of the face and store them in the indices vector
+				indices.reserve(indices.size() + face.mNumIndices);
+				indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
+			}
+			meshes.emplace_back(std::make_shared<Mesh>(vertices, indices));
 		}
 
 		return meshes;

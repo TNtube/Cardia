@@ -16,6 +16,8 @@ namespace Cardia
         
         struct Mesh
         {
+		Mesh() = default;
+		Mesh(std::vector<Vertex> verts, std::vector<uint32_t> inds);
                 std::vector<Vertex> vertices;
                 std::vector<uint32_t> indices;
 

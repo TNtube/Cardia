@@ -72,10 +72,8 @@ namespace Cardia
 
                 for (const auto& object: indexBufferData)
                 {
-                        for (const auto index: object)
-                        {
-                                iboData.push_back(index);
-                        }
+			iboData.reserve(object.size());
+			iboData.insert(iboData.end(), object.begin(), object.end());
                 }
 
                 vertexBuffer->setData(vertexBufferData.data(), static_cast<int>(vertexBufferData.size()) * sizeof(Vertex));
