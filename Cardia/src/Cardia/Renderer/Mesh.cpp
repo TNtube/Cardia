@@ -30,7 +30,7 @@ namespace Cardia
 		}
 
 		Log::coreWarn("Num of meshes loaded : {0}", scene->mNumMeshes);
-		for (int ind = 0; ind < std::min(5u, scene->mNumMeshes); ind++) {
+		for (int ind = 0; ind < scene->mNumMeshes; ind++) {
 			std::vector<Vertex> vertices;
 			std::vector<uint32_t> indices;
 			aiMesh* ai_mesh = scene->mMeshes[ind];
@@ -38,11 +38,12 @@ namespace Cardia
 			vertices.reserve(ai_mesh->mNumVertices);
 			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {
 				Vertex vertex{};
-				vertex.color = {1.0f, 0.5f, 0.2f, 1.0f};
+				vertex.color = {0.5f, 0.5f, 0.5f, 1.0f};
 				glm::vec3 vector;
 				vector.x = ai_mesh->mVertices[i].x;
 				vector.y = ai_mesh->mVertices[i].y;
 				vector.z = ai_mesh->mVertices[i].z;
+				vertex.position = vector;
 				if (ai_mesh->HasNormals())
 				{
 					vector.x = ai_mesh->mNormals[i].x;

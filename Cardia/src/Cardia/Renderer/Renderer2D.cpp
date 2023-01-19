@@ -219,17 +219,18 @@ namespace Cardia
 		specification.shader = "light";
 		s_Stats->triangleCount += mesh->indices.size() / 3;
 
-		for (auto& vertex : mesh->vertices) {
+		auto mesh_cp = *mesh;
+		for (auto& vertex : mesh_cp.vertices) {
 			vertex.entityID = entityID;
 			vertex.normal = glm::mat3(glm::transpose(glm::inverse(transform))) * vertex.normal;
 			vertex.position = transform * glm::vec4(vertex.position, 1.0f);
 		}
 		for (auto& batch : s_Data->batches)
 		{
-			if (batch.specification == specification && batch.addMesh(mesh, nullptr))
+			if (batch.specification == specification && batch.addMesh(&mesh_cp, nullptr))
 				return;
 		}
 		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
-		batch.addMesh(mesh, nullptr);
+		batch.addMesh(&mesh_cp, nullptr);
 	}
 }

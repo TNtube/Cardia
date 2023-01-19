@@ -45,7 +45,7 @@ namespace Cardia
 
         void Batch::startBash()
         {
-                vertexCount = 0;
+	        indexCount = 0;
                 indexOffset = 0;
                 vertexBufferData.clear();
                 indexBufferData.clear();
@@ -85,12 +85,12 @@ namespace Cardia
                         textureSlots[i]->bind(i);
                 }
 
-                RenderAPI::get().drawIndexed(vertexArray, vertexCount);
+                RenderAPI::get().drawIndexed(vertexArray, indexCount);
         }
 
         bool Batch::addMesh(Mesh* mesh, const Texture2D* texture)
         {
-                if (vertexCount >= maxIndices)
+                if (indexCount >= maxIndices)
                         return false;
 
                 float textureIndex = 0;
@@ -117,16 +117,14 @@ namespace Cardia
                 vertexBufferData.reserve( vertexBufferData.size() + mesh->vertices.size() );
                 vertexBufferData.insert(vertexBufferData.end(), mesh->vertices.begin(), mesh->vertices.end());
 
-                indexBufferData.reserve(indexBufferData.size() + mesh->indices.size());
-                for (auto& index: mesh->indices)
+		std::vector<uint32_t>& indices = indexBufferData.emplace_back(mesh->indices.begin(), mesh->indices.end());
+                for (auto& index: indices)
                 {
                         index += indexOffset;
                 }
 
-                indexBufferData.push_back(mesh->indices);
-
                 indexOffset += mesh->vertices.size();
-                vertexCount += mesh->indices.size();
+	        indexCount += indices.size();
 
                 return true;
         }

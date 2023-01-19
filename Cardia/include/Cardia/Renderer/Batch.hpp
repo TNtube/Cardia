@@ -9,7 +9,7 @@
 namespace Cardia
 {
 
-	constexpr uint32_t maxTriangle = 10000;
+	constexpr uint32_t maxTriangle = 100000;
 	constexpr uint32_t maxVertices = maxTriangle * 3;
 	constexpr uint32_t maxIndices = maxTriangle * 3;
 	constexpr int maxTextureSlots = 32; // TODO: get it from RenderAPI
@@ -43,7 +43,7 @@ namespace Cardia
 		std::unique_ptr<Texture2D> whiteTexture;
 
 		std::vector<Vertex> vertexBufferData;
-		uint32_t vertexCount = 0;
+		uint32_t indexCount = 0;
 
 		std::vector<std::vector<uint32_t>> indexBufferData;
 		uint32_t indexOffset {};
