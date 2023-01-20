@@ -4,7 +4,7 @@
 #include "SceneCamera.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
-#include "Cardia/Renderer/Mesh.hpp"
+#include "Cardia/Renderer/MeshRenderer.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -88,17 +88,17 @@ namespace Cardia::Component
 		}
 	};
 
-	struct MeshRenderer
+	struct MeshRendererC
 	{
-		MeshRenderer() = default;
-		MeshRenderer(const MeshRenderer&) = default;
+		MeshRendererC() : meshRenderer(std::make_shared<MeshRenderer>()) {}
+		MeshRendererC(const MeshRendererC&) = default;
 
 
-		std::vector<std::shared_ptr<Mesh>> mesh;
+		std::shared_ptr<MeshRenderer> meshRenderer = nullptr;
 		std::string path;
 
 		inline void reset() {
-			mesh = {};
+			meshRenderer = nullptr;
 			path = "";
 		}
 

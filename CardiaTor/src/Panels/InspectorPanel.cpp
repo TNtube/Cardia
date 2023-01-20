@@ -97,12 +97,12 @@ namespace Cardia::Panel
 		});
 
 
-		// MeshRenderer Component
+		// MeshRendererC Component
 
-		DrawInspectorComponent<Component::MeshRenderer>("Mesh Renderer", [](Component::MeshRenderer& mesh) {
+		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [](Component::MeshRendererC& meshRendererC) {
 			char buffer[128] {0};
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-			mesh.path.copy(buffer, bufferSize);
+			meshRendererC.path.copy(buffer, bufferSize);
 
 			EditorUI::InputText("Mesh path", buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
@@ -110,9 +110,10 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
-					mesh.path = path.string();
+					meshRendererC.path = path.string();
 					auto& spec = Application::projectSettings();
-					mesh.mesh = Mesh::ReadMeshFromFile((spec.workspace / path).string());
+					auto mesh = Mesh::ReadMeshFromFile((spec.workspace / path).string());
+					meshRendererC.meshRenderer->SubmitMesh(mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -135,16 +136,14 @@ namespace Cardia::Panel
 			if (cam.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
 				auto perspective = cam.GetPerspective();
 
-				bool edited = false;
-
 				float pFov = glm::degrees(perspective.x);
-				edited = EditorUI::DragFloat("Fov", &pFov, 0.05f);
+				bool edited = EditorUI::DragFloat("Fov", &pFov, 0.05f);
 
 				float pNear = perspective.y;
-				edited = EditorUI::DragFloat("Near", &pNear, 0.05f);
+				edited = edited || EditorUI::DragFloat("Near", &pNear, 0.05f);
 
 				float pFar = perspective.z;
-				edited = (EditorUI::DragFloat("Far", &pFar, 0.05f));
+				edited = edited || EditorUI::DragFloat("Far", &pFar, 0.05f);
 
 				if (edited)
 					cam.SetPerspective(glm::radians(pFov), pNear, pFar);
@@ -152,16 +151,14 @@ namespace Cardia::Panel
 			else if (cam.GetProjectionType() == SceneCamera::ProjectionType::Orthographic) {
 				auto orthographic = cam.GetOrthographic();
 
-				bool edited = false;
-
 				float oSize = orthographic.x;
-				edited = EditorUI::DragFloat("Size", &oSize, 0.05f);
+				bool edited = EditorUI::DragFloat("Size", &oSize, 0.05f);
 
 				float oNear = orthographic.y;
-				edited = EditorUI::DragFloat("Near", &oNear, 0.05f);
+				edited = edited || EditorUI::DragFloat("Near", &oNear, 0.05f);
 
 				float oFar = orthographic.z;
-				edited = (EditorUI::DragFloat("Far", &oFar, 0.05f));
+				edited = edited || EditorUI::DragFloat("Far", &oFar, 0.05f);
 
 				if (edited)
 					cam.SetOrthographic(oSize, oNear, oFar);
@@ -294,9 +291,9 @@ namespace Cardia::Panel
 				ImGui::EndPopup();
 			}
 
-			if (!m_SelectedEntity.hasComponent<Component::MeshRenderer>() && ImGui::MenuItem("Mesh Renderer"))
+			if (!m_SelectedEntity.hasComponent<Component::MeshRendererC>() && ImGui::MenuItem("Mesh Renderer"))
 			{
-				m_SelectedEntity.addComponent<Component::MeshRenderer>();
+				m_SelectedEntity.addComponent<Component::MeshRendererC>();
 				ImGui::EndPopup();
 			}
 

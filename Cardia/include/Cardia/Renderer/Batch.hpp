@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <glm/vec3.hpp>
 
-#include "Mesh.hpp"
+#include "Cardia/DataStructure/Mesh.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "VertexArray.hpp"
@@ -31,7 +31,7 @@ namespace Cardia
 		Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
-		bool addMesh(Mesh* mesh, const Texture2D *texture);
+		bool addMesh(SubMesh* mesh, const Texture2D *texture);
         	BatchSpecification specification;
 	private:
 		glm::vec3 camPos {};

@@ -168,7 +168,7 @@ namespace Cardia
 		};
 		constexpr glm::vec4 normal { 0.0f, 0.0f, 1.0f, 0.0f };
 
-		Mesh mesh;
+		SubMesh mesh;
 		const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
 		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
 		{
@@ -179,10 +179,10 @@ namespace Cardia
 			vertex.textureCoord = texCoords[i % 4];
 			vertex.tilingFactor = tilingFactor;
 			vertex.entityID = entityID;
-			mesh.vertices.push_back(vertex);
+			mesh.GetVertices().push_back(vertex);
 		}
 
-		mesh.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
+		mesh.GetIndices() = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
 		s_Stats->triangleCount += 2;
 
 		BatchSpecification specification;
@@ -208,29 +208,5 @@ namespace Cardia
 		const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
 		light.directionAndRange = glm::vec4(forward, lightComponent.range);
 		light.colorAndCutOff = glm::vec4(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
-	}
-
-	void Renderer2D::drawMesh(const glm::mat4 &transform, Mesh *mesh, int32_t zIndex, float entityID)
-	{
-		if (!mesh) return;
-		BatchSpecification specification;
-		specification.alpha = false;
-		specification.layer = zIndex;
-		specification.shader = "light";
-		s_Stats->triangleCount += mesh->indices.size() / 3;
-
-		auto mesh_cp = *mesh;
-		for (auto& vertex : mesh_cp.vertices) {
-			vertex.entityID = entityID;
-			vertex.normal = glm::mat3(glm::transpose(glm::inverse(transform))) * vertex.normal;
-			vertex.position = transform * glm::vec4(vertex.position, 1.0f);
-		}
-		for (auto& batch : s_Data->batches)
-		{
-			if (batch.specification == specification && batch.addMesh(&mesh_cp, nullptr))
-				return;
-		}
-		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
-		batch.addMesh(&mesh_cp, nullptr);
 	}
 }

@@ -1,5 +1,5 @@
 ﻿#include "cdpch.hpp"
-#include "Cardia/Renderer/Mesh.hpp"
+#include "Cardia/DataStructure/Mesh.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -9,19 +9,12 @@
 
 namespace Cardia
 {
-	Mesh::Mesh(std::vector<Vertex> verts, std::vector<uint32_t> inds)
-		: vertices(std::move(verts)), indices(std::move(inds))
-		{}
-
-	std::vector<std::shared_ptr<Mesh>> Mesh::ReadMeshFromFile(const std::string &path)
+	Mesh Mesh::ReadMeshFromFile(const std::string &path)
 	{
-		std::vector<std::shared_ptr<Mesh>> meshes;
+		Mesh mesh;
 		Assimp::Importer importer;
 		const aiScene *scene = importer.ReadFile(path,
-							 aiProcess_FlipUVs |
-							 aiProcess_JoinIdenticalVertices |
-							 aiProcess_OptimizeMeshes
-							 );
+							 aiProcess_FlipUVs);
 
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
@@ -44,6 +37,7 @@ namespace Cardia
 				vector.y = ai_mesh->mVertices[i].y;
 				vector.z = ai_mesh->mVertices[i].z;
 				vertex.position = vector;
+				vertex.textureIndex = 0;
 				if (ai_mesh->HasNormals())
 				{
 					vector.x = ai_mesh->mNormals[i].x;
@@ -73,9 +67,12 @@ namespace Cardia
 				indices.reserve(indices.size() + face.mNumIndices);
 				indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
 			}
-			meshes.emplace_back(std::make_shared<Mesh>(vertices, indices));
+			auto& subMesh = mesh.GetSubMeshes().emplace_back();
+			subMesh.GetVertices() = vertices;
+			subMesh.GetIndices() = indices;
+
 		}
 
-		return meshes;
+		return mesh;
 	}
 }

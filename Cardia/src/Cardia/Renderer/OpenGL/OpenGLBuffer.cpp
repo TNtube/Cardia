@@ -15,7 +15,7 @@ namespace Cardia
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(Vertex* vertices, uint32_t size)
 	{
 		glCreateBuffers(1, &m_VertexBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);

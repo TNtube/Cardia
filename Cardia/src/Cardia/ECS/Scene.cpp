@@ -79,14 +79,14 @@ namespace Cardia
 			Renderer2D::addLight(transform, light);
 		}
 
-		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRenderer>();
+		Renderer2D::endScene();
+
+		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		for (const auto entity : meshView)
 		{
-			auto [transform, mesh] = meshView.get<Component::Transform, Component::MeshRenderer>(entity);
-//			Renderer2D::drawMesh(transform.getTransform(), mesh.mesh.get());
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			meshRenderer.meshRenderer->Draw();
 		}
-
-		Renderer2D::endScene();
 	}
 
 	void Scene::OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform)
@@ -107,16 +107,14 @@ namespace Cardia
 			Renderer2D::addLight(transform, light);
 		}
 
-		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRenderer>();
+		Renderer2D::endScene();
+
+		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		for (const auto entity : meshView)
 		{
-			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRenderer>(entity);
-			for (auto& mesh : meshRenderer.mesh) {
-				Renderer2D::drawMesh(transform.getTransform(), mesh.get(), 0, static_cast<float>(entity));
-			}
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			meshRenderer.meshRenderer->Draw();
 		}
-
-		Renderer2D::endScene();
 	}
 
 	void Scene::OnViewportResize(float width, float height)

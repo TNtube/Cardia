@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Cardia/DataStructure/Vertex.hpp>
 #include "Cardia/Core/Core.hpp"
 
 
@@ -110,7 +111,7 @@ namespace Cardia
 		virtual void setData(const void* data, uint32_t size) = 0;
 
 		static std::unique_ptr<VertexBuffer> create(uint32_t size);
-		static std::unique_ptr<VertexBuffer> create(float* vertices, uint32_t size);
+		static std::unique_ptr<VertexBuffer> create(Vertex* vertices, uint32_t size);
 	};
 
 	class IndexBuffer
