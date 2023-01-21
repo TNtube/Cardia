@@ -8,7 +8,7 @@ namespace Cardia
 	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
-		OpenGLVertexBuffer(float* vertices, uint32_t size);
+		OpenGLVertexBuffer(Vertex* vertices, uint32_t size);
 		OpenGLVertexBuffer(uint32_t size);
 		~OpenGLVertexBuffer() override;
 		void bind() const override;

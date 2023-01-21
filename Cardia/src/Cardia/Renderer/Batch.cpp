@@ -35,8 +35,8 @@ namespace Cardia
                 m_Shader->bind();
                 m_Shader->setIntArray("u_Textures", samplers.data(), maxTextureSlots);
 
-                uint32_t whiteColor = 0xffffffff;
-                whiteTexture = Texture2D::create(1, 1, &whiteColor);
+	        uint32_t whiteColor = 0xffffffff;
+	        whiteTexture = Texture2D::create(1, 1, &whiteColor);
 
                 // Always white tex at pos 0
                 textureSlots[0] = whiteTexture.get();
@@ -45,7 +45,7 @@ namespace Cardia
 
         void Batch::startBash()
         {
-                vertexCount = 0;
+	        indexCount = 0;
                 indexOffset = 0;
                 vertexBufferData.clear();
                 indexBufferData.clear();
@@ -72,11 +72,10 @@ namespace Cardia
 
                 for (const auto& object: indexBufferData)
                 {
-                        for (const auto index: object)
-                        {
-                                iboData.push_back(index);
-                        }
+			iboData.reserve(object.size());
+			iboData.insert(iboData.end(), object.begin(), object.end());
                 }
+		vertexArray->bind();
 
                 vertexBuffer->setData(vertexBufferData.data(), static_cast<int>(vertexBufferData.size()) * sizeof(Vertex));
                 indexBuffer->setData(iboData.data(), static_cast<int>(iboData.size()) * sizeof(uint32_t));
@@ -87,12 +86,12 @@ namespace Cardia
                         textureSlots[i]->bind(i);
                 }
 
-                RenderAPI::get().drawIndexed(vertexArray, vertexCount);
+                RenderAPI::get().drawIndexed(vertexArray, indexCount);
         }
 
-        bool Batch::addMesh(Mesh& mesh, const Texture2D* texture)
+        bool Batch::addMesh(SubMesh* mesh, const Texture2D* texture)
         {
-                if (vertexCount >= maxIndices)
+                if (indexCount >= maxIndices)
                         return false;
 
                 float textureIndex = 0;
@@ -111,24 +110,22 @@ namespace Cardia
                         textureIndex = static_cast<float>(textureSlotIndex);
                         textureSlotIndex++;
                 }
-                for (auto& vertex : mesh.vertices)
+                for (auto& vertex : mesh->GetVertices())
                 {
                         vertex.textureIndex = textureIndex;
                 }
 
-                vertexBufferData.reserve( vertexBufferData.size() + mesh.vertices.size() );
-                vertexBufferData.insert(vertexBufferData.end(), mesh.vertices.begin(), mesh.vertices.end());
+                vertexBufferData.reserve( vertexBufferData.size() + mesh->GetVertices().size() );
+                vertexBufferData.insert(vertexBufferData.end(), mesh->GetVertices().begin(), mesh->GetVertices().end());
 
-                indexBufferData.reserve(indexBufferData.size() + mesh.indices.size());
-                for (auto& index: mesh.indices)
+		std::vector<uint32_t>& indices = indexBufferData.emplace_back(mesh->GetIndices().begin(), mesh->GetIndices().end());
+                for (auto& index: indices)
                 {
                         index += indexOffset;
                 }
 
-                indexBufferData.push_back(mesh.indices);
-
-                indexOffset += mesh.vertices.size();
-                vertexCount += mesh.indices.size();
+                indexOffset += mesh->GetVertices().size();
+	        indexCount += indices.size();
 
                 return true;
         }

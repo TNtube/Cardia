@@ -29,7 +29,7 @@ namespace Cardia :: Panel
 			return;
 		}
 
-		if (!ImGui::TreeNodeEx(m_CurrentScene, ImGuiTreeNodeFlags_SpanAvailWidth, "%s", m_CurrentScene->GetName())) {
+		if (!ImGui::TreeNodeEx(m_CurrentScene, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen, "%s", m_CurrentScene->GetName())) {
 			ImGui::TreePop();
 			ImGui::End();
 			return;

@@ -168,7 +168,7 @@ namespace Cardia
 		};
 		constexpr glm::vec4 normal { 0.0f, 0.0f, 1.0f, 0.0f };
 
-		Mesh mesh;
+		SubMesh mesh;
 		const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
 		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
 		{
@@ -179,24 +179,24 @@ namespace Cardia
 			vertex.textureCoord = texCoords[i % 4];
 			vertex.tilingFactor = tilingFactor;
 			vertex.entityID = entityID;
-			mesh.vertices.push_back(vertex);
+			mesh.GetVertices().push_back(vertex);
 		}
 
-		mesh.indices = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
+		mesh.GetIndices() = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });
 		s_Stats->triangleCount += 2;
 
 		BatchSpecification specification;
-		specification.alpha = color.a < 1.0f || (texture && texture->isTransparent());
+		specification.alpha = color.a < 1.0f;
 		specification.layer = zIndex;
 		specification.shader = "light";
 
 		for (auto& batch : s_Data->batches)
 		{
-			if (batch.specification == specification && batch.addMesh(mesh, texture))
+			if (batch.specification == specification && batch.addMesh(&mesh, texture))
 				return;
 		}
 		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
-		batch.addMesh(mesh, texture);
+		batch.addMesh(&mesh, texture);
 	}
 
 	void Renderer2D::addLight(const Component::Transform& transform, const Component::Light& lightComponent)

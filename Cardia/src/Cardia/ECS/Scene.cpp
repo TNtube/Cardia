@@ -80,6 +80,13 @@ namespace Cardia
 		}
 
 		Renderer2D::endScene();
+
+		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		for (const auto entity : meshView)
+		{
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			meshRenderer.meshRenderer->Draw();
+		}
 	}
 
 	void Scene::OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform)
@@ -101,6 +108,13 @@ namespace Cardia
 		}
 
 		Renderer2D::endScene();
+
+		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		for (const auto entity : meshView)
+		{
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			meshRenderer.meshRenderer->Draw();
+		}
 	}
 
 	void Scene::OnViewportResize(float width, float height)

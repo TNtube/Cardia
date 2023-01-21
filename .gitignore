@@ -18,3 +18,4 @@ vs2022/
 .idea/
 cmake-build-debug/
 cmake-build-release/
+/vsxmake2022/

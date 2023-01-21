@@ -8,7 +8,7 @@
 namespace Cardia
 {
 
-	std::unique_ptr<VertexBuffer> VertexBuffer::create(float *vertices, uint32_t size)
+	std::unique_ptr<VertexBuffer> VertexBuffer::create(Vertex* vertices, uint32_t size)
 	{
 		RenderAPI::API& renderer = Renderer::getAPI();
 		switch (renderer)
