@@ -13,10 +13,9 @@ struct Vertex {
 };
 
 in Vertex o_Vertex;
-in flat float o_TexIndex;
-in flat int o_EntityID;
+in flat float o_EntityID;
 
-uniform sampler2D u_Textures[32];
+uniform sampler2D u_Texture;
 uniform vec3 u_ViewPosition;
 
 void main() {
@@ -24,6 +23,6 @@ void main() {
         discard;
     }
 
-    OutColor = texture(u_Textures[int(o_TexIndex)], o_Vertex.texturePosition * o_Vertex.tilingFactor) * o_Vertex.color;
-    OutEntityID = o_EntityID;
+    OutColor = texture(u_Texture, o_Vertex.texturePosition);
+    OutEntityID = int(o_EntityID);
 }

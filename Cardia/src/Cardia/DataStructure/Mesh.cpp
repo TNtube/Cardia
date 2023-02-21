@@ -6,6 +6,9 @@
 #include <assimp/postprocess.h>
 #include <Cardia/Core/Log.hpp>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 
 namespace Cardia
 {
@@ -13,66 +16,44 @@ namespace Cardia
 	{
 		Mesh mesh;
 		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile(path,
-							 aiProcess_FlipUVs |
-							 aiProcess_Triangulate);
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, err;
 
-		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			Log::coreError("Failed to load model : {0}", importer.GetErrorString());
-			return {};
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str())) {
+			throw std::runtime_error(warn + err);
 		}
 
-		Log::coreWarn("Num of meshes loaded : {0}", scene->mNumMeshes);
-		for (int ind = 0; ind < scene->mNumMeshes; ind++) {
-			std::vector<Vertex> vertices;
-			std::vector<uint32_t> indices;
-			aiMesh* ai_mesh = scene->mMeshes[ind];
-			// walk through each of the mesh's vertices
-			vertices.reserve(ai_mesh->mNumVertices);
-			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {
-				Vertex vertex{};
-				vertex.color = {0.5f, 0.5f, 0.5f, 1.0f};
-				glm::vec3 vector;
-				vector.x = ai_mesh->mVertices[i].x;
-				vector.y = ai_mesh->mVertices[i].y;
-				vector.z = ai_mesh->mVertices[i].z;
-				vertex.position = vector;
-				vertex.textureIndex = 0;
-				if (ai_mesh->HasNormals())
-				{
-					vector.x = ai_mesh->mNormals[i].x;
-					vector.y = ai_mesh->mNormals[i].y;
-					vector.z = ai_mesh->mNormals[i].z;
-					vertex.normal = vector;
-				}
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+		for (const auto& shape : shapes) {
+			for (const auto& index : shape.mesh.indices) {
+				auto& vertex = vertices.emplace_back();
+				indices.push_back(indices.size());
 
-				if(ai_mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-				{
-					glm::vec2 vec;
-					// a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
-					// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-					vec.x = ai_mesh->mTextureCoords[0][i].x;
-					vec.y = ai_mesh->mTextureCoords[0][i].y;
-					vertex.textureCoord = vec;
-				}
-				else
-					vertex.textureCoord = glm::vec2(0.0f, 0.0f);
-				vertices.emplace_back(vertex);
+				vertex.position = {
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.normal = {
+					attrib.normals[3 * index.normal_index + 0],
+					attrib.normals[3 * index.normal_index + 1],
+					attrib.normals[3 * index.normal_index + 2]
+				};
+				vertex.textureCoord = {
+					attrib.texcoords[2 * index.texcoord_index + 0] / 2,
+					attrib.texcoords[2 * index.texcoord_index + 1] / 2
+				};
+				vertex.color = {1.0f, 1.0f, 1.0f, 1.0f};
+				vertex.tilingFactor = 1;
 			}
-
-			for (unsigned int faceIndex = 0; faceIndex < ai_mesh->mNumFaces; faceIndex++)
-			{
-				aiFace face = ai_mesh->mFaces[faceIndex];
-				// retrieve all indices of the face and store them in the indices vector
-				indices.reserve(indices.size() + face.mNumIndices);
-				indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
-			}
-			auto& subMesh = mesh.GetSubMeshes().emplace_back();
-			subMesh.GetVertices() = vertices;
-			subMesh.GetIndices() = indices;
-
 		}
+		auto& subMesh = mesh.GetSubMeshes().emplace_back();
+		subMesh.GetVertices() = vertices;
+		subMesh.GetIndices() = indices;
 
 		return mesh;
 	}

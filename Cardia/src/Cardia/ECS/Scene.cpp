@@ -12,6 +12,15 @@ namespace Cardia
 	Scene::Scene(std::string name)
 		: m_Name(std::move(name))
 	{
+		std::string shaderName = "basic";
+		m_BasicShader = ShaderManager::get(shaderName);
+
+		if (!m_BasicShader)
+		{
+			// TODO: Temporary, should change when Materials get implemented
+			const auto shaderPath = "resources/shaders/" + shaderName;
+			m_BasicShader = ShaderManager::load(shaderName, {shaderPath + ".vert", shaderPath + ".frag"});
+		}
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -81,10 +90,13 @@ namespace Cardia
 
 		Renderer2D::endScene();
 
+		m_BasicShader->bind();
+		m_BasicShader->setInt("u_Texture", 0);
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			m_BasicShader->setMat4("u_Model", transform.getTransform());
 			meshRenderer.meshRenderer->Draw();
 		}
 	}
@@ -109,10 +121,13 @@ namespace Cardia
 
 		Renderer2D::endScene();
 
+		m_BasicShader->bind();
+		m_BasicShader->setInt("u_Texture", 0);
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			m_BasicShader->setMat4("u_Model", transform.getTransform());
 			meshRenderer.meshRenderer->Draw();
 		}
 	}

@@ -6,9 +6,9 @@
 		{
 			"position" : 
 			{
-				"x" : -14.100000381469727,
+				"x" : 0.0,
 				"y" : 3.7999999523162842,
-				"z" : 2.7000000476837158
+				"z" : 0.0
 			},
 			"rotation" : 
 			{
@@ -173,7 +173,7 @@
 				"y" : 1.0,
 				"z" : 1.0
 			},
-			"texture" : "damnnn.jpg",
+			"texture" : "viking_room.png",
 			"tillingFactor" : 1.0,
 			"zIndex" : 0
 		},
@@ -237,82 +237,6 @@
 			}
 		}
 	},
-	"d213d631-d7f7-4490-a9a9-0ed3f6c9427b" : 
-	{
-		"name" : "left",
-		"spriteRenderer" : 
-		{
-			"color" : 
-			{
-				"w" : 1.0,
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			},
-			"texture" : "damnnn.jpg",
-			"tillingFactor" : 1.0,
-			"zIndex" : 0
-		},
-		"transform" : 
-		{
-			"position" : 
-			{
-				"x" : -0.5,
-				"y" : 0.0,
-				"z" : -0.5
-			},
-			"rotation" : 
-			{
-				"x" : 0.0,
-				"y" : -1.5707963705062866,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			}
-		}
-	},
-	"da1fc441-0589-4e0d-9af9-7be78460f9cd" : 
-	{
-		"name" : "floor",
-		"spriteRenderer" : 
-		{
-			"color" : 
-			{
-				"w" : 1.0,
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			},
-			"texture" : "damnnn.jpg",
-			"tillingFactor" : 1.0,
-			"zIndex" : 0
-		},
-		"transform" : 
-		{
-			"position" : 
-			{
-				"x" : 1.1623965789908652e-08,
-				"y" : -0.5,
-				"z" : 0.0
-			},
-			"rotation" : 
-			{
-				"x" : 1.5707963705062866,
-				"y" : 1.5707963705062866,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 49.996692657470703,
-				"y" : 49.996841430664062,
-				"z" : 0.99986571073532104
-			}
-		}
-	},
 	"f52c366c-6ba1-4d22-aad5-ebb634ac6b55" : 
 	{
 		"camera" : 
@@ -338,44 +262,6 @@
 			{
 				"x" : -0.48694685101509094,
 				"y" : 0.0,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			}
-		}
-	},
-	"f8295261-ee6e-44ba-8f7f-5d7372216a3a" : 
-	{
-		"name" : "top",
-		"spriteRenderer" : 
-		{
-			"color" : 
-			{
-				"w" : 1.0,
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			},
-			"texture" : "damnnn.jpg",
-			"tillingFactor" : 1.0,
-			"zIndex" : 0
-		},
-		"transform" : 
-		{
-			"position" : 
-			{
-				"x" : 0.0,
-				"y" : 0.5,
-				"z" : -0.5
-			},
-			"rotation" : 
-			{
-				"x" : 1.5707963705062866,
-				"y" : 3.1415927410125732,
 				"z" : 0.0
 			},
 			"scale" : 
