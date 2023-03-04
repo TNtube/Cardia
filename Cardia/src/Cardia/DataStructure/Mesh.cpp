@@ -13,9 +13,7 @@ namespace Cardia
 	{
 		Mesh mesh;
 		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile(path,
-							 aiProcess_FlipUVs |
-							 aiProcess_Triangulate);
+		const aiScene *scene = importer.ReadFile(path, aiProcessPreset_TargetRealtime_Fast);
 
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
@@ -25,36 +23,33 @@ namespace Cardia
 
 		Log::coreWarn("Num of meshes loaded : {0}", scene->mNumMeshes);
 		for (int ind = 0; ind < scene->mNumMeshes; ind++) {
-			std::vector<Vertex> vertices;
-			std::vector<uint32_t> indices;
+			auto& subMesh = mesh.GetSubMeshes().emplace_back();
+			std::vector<Vertex>& vertices = subMesh.GetVertices();
+			std::vector<uint32_t>& indices = subMesh.GetIndices();
+
 			aiMesh* ai_mesh = scene->mMeshes[ind];
 			// walk through each of the mesh's vertices
 			vertices.reserve(ai_mesh->mNumVertices);
 			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {
 				Vertex vertex{};
-				vertex.color = {0.5f, 0.5f, 0.5f, 1.0f};
-				glm::vec3 vector;
-				vector.x = ai_mesh->mVertices[i].x;
-				vector.y = ai_mesh->mVertices[i].y;
-				vector.z = ai_mesh->mVertices[i].z;
-				vertex.position = vector;
-				vertex.textureIndex = 0;
+				vertex.color = glm::vec4(1);
+
+				vertex.position.x = ai_mesh->mVertices[i].x;
+				vertex.position.y = ai_mesh->mVertices[i].y;
+				vertex.position.z = ai_mesh->mVertices[i].z;
 				if (ai_mesh->HasNormals())
 				{
-					vector.x = ai_mesh->mNormals[i].x;
-					vector.y = ai_mesh->mNormals[i].y;
-					vector.z = ai_mesh->mNormals[i].z;
-					vertex.normal = vector;
+					vertex.normal.x = ai_mesh->mNormals[i].x;
+					vertex.normal.y = ai_mesh->mNormals[i].y;
+					vertex.normal.z = ai_mesh->mNormals[i].z;
 				}
 
-				if(ai_mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+				if (ai_mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
 				{
-					glm::vec2 vec;
 					// a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
-					// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-					vec.x = ai_mesh->mTextureCoords[0][i].x;
-					vec.y = ai_mesh->mTextureCoords[0][i].y;
-					vertex.textureCoord = vec;
+					// use models where a vertex can have multiple texture coordinates, so we always take the first set (0).
+					vertex.textureCoord.x = ai_mesh->mTextureCoords[0][i].x;
+					vertex.textureCoord.y = ai_mesh->mTextureCoords[0][i].y;
 				}
 				else
 					vertex.textureCoord = glm::vec2(0.0f, 0.0f);
@@ -68,10 +63,6 @@ namespace Cardia
 				indices.reserve(indices.size() + face.mNumIndices);
 				indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
 			}
-			auto& subMesh = mesh.GetSubMeshes().emplace_back();
-			subMesh.GetVertices() = vertices;
-			subMesh.GetIndices() = indices;
-
 		}
 
 		return mesh;

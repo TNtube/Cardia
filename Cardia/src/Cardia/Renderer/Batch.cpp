@@ -8,20 +8,14 @@
 
 namespace Cardia
 {
-        Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification) :
-                specification(specification), camPos(cameraPosition)
+        Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification) :
+                specification(specification), camPos(cameraPosition), m_CurrentTexture(texture)
         {
                 vertexArray = va;
 
                 vertexBuffer = &va->getVertexBuffer();
                 indexBuffer = &va->getIndexBuffer();
                 indexOffset = 0;
-
-                std::array<int, maxTextureSlots> samplers {};
-                for (int32_t i = 0; i < maxTextureSlots; ++i)
-                {
-                        samplers[i] = i;
-                }
 
                 m_Shader = ShaderManager::get(specification.shader);
 
@@ -32,14 +26,8 @@ namespace Cardia
                         m_Shader = ShaderManager::load(specification.shader, {shaderPath + ".vert", shaderPath + ".frag"});
                 }
 
-                m_Shader->bind();
-                m_Shader->setIntArray("u_Textures", samplers.data(), maxTextureSlots);
-
 	        uint32_t whiteColor = 0xffffffff;
 	        whiteTexture = Texture2D::create(1, 1, &whiteColor);
-
-                // Always white tex at pos 0
-                textureSlots[0] = whiteTexture.get();
                 startBash();
         }
 
@@ -49,7 +37,6 @@ namespace Cardia
                 indexOffset = 0;
                 vertexBufferData.clear();
                 indexBufferData.clear();
-                textureSlotIndex = 1;
         }
 
         void Batch::render(bool alpha)
@@ -81,39 +68,20 @@ namespace Cardia
                 indexBuffer->setData(iboData.data(), static_cast<int>(iboData.size()) * sizeof(uint32_t));
 
                 m_Shader->bind();
-                for (int i = 0; i < textureSlotIndex; ++i)
-                {
-                        textureSlots[i]->bind(i);
-                }
+	        m_Shader->setInt("u_Texture", 0);
+	        m_Shader->setMat4("u_Model", glm::mat4(1));
+		if (m_CurrentTexture)
+			m_CurrentTexture->bind(0);
+		else
+			whiteTexture->bind(0);
 
                 RenderAPI::get().drawIndexed(vertexArray, indexCount);
         }
 
-        bool Batch::addMesh(SubMesh* mesh, const Texture2D* texture)
+        bool Batch::addMesh(SubMesh* mesh)
         {
                 if (indexCount >= maxIndices)
                         return false;
-
-                float textureIndex = 0;
-                for(int i = 1; i < textureSlotIndex; ++i) {
-                        if (texture && *textureSlots[i] == *texture) {
-                                textureIndex = static_cast<float>(i);
-                                break;
-                        }
-                }
-
-                if (textureIndex == 0 && texture) {
-                        if (textureSlotIndex >= maxTextureSlots)
-                                return false;
-
-                        textureSlots[textureSlotIndex] = texture;
-                        textureIndex = static_cast<float>(textureSlotIndex);
-                        textureSlotIndex++;
-                }
-                for (auto& vertex : mesh->GetVertices())
-                {
-                        vertex.textureIndex = textureIndex;
-                }
 
                 vertexBufferData.reserve( vertexBufferData.size() + mesh->GetVertices().size() );
                 vertexBufferData.insert(vertexBufferData.end(), mesh->GetVertices().begin(), mesh->GetVertices().end());

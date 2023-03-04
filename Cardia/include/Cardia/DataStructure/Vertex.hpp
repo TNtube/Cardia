@@ -11,7 +11,6 @@ namespace Cardia
 		glm::vec3 normal;
 		glm::vec4 color;
 		glm::vec2 textureCoord;
-		float textureIndex;
 		float tilingFactor;
 		float entityID;
 
@@ -20,7 +19,6 @@ namespace Cardia
                 glm::vec3 normal;
                 glm::vec4 color;
                 glm::vec2 textureCoord;
-                float textureIndex;
                 float tilingFactor;
                 float entityID;
 		*/

@@ -13,19 +13,9 @@ class Moving(Behavior):
 
     def on_create(self):
         # self.velocity = 5
-        self.color = self.get_component(PointLight).color
-        self._tick_count = float(colorsys.rgb_to_hsv(self.color.x, self.color.y, self.color.z)[0])
+        pass
 
     def on_update(self):
-        self._tick_count += 50 * Time.delta_time.seconds()
-        self._tick_count %= 255.0
-        h = self._tick_count / 255
-
-        (r, g, b) = colorsys.hsv_to_rgb(h, 1, 1)
-        self.color.x = r
-        self.color.y = g
-        self.color.z = b
-
         self.transform.rotation.y += self.velocity * Time.delta_time.seconds()
 
     @on_key_pressed(Key.Left)

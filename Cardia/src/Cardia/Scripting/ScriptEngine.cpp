@@ -109,8 +109,7 @@ namespace Cardia
 	ScriptClass ScriptEngine::GetClassFromPyFile(std::filesystem::path& relativePath)
 	{
 		auto fileName = relativePath.filename().replace_extension().string();
-		auto path = relativePath.replace_extension();
-		auto importedFile = py::module_::import(path.string().c_str());
+		auto importedFile = py::module_::import(fileName.c_str());
 
 		if (!py::hasattr(importedFile, fileName.c_str()) && !IsSubClass(importedFile.attr(fileName.c_str()), m_CardiaPythonAPI.attr("Behavior")))
 		{

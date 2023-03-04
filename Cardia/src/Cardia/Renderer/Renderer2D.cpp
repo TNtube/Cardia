@@ -54,7 +54,6 @@ namespace Cardia
 			{ShaderDataType::Float3, "a_Normal"},
 			{ShaderDataType::Float4, "a_Color"},
 			{ShaderDataType::Float2, "a_TexPos"},
-			{ShaderDataType::Float, "a_TexIndex"},
 			{ShaderDataType::Float, "a_TilingFactor"},
 			{ShaderDataType::Float, "a_EntityID"}
 		});
@@ -188,15 +187,17 @@ namespace Cardia
 		BatchSpecification specification;
 		specification.alpha = color.a < 1.0f;
 		specification.layer = zIndex;
-		specification.shader = "light";
+		specification.shader = "basic";
+		if (texture)
+			specification.texture = texture->getPath();
 
 		for (auto& batch : s_Data->batches)
 		{
-			if (batch.specification == specification && batch.addMesh(&mesh, texture))
+			if (batch.specification == specification && batch.addMesh(&mesh))
 				return;
 		}
-		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, specification);
-		batch.addMesh(&mesh, texture);
+		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, texture, specification);
+		batch.addMesh(&mesh);
 	}
 
 	void Renderer2D::addLight(const Component::Transform& transform, const Component::Light& lightComponent)

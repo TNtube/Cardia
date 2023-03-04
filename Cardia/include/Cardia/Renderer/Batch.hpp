@@ -19,19 +19,23 @@ namespace Cardia
 		int32_t layer;
 		bool alpha;
 		std::string shader;
+		std::string texture;
 		bool operator==(const BatchSpecification& other) const
 		{
-			return other.layer == layer && other.alpha == alpha && other.shader == shader;
+			return other.layer == layer
+			       && other.alpha == alpha
+			       && other.shader == shader
+			       && other.texture == texture;
 		}
 	};
 	
         class Batch
 	{
 	public:
-		Batch(VertexArray* va, const glm::vec3& cameraPosition, const BatchSpecification& specification);
+		Batch(VertexArray* va, const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
-		bool addMesh(SubMesh* mesh, const Texture2D *texture);
+		bool addMesh(SubMesh* mesh);
         	BatchSpecification specification;
 	private:
 		glm::vec3 camPos {};
@@ -47,8 +51,6 @@ namespace Cardia
 
 		std::vector<std::vector<uint32_t>> indexBufferData;
 		uint32_t indexOffset {};
-
-		std::array<const Texture2D*, maxTextureSlots> textureSlots {};
-		int textureSlotIndex = 1;
+		const Texture2D* m_CurrentTexture = nullptr;
 	};
 }

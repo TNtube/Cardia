@@ -364,15 +364,15 @@ namespace Cardia
 
 		auto drawLists = ImGui::GetWindowDrawList();
 
-		drawLists->PushClipRect(canvas_p0, canvas_p1, true);
-
-		const float GRID_STEP = 64.0f * zoom;
-		for (float x = fmodf(0, GRID_STEP); x < m_SceneSize.x; x += GRID_STEP)
-			drawLists->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y), IM_COL32(200, 200, 200, 40));
-		for (float y = fmodf(0, GRID_STEP); y < m_SceneSize.y; y += GRID_STEP)
-			drawLists->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
-
-		drawLists->PopClipRect();
+//		drawLists->PushClipRect(canvas_p0, canvas_p1, true);
+//
+//		const float GRID_STEP = 64.0f * zoom;
+//		for (float x = fmodf(0, GRID_STEP); x < m_SceneSize.x; x += GRID_STEP)
+//			drawLists->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y), IM_COL32(200, 200, 200, 40));
+//		for (float y = fmodf(0, GRID_STEP); y < m_SceneSize.y; y += GRID_STEP)
+//			drawLists->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
+//
+//		drawLists->PopClipRect();
 
 		m_EditorCamera.SetViewportSize(m_SceneSize.x, m_SceneSize.y);
 		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);

@@ -3,6 +3,8 @@
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/UUID.hpp"
+#include "Cardia/Renderer/Shader.hpp"
+#include "Cardia/Renderer/Texture.hpp"
 
 #include <entt/entt.hpp>
 #include <filesystem>
@@ -33,8 +35,10 @@ namespace Cardia
 
 		std::filesystem::path path;
 	private:
+		Shader* m_BasicShader {};
 		std::string m_Name;
 		entt::registry m_Registry;
+		std::unique_ptr<Texture2D> m_WhiteTexture;
 		friend class Entity;
 	};
 }
