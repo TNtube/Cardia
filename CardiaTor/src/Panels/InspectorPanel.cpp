@@ -119,6 +119,29 @@ namespace Cardia::Panel
 				}
 				ImGui::EndDragDropTarget();
 			}
+
+			uint32_t whiteColor = 0xffffffff;
+			const auto white = Texture2D::create(1, 1, &whiteColor);
+			const auto texID = meshRendererC.texture ? meshRendererC.texture->getRendererID() : white->getRendererID();
+
+			ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+				{
+					const auto* cStrPath = static_cast<const char*>(payload->Data);
+					std::filesystem::path path = cStrPath;
+					auto& spec = Application::projectSettings();
+					auto tex = Texture2D::create((spec.workspace / path).string());
+					if (tex->isLoaded())
+					{
+						meshRendererC.texture = std::move(tex);
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::SameLine();
+			ImGui::Text("Texture");
 		});
 
 		// Camera Component

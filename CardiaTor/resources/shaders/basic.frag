@@ -12,8 +12,8 @@ struct Vertex {
     float tilingFactor;
 };
 
-in Vertex o_Vertex;
-in flat float o_EntityID;
+layout (location = 0) in Vertex o_Vertex;
+layout (location = 5) in flat float o_EntityID;
 
 uniform sampler2D u_Texture;
 uniform vec3 u_ViewPosition;
