@@ -221,6 +221,9 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const std::filesystem::path behaviorPath = static_cast<const char*>(payload->Data);
+
+					auto& spec = Application::projectSettings();
+
 					if (behaviorPath.extension() == ".py")
 					{
 						scriptComponent.setPath(behaviorPath.string());

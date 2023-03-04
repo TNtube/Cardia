@@ -1,7 +1,48 @@
 {
 	"66e1a599-8640-4b20-86dd-7859ad6a971f" : 
 	{
-		"name" : "Mesh",
+		"behavior" : 
+		{
+			"attributes" : 
+			[
+				{
+					"name" : "velocity",
+					"type" : 0,
+					"value" : 3
+				},
+				{
+					"name" : "text",
+					"type" : 2,
+					"value" : ""
+				},
+				{
+					"name" : "color",
+					"type" : 7,
+					"value" : 
+					{
+						"x" : 0.0,
+						"y" : 0.0,
+						"z" : 0.0
+					}
+				},
+				{
+					"name" : "greeting",
+					"type" : 5,
+					"value" : ""
+				},
+				{
+					"name" : "lst",
+					"type" : 3
+				}
+			],
+			"path" : "Moving.py"
+		},
+		"meshRenderer" : 
+		{
+			"path" : ".\\suzanne.obj",
+			"texture" : ""
+		},
+		"name" : "Suzanna",
 		"transform" : 
 		{
 			"position" : 
@@ -12,7 +53,130 @@
 			},
 			"rotation" : 
 			{
+				"x" : -0.22863814234733582,
+				"y" : -0.095993109047412872,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"a1cad162-e4e2-4082-992e-b97eb2d2acc4" : 
+	{
+		"light" : 
+		{
+			"angle" : 49.5,
+			"color" : 
+			{
 				"x" : 0.0,
+				"y" : 1.0,
+				"z" : 0.27848100662231445
+			},
+			"range" : 20.649999618530273,
+			"smoothness" : 1.5,
+			"type" : 2
+		},
+		"name" : "Light",
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : -0.60000002384185791,
+				"y" : 6.0,
+				"z" : 0.5
+			},
+			"rotation" : 
+			{
+				"x" : 0.14137168228626251,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"c666fa63-8617-4983-a62a-422fc9bef6ac" : 
+	{
+		"behavior" : 
+		{
+			"attributes" : 
+			[
+				{
+					"name" : "message",
+					"type" : 2,
+					"value" : "frdfes"
+				}
+			],
+			"path" : ".\\Greeting.py"
+		},
+		"camera" : 
+		{
+			"orthoFar" : 1.0,
+			"orthoNear" : -1.0,
+			"orthoSize" : 10.0,
+			"perspectiveFar" : 1000.0,
+			"perspectiveFov" : 1.0471975803375244,
+			"perspectiveNear" : 0.0099999997764825821,
+			"type" : 0
+		},
+		"name" : "Camera",
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : 0.0,
+				"y" : 0.10000000149011612,
+				"z" : 3.2000000476837158
+			},
+			"rotation" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"scale" : 
+			{
+				"x" : 1.0,
+				"y" : 1.0,
+				"z" : 1.0
+			}
+		}
+	},
+	"eae66961-5084-4234-8df7-9d1cabd6dbf0" : 
+	{
+		"light" : 
+		{
+			"angle" : 35.0,
+			"color" : 
+			{
+				"x" : 0.96202516555786133,
+				"y" : 0.0,
+				"z" : 1.0
+			},
+			"range" : 2.0,
+			"smoothness" : 1.0,
+			"type" : 0
+		},
+		"name" : "Light2",
+		"transform" : 
+		{
+			"position" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0,
+				"z" : 0.0
+			},
+			"rotation" : 
+			{
+				"x" : -0.33859387040138245,
 				"y" : 0.0,
 				"z" : 0.0
 			},

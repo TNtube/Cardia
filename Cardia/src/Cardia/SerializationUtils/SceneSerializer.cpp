@@ -201,6 +201,19 @@ namespace Cardia::SerializerUtils
                                 root[uuid.uuid]["spriteRenderer"] = node;
                                 node.clear();
                         }
+
+			// MeshRenderer
+
+	                if (entity.hasComponent<Component::MeshRendererC>()) {
+		                const auto& meshRenderer = entity.getComponent<Component::MeshRendererC>();
+		                node["path"] = meshRenderer.path;
+
+		                const auto texPath = meshRenderer.texture ? meshRenderer.texture->getPath() : "";
+		                node["texture"] = std::filesystem::relative(texPath, workspace).string();
+
+		                root[uuid.uuid]["meshRenderer"] = node;
+		                node.clear();
+	                }
                         
                         // Camera
                         if (entity.hasComponent<Component::Camera>())
@@ -309,6 +322,22 @@ namespace Cardia::SerializerUtils
                                 spriteRenderer.zIndex = node["spriteRenderer"]["zIndex"].asInt();
                         }
 
+			if (node.isMember("meshRenderer")) {
+				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
+
+				const auto path = std::filesystem::path(workspace);
+				auto texture = Texture2D::create((path / node["meshRenderer"]["texture"].asString()).string());
+				if (texture->isLoaded())
+				{
+					meshRenderer.texture = std::move(texture);
+				}
+
+				meshRenderer.path = node["meshRenderer"]["path"].asString();
+				auto mesh = Mesh::ReadMeshFromFile((path / meshRenderer.path).string());
+				meshRenderer.meshRenderer->SubmitMesh(mesh);
+
+			}
+
                         if (node.isMember("camera"))
                         {
                                 auto& camera = entity.addComponent<Component::Camera>();
@@ -344,7 +373,6 @@ namespace Cardia::SerializerUtils
                         if (node.isMember("behavior"))
                         {
                                 auto& behavior = entity.addComponent<Component::Script>();
-                                const auto path = std::filesystem::path(workspace);
                                 behavior.setPath(node["behavior"]["path"].asString());
 
 				auto& attrsNode = node["behavior"]["attributes"];
