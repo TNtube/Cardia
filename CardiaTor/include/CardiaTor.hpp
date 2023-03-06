@@ -33,8 +33,8 @@ namespace Cardia
 
 	private:
 		void EnableDocking();
-		void OpenWorkspace();
-		void InvalidateWorkspace();
+		void OpenProject();
+		void InvalidateProject();
 		void InvalidateScene();
 		void SaveScene() const;
 		void OpenScene(const std::filesystem::path& scenePath);
@@ -46,6 +46,7 @@ namespace Cardia
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
+		std::unique_ptr<Scene> m_LastEditorScene;
 
 		PanelManager m_PanelManager;
 
@@ -63,7 +64,6 @@ namespace Cardia
 		bool m_HoverViewport = false;
 
 		EditorState m_EditorState = EditorState::Edit;
-		std::string m_LastEditorState {};
 
 		std::random_device rd;
 		std::mt19937 random{rd()};

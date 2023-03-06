@@ -16,13 +16,14 @@ namespace Cardia
 	class Scene
 	{
 	public:
-		Scene(std::string name = "Default Scene");
+		explicit Scene(std::string name = "Default Scene");
 		virtual ~Scene() = default;
 		Entity CreateEntity(const std::string& name = "");
 		Entity CreateEntityFromId(UUID uuid);
 
 		void DestroyEntity(entt::entity entity);
 
+		static std::unique_ptr<Scene> Copy(Scene& src);
 		void OnRuntimeUpdate();
 		void OnRuntimeStart();
 		void OnRuntimeStop();

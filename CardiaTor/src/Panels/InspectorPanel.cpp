@@ -9,6 +9,7 @@
 #include "EditorUI/DragData.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Application.hpp"
+#include "Cardia/Project/Project.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 
@@ -84,8 +85,8 @@ namespace Cardia::Panel
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
 					std::filesystem::path path = cStrPath;
-					auto& spec = Application::projectSettings();
-					auto tex = Texture2D::create((spec.workspace / path).string());
+					auto assetsPath = Project::GetAssetDirectory();
+					auto tex = Texture2D::create((assetsPath / path).string());
 					if (tex->isLoaded())
 					{
 						sprite.texture = std::move(tex);
@@ -113,8 +114,8 @@ namespace Cardia::Panel
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					meshRendererC.path = path.string();
-					auto& spec = Application::projectSettings();
-					auto mesh = Mesh::ReadMeshFromFile((spec.workspace / path).string());
+					auto assetsPath = Project::GetAssetDirectory();
+					auto mesh = Mesh::ReadMeshFromFile((assetsPath / path).string());
 					meshRendererC.meshRenderer->SubmitMesh(mesh);
 				}
 				ImGui::EndDragDropTarget();
@@ -131,8 +132,8 @@ namespace Cardia::Panel
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
 					std::filesystem::path path = cStrPath;
-					auto& spec = Application::projectSettings();
-					auto tex = Texture2D::create((spec.workspace / path).string());
+					auto assetsPath = Project::GetAssetDirectory();
+					auto tex = Texture2D::create((assetsPath / path).string());
 					if (tex->isLoaded())
 					{
 						meshRendererC.texture = std::move(tex);
@@ -221,9 +222,6 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const std::filesystem::path behaviorPath = static_cast<const char*>(payload->Data);
-
-					auto& spec = Application::projectSettings();
-
 					if (behaviorPath.extension() == ".py")
 					{
 						scriptComponent.setPath(behaviorPath.string());

@@ -19,7 +19,7 @@ namespace Cardia
 		void OnRuntimeStart(Scene* context);
 		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
-		static void UpdateWorkspace();
+		static void InvalidateProject();
 		ScriptInstance* GetInstance(const UUID& uuid);
 		Scene& GetSceneContext();
 		void RegisterUpdateMethod(py::object& cls, std::string& name);

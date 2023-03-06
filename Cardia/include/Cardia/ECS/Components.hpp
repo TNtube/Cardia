@@ -157,3 +157,16 @@ namespace Cardia::Component
 		std::string m_Path;
 	};
 }
+
+namespace Cardia {
+
+
+	template<typename... Components>
+	struct ComponentGroup
+	{
+
+	};
+
+	using AllComponents = ComponentGroup<Component::Transform, Component::SpriteRenderer, Component::MeshRendererC,
+					     Component::Camera, Component::Script, Component::Light>;
+}

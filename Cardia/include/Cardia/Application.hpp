@@ -10,12 +10,6 @@
 
 namespace Cardia
 {
-	struct ProjectSettings
-	{
-	public:
-		std::string workspace;
-
-	};
 	class Application
 	{
 	public:
@@ -29,7 +23,6 @@ namespace Cardia
 		virtual Scene* GetCurrentScene() = 0;
 		bool onWinClose(WindowCloseEvent& e);
 
-		inline static ProjectSettings& projectSettings() { return s_ProjectSettings; };
 		inline static Application& get() { return *s_Instance; }
 		inline Window& getWindow() const { return *m_Window; }
 		inline void close() { m_Running = false; }
@@ -39,7 +32,6 @@ namespace Cardia
 		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 		ScriptEngine m_ScriptEngine;
 		bool m_Running = true;
-		inline static ProjectSettings s_ProjectSettings {};
 		static Application* s_Instance;
 
 	};

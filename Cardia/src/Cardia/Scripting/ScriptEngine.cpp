@@ -2,6 +2,7 @@
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include <pybind11/embed.h>
 #include <Cardia/ECS/Components.hpp>
+#include <Cardia/Project/Project.hpp>
 #include "Cardia/Scripting/EmbeddedPythonModule.hpp"
 
 namespace Cardia
@@ -148,10 +149,10 @@ namespace Cardia
 		return IsSubClass(scriptClass, m_CardiaPythonAPI.attr("Behavior"));
 	}
 
-	void ScriptEngine::UpdateWorkspace()
+	void ScriptEngine::InvalidateProject()
 	{
 		auto sys = py::module::import("sys");
-		sys.attr("path").attr("append")(Application::projectSettings().workspace);
+		sys.attr("path").attr("append")(Project::GetAssetDirectory().string());
 	}
 
 }

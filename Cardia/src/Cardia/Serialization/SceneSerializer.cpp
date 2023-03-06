@@ -1,8 +1,10 @@
 ﻿#include "cdpch.hpp"
-#include "Cardia/SerializationUtils/SceneSerializer.hpp"
 
 #include "Cardia/ECS/Components.hpp"
 #include <json/json.h>
+#include <Cardia/Serialization/SceneSerializer.hpp>
+#include <Cardia/Project/Project.hpp>
+
 
 namespace Json {
 	using namespace Cardia;
@@ -81,7 +83,7 @@ namespace Json {
 }
 
 
-namespace Cardia::SerializerUtils
+namespace Cardia::Serialization
 {
 
 	Json::Value ToJson(const glm::vec2& value) {
@@ -163,14 +165,14 @@ namespace Cardia::SerializerUtils
 
 	}
 
-        std::string SerializeScene(Scene* scene, const std::string& workspace)
-        {
-                Json::Value root;
-                const auto view = scene->GetRegistry().view<Component::Name>();
+	bool Serialization::SceneSerializer::Serialize(const std::filesystem::path &path)
+	{
+		Json::Value root;
+		const auto view = m_Scene.GetRegistry().view<Component::Name>();
 
-                for (const auto entity_id : view)
-                {
-                        Entity entity(entity_id, scene);
+		for (const auto entity_id : view)
+		{
+			Entity entity(entity_id, &m_Scene);
 			const auto uuid = entity.getComponent<Component::ID>();
 
 			const auto name = entity.getComponent<Component::Name>();
@@ -178,61 +180,61 @@ namespace Cardia::SerializerUtils
 			root[uuid.uuid]["name"] = name.name;
 
 			Json::Value node;
-                        // Transform
-                        const auto& transform = entity.getComponent<Component::Transform>();
+			// Transform
+			const auto& transform = entity.getComponent<Component::Transform>();
 			node["position"] = ToJson(transform.position);
 			node["rotation"] = ToJson(transform.rotation);
 			node["scale"] = ToJson(transform.scale);
 
-                        root[uuid.uuid]["transform"] = node;
-                        node.clear();
+			root[uuid.uuid]["transform"] = node;
+			node.clear();
 
-                        // SpriteRenderer
-                        if (entity.hasComponent<Component::SpriteRenderer>())
-                        {
-                                const auto& spriteRenderer = entity.getComponent<Component::SpriteRenderer>();
+			// SpriteRenderer
+			if (entity.hasComponent<Component::SpriteRenderer>())
+			{
+				const auto& spriteRenderer = entity.getComponent<Component::SpriteRenderer>();
 				node["color"] = ToJson(spriteRenderer.color);
-                                const auto path = spriteRenderer.texture ? spriteRenderer.texture->getPath() : "";
-                                
-                                node["texture"] = std::filesystem::relative(path, workspace).string();
-                                node["tillingFactor"] = spriteRenderer.tillingFactor;
-                                node["zIndex"] = spriteRenderer.zIndex;
-                        
-                                root[uuid.uuid]["spriteRenderer"] = node;
-                                node.clear();
-                        }
+				const auto texPath = spriteRenderer.texture ? spriteRenderer.texture->getPath() : "";
+
+				node["texture"] = texPath;
+				node["tillingFactor"] = spriteRenderer.tillingFactor;
+				node["zIndex"] = spriteRenderer.zIndex;
+
+				root[uuid.uuid]["spriteRenderer"] = node;
+				node.clear();
+			}
 
 			// MeshRenderer
 
-	                if (entity.hasComponent<Component::MeshRendererC>()) {
-		                const auto& meshRenderer = entity.getComponent<Component::MeshRendererC>();
-		                node["path"] = meshRenderer.path;
+			if (entity.hasComponent<Component::MeshRendererC>()) {
+				const auto& meshRenderer = entity.getComponent<Component::MeshRendererC>();
+				node["path"] = meshRenderer.path;
 
-		                const auto texPath = meshRenderer.texture ? meshRenderer.texture->getPath() : "";
-		                node["texture"] = std::filesystem::relative(texPath, workspace).string();
+				const auto texPath = meshRenderer.texture ? meshRenderer.texture->getPath() : "";
+				node["texture"] = texPath;
 
-		                root[uuid.uuid]["meshRenderer"] = node;
-		                node.clear();
-	                }
-                        
-                        // Camera
-                        if (entity.hasComponent<Component::Camera>())
-                        {
-                                const auto& camera = entity.getComponent<Component::Camera>();
-                                node["type"] = static_cast<int>(camera.camera.GetProjectionType());
+				root[uuid.uuid]["meshRenderer"] = node;
+				node.clear();
+			}
+
+			// Camera
+			if (entity.hasComponent<Component::Camera>())
+			{
+				const auto& camera = entity.getComponent<Component::Camera>();
+				node["type"] = static_cast<int>(camera.camera.GetProjectionType());
 				auto pers = camera.camera.GetPerspective();
-                                node["perspectiveFov"] = pers.x;
+				node["perspectiveFov"] = pers.x;
 				node["perspectiveNear"] = pers.y;
 				node["perspectiveFar"] = pers.z;
 
-	                        auto ortho = camera.camera.GetOrthographic();
-                                node["orthoSize"] = ortho.x;
-                                node["orthoNear"] = ortho.y;
-                                node["orthoFar"] = ortho.z;
-                                
-                                root[uuid.uuid]["camera"] = node;
-                                node.clear();
-                        }
+				auto ortho = camera.camera.GetOrthographic();
+				node["orthoSize"] = ortho.x;
+				node["orthoNear"] = ortho.y;
+				node["orthoFar"] = ortho.z;
+
+				root[uuid.uuid]["camera"] = node;
+				node.clear();
+			}
 
 			// PointLight
 			if (entity.hasComponent<Component::Light>())
@@ -249,113 +251,111 @@ namespace Cardia::SerializerUtils
 				node.clear();
 			}
 
-                        if (entity.hasComponent<Component::Script>())
-                        {
-                                const auto& behavior = entity.getComponent<Component::Script>();
-                                node["path"] = behavior.getPath();
+			if (entity.hasComponent<Component::Script>())
+			{
+				const auto& behavior = entity.getComponent<Component::Script>();
+				node["path"] = behavior.getPath();
 
 				for (auto& item : behavior.scriptClass.Attributes()) {
 					node["attributes"].append(ToJson(item));
 				}
-                                root[uuid.uuid]["behavior"] = node;
-                                node.clear();
-                        }
-                }
+				root[uuid.uuid]["behavior"] = node;
+				node.clear();
+			}
+		}
 
-                std::stringstream output;
+		std::ofstream file(path);
+		if (!file.is_open())
+			return false;
+		file << root;
+		return true;
+	}
 
-                output << root;
-                
-                return output.str();
-        }
+	bool Serialization::SceneSerializer::Deserialize(const std::filesystem::path &path)
+	{
+		Json::Value root;
+		std::ifstream file(path);
 
-        bool DeserializeScene(const std::string& serializedScene, Scene& scene, const std::string& workspace)
-        {
-                Json::Value root;
+		std::string err;
+		const Json::CharReaderBuilder builder;
+		if (!file.is_open() || !Json::parseFromStream(builder, file, &root, &err))
+		{
+			Log::coreError("Could not load Scene {0} : {1}", path.string(), err);
+			return false;
+		}
 
-                std::string err;
-                const Json::CharReaderBuilder builder;
-                const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-                if (!reader->parse(serializedScene.c_str(), serializedScene.c_str() + serializedScene.length(), &root, &err))
-                {
-                        Log::coreError("Could not load scene {0} : {1}", scene.GetName(), err);
-                        return false;
-                }
-
-                scene.clear();
-
-                for (const auto& uuid: root.getMemberNames())
-                {
+		for (const auto& uuid: root.getMemberNames())
+		{
 			UUID id;
 			Entity entity;
 			try {
 				id = UUID::fromString(uuid);
-				entity = scene.CreateEntityFromId(id);
+				entity = m_Scene.CreateEntityFromId(id);
 			}
 			catch (const std::invalid_argument& e) {
 				Log::warn("Entity with invalid UUID found");
-				entity = scene.CreateEntity();
+				entity = m_Scene.CreateEntity();
 			}
 
-                        auto& node = root[uuid];
+			auto& node = root[uuid];
 			auto& name = entity.getComponent<Component::Name>();
 			name.name = node["name"].asString();
 
-                        auto& component = entity.getComponent<Component::Transform>();
+			auto& component = entity.getComponent<Component::Transform>();
 			component.position = node["transform"]["position"].as<glm::vec3>();
 			component.rotation = node["transform"]["rotation"].as<glm::vec3>();
 			component.scale = node["transform"]["scale"].as<glm::vec3>();
 
-                        if (node.isMember("spriteRenderer"))
-                        {
-                                auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
+			if (node.isMember("spriteRenderer"))
+			{
+				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
 				spriteRenderer.color = node["spriteRenderer"]["color"].as<glm::vec4>();
 
-                                const auto path = std::filesystem::path(workspace);
-                                auto texture = Texture2D::create((path / node["spriteRenderer"]["texture"].asString()).string());
-                                if (texture->isLoaded())
-                                {
-                                        spriteRenderer.texture = std::move(texture);
-                                }
-                                
-                                spriteRenderer.tillingFactor = node["spriteRenderer"]["tillingFactor"].asFloat();
-                                spriteRenderer.zIndex = node["spriteRenderer"]["zIndex"].asInt();
-                        }
+				const auto& assetsPath = Project::GetAssetDirectory();
+				auto texture = Texture2D::create((assetsPath / node["spriteRenderer"]["texture"].asString()).string());
+				if (texture->isLoaded())
+				{
+					spriteRenderer.texture = std::move(texture);
+				}
+
+				spriteRenderer.tillingFactor = node["spriteRenderer"]["tillingFactor"].asFloat();
+				spriteRenderer.zIndex = node["spriteRenderer"]["zIndex"].asInt();
+			}
 
 			if (node.isMember("meshRenderer")) {
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
-				const auto path = std::filesystem::path(workspace);
-				auto texture = Texture2D::create((path / node["meshRenderer"]["texture"].asString()).string());
+				const auto& assetsPath = Project::GetAssetDirectory();
+				auto texture = Texture2D::create((assetsPath / node["meshRenderer"]["texture"].asString()).string());
 				if (texture->isLoaded())
 				{
 					meshRenderer.texture = std::move(texture);
 				}
 
 				meshRenderer.path = node["meshRenderer"]["path"].asString();
-				auto mesh = Mesh::ReadMeshFromFile((path / meshRenderer.path).string());
+				auto mesh = Mesh::ReadMeshFromFile((assetsPath / meshRenderer.path).string());
 				meshRenderer.meshRenderer->SubmitMesh(mesh);
 
 			}
 
-                        if (node.isMember("camera"))
-                        {
-                                auto& camera = entity.addComponent<Component::Camera>();
+			if (node.isMember("camera"))
+			{
+				auto& camera = entity.addComponent<Component::Camera>();
 
-                                auto pFov = node["camera"]["perspectiveFov"].asFloat();
-	                        auto pNear = node["camera"]["perspectiveNear"].asFloat();
-	                        auto pFar = node["camera"]["perspectiveFar"].asFloat();
+				auto pFov = node["camera"]["perspectiveFov"].asFloat();
+				auto pNear = node["camera"]["perspectiveNear"].asFloat();
+				auto pFar = node["camera"]["perspectiveFar"].asFloat();
 				camera.camera.SetPerspective(pFov, pNear, pFar);
 
 
-	                        auto oSize = node["camera"]["orthoSize"].asFloat();
-	                        auto oNear = node["camera"]["orthoNear"].asFloat();
-	                        auto oFar = node["camera"]["orthoFar"].asFloat();
-	                        camera.camera.SetOrthographic(oSize, oNear, oFar);
+				auto oSize = node["camera"]["orthoSize"].asFloat();
+				auto oNear = node["camera"]["orthoNear"].asFloat();
+				auto oFar = node["camera"]["orthoFar"].asFloat();
+				camera.camera.SetOrthographic(oSize, oNear, oFar);
 
-	                        camera.camera.SetProjectionType(
-		                        static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
-                        }
+				camera.camera.SetProjectionType(
+					static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
+			}
 
 			// PointLight
 			if (node.isMember("light"))
@@ -369,11 +369,11 @@ namespace Cardia::SerializerUtils
 				light.smoothness = node["light"]["smoothness"].asFloat();
 
 			}
-                        
-                        if (node.isMember("behavior"))
-                        {
-                                auto& behavior = entity.addComponent<Component::Script>();
-                                behavior.setPath(node["behavior"]["path"].asString());
+
+			if (node.isMember("behavior"))
+			{
+				auto& behavior = entity.addComponent<Component::Script>();
+				behavior.setPath(node["behavior"]["path"].asString());
 
 				auto& attrsNode = node["behavior"]["attributes"];
 				auto& attrs = behavior.scriptClass.Attributes();
@@ -387,7 +387,7 @@ namespace Cardia::SerializerUtils
 					}
 				}
 			}
-                }
-                return true;
-        }
+		}
+		return true;
+	}
 }

@@ -7,6 +7,7 @@
 #include "Cardia/Core/Log.hpp"
 #include "Cardia/Application.hpp"
 #include "Panels/PanelManager.hpp"
+#include "Cardia/Project/Project.hpp"
 
 namespace Cardia::Panel
 {
@@ -32,18 +33,18 @@ namespace Cardia::Panel
 		        m_PanelManager->SetFocused<FileHierarchyPanel>(this);
 	        }
 
-		auto workspace = Application::projectSettings().workspace;
+		const auto& assetsPath = Project::GetAssetDirectory();
 
-                if (!workspace.length())
+                if (assetsPath.empty())
                 {
                         ImGui::End();
                         return;
                 }
                 
-                const auto pathFromWorkspace = std::filesystem::relative(m_CurrentPath, workspace);
-                ImGui::Text("%s", pathFromWorkspace != "." ? pathFromWorkspace.string().c_str() : "");
+                const auto pathFromAssets = std::filesystem::relative(m_CurrentPath, assetsPath);
+                ImGui::Text("%s", pathFromAssets != "." ? pathFromAssets.string().c_str() : "");
 
-                if (m_CurrentPath != workspace)
+                if (m_CurrentPath != assetsPath)
                 {
                         if (ImGui::Button(".."))
                         {
@@ -107,7 +108,7 @@ namespace Cardia::Panel
                         
                         if (ImGui::BeginDragDropSource())
                         {
-                                std::string itemPath = (pathFromWorkspace / path).string();
+                                std::string itemPath = (pathFromAssets / path).string();
                                 ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
                                 ImGui::EndDragDropSource();
                         }
@@ -125,6 +126,6 @@ namespace Cardia::Panel
 
         void FileHierarchyPanel::OnUpdateWorkspace()
         {
-		m_CurrentPath = Application::projectSettings().workspace;
+		m_CurrentPath = Project::GetAssetDirectory();
         }
 }

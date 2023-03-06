@@ -7,12 +7,13 @@
 #include <ImGuizmo.h>
 #include <nfd.h>
 #include <ranges>
-#include <Cardia/SerializationUtils/SceneSerializer.hpp>
+#include <Cardia/Serialization/SceneSerializer.hpp>
 
 #include "Panels/SceneHierarchyPanel.hpp"
 #include "Panels/DebugPanel.hpp"
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
+#include "Cardia/Project/Project.hpp"
 
 
 namespace Cardia
@@ -145,7 +146,7 @@ namespace Cardia
 					//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 					if (ImGui::MenuItem("Open", "CTRL+O"))
 					{
-						OpenWorkspace();
+						OpenProject();
 					}
 
 					if (ImGui::MenuItem("Exit"))
@@ -181,26 +182,30 @@ namespace Cardia
 		}
 	}
 
-	void CardiaTor::OpenWorkspace()
+	void CardiaTor::OpenProject()
 	{
 		char *outPath = nullptr;
-		const nfdresult_t result = NFD_PickFolder( nullptr, &outPath );
+		const nfdresult_t result = NFD_OpenDialog( "cdproj", "", &outPath );
         
 		if ( result == NFD_OKAY ) {
-			auto& settings = projectSettings();
-			settings.workspace = std::string(outPath);
-			InvalidateWorkspace();
-			Log::coreInfo("Workspace : {0}", settings.workspace);
+			auto project = Project::Load(outPath);
+			if (project) {
+				Log::coreInfo("OpeningProject : {0}", project->GetConfig().Name);
+				InvalidateProject();
+			} else {
+				Log::coreWarn("Failed To Load Project : {0}", outPath);
+			}
 		}
 	}
 
-	void CardiaTor::InvalidateWorkspace()
+	void CardiaTor::InvalidateProject()
 	{
 		for (auto& panel : m_PanelManager.Panels())
 		{
 			panel->OnUpdateWorkspace();
 		}
-		ScriptEngine::UpdateWorkspace();
+		ScriptEngine::InvalidateProject();
+		OpenScene(Project::GetAssetDirectory() / Project::GetActive()->GetConfig().StartScene);
 	}
 
 	void CardiaTor::InvalidateScene()
@@ -229,24 +234,15 @@ namespace Cardia
 			}
 		}
 
-		std::ofstream file;
-		file.open(m_CurrentScene->path);
-		auto serializedScene = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
-		file << serializedScene;
-		file.close();
+		Serialization::SceneSerializer serializer(*m_CurrentScene);
+		serializer.Serialize(m_CurrentScene->path);
 	}
 
 	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
 	{
-		auto absoluteScenePath = projectSettings().workspace / scenePath;
-		const std::ifstream t(absoluteScenePath);
-		std::stringstream buffer;
-		buffer << t.rdbuf();
-
-		auto newScene = std::make_unique<Scene>(absoluteScenePath.filename().string());
-		newScene->path = absoluteScenePath;
-
-		if (!SerializerUtils::DeserializeScene(buffer.str(), *newScene, projectSettings().workspace))
+		auto newScene = std::make_unique<Scene>(scenePath.filename().string());
+		Serialization::SceneSerializer serializer(*newScene);
+		if (!serializer.Deserialize(scenePath))
 		{
 			Log::coreInfo("Unable to load {0}", scenePath.string());
 		}
@@ -259,15 +255,10 @@ namespace Cardia
 
 	void CardiaTor::ReloadScene()
 	{
-		const auto scenePath = m_CurrentScene->path;
-		m_CurrentScene = std::make_unique<Scene>(scenePath.filename().string());
-		m_CurrentScene->path = scenePath;
-
-		if (!SerializerUtils::DeserializeScene(m_LastEditorState, *m_CurrentScene, projectSettings().workspace))
-		{
-			Log::coreInfo("Unable to reload {0}", m_CurrentScene->path.filename().string());
+		if (m_LastEditorScene) {
+			m_CurrentScene = std::move(m_LastEditorScene);
+			InvalidateScene();
 		}
-		InvalidateScene();
 	}
 
 	void CardiaTor::OnImGuiDraw()
@@ -316,7 +307,7 @@ namespace Cardia
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 			{
 				const auto* path = static_cast<const char*>(payload->Data);
-				OpenScene(path);
+				OpenScene(Project::GetAssetDirectory() / path);
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -343,7 +334,7 @@ namespace Cardia
 				case EditorState::Edit:
 					m_EditorState = EditorState::Play;
 					m_CurrentScene->OnRuntimeStart();
-					m_LastEditorState = SerializerUtils::SerializeScene(m_CurrentScene.get(), projectSettings().workspace);
+					m_LastEditorScene = std::move(Scene::Copy(*m_CurrentScene));
 					break;
 				case EditorState::Play: m_CurrentScene->OnRuntimeStop();
 					m_EditorState = EditorState::Edit;
@@ -360,10 +351,9 @@ namespace Cardia
 			zoom += io.MouseWheel / 10.0f;
 			zoom = std::max(zoom, 0.25f);
 		}
-		ImVec2 canvas_p1 = ImVec2(canvas_p0.x + m_SceneSize.x, canvas_p0.y + m_SceneSize.y);
-
-		auto drawLists = ImGui::GetWindowDrawList();
-
+//		ImVec2 canvas_p1 = ImVec2(canvas_p0.x + m_SceneSize.x, canvas_p0.y + m_SceneSize.y);
+//
+//		auto drawLists = ImGui::GetWindowDrawList();
 //		drawLists->PushClipRect(canvas_p0, canvas_p1, true);
 //
 //		const float GRID_STEP = 64.0f * zoom;
@@ -437,7 +427,7 @@ namespace Cardia
 			{
 				switch (e.getKeyCode())
 				{
-				case Key::O: OpenWorkspace();
+				case Key::O: OpenProject();
 					break;
 				case Key::S:
 					Log::coreInfo("Saving...");

@@ -181,4 +181,52 @@ namespace Cardia
 	{
 		ScriptEngine::Instance().OnRuntimeEnd();
 	}
+
+	template<typename... Component>
+	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		([&]()
+		{
+			auto view = src.view<Component>();
+			for (auto srcEntity : view)
+			{
+				using namespace Component;
+				entt::entity dstEntity = enttMap.at(src.get<ID>(srcEntity).uuid);
+
+				auto& srcComponent = src.get<Component>(srcEntity);
+				dst.emplace_or_replace<Component>(dstEntity, srcComponent);
+			}
+		}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponent(ComponentGroup<Component...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		CopyComponent<Component...>(dst, src, enttMap);
+	}
+
+
+	std::unique_ptr<Scene> Scene::Copy(Scene& src)
+	{
+		std::unique_ptr<Scene> dst = std::make_unique<Scene>(src.m_Name);
+
+		auto& srcRegistry = src.m_Registry;
+		auto& dstRegistry = dst->m_Registry;
+		std::unordered_map<UUID, entt::entity> enttMap;
+
+		// Create entities in new scene
+		auto idView = srcRegistry.view<Component::ID>();
+		for (auto e : idView)
+		{
+			UUID uuid = srcRegistry.get<Component::ID>(e).uuid;
+			const auto& name = srcRegistry.get<Component::Name>(e).name;
+			Entity newEntity = dst->CreateEntityFromId(uuid);
+			newEntity.getComponent<Component::Name>().name = name;
+			enttMap[uuid] = newEntity.m_Entity;
+		}
+
+		CopyComponent(AllComponents{}, srcRegistry, dstRegistry, enttMap);
+
+		return std::move(dst);
+	}
 }
