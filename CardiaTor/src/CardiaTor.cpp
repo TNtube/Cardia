@@ -256,7 +256,7 @@ namespace Cardia
 	void CardiaTor::ReloadScene()
 	{
 		if (m_LastEditorScene) {
-			m_CurrentScene = std::move(m_LastEditorScene);
+			m_CurrentScene = Scene::Copy(*m_LastEditorScene);
 			InvalidateScene();
 		}
 	}
@@ -333,10 +333,11 @@ namespace Cardia
 			{
 				case EditorState::Edit:
 					m_EditorState = EditorState::Play;
+					m_LastEditorScene = Scene::Copy(*m_CurrentScene);
 					m_CurrentScene->OnRuntimeStart();
-					m_LastEditorScene = std::move(Scene::Copy(*m_CurrentScene));
 					break;
-				case EditorState::Play: m_CurrentScene->OnRuntimeStop();
+				case EditorState::Play:
+					m_CurrentScene->OnRuntimeStop();
 					m_EditorState = EditorState::Edit;
 					ReloadScene();
 					break;

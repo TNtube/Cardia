@@ -225,7 +225,13 @@ namespace Cardia
 			enttMap[uuid] = newEntity.m_Entity;
 		}
 
-		CopyComponent(AllComponents{}, srcRegistry, dstRegistry, enttMap);
+		CopyComponent(AllComponents{}, dstRegistry, srcRegistry, enttMap);
+
+//		Serialization::SceneArchiveOutput archiveOutput(src);
+//		entt::snapshot snapshot{src};
+//
+//		(snapshot.component<Component>(archiveOutput), ...);
+//		Log::coreInfo("{0}", archiveOutput.ToString());
 
 		return std::move(dst);
 	}

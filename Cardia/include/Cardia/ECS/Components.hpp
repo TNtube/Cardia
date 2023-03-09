@@ -167,6 +167,7 @@ namespace Cardia {
 
 	};
 
-	using AllComponents = ComponentGroup<Component::Transform, Component::SpriteRenderer, Component::MeshRendererC,
-					     Component::Camera, Component::Script, Component::Light>;
+	using AllComponents = ComponentGroup<Component::Transform, Component::MeshRendererC, Component::Name,
+					     Component::SpriteRenderer, Component::Camera, Component::Script,
+					     Component::Light>;
 }
