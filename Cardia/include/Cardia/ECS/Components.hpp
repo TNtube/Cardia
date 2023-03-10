@@ -30,6 +30,8 @@ namespace Cardia::Component
 			: name(std::move(name)) {}
 
 		std::string name;
+
+		static constexpr std::string ClassName() { return "Name"; };
 	};
 
 	struct ID
@@ -41,6 +43,8 @@ namespace Cardia::Component
 			: uuid(uuid) {}
 
 		UUID uuid;
+
+		static constexpr std::string ClassName() { return "ID"; };
 	};
 
 	struct Transform
@@ -67,6 +71,8 @@ namespace Cardia::Component
 			rotation = glm::vec3(0);
 			scale = glm::vec3(1);
 		}
+
+		static constexpr std::string ClassName() { return "Transform"; };
 	};
 
 	struct SpriteRenderer
@@ -86,6 +92,8 @@ namespace Cardia::Component
 			tillingFactor = 1.0f;
 			color = glm::vec4(1.0f);
 		}
+
+		static constexpr std::string ClassName() { return "SpriteRenderer"; };
 	};
 
 	struct MeshRendererC
@@ -103,6 +111,7 @@ namespace Cardia::Component
 			path = "";
 		}
 
+		static constexpr std::string ClassName() { return "MeshRendererC"; };
 	};
 
 	struct Camera
@@ -115,6 +124,8 @@ namespace Cardia::Component
 		inline void reset() {
 			camera = SceneCamera();
 		}
+
+		static constexpr std::string ClassName() { return "Camera"; };
 	};
 
 	struct Light
@@ -133,6 +144,8 @@ namespace Cardia::Component
 			angle = 35;
 			smoothness = 1;
 		}
+
+		static constexpr std::string ClassName() { return "Light"; };
 	};
 
 	struct Script
@@ -152,6 +165,8 @@ namespace Cardia::Component
 			scriptClass = ScriptClass();
 		}
 
+		static constexpr std::string ClassName() { return "Script"; };
+
 	private:
 		void reloadFile();
 		std::string m_Path;
@@ -169,5 +184,5 @@ namespace Cardia {
 
 	using AllComponents = ComponentGroup<Component::Transform, Component::MeshRendererC, Component::Name,
 					     Component::SpriteRenderer, Component::Camera, Component::Script,
-					     Component::Light>;
+					     Component::Light, Component::ID>;
 }

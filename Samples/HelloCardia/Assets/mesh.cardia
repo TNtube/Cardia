@@ -1,7 +1,7 @@
-{
-	"66e1a599-8640-4b20-86dd-7859ad6a971f" : 
+[
 	{
-		"behavior" : 
+		"ID" : "66e1a599-8640-4b20-86dd-7859ad6a971f",
+		"Script" : 
 		{
 			"attributes" : 
 			[
@@ -37,13 +37,13 @@
 			],
 			"path" : "Moving.py"
 		},
-		"meshRenderer" : 
+		"MeshRendererC" :
 		{
 			"path" : ".\\suzanne.obj",
 			"texture" : ""
 		},
-		"name" : "Suzanna",
-		"transform" : 
+		"Name" : "Suzanna",
+		"Transform" : 
 		{
 			"position" : 
 			{
@@ -65,8 +65,8 @@
 			}
 		}
 	},
-	"a1cad162-e4e2-4082-992e-b97eb2d2acc4" : 
 	{
+		"ID" : "a1cad162-e4e2-4082-992e-b97eb2d2acc4",
 		"light" : 
 		{
 			"angle" : 49.5,
@@ -80,8 +80,8 @@
 			"smoothness" : 1.5,
 			"type" : 2
 		},
-		"name" : "Light",
-		"transform" : 
+		"Name" : "Light",
+		"Transform" : 
 		{
 			"position" : 
 			{
@@ -103,9 +103,9 @@
 			}
 		}
 	},
-	"c666fa63-8617-4983-a62a-422fc9bef6ac" : 
 	{
-		"behavior" : 
+		"ID" : "c666fa63-8617-4983-a62a-422fc9bef6ac",
+		"Script" : 
 		{
 			"attributes" : 
 			[
@@ -117,7 +117,7 @@
 			],
 			"path" : ".\\Greeting.py"
 		},
-		"camera" : 
+		"Camera" : 
 		{
 			"orthoFar" : 1.0,
 			"orthoNear" : -1.0,
@@ -127,8 +127,8 @@
 			"perspectiveNear" : 0.0099999997764825821,
 			"type" : 0
 		},
-		"name" : "Camera",
-		"transform" : 
+		"Name" : "Camera",
+		"Transform" : 
 		{
 			"position" : 
 			{
@@ -150,8 +150,8 @@
 			}
 		}
 	},
-	"eae66961-5084-4234-8df7-9d1cabd6dbf0" : 
 	{
+		"ID" : "eae66961-5084-4234-8df7-9d1cabd6dbf0",
 		"light" : 
 		{
 			"angle" : 35.0,
@@ -165,8 +165,8 @@
 			"smoothness" : 1.0,
 			"type" : 0
 		},
-		"name" : "Light2",
-		"transform" : 
+		"Name" : "Light2",
+		"Transform" : 
 		{
 			"position" : 
 			{
@@ -188,4 +188,4 @@
 			}
 		}
 	}
-}
+]

@@ -165,157 +165,46 @@ namespace Cardia::Serialization
 
 	}
 
-	bool Serialization::SceneSerializer::Deserialize(const std::filesystem::path &path)
+	void SceneArchiveOutput::operator()(entt::entity entity, const Component::ID& component)
 	{
-		Json::Value root;
-		std::ifstream file(path);
-
-		std::string err;
-		const Json::CharReaderBuilder builder;
-		if (!file.is_open() || !Json::parseFromStream(builder, file, &root, &err))
-		{
-			Log::coreError("Could not load Scene {0} : {1}", path.string(), err);
-			return false;
-		}
-
-		for (const auto& uuid: root.getMemberNames())
-		{
-			UUID id;
-			Entity entity;
-			try {
-				id = UUID::fromString(uuid);
-				entity = m_Scene.CreateEntityFromId(id);
-			}
-			catch (const std::invalid_argument& e) {
-				Log::warn("Entity with invalid UUID found");
-				entity = m_Scene.CreateEntity();
-			}
-
-			auto& node = root[uuid];
-			auto& name = entity.getComponent<Component::Name>();
-			name.name = node["name"].asString();
-
-			auto& component = entity.getComponent<Component::Transform>();
-			component.position = node["transform"]["position"].as<glm::vec3>();
-			component.rotation = node["transform"]["rotation"].as<glm::vec3>();
-			component.scale = node["transform"]["scale"].as<glm::vec3>();
-
-			if (node.isMember("spriteRenderer"))
-			{
-				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
-				spriteRenderer.color = node["spriteRenderer"]["color"].as<glm::vec4>();
-
-				const auto& assetsPath = Project::GetAssetDirectory();
-				auto texture = Texture2D::create((assetsPath / node["spriteRenderer"]["texture"].asString()).string());
-				if (texture->isLoaded())
-				{
-					spriteRenderer.texture = std::move(texture);
-				}
-
-				spriteRenderer.tillingFactor = node["spriteRenderer"]["tillingFactor"].asFloat();
-				spriteRenderer.zIndex = node["spriteRenderer"]["zIndex"].asInt();
-			}
-
-			if (node.isMember("meshRenderer")) {
-				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
-
-				const auto& assetsPath = Project::GetAssetDirectory();
-				auto texture = Texture2D::create((assetsPath / node["meshRenderer"]["texture"].asString()).string());
-				if (texture->isLoaded())
-				{
-					meshRenderer.texture = std::move(texture);
-				}
-
-				meshRenderer.path = node["meshRenderer"]["path"].asString();
-				auto mesh = Mesh::ReadMeshFromFile((assetsPath / meshRenderer.path).string());
-				meshRenderer.meshRenderer->SubmitMesh(mesh);
-
-			}
-
-			if (node.isMember("camera"))
-			{
-				auto& camera = entity.addComponent<Component::Camera>();
-
-				auto pFov = node["camera"]["perspectiveFov"].asFloat();
-				auto pNear = node["camera"]["perspectiveNear"].asFloat();
-				auto pFar = node["camera"]["perspectiveFar"].asFloat();
-				camera.camera.SetPerspective(pFov, pNear, pFar);
-
-
-				auto oSize = node["camera"]["orthoSize"].asFloat();
-				auto oNear = node["camera"]["orthoNear"].asFloat();
-				auto oFar = node["camera"]["orthoFar"].asFloat();
-				camera.camera.SetOrthographic(oSize, oNear, oFar);
-
-				camera.camera.SetProjectionType(
-					static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
-			}
-
-			// PointLight
-			if (node.isMember("light"))
-			{
-				auto& light = entity.addComponent<Component::Light>();
-				light.lightType = node["light"]["type"].asInt();
-				light.color = node["light"]["color"].as<glm::vec3>();
-
-				light.range = node["light"]["range"].asFloat();
-				light.angle = node["light"]["angle"].asFloat();
-				light.smoothness = node["light"]["smoothness"].asFloat();
-
-			}
-
-			if (node.isMember("behavior"))
-			{
-				auto& behavior = entity.addComponent<Component::Script>();
-				behavior.setPath(node["behavior"]["path"].asString());
-
-				auto& attrsNode = node["behavior"]["attributes"];
-				auto& attrs = behavior.scriptClass.Attributes();
-				for (const auto& subNode: attrsNode) {
-					auto field = subNode.as<ScriptField>();
-					auto attrPair = std::find_if(attrs.begin(), attrs.end(), [&](auto& attr) {
-						return attr == field;
-					});
-					if (attrPair != attrs.end()) {
-						*attrPair = field;
-					}
-				}
-			}
-		}
-		return true;
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::ID::ClassName()] = std::string(component.uuid);
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::Transform& component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
 		Json::Value node;
 		node["position"] = ToJson(component.position);
 		node["rotation"] = ToJson(component.rotation);
 		node["scale"] = ToJson(component.scale);
-		m_Root[uuid]["transform"] = node;
+
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::Transform::ClassName()] = node;
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::Name& component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
-		m_Root[uuid]["name"] = component.name;
+
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::Name::ClassName()] = component.name;
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::MeshRendererC& component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
+
 		Json::Value node;
 
 		node["path"] = component.path;
 		const auto texPath = component.texture ? component.texture->getPath() : "";
 		node["texture"] = texPath;
 
-		m_Root[uuid]["meshRenderer"] = node;
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::MeshRendererC::ClassName()] = node;
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::SpriteRenderer& component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
+
 		Json::Value node;
 
 		node["color"] = ToJson(component.color);
@@ -325,12 +214,13 @@ namespace Cardia::Serialization
 		node["tillingFactor"] = component.tillingFactor;
 		node["zIndex"] = component.zIndex;
 
-		m_Root[uuid]["spriteRenderer"] = node;
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::SpriteRenderer::ClassName()] = node;
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::Camera &component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
+
 		Json::Value node;
 
 		node["type"] = static_cast<int>(component.camera.GetProjectionType());
@@ -344,12 +234,13 @@ namespace Cardia::Serialization
 		node["orthoNear"] = ortho.y;
 		node["orthoFar"] = ortho.z;
 
-		m_Root[uuid]["camera"] = node;
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::Camera::ClassName()] = node;
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::Light &component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
+
 		Json::Value node;
 
 		node["type"] = component.lightType;
@@ -359,12 +250,13 @@ namespace Cardia::Serialization
 		node["angle"] = component.angle;
 		node["smoothness"] = component.smoothness;
 
-		m_Root[uuid]["light"] = node;
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::Light::ClassName()] = node;
 	}
 
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::Script &component)
 	{
-		auto& uuid = m_Registry.get<Component::ID>(entity).uuid;
+
 		Json::Value node;
 
 		node["path"] = component.getPath();
@@ -373,7 +265,18 @@ namespace Cardia::Serialization
 			node["attributes"].append(ToJson(item));
 		}
 
-		m_Root[uuid]["behavior"] = node;
+		auto idx = static_cast<uint32_t>(entity);
+		m_Root[idx][Component::Script::ClassName()] = node;
+	}
+
+	void SceneArchiveOutput::Finalize() {
+		Json::Value root;
+		for (const auto & idx : m_Root) {
+			if (!idx.isNull()) {
+				root.append(idx);
+			}
+		}
+		m_Root = root;
 	}
 
 	std::string SceneArchiveOutput::ToString()
@@ -389,16 +292,17 @@ namespace Cardia::Serialization
 		return stream;
 	}
 
-
-	template<typename... Component>
-	static SceneArchiveOutput SerializeComponents(ComponentGroup<Component...>, entt::registry& src) {
-
-		SceneArchiveOutput archiveOutput(src);
+	template<typename... Cpn>
+	static SceneArchiveOutput SerializeComponents(ComponentGroup<Cpn...>, entt::registry& src)
+	{
+		SceneArchiveOutput archiveOutput;
 		entt::snapshot snapshot{src};
-		(snapshot.component<Component>(archiveOutput), ...);
-		Log::coreInfo("{0}", archiveOutput.ToString());
+		snapshot.component<Cpn...>(archiveOutput);
+
+		archiveOutput.Finalize();
 		return std::move(archiveOutput);
 	}
+
 
 	bool Serialization::SceneSerializer::Serialize(const std::filesystem::path &path)
 	{
@@ -412,43 +316,142 @@ namespace Cardia::Serialization
 
 
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::Transform &component)
+	bool SceneSerializer::Serialize( Json::Value &root)
 	{
-
+		auto archive = SerializeComponents(AllComponents{}, m_Scene.GetRegistry());
+		root = archive.m_Root;
+		return true;
 	}
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::Name &component)
+	bool Serialization::SceneSerializer::Deserialize(const std::filesystem::path &path)
 	{
+		Json::Value root;
+		std::ifstream file(path);
 
+		std::string err;
+		const Json::CharReaderBuilder builder;
+		if (!file.is_open() || !Json::parseFromStream(builder, file, &root, &err))
+		{
+			Log::coreError("Could not load Scene {0} : {1}", path.string(), err);
+			return false;
+		}
+
+		return Deserialize(root);
 	}
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::MeshRendererC &component)
+	bool SceneSerializer::Deserialize(const Json::Value &root)
 	{
+		for (const auto& node: root)
+		{
+			std::string uuid = node[Component::ID::ClassName()].asString();
+			UUID id;
+			Entity entity;
+			try {
+				id = UUID::fromString(uuid);
+				entity = m_Scene.CreateEntityFromId(id);
+			}
+			catch (const std::invalid_argument& e) {
+				Log::warn("Entity with invalid UUID found");
+				entity = m_Scene.CreateEntity();
+			}
 
-	}
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::SpriteRenderer &component)
-	{
+			auto& name = entity.getComponent<Component::Name>();
+			name.name = node[Component::Name::ClassName()].asString();
 
-	}
+			auto& component = entity.getComponent<Component::Transform>();
+			component.position = node[Component::Transform::ClassName()]["position"].as<glm::vec3>();
+			component.rotation = node[Component::Transform::ClassName()]["rotation"].as<glm::vec3>();
+			component.scale = node[Component::Transform::ClassName()]["scale"].as<glm::vec3>();
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::Camera &component)
-	{
 
-	}
+			auto currComponent = Component::SpriteRenderer::ClassName();
+			if (node.isMember(currComponent))
+			{
+				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
+				spriteRenderer.color = node[currComponent]["color"].as<glm::vec4>();
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::Light &component)
-	{
+				const auto& assetsPath = Project::GetAssetDirectory();
+				auto texture = Texture2D::create((assetsPath / node["spriteRenderer"]["texture"].asString()).string());
+				if (texture->isLoaded())
+				{
+					spriteRenderer.texture = std::move(texture);
+				}
 
-	}
+				spriteRenderer.tillingFactor = node[currComponent]["tillingFactor"].asFloat();
+				spriteRenderer.zIndex = node[currComponent]["zIndex"].asInt();
+			}
 
-	void SceneArchiveInput::operator()(entt::entity &entity, const Component::Script &component)
-	{
+			currComponent = Component::MeshRendererC::ClassName();
+			if (node.isMember(currComponent)) {
+				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
-	}
+				const auto& assetsPath = Project::GetAssetDirectory();
+				auto texture = Texture2D::create((assetsPath / node[currComponent]["texture"].asString()).string());
+				if (texture->isLoaded())
+				{
+					meshRenderer.texture = std::move(texture);
+				}
 
-	std::unique_ptr<Scene> SceneArchiveInput::ToScene()
-	{
-		return std::make_unique<Scene>();
+				meshRenderer.path = node[currComponent]["path"].asString();
+				auto mesh = Mesh::ReadMeshFromFile((assetsPath / meshRenderer.path).string());
+				meshRenderer.meshRenderer->SubmitMesh(mesh);
+
+			}
+
+			currComponent = Component::Camera::ClassName();
+			if (node.isMember(currComponent))
+			{
+				auto& camera = entity.addComponent<Component::Camera>();
+
+				auto pFov = node[currComponent]["perspectiveFov"].asFloat();
+				auto pNear = node[currComponent]["perspectiveNear"].asFloat();
+				auto pFar = node[currComponent]["perspectiveFar"].asFloat();
+				camera.camera.SetPerspective(pFov, pNear, pFar);
+
+
+				auto oSize = node[currComponent]["orthoSize"].asFloat();
+				auto oNear = node[currComponent]["orthoNear"].asFloat();
+				auto oFar = node[currComponent]["orthoFar"].asFloat();
+				camera.camera.SetOrthographic(oSize, oNear, oFar);
+
+				camera.camera.SetProjectionType(
+					static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
+			}
+
+
+			currComponent = Component::Light::ClassName();
+			if (node.isMember(currComponent))
+			{
+				auto& light = entity.addComponent<Component::Light>();
+				light.lightType = node[currComponent]["type"].asInt();
+				light.color = node[currComponent]["color"].as<glm::vec3>();
+
+				light.range = node[currComponent]["range"].asFloat();
+				light.angle = node[currComponent]["angle"].asFloat();
+				light.smoothness = node[currComponent]["smoothness"].asFloat();
+
+			}
+
+			currComponent = Component::Script::ClassName();
+			if (node.isMember(currComponent))
+			{
+				auto& behavior = entity.addComponent<Component::Script>();
+				behavior.setPath(node[currComponent]["path"].asString());
+
+				auto& attrsNode = node[currComponent]["attributes"];
+				auto& attrs = behavior.scriptClass.Attributes();
+				for (const auto& subNode: attrsNode) {
+					auto field = subNode.as<ScriptField>();
+					auto attrPair = std::find_if(attrs.begin(), attrs.end(), [&](auto& attr) {
+						return attr == field;
+					});
+					if (attrPair != attrs.end()) {
+						*attrPair = field;
+					}
+				}
+			}
+		}
+		return true;
 	}
 }
