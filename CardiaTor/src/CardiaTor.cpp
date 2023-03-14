@@ -14,6 +14,7 @@
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "Cardia/Project/AssetsManager.hpp"
 
 
 namespace Cardia
@@ -33,8 +34,8 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = Texture2D::create("resources/icons/play.png");
-		m_IconStop = Texture2D::create("resources/icons/pause.png");
+		m_IconPlay = AssetsManager::Load<Texture2D>("resources/icons/play.png");
+		m_IconStop = AssetsManager::Load<Texture2D>("resources/icons/pause.png");
 
 		FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 		spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
