@@ -7,6 +7,7 @@
 #include <typeindex>
 #include <Cardia/Renderer/Texture.hpp>
 #include <Cardia/DataStructure/Mesh.hpp>
+#include <utility>
 
 namespace {
 	struct TypeID
@@ -16,6 +17,14 @@ namespace {
 		bool operator==(const TypeID& other) const {
 			return ID == other.ID && type_index == other.type_index;
 		}
+	};
+
+	struct AssetRefCounter
+	{
+		AssetRefCounter() = default;
+		explicit AssetRefCounter(std::shared_ptr<void> resource) : Resource(std::move(resource)) {}
+		std::shared_ptr<void> Resource;
+		uint32_t UnusedCounter = 0;
 	};
 }
 
@@ -33,18 +42,30 @@ namespace Cardia
 	class AssetsManager
 	{
 	public:
+		AssetsManager();
+		~AssetsManager();
 		template<typename T>
 		static std::shared_ptr<T> Load(const std::filesystem::path& path);
 
+		static void CollectGarbage(bool forceCollection = true);
+
 	private:
-		std::unordered_map<TypeID, std::shared_ptr<void>> m_Assets;
+		std::unordered_map<TypeID, AssetRefCounter> m_Assets;
+
+		// Threading related
+		void CollectThread();
+		std::thread m_CollectThread;
+		std::mutex m_CounterMutex;
+		std::condition_variable m_CollectCV;
+		bool m_ShouldStopCollecting = false;
+
 		static std::shared_ptr<AssetsManager> s_ActiveManager;
 	};
 
 	template<typename T>
 	inline std::shared_ptr<T> AssetsManager::Load(const std::filesystem::path& path)
 	{
-		cdCoreAssert(false, std::string("Unknown assets type ") + typeid(T).name());
+		cdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()));
 		return std::shared_ptr<T>();
 	}
 
@@ -54,10 +75,11 @@ namespace Cardia
 		TypeID id {typeid(Shader), path.string()};
 
 		if (!s_ActiveManager->m_Assets.contains(id)) {
-			s_ActiveManager->m_Assets.insert_or_assign(id, Shader::create({path.string() + ".vert", path.string() + ".frag"}));
+			AssetRefCounter res(Shader::create({path.string() + ".vert", path.string() + ".frag"}));
+			s_ActiveManager->m_Assets.insert_or_assign(id, res);
 		}
 
-		return std::static_pointer_cast<Shader>(s_ActiveManager->m_Assets[id]);
+		return std::static_pointer_cast<Shader>(s_ActiveManager->m_Assets[id].Resource);
 	}
 
 	template<>
@@ -66,22 +88,24 @@ namespace Cardia
 		TypeID id {typeid(Texture2D), path.string()};
 
 		if (!s_ActiveManager->m_Assets.contains(id)) {
-			s_ActiveManager->m_Assets.insert_or_assign(id, Texture2D::create(path.string()));
+			AssetRefCounter res(Texture2D::create(path.string()));
+			s_ActiveManager->m_Assets.insert_or_assign(id, res);
 		}
 
-		return std::static_pointer_cast<Texture2D>(s_ActiveManager->m_Assets[id]);
+		return std::static_pointer_cast<Texture2D>(s_ActiveManager->m_Assets[id].Resource);
 	}
 
 	template<>
 	inline std::shared_ptr<Mesh> AssetsManager::Load(const std::filesystem::path& path)
 	{
-		TypeID id {typeid(Texture2D), path.string()};
+		TypeID id {typeid(Mesh), path.string()};
 
 		if (!s_ActiveManager->m_Assets.contains(id)) {
-			s_ActiveManager->m_Assets.insert_or_assign(id, std::make_unique<Mesh>(Mesh::ReadMeshFromFile(path.string())));
+			AssetRefCounter res(std::make_unique<Mesh>(Mesh::ReadMeshFromFile(path.string())));
+			s_ActiveManager->m_Assets.insert_or_assign(id, res);
 		}
 
-		return std::static_pointer_cast<Mesh>(s_ActiveManager->m_Assets[id]);
+		return std::static_pointer_cast<Mesh>(s_ActiveManager->m_Assets[id].Resource);
 
 	}
 }
