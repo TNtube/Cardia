@@ -194,7 +194,7 @@ namespace Cardia
 				Log::coreInfo("OpeningProject : {0}", project->GetConfig().Name);
 				InvalidateProject();
 			} else {
-				Log::coreWarn("Failed To Load Project : {0}", outPath);
+				Log::coreWarn("Failed To LoadImpl Project : {0}", outPath);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ namespace Cardia
 			panel->OnUpdateWorkspace();
 		}
 		ScriptEngine::InvalidateProject();
-		OpenScene(Project::GetAssetDirectory() / Project::GetActive()->GetConfig().StartScene);
+		OpenScene(AssetsManager::GetAssetAbsolutePath(Project::GetActive()->GetConfig().StartScene));
 	}
 
 	void CardiaTor::InvalidateScene()
@@ -308,7 +308,7 @@ namespace Cardia
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 			{
 				const auto* path = static_cast<const char*>(payload->Data);
-				OpenScene(Project::GetAssetDirectory() / path);
+				OpenScene(AssetsManager::GetAssetAbsolutePath(path));
 			}
 			ImGui::EndDragDropTarget();
 		}

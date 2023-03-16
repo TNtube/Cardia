@@ -17,7 +17,7 @@ namespace Cardia
 	{
 		std::string shaderName = "basic";
 		const auto shaderPath = "resources/shaders/" + shaderName;
-		m_BasicShader = AssetsManager::Load<Shader>(shaderPath);
+		m_BasicShader = AssetsManager::Load<Shader>(shaderPath, AssetsManager::LoadType::Editor);
 		TypeID foo{typeid(Shader), "foobar"};
 
 		uint32_t whiteColor = 0xffffffff;

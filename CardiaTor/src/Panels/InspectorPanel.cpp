@@ -10,6 +10,7 @@
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Application.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "Cardia/Project/AssetsManager.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 
@@ -84,9 +85,7 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					std::filesystem::path path = cStrPath;
-					auto assetsPath = Project::GetAssetDirectory();
-					auto tex = Texture2D::create((assetsPath / path).string());
+					auto tex = AssetsManager::Load<Texture2D>(cStrPath);
 					if (tex->isLoaded())
 					{
 						sprite.texture = std::move(tex);
@@ -114,9 +113,8 @@ namespace Cardia::Panel
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					meshRendererC.path = path.string();
-					auto assetsPath = Project::GetAssetDirectory();
-					auto mesh = Mesh::ReadMeshFromFile((assetsPath / path).string());
-					meshRendererC.meshRenderer->SubmitMesh(mesh);
+					auto mesh = AssetsManager::Load<Mesh>(path);
+					meshRendererC.meshRenderer->SubmitMesh(*mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -131,9 +129,7 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					std::filesystem::path path = cStrPath;
-					auto assetsPath = Project::GetAssetDirectory();
-					auto tex = Texture2D::create((assetsPath / path).string());
+					auto tex = AssetsManager::Load<Texture2D>(cStrPath);
 					if (tex->isLoaded())
 					{
 						meshRendererC.texture = std::move(tex);

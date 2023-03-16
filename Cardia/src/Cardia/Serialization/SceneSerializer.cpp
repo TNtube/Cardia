@@ -4,6 +4,7 @@
 #include <json/json.h>
 #include <Cardia/Serialization/SceneSerializer.hpp>
 #include <Cardia/Project/Project.hpp>
+#include <Cardia/Project/AssetsManager.hpp>
 
 
 namespace Json {
@@ -371,9 +372,8 @@ namespace Cardia::Serialization
 				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
 				spriteRenderer.color = node[currComponent]["color"].as<glm::vec4>();
 
-				const auto& assetsPath = Project::GetAssetDirectory();
-				auto texture = Texture2D::create((assetsPath / node["spriteRenderer"]["texture"].asString()).string());
-				if (texture->isLoaded())
+				auto texture = AssetsManager::Load<Texture2D>(node[currComponent]["texture"].asString());
+				if (texture && texture->isLoaded())
 				{
 					spriteRenderer.texture = std::move(texture);
 				}
@@ -386,16 +386,15 @@ namespace Cardia::Serialization
 			if (node.isMember(currComponent)) {
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
-				const auto& assetsPath = Project::GetAssetDirectory();
-				auto texture = Texture2D::create((assetsPath / node[currComponent]["texture"].asString()).string());
-				if (texture->isLoaded())
+				auto texture = AssetsManager::Load<Texture2D>(node[currComponent]["texture"].asString());
+				if (texture && texture->isLoaded())
 				{
 					meshRenderer.texture = std::move(texture);
 				}
 
 				meshRenderer.path = node[currComponent]["path"].asString();
-				auto mesh = Mesh::ReadMeshFromFile((assetsPath / meshRenderer.path).string());
-				meshRenderer.meshRenderer->SubmitMesh(mesh);
+				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
+				meshRenderer.meshRenderer->SubmitMesh(*mesh);
 
 			}
 
