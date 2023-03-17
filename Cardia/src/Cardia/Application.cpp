@@ -5,6 +5,7 @@
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <GLFW/glfw3.h>
+#include <Cardia/Project/AssetsManager.hpp>
 
 namespace Cardia
 {
@@ -45,6 +46,7 @@ namespace Cardia
 			m_ImGuiLayer->End();
 
 			m_Window->onUpdate();
+			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 
 		}
 		Renderer2D::quit();

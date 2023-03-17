@@ -9,6 +9,7 @@
 #include "Cardia/DataStructure/Mesh.hpp"
 #include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "Cardia/Core/Time.hpp"
 
 namespace {
 	struct TypeID
@@ -49,8 +50,7 @@ namespace Cardia
 		};
 
 	public:
-		AssetsManager();
-		virtual ~AssetsManager();
+		static std::filesystem::path GetPathFromAsset(const std::shared_ptr<void>& resource);
 
 		static std::filesystem::path GetAssetAbsolutePath(const std::filesystem::path& relative) {
 			return Project::GetAssetDirectory() / relative;
@@ -65,54 +65,52 @@ namespace Cardia
 		template<typename T>
 		static std::shared_ptr<T> Load(const std::filesystem::path& path, LoadType loadType)
 		{
-			if (path.empty()) return nullptr;
-
-			std::filesystem::path absPath;
-			switch (loadType)
-			{
-
-				case LoadType::Editor:
-					absPath = path;
-					break;
-				case LoadType::Game:
-					absPath = GetAssetAbsolutePath(path);
-					break;
-			}
-			return s_ActiveManager->LoadImpl<T>(absPath);
+			return Instance().LoadImpl<T>(path, loadType);
 		}
 
 		static void CollectGarbage(bool forceCollection = true);
 
+		static AssetsManager& Instance() { static AssetsManager instance; return instance; }
 	private:
-		template<typename T>
-		std::shared_ptr<T> LoadImpl(const std::filesystem::path& path);
+		AssetsManager() = default;
 
+		static std::filesystem::path GetAbsolutePath(const std::filesystem::path& relative, LoadType loadType);
+		template<typename T>
+		std::shared_ptr<T> LoadImpl(const std::filesystem::path& path, LoadType loadType);
 		std::unordered_map<TypeID, AssetRefCounter> m_Assets;
 
-		// Threading related
-		void CollectThread();
-		std::thread m_CollectThread;
-		std::mutex m_CounterMutex;
-		std::condition_variable m_CollectCV;
-		bool m_ShouldStopCollecting = false;
-
-		static std::shared_ptr<AssetsManager> s_ActiveManager;
+		// Collection related
+		friend Application;
+		void CollectionRoutine(DeltaTime& dt);
+		std::chrono::duration<float> m_ElapsedTime {};
 	};
 
+	inline std::filesystem::path AssetsManager::GetPathFromAsset(const std::shared_ptr<void>& resource)
+	{
+		for (auto& res : Instance().m_Assets)
+		{
+			if (res.second.Resource == resource) {
+				return res.first.ID;
+			}
+		}
+		return "";
+	}
+
 	template<typename T>
-	inline std::shared_ptr<T> AssetsManager::LoadImpl(const std::filesystem::path& path)
+	inline std::shared_ptr<T> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
 		cdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()));
 		return std::shared_ptr<T>();
 	}
 
 	template<>
-	inline std::shared_ptr<Shader> AssetsManager::LoadImpl(const std::filesystem::path& path)
+	inline std::shared_ptr<Shader> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
+		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
 		TypeID id {typeid(Shader), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Shader::create({path.string() + ".vert", path.string() + ".frag"}));
+			AssetRefCounter res(Shader::create({absPath.string() + ".vert", absPath.string() + ".frag"}));
 			m_Assets.insert_or_assign(id, res);
 		}
 
@@ -120,12 +118,13 @@ namespace Cardia
 	}
 
 	template<>
-	inline std::shared_ptr<Texture2D> AssetsManager::LoadImpl(const std::filesystem::path& path)
+	inline std::shared_ptr<Texture2D> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
+		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
 		TypeID id {typeid(Texture2D), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Texture2D::create(path.string()));
+			AssetRefCounter res(Texture2D::create(absPath.string()));
 			m_Assets.insert_or_assign(id, res);
 		}
 
@@ -133,12 +132,13 @@ namespace Cardia
 	}
 
 	template<>
-	inline std::shared_ptr<Mesh> AssetsManager::LoadImpl(const std::filesystem::path& path)
+	inline std::shared_ptr<Mesh> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
+		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
 		TypeID id {typeid(Mesh), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(std::make_unique<Mesh>(Mesh::ReadMeshFromFile(path.string())));
+			AssetRefCounter res(std::make_unique<Mesh>(Mesh::ReadMeshFromFile(absPath.string())));
 			m_Assets.insert_or_assign(id, res);
 		}
 

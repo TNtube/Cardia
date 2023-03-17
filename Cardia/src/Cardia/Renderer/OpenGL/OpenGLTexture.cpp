@@ -77,7 +77,7 @@ namespace Cardia
 
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
-		if (m_Loaded) glDeleteTextures(1, &m_TextureID);
+		glDeleteTextures(1, &m_TextureID);
 	}
 
 	void OpenGLTexture2D::bind(int slot) const

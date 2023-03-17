@@ -195,9 +195,8 @@ namespace Cardia::Serialization
 
 		Json::Value node;
 
-		node["path"] = component.path;
-		const auto texPath = component.texture ? component.texture->getPath() : "";
-		node["texture"] = texPath;
+		node["path"] = AssetsManager::GetPathFromAsset(component.mesh).string();;
+		node["texture"] = AssetsManager::GetPathFromAsset(component.texture).string();
 
 		auto idx = static_cast<uint32_t>(entity);
 		m_Root[idx][Component::MeshRendererC::ClassName()] = node;
@@ -209,9 +208,7 @@ namespace Cardia::Serialization
 		Json::Value node;
 
 		node["color"] = ToJson(component.color);
-		const auto texPath = component.texture ? component.texture->getPath() : "";
-
-		node["texture"] = texPath;
+		node["texture"] = AssetsManager::GetPathFromAsset(component.texture).string();
 		node["tillingFactor"] = component.tillingFactor;
 		node["zIndex"] = component.zIndex;
 
@@ -392,8 +389,8 @@ namespace Cardia::Serialization
 					meshRenderer.texture = std::move(texture);
 				}
 
-				meshRenderer.path = node[currComponent]["path"].asString();
 				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
+				meshRenderer.mesh = mesh;
 				meshRenderer.meshRenderer->SubmitMesh(*mesh);
 
 			}

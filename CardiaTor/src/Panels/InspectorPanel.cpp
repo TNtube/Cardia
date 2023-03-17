@@ -104,7 +104,7 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [](Component::MeshRendererC& meshRendererC) {
 			char buffer[128] {0};
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-			meshRendererC.path.copy(buffer, bufferSize);
+			AssetsManager::GetPathFromAsset(meshRendererC.mesh).string().copy(buffer, bufferSize);
 
 			EditorUI::InputText("Mesh path", buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
@@ -112,15 +112,15 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
-					meshRendererC.path = path.string();
 					auto mesh = AssetsManager::Load<Mesh>(path);
+					meshRendererC.mesh = mesh;
 					meshRendererC.meshRenderer->SubmitMesh(*mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
 
 			uint32_t whiteColor = 0xffffffff;
-			const auto white = Texture2D::create(1, 1, &whiteColor);
+			static const auto white = Texture2D::create(1, 1, &whiteColor);
 			const auto texID = meshRendererC.texture ? meshRendererC.texture->getRendererID() : white->getRendererID();
 
 			ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});

@@ -1,52 +1,46 @@
 #include "cdpch.hpp"
 #include "Cardia/Project/AssetsManager.hpp"
 
-constexpr float GC_COLLECTION_DURATION = 10.0f;
+constexpr std::chrono::duration<float> GC_COLLECTION_DURATION = std::chrono::duration<float>(2.0f);
 constexpr std::uint32_t MAX_UNUSED_COUNT = 2;
 
 namespace Cardia
 {
-	std::shared_ptr<AssetsManager> AssetsManager::s_ActiveManager = std::make_unique<AssetsManager>();
-
-	AssetsManager::AssetsManager()
-	{
-		m_CollectThread = std::thread(&AssetsManager::CollectThread, this);
-	}
-
-	AssetsManager::~AssetsManager()
-	{
-		m_ShouldStopCollecting = true;
-		m_CollectCV.notify_all();
-		m_CollectThread.join();
-	}
-
 	void AssetsManager::CollectGarbage(bool forceCollection)
 	{
-		for (auto& resource : s_ActiveManager->m_Assets) {
+		for (auto& resource : Instance().m_Assets) {
 			if (resource.second.Resource.use_count() == 1) {
-				resource.second.UnusedCounter++;
+				resource.second.UnusedCounter += forceCollection ? MAX_UNUSED_COUNT : 1;
+			} else {
+				resource.second.UnusedCounter = 0;
 			}
 
-			if (forceCollection || resource.second.UnusedCounter > MAX_UNUSED_COUNT) {
-				resource.second.Resource.reset();
+			if (resource.second.UnusedCounter > MAX_UNUSED_COUNT) {
+				Instance().m_Assets.erase(resource.first);
 			}
 		}
 	}
 
-	void AssetsManager::CollectThread()
+	void AssetsManager::CollectionRoutine(DeltaTime& dt)
 	{
-		while (true) {
-			auto dur = std::chrono::duration<float>(GC_COLLECTION_DURATION);
-			std::unique_lock<std::mutex> lock(m_CounterMutex);
-			m_CollectCV.wait_for(lock, dur, [&]() {
-				return m_ShouldStopCollecting;
-			});
-
-			if (m_ShouldStopCollecting) {
-				return;
-			}
-
+		m_ElapsedTime += std::chrono::duration<float>(dt.seconds());
+		if (m_ElapsedTime > GC_COLLECTION_DURATION) {
+			m_ElapsedTime = std::chrono::duration<float>(0);
 			CollectGarbage(false);
+		}
+	}
+
+	std::filesystem::path
+	AssetsManager::GetAbsolutePath(const std::filesystem::path &relative, AssetsManager::LoadType loadType)
+	{
+		switch (loadType) {
+
+			case LoadType::Editor:
+				return relative;
+				break;
+			case LoadType::Game:
+				return GetAssetAbsolutePath(relative);
+				break;
 		}
 	}
 }
