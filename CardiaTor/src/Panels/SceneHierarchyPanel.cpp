@@ -70,7 +70,7 @@ namespace Cardia :: Panel
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
 			SetSelectedEntityFromItself(Entity(), appContext);
 		}
-		if (ImGui::BeginPopupContextWindow(nullptr, 1, false))
+		if (ImGui::BeginPopupContextWindow(nullptr, 1))
 		{
 			if (ImGui::MenuItem("Create Entity"))
 				m_CurrentScene->CreateEntity();
