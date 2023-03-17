@@ -23,7 +23,7 @@ namespace Cardia
 		uint32_t getRendererID() override;
 
 	private:
-		int32_t m_Width, m_Height;
+		int32_t m_Width{}, m_Height{};
 		uint32_t m_TextureID;
 	};
 }

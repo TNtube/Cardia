@@ -1,4 +1,5 @@
 #include <Cardia/Serialization/SceneSerializer.hpp>
+#include <Cardia/Project/AssetsManager.hpp>
 #include "cdpch.hpp"
 #include "Cardia/ECS/Scene.hpp"
 #include "Cardia/ECS/Entity.hpp"
@@ -15,14 +16,10 @@ namespace Cardia
 		: m_Name(std::move(name))
 	{
 		std::string shaderName = "basic";
-		m_BasicShader = ShaderManager::get(shaderName);
+		const auto shaderPath = "resources/shaders/" + shaderName;
+		m_BasicShader = AssetsManager::Load<Shader>(shaderPath, AssetsManager::LoadType::Editor);
+		TypeID foo{typeid(Shader), "foobar"};
 
-		if (!m_BasicShader)
-		{
-			// TODO: Temporary, should change when Materials get implemented
-			const auto shaderPath = "resources/shaders/" + shaderName;
-			m_BasicShader = ShaderManager::load(shaderName, {shaderPath + ".vert", shaderPath + ".frag"});
-		}
 		uint32_t whiteColor = 0xffffffff;
 		m_WhiteTexture = Texture2D::create(1, 1, &whiteColor);
 	}

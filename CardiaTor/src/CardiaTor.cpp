@@ -14,6 +14,7 @@
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "Cardia/Project/AssetsManager.hpp"
 
 
 namespace Cardia
@@ -33,8 +34,8 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = Texture2D::create("resources/icons/play.png");
-		m_IconStop = Texture2D::create("resources/icons/pause.png");
+		m_IconPlay = AssetsManager::Load<Texture2D>("resources/icons/play.png");
+		m_IconStop = AssetsManager::Load<Texture2D>("resources/icons/pause.png");
 
 		FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 		spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -193,7 +194,7 @@ namespace Cardia
 				Log::coreInfo("OpeningProject : {0}", project->GetConfig().Name);
 				InvalidateProject();
 			} else {
-				Log::coreWarn("Failed To Load Project : {0}", outPath);
+				Log::coreWarn("Failed To LoadImpl Project : {0}", outPath);
 			}
 		}
 	}
@@ -205,7 +206,7 @@ namespace Cardia
 			panel->OnUpdateWorkspace();
 		}
 		ScriptEngine::InvalidateProject();
-		OpenScene(Project::GetAssetDirectory() / Project::GetActive()->GetConfig().StartScene);
+		OpenScene(AssetsManager::GetAssetAbsolutePath(Project::GetActive()->GetConfig().StartScene));
 	}
 
 	void CardiaTor::InvalidateScene()
@@ -307,7 +308,7 @@ namespace Cardia
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 			{
 				const auto* path = static_cast<const char*>(payload->Data);
-				OpenScene(Project::GetAssetDirectory() / path);
+				OpenScene(AssetsManager::GetAssetAbsolutePath(path));
 			}
 			ImGui::EndDragDropTarget();
 		}

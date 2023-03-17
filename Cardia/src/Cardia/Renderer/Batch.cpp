@@ -2,6 +2,7 @@
 #include "Cardia/Renderer/Batch.hpp"
 
 #include <numeric>
+#include <Cardia/Project/AssetsManager.hpp>
 
 #include "Cardia/Renderer/RenderAPI.hpp"
 
@@ -17,14 +18,8 @@ namespace Cardia
                 indexBuffer = &va->getIndexBuffer();
                 indexOffset = 0;
 
-                m_Shader = ShaderManager::get(specification.shader);
-
-                if (!m_Shader)
-                {
-                        // TODO: Temporary, should change when Materials get implemented
-                        const auto shaderPath = "resources/shaders/" + specification.shader;
-                        m_Shader = ShaderManager::load(specification.shader, {shaderPath + ".vert", shaderPath + ".frag"});
-                }
+	        const auto shaderPath = "resources/shaders/" + specification.shader;
+	        m_Shader = AssetsManager::Load<Shader>(shaderPath);
 
 	        uint32_t whiteColor = 0xffffffff;
 	        whiteTexture = Texture2D::create(1, 1, &whiteColor);

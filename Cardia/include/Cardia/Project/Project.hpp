@@ -26,7 +26,7 @@ namespace Cardia
 		static std::filesystem::path GetAssetDirectory()
 		{
 			cdCoreAssert(s_ActiveProject, "Should not be null");
-			return GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory;
+			return std::filesystem::canonical(GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory);
 		}
 
 		static std::shared_ptr<Project> GetActive() { return s_ActiveProject; }

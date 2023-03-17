@@ -24,26 +24,4 @@ namespace Cardia
 				return nullptr;
 		}
 	}
-
-	void ShaderManager::add(const std::string& name, std::unique_ptr<Shader> shader)
-	{
-		m_Shaders.insert({ name, std::move(shader) });
-	}
-
-	Shader* ShaderManager::load(const std::string &name, const std::initializer_list<std::string>& filePaths)
-	{
-		if (auto res = get(name))
-			return res;
-		add(name, Shader::create(filePaths));
-		return get(name);
-	}
-
-	Shader* ShaderManager::get(const std::string &name)
-	{
-		if (m_Shaders.contains(name))
-		{
-			return m_Shaders[name].get();
-		}
-		return nullptr;
-	}
 }

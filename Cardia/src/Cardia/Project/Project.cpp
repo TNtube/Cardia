@@ -20,7 +20,7 @@ namespace Cardia
 		Serialization::ProjectSerializer serializer(*proj);
 
 		if (serializer.Deserialize(path)) {
-			proj->m_ProjectDirectory = path.parent_path();
+			proj->m_ProjectDirectory = std::filesystem::canonical(path.parent_path());
 			s_ActiveProject = proj;
 			return s_ActiveProject;
 		}
@@ -32,7 +32,7 @@ namespace Cardia
 	{
 		Serialization::ProjectSerializer serializer(*s_ActiveProject);
 		if (serializer.Serialize(path)) {
-			s_ActiveProject->m_ProjectDirectory = path.parent_path();
+			s_ActiveProject->m_ProjectDirectory = std::filesystem::canonical(path.parent_path());
 			return true;
 		}
 		return false;
