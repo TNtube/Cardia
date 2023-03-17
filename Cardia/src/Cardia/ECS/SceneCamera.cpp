@@ -1,6 +1,8 @@
 #include "cdpch.hpp"
 #include "Cardia/ECS/SceneCamera.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Cardia
 {
@@ -50,5 +52,16 @@ namespace Cardia
 			m_ProjectionMatrix = glm::perspective(m_PersFOV, m_AspectRatio, m_PersNear, m_PersFar);
 		}
 
+	}
+
+	void SceneCamera::UpdateView(const glm::mat4& transform)
+	{
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(transform, scale, rotation, translation, skew,perspective);
+		m_ViewMatrix = glm::inverse(glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(rotation));
 	}
 }

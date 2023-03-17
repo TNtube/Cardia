@@ -66,6 +66,8 @@ namespace Cardia
 				m_MovementSpeed = glm::mix(m_MovementSpeed, m_BaseMovementSpeed, Time::deltaTime().seconds() * 2);
 			}
 		}
+
+		m_Camera.UpdateView(m_Transform.getTransform());
 	}
 
 	void EditorCamera::OnEvent(Event &e)
