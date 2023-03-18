@@ -12,7 +12,7 @@
 namespace Cardia::Panel
 {
 	int FileHierarchyPanel::m_LastWindowId = 0;
-        FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager), m_WindowId(m_LastWindowId++)
+        FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++)
         {
                 m_FolderIcon = Texture2D::create("resources/icons/folder.png");
                 m_FileIcon = Texture2D::create("resources/icons/file.png");
@@ -24,7 +24,6 @@ namespace Cardia::Panel
 	        sprintf(buff, "Files##%i", m_WindowId);
 	        ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 	        if (!ImGui::Begin(buff, &m_IsOpen)) {
-		        m_PanelManager->DeletePanel(this);
 		        ImGui::End();
 		        return;
 	        }

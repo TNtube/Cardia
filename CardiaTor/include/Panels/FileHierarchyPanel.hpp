@@ -21,10 +21,6 @@ namespace Cardia::Panel
 		std::unique_ptr<Texture2D> m_FileIcon;
 		std::unique_ptr<Texture2D> m_FolderIcon;
 
-		bool m_IsOpen = true;
-
-		int m_WindowId;
-
 		static int m_LastWindowId;
 	};
 }

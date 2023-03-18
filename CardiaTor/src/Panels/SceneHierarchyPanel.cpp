@@ -15,7 +15,6 @@ namespace Cardia :: Panel
 		sprintf(buff, "Current Scene##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 		if (!ImGui::Begin(buff, &m_IsOpen)) {
-			m_PanelManager->DeletePanel(this);
 			ImGui::End();
 			return;
 		}

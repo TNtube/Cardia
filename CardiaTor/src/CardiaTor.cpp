@@ -15,6 +15,7 @@
 #include "Panels/InspectorPanel.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Project/AssetsManager.hpp"
+#include "Panels/ConsolePanel.hpp"
 
 
 namespace Cardia
@@ -174,6 +175,9 @@ namespace Cardia
 						panel->OnSceneLoad(m_CurrentScene.get());
 						panel->OnUpdateWorkspace();
 					}
+					if (ImGui::MenuItem("Terminal")) {
+						m_PanelManager.CreatePanel<Panel::ConsolePanel>();
+					}
 					ImGui::EndMenu();
 				}
 
@@ -268,7 +272,7 @@ namespace Cardia
 
 		for (const auto& panel : m_PanelManager.Panels())
 		{
-			if (panel) panel->OnImGuiRender(this);
+			if (panel->IsOpen()) panel->OnImGuiRender(this);
 		}
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
