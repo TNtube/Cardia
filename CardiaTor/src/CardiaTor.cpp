@@ -28,6 +28,7 @@ namespace Cardia
 		m_PanelManager.CreatePanel<Panel::InspectorPanel>();
 		m_PanelManager.CreatePanel<Panel::DebugPanel>();
 		m_PanelManager.CreatePanel<Panel::FileHierarchyPanel>();
+		m_PanelManager.CreatePanel<Panel::ConsolePanel>();
 
 		m_CurrentScene = std::make_unique<Scene>("Default Scene");
 

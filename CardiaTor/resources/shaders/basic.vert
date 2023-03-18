@@ -23,8 +23,8 @@ uniform mat4 u_ViewProjection;
 uniform mat4 u_Model;
 
 void main() {
-    o_Vertex.fragPosition = a_Position;
-    o_Vertex.normal = a_Normal;
+    o_Vertex.fragPosition = vec3(u_Model * vec4(a_Position, 1.0f));
+    o_Vertex.normal = mat3(transpose(inverse(u_Model))) * a_Normal;
     o_Vertex.color = a_Color;
     o_Vertex.texturePosition = a_TexPos;
     o_Vertex.tilingFactor = a_TilingFactor;
