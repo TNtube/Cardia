@@ -45,6 +45,10 @@ namespace Cardia
 
 		ImGuiIO &io = ImGui::GetIO();
 		io.IniFilename = "resources/editorconfig.ini";
+
+		Logger::AddEditorCallback([&](const spdlog::level::level_enum& level, const std::string& msg) {
+			m_PanelManager.GetLastFocused<Panel::ConsolePanel>()->AddLog(level, msg);
+		});
 	}
 
 
@@ -196,10 +200,10 @@ namespace Cardia
 		if ( result == NFD_OKAY ) {
 			auto project = Project::Load(outPath);
 			if (project) {
-				Log::coreInfo("OpeningProject : {0}", project->GetConfig().Name);
+				Log::info("OpeningProject : {0}", project->GetConfig().Name);
 				InvalidateProject();
 			} else {
-				Log::coreWarn("Failed To LoadImpl Project : {0}", outPath);
+				Log::warn("Failed To LoadImpl Project : {0}", outPath);
 			}
 		}
 	}
@@ -250,7 +254,7 @@ namespace Cardia
 		Serialization::SceneSerializer serializer(*newScene);
 		if (!serializer.Deserialize(scenePath))
 		{
-			Log::coreInfo("Unable to load {0}", scenePath.string());
+			Log::info("Unable to load {0}", scenePath.string());
 		}
 		else
 		{
@@ -405,7 +409,7 @@ namespace Cardia
 			} else {
 				if (isUsing) {
 					isUsing = false;
-					Log::coreInfo("{}, {}, {}", position.x, position.y, position.z);
+					Log::info("{}, {}, {}", position.x, position.y, position.z);
 					auto& uuid = m_SelectedEntity.getComponent<Component::ID>();
 					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.uuid, position));
 					position = transformComponent.position;
@@ -437,7 +441,7 @@ namespace Cardia
 				case Key::O: OpenProject();
 					break;
 				case Key::S:
-					Log::coreInfo("Saving...");
+					Log::info("Saving...");
 					SaveScene();
 					break;
 				case Key::W:
@@ -483,7 +487,7 @@ namespace Cardia
 	{
 		if (m_UnusedCommand.empty()) return;
 		auto command = std::move(m_UnusedCommand.top());
-		Log::coreInfo("Undo...");
+		Log::info("Undo...");
 		command->Undo(this);
 
 		m_UnusedCommand.pop();
@@ -494,7 +498,7 @@ namespace Cardia
 	{
 		if (m_UsedCommand.empty()) return;
 		auto command = std::move(m_UsedCommand.top());
-		Log::coreInfo("Redo...");
+		Log::info("Redo...");
 		command->Redo(this);
 
 		m_UsedCommand.pop();
