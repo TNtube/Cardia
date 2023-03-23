@@ -58,11 +58,11 @@ namespace Cardia
 		{
 			glEnableVertexAttribArray(index);
 			glVertexAttribPointer(index,
-					      element.getElementCount(),
-					      ShaderDataTypeToOpenGLType(element.type),
-					      element.normalized ? GL_TRUE : GL_FALSE,
-					      layout.getStride(),
-					      reinterpret_cast<const void*>(static_cast<int64_t>(element.offset)));
+								  element.getElementCount(),
+								  ShaderDataTypeToOpenGLType(element.type),
+								  element.normalized ? GL_TRUE : GL_FALSE,
+								  layout.getStride(),
+								  reinterpret_cast<const void*>(static_cast<int64_t>(element.offset)));
 			index++;
 		}
 		m_VertexBuffer = std::move(vertexBuffer);

@@ -90,8 +90,7 @@ namespace Cardia {
 	{
 		if (width <= 0 || height <= 0) // temporary values, but I don't think that any screen could override those values
 		{
-			Log::coreWarn("Attempting to Resize Framebuffer with invalid value : w {0}, h {1}", width,
-				      height);
+			Log::coreWarn("Attempting to Resize Framebuffer with invalid value : w {0}, h {1}", width, height);
 			return;
 		}
 

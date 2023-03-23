@@ -58,8 +58,8 @@ namespace Cardia::Component
 		glm::vec3 scale { 1.0f };
 		inline glm::mat4 getTransform() const {
 			return glm::translate(glm::mat4(1.0f), position)
-			     * glm::toMat4(glm::quat(rotation))
-			     * glm::scale(glm::mat4(1.0f), scale);
+				 * glm::toMat4(glm::quat(rotation))
+				 * glm::scale(glm::mat4(1.0f), scale);
 		}
 
 		glm::vec3 Forward() const;
@@ -182,6 +182,6 @@ namespace Cardia {
 	};
 
 	using AllComponents = ComponentGroup<Component::Transform, Component::MeshRendererC, Component::Name,
-					     Component::SpriteRenderer, Component::Camera, Component::Script,
-					     Component::Light, Component::ID>;
+										 Component::SpriteRenderer, Component::Camera, Component::Script,
+										 Component::Light, Component::ID>;
 }

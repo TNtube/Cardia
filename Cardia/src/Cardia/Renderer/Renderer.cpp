@@ -15,8 +15,7 @@ namespace Cardia
 	{
 	}
 
-	void Renderer::submit(const VertexArray* vertexArray,
-			      const Shader* shader, const glm::mat4& transform)
+	void Renderer::submit(const VertexArray* vertexArray, const Shader* shader, const glm::mat4& transform)
 	{
 		shader->bind();
 		const auto& glShader = dynamic_cast<const Cardia::OpenGLShader&>(*shader);

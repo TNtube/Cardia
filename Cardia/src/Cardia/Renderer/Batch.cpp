@@ -40,13 +40,13 @@ namespace Cardia
 		{
 			std::ranges::sort(indexBufferData, [this](const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
 			{
-			       const auto lambda = [this](const glm::vec3 va, const uint32_t ib)
-			       {
-				      return va + vertexBufferData[ib].position;
-			       };
-			       const auto vertexA = std::accumulate(a.begin(), a.end(), glm::vec3(0), lambda) / 3.0f;
-			       const auto vertexB = std::accumulate(b.begin(), b.end(), glm::vec3(0), lambda) / 3.0f;
-			       return glm::distance(vertexA, camPos) >= glm::distance(vertexB, camPos);
+				const auto lambda = [this](const glm::vec3 va, const uint32_t ib)
+				{
+					return va + vertexBufferData[ib].position;
+				};
+				const auto vertexA = std::accumulate(a.begin(), a.end(), glm::vec3(0), lambda) / 3.0f;
+				const auto vertexB = std::accumulate(b.begin(), b.end(), glm::vec3(0), lambda) / 3.0f;
+				return glm::distance(vertexA, camPos) >= glm::distance(vertexB, camPos);
 			});
 		}
 

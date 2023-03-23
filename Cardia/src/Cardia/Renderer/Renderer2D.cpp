@@ -131,16 +131,18 @@ namespace Cardia
 
 	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color, float tilingFactor)
 	{
-		const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-				      * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		const glm::mat4 transform =
+			glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		drawRect(transform, texture, color, tilingFactor);
 	}
 
 	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)
 	{
-		const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-				      * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
-				      * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
+		const glm::mat4 transform =
+			glm::translate(glm::mat4(1.0f), position)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
+			* glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		drawRect(transform, texture, color, tilingFactor);
 	}
 

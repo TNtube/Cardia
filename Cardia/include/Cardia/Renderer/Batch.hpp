@@ -23,9 +23,9 @@ namespace Cardia
 		bool operator==(const BatchSpecification& other) const
 		{
 			return other.layer == layer
-			       && other.alpha == alpha
-			       && other.shader == shader
-			       && other.texture == texture;
+				   && other.alpha == alpha
+				   && other.shader == shader
+				   && other.texture == texture;
 		}
 	};
 	
