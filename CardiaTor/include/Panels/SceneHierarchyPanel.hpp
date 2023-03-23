@@ -12,7 +12,7 @@ namespace Cardia :: Panel
 	{
 	public:
 		explicit SceneHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++) {}
-                ~SceneHierarchyPanel() override = default;
+		~SceneHierarchyPanel() override = default;
 		void OnImGuiRender(CardiaTor* appContext) override;
 		void SetSelectedEntity(Entity entity);
 		void OnSceneLoad(Scene* scene) override;

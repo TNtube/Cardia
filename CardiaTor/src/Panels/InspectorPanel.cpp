@@ -18,13 +18,13 @@
 namespace Cardia::Panel
 {
 	int InspectorPanel::m_LastWindowId = 0;
-        void InspectorPanel::OnImGuiRender(CardiaTor* appContext)
-        {
+	void InspectorPanel::OnImGuiRender(CardiaTor* appContext)
+	{
 		char buff[64];
-	        sprintf(buff, "Inspector##%i", m_WindowId);
+		sprintf(buff, "Inspector##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
-                if (!ImGui::Begin(buff, &m_IsOpen)) {
-	                ImGui::End();
+		if (!ImGui::Begin(buff, &m_IsOpen)) {
+			ImGui::End();
 			return;
 		}
 
@@ -331,10 +331,10 @@ namespace Cardia::Panel
 			}
 		}
 		ImGui::End();
-        }
+	}
 
 
-        template<typename T>
+	template<typename T>
 	void InspectorPanel::DrawInspectorComponent(const char* name, std::function<void(T&)> func)
 	{
 		if (!m_SelectedEntity.hasComponent<T>())

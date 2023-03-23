@@ -15,12 +15,12 @@ namespace Cardia
 		float entityID;
 
 		/*
-                glm::vec3 position;
-                glm::vec3 normal;
-                glm::vec4 color;
-                glm::vec2 textureCoord;
-                float tilingFactor;
-                float entityID;
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec4 color;
+		glm::vec2 textureCoord;
+		float tilingFactor;
+		float entityID;
 		*/
 	};
 }

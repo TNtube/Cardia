@@ -9,22 +9,22 @@
 
 namespace Cardia::Panel
 {
-        class InspectorPanel : public IPanel
-        {
-        public:
-	        explicit InspectorPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++){}
-                ~InspectorPanel() override = default;
-                void OnImGuiRender(CardiaTor* appContext) override;
+	class InspectorPanel : public IPanel
+	{
+	public:
+		explicit InspectorPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++){}
+		~InspectorPanel() override = default;
+		void OnImGuiRender(CardiaTor* appContext) override;
 		void SetSelectedEntity(Entity entity);
 		void OnSceneLoad(Scene* scene) override;
 
 
-        private:
-                template<typename T>
-                void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
-	        bool DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field);
-	        Entity m_SelectedEntity;
+	private:
+		template<typename T>
+		void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
+		bool DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field);
+		Entity m_SelectedEntity;
 
 		static int m_LastWindowId;
-        };
+	};
 }

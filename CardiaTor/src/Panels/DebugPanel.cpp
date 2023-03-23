@@ -12,9 +12,9 @@
 namespace Cardia::Panel
 {
 	int DebugPanel::m_LastWindowId = 0;
-        void DebugPanel::OnImGuiRender(CardiaTor* appContext)
-        {
-                enum ImGuiTheme
+	void DebugPanel::OnImGuiRender(CardiaTor* appContext)
+	{
+		enum ImGuiTheme
 		{
 			THEME_DARK,
 			THEME_LIGHT,
@@ -34,17 +34,17 @@ namespace Cardia::Panel
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
-	        char buff[64];
-	        sprintf(buff, "Debug tools##%i", m_WindowId);
-	        ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
-	        if (!ImGui::Begin(buff, &m_IsOpen)) {
-		        ImGui::End();
-		        return;
-	        }
+		char buff[64];
+		sprintf(buff, "Debug tools##%i", m_WindowId);
+		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+		if (!ImGui::Begin(buff, &m_IsOpen)) {
+			ImGui::End();
+			return;
+		}
 
-	        if (ImGui::IsWindowFocused()) {
-		        m_PanelManager->SetFocused<DebugPanel>(this);
-	        }
+		if (ImGui::IsWindowFocused()) {
+			m_PanelManager->SetFocused<DebugPanel>(this);
+		}
 
 		// Section: Rendering
 		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
@@ -124,5 +124,5 @@ namespace Cardia::Panel
 		}
 
 		ImGui::End();
-        }
+	}
 }

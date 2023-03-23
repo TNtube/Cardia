@@ -29,14 +29,14 @@ namespace Cardia
 		}
 	};
 	
-        class Batch
+	class Batch
 	{
 	public:
 		Batch(VertexArray* va, const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
 		bool addMesh(SubMesh* mesh);
-        	BatchSpecification specification;
+		BatchSpecification specification;
 	private:
 		glm::vec3 camPos {};
 

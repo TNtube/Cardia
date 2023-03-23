@@ -83,8 +83,8 @@ namespace Cardia
 		// Components
 
 		py::class_<Component::Transform>(m, "Transform")
-		        .def(py::init<>())
-		        .def(py::init<glm::vec3, glm::vec3, glm::vec3>())
+			.def(py::init<>())
+			.def(py::init<glm::vec3, glm::vec3, glm::vec3>())
 			.def_readwrite("position", &Component::Transform::position, py::return_value_policy::reference)
 			.def_readwrite("rotation", &Component::Transform::rotation, py::return_value_policy::reference)
 			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)

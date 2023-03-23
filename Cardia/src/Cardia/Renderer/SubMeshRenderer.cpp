@@ -15,13 +15,13 @@ namespace Cardia
 		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(vertices.data(), vertices.size() * sizeof(Vertex));
 
 		vbo->setLayout({
-	               {ShaderDataType::Float3, "a_Position"},
-	               {ShaderDataType::Float3, "a_Normal"},
-	               {ShaderDataType::Float4, "a_Color"},
-	               {ShaderDataType::Float2, "a_TexPos"},
-	               {ShaderDataType::Float, "a_TilingFactor"},
-	               {ShaderDataType::Float, "a_EntityID"}
-                });
+		       {ShaderDataType::Float3, "a_Position"},
+		       {ShaderDataType::Float3, "a_Normal"},
+		       {ShaderDataType::Float4, "a_Color"},
+		       {ShaderDataType::Float2, "a_TexPos"},
+		       {ShaderDataType::Float, "a_TilingFactor"},
+		       {ShaderDataType::Float, "a_EntityID"}
+		});
 
 		m_vertexArray->setVertexBuffer(std::move(vbo));
 

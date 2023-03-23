@@ -4,17 +4,17 @@
 
 namespace Cardia::Component
 {
-        void Script::reloadFile()
-        {
+	void Script::reloadFile()
+	{
 		if (m_Path.empty()) return;
-                Log::info("Loading path {0}", m_Path);
-                const std::ifstream t(m_Path);
-                std::stringstream buffer;
-                buffer << t.rdbuf();
+		Log::info("Loading path {0}", m_Path);
+		const std::ifstream t(m_Path);
+		std::stringstream buffer;
+		buffer << t.rdbuf();
 		auto filePath = std::filesystem::path(m_Path);
 		scriptClass = ScriptEngine::Instance().GetClassFromPyFile(filePath);
 		scriptClass.RegisterAttributes();
-        }
+	}
 
 	glm::vec3 Transform::Forward() const
 	{

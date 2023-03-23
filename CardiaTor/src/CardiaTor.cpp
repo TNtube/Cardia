@@ -196,7 +196,7 @@ namespace Cardia
 	{
 		char *outPath = nullptr;
 		const nfdresult_t result = NFD_OpenDialog( "cdproj", "", &outPath );
-        
+
 		if ( result == NFD_OKAY ) {
 			auto project = Project::Load(outPath);
 			if (project) {
