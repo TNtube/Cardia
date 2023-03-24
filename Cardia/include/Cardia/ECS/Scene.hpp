@@ -17,6 +17,7 @@ namespace Cardia
 	{
 	public:
 		explicit Scene(std::string name = "Default Scene");
+		explicit Scene(std::filesystem::path path);
 		virtual ~Scene() = default;
 		Entity CreateEntity(const std::string& name = "");
 		Entity CreateEntityFromId(UUID uuid);
@@ -32,10 +33,12 @@ namespace Cardia
 		Entity GetEntityByUUID(const UUID& uuid);
 		inline const char* GetName() const { return m_Name.c_str(); }
 		inline entt::registry& GetRegistry() { return m_Registry; }
+		const std::filesystem::path& GetPath() const { return m_Path; }
+		std::filesystem::path& GetPath() { return m_Path; }
 		void clear();
 
-		std::filesystem::path path;
 	private:
+		std::filesystem::path m_Path;
 		std::shared_ptr<Shader> m_BasicShader {};
 		std::string m_Name;
 		entt::registry m_Registry;

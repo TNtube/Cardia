@@ -1,5 +1,6 @@
 #include <Cardia/Serialization/SceneSerializer.hpp>
 #include <Cardia/Project/AssetsManager.hpp>
+#include <utility>
 #include "cdpch.hpp"
 #include "Cardia/ECS/Scene.hpp"
 #include "Cardia/ECS/Entity.hpp"
@@ -181,5 +182,10 @@ namespace Cardia
 		dstSerializer.Deserialize(root);
 
 		return std::move(dst);
+	}
+
+	Scene::Scene(std::filesystem::path path) : Scene(path.filename().string())
+	{
+		m_Path = std::move(path);
 	}
 }

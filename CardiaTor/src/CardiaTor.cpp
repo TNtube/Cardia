@@ -30,7 +30,7 @@ namespace Cardia
 		m_PanelManager.CreatePanel<Panel::FileHierarchyPanel>();
 		m_PanelManager.CreatePanel<Panel::ConsolePanel>();
 
-		m_CurrentScene = std::make_unique<Scene>("Default Scene");
+		m_CurrentScene = std::make_unique<Scene>();
 
 		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
@@ -229,7 +229,8 @@ namespace Cardia
 
 	void CardiaTor::SaveScene() const
 	{
-		if (m_CurrentScene->path.empty())
+		auto& path = m_CurrentScene->GetPath();
+		if (path.empty())
 		{
 			nfdchar_t *outPath = nullptr;
 			NFD_SaveDialog("cardia", "", &outPath);
@@ -237,20 +238,20 @@ namespace Cardia
 			{
 				return;
 			}
-			m_CurrentScene->path = outPath;
-			if (m_CurrentScene->path.extension() != ".cardia")
+			path = outPath;
+			if (path.extension() != ".cardia")
 			{
-				m_CurrentScene->path += ".cardia";
+				path += ".cardia";
 			}
 		}
 
 		Serialization::SceneSerializer serializer(*m_CurrentScene);
-		serializer.Serialize(m_CurrentScene->path);
+		serializer.Serialize(path);
 	}
 
 	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
 	{
-		auto newScene = std::make_unique<Scene>(scenePath.filename().string());
+		auto newScene = std::make_unique<Scene>(scenePath);
 		Serialization::SceneSerializer serializer(*newScene);
 		if (!serializer.Deserialize(scenePath))
 		{
