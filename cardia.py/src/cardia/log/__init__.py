@@ -15,3 +15,5 @@ def warn(*args: T, sep=' '):
 def error(*args: T, sep=' '):
     _cd.log.error(' '.join(map(str, args)))
 
+
+__all__ = [trace, warn, error]

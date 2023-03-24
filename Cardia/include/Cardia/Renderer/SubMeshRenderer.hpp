@@ -15,8 +15,8 @@ namespace Cardia
 		void SubmitSubMesh(SubMesh& subMesh);
 		void Draw();
 	private:
-		std::unique_ptr<VertexArray> m_vertexArray;
-		std::unique_ptr<VertexBuffer> m_vertexBuffer;
-		std::unique_ptr<IndexBuffer> m_indexBuffer;
+		std::unique_ptr<VertexArray> m_VertexArray;
+		std::unique_ptr<VertexBuffer> m_VertexBuffer;
+		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	};
 }

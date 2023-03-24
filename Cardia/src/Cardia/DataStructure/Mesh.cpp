@@ -28,6 +28,8 @@ namespace Cardia
 			std::vector<uint32_t>& indices = subMesh.GetIndices();
 
 			aiMesh* ai_mesh = scene->mMeshes[ind];
+
+			subMesh.GetMaterialIndex() = ai_mesh->mMaterialIndex - 1;
 			// walk through each of the mesh's vertices
 			vertices.reserve(ai_mesh->mNumVertices);
 			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {

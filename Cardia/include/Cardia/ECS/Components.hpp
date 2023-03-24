@@ -103,8 +103,6 @@ namespace Cardia::Component
 
 
 		std::shared_ptr<MeshRenderer> meshRenderer = nullptr;
-		std::shared_ptr<Mesh> mesh = nullptr;
-		std::shared_ptr<Texture2D> texture = nullptr;
 
 		inline void reset() {
 			meshRenderer = nullptr;

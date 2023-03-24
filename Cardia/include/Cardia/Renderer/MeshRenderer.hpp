@@ -12,9 +12,11 @@ namespace Cardia
 	public:
 		MeshRenderer() = default;
 
-		void SubmitMesh(Mesh& mesh);
+		void SubmitMesh(std::shared_ptr<Mesh> mesh);
+		std::shared_ptr<Mesh> GetMesh() { return m_Mesh; }
 		void Draw();
 	private:
 		std::vector<SubMeshRenderer> m_SubMeshRenderers {};
+		std::shared_ptr<Mesh> m_Mesh;
 	};
 }

@@ -58,7 +58,7 @@ namespace Cardia
 
 		glm::vec2 m_SceneSize {};
 
-		EditorCamera m_EditorCamera {45.f, 0.1f, 1000.0f};
+		EditorCamera m_EditorCamera {45.f, 0.1f, 10000.0f};
 		glm::vec4 m_ViewportBounds{};
 
 		bool m_HoverViewport = false;

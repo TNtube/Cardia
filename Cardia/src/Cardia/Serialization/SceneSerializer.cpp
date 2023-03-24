@@ -195,8 +195,12 @@ namespace Cardia::Serialization
 
 		Json::Value node;
 
-		node["path"] = AssetsManager::GetPathFromAsset(component.mesh).string();;
-		node["texture"] = AssetsManager::GetPathFromAsset(component.texture).string();
+		node["path"] = AssetsManager::GetPathFromAsset(component.meshRenderer->GetMesh()).string();
+		Json::Value materials;
+		for (const auto& material : component.meshRenderer->GetMesh()->GetMaterials()) {
+			materials.append(AssetsManager::GetPathFromAsset(material).string());
+		}
+		node["materials"] = materials;
 
 		auto idx = static_cast<uint32_t>(entity);
 		m_Root[idx][Component::MeshRendererC::ClassName()] = node;
@@ -383,16 +387,17 @@ namespace Cardia::Serialization
 			if (node.isMember(currComponent)) {
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
-				auto texture = AssetsManager::Load<Texture2D>(node[currComponent]["texture"].asString());
-				if (texture && texture->isLoaded())
-				{
-					meshRenderer.texture = std::move(texture);
-				}
-
 				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
-				meshRenderer.mesh = mesh;
-				meshRenderer.meshRenderer->SubmitMesh(*mesh);
+				meshRenderer.meshRenderer->SubmitMesh(mesh);
 
+				auto& materials = node[currComponent]["materials"];
+				for (const auto& texturePath : materials) {
+					auto texture = AssetsManager::Load<Texture2D>(texturePath.asString());
+					if (texture && texture->isLoaded())
+					{
+						meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));
+					}
+				}
 			}
 
 			currComponent = Component::Camera::ClassName();

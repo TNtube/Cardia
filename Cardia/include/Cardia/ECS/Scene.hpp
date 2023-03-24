@@ -39,7 +39,6 @@ namespace Cardia
 		std::shared_ptr<Shader> m_BasicShader {};
 		std::string m_Name;
 		entt::registry m_Registry;
-		std::unique_ptr<Texture2D> m_WhiteTexture;
 		friend class Entity;
 	};
 }

@@ -103,7 +103,7 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [](Component::MeshRendererC& meshRendererC) {
 			char buffer[128] {0};
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-			AssetsManager::GetPathFromAsset(meshRendererC.mesh).string().copy(buffer, bufferSize);
+			AssetsManager::GetPathFromAsset(meshRendererC.meshRenderer->GetMesh()).string().copy(buffer, bufferSize);
 
 			EditorUI::InputText("Mesh path", buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
@@ -112,32 +112,43 @@ namespace Cardia::Panel
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					auto mesh = AssetsManager::Load<Mesh>(path);
-					meshRendererC.mesh = mesh;
-					meshRendererC.meshRenderer->SubmitMesh(*mesh);
+					meshRendererC.meshRenderer->SubmitMesh(mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
 
 			uint32_t whiteColor = 0xffffffff;
 			static const auto white = Texture2D::create(1, 1, &whiteColor);
-			const auto texID = meshRendererC.texture ? meshRendererC.texture->getRendererID() : white->getRendererID();
 
-			ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+			ImGui::Text("Materials");
+
+			if (!meshRendererC.meshRenderer->GetMesh()) return;
+			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
+			for (auto& material : materials) {
+				const auto texID = material->getRendererID();
+				ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
+				if (ImGui::BeginDragDropTarget())
 				{
-					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					auto tex = AssetsManager::Load<Texture2D>(cStrPath);
-					if (tex->isLoaded())
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
-						meshRendererC.texture = std::move(tex);
+						const auto* cStrPath = static_cast<const char*>(payload->Data);
+						auto tex = AssetsManager::Load<Texture2D>(cStrPath);
+						if (tex->isLoaded())
+						{
+							material = std::move(tex);
+						}
 					}
+					ImGui::EndDragDropTarget();
 				}
-				ImGui::EndDragDropTarget();
+				ImGui::SameLine();
+				ImGui::Text("Texture");
 			}
-			ImGui::SameLine();
-			ImGui::Text("Texture");
+			const auto textWidth = ImGui::CalcTextSize("  +  ").x;
+
+			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
+			if (ImGui::Button("  +  ")) {
+				materials.push_back(AssetsManager::Load<Texture2D>("resources/textures/white.jpg", AssetsManager::LoadType::Editor));
+			}
 		});
 
 		// Camera Component
