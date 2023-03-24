@@ -52,6 +52,6 @@ namespace Cardia
 
 	void Logger::AddEditorCallback(const custom_log_callback &callback)
 	{
-		s_CoreLogger->sinks().push_back(std::make_shared<callback_sink<std::mutex>>(callback));
+		s_ClientLogger->sinks().push_back(std::make_shared<callback_sink<std::mutex>>(callback));
 	}
 }

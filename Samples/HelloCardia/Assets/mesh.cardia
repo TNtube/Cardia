@@ -43,7 +43,7 @@
 			"texture" : ""
 		},
 		"Name" : "Suzanna",
-		"Transform" : 
+		"Transform" :
 		{
 			"position" : 
 			{
@@ -67,7 +67,7 @@
 	},
 	{
 		"ID" : "a1cad162-e4e2-4082-992e-b97eb2d2acc4",
-		"light" : 
+		"Light" :
 		{
 			"angle" : 49.5,
 			"color" : 
@@ -117,7 +117,7 @@
 			],
 			"path" : ".\\Greeting.py"
 		},
-		"Camera" : 
+		"Camera" :
 		{
 			"orthoFar" : 1.0,
 			"orthoNear" : -1.0,
@@ -152,7 +152,7 @@
 	},
 	{
 		"ID" : "eae66961-5084-4234-8df7-9d1cabd6dbf0",
-		"light" : 
+		"Light" :
 		{
 			"angle" : 35.0,
 			"color" : 

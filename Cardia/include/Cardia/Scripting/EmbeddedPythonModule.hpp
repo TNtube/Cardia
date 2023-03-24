@@ -144,5 +144,11 @@ namespace Cardia
 		m.def("get_delta_time_milliseconds", []() {
 			return Time::deltaTime().milliseconds();
 		});
+
+		auto log = m.def_submodule("log");
+
+		log.def("trace", &Log::trace<std::string>);
+		log.def("warn", &Log::warn<std::string>);
+		log.def("error", &Log::error<std::string>);
 	}
 }

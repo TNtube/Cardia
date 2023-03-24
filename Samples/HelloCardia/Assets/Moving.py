@@ -1,4 +1,5 @@
-from cardia import Behavior, Key, on_key_pressed, Time, Vector3, on_mouse_clicked, Mouse, Transform, PointLight, Vector4
+from cardia import Behavior, Key, on_key_pressed, Time, Vector3, Input, Mouse
+import cardia.log as log
 import colorsys
 from Greeting import Greeting
 
@@ -17,6 +18,9 @@ class Moving(Behavior):
 
     def on_update(self):
         self.transform.rotation.y += self.velocity * Time.delta_time.seconds()
+        if Input.is_mouse_button_pressed(Mouse.Left):
+            log.trace("message from python")
+            log.trace("|".join(map(str, self.lst)))
 
     @on_key_pressed(Key.Left)
     def move_left(self):
@@ -36,6 +40,4 @@ class Moving(Behavior):
 
     @on_key_pressed(Key.Space)
     def greet(self):
-        # self.greeting.hello_world()
-        print("message from python")
-        print("|".join(map(str, self.lst)))
+        self.greeting.hello_world()
