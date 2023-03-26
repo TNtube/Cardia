@@ -51,4 +51,19 @@ namespace Cardia
 	private:
 		uint32_t m_StorageBufferID {};
 	};
+
+	class OpenGLUniformBuffer : public UniformBuffer
+	{
+	public:
+		OpenGLUniformBuffer(void * data, uint32_t size);
+		explicit OpenGLUniformBuffer(uint32_t size);
+		~OpenGLUniformBuffer() override;
+		void bind(int index) const override;
+		void unbind() const override;
+		void setData(const void* data, uint32_t size) override;
+
+	private:
+		uint32_t m_StorageBufferID {};
+		uint32_t m_Size {};
+	};
 }

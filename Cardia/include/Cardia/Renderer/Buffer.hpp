@@ -138,5 +138,19 @@ namespace Cardia
 		static std::unique_ptr<StorageBuffer> create(uint32_t size);
 		static std::unique_ptr<StorageBuffer> create(void* data, uint32_t size);
 	};
+	
+	class Shader;
+
+	class UniformBuffer
+	{
+	public:
+		virtual ~UniformBuffer() = default;
+		virtual void bind(int index) const = 0;
+		virtual void unbind() const = 0;
+		virtual void setData(const void* data, uint32_t size) = 0;
+
+		static std::unique_ptr<UniformBuffer> create(uint32_t size);
+		static std::unique_ptr<UniformBuffer> create(void* data, uint32_t size);
+	};
 
 }

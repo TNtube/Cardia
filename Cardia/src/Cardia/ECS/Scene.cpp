@@ -12,6 +12,13 @@
 
 namespace Cardia
 {
+	struct UboData
+	{
+		glm::mat4 viewProjection;
+		glm::mat4 model;
+		glm::mat4 transposedInvertedModel;
+	};
+
 
 	Scene::Scene(std::string name)
 		: m_Name(std::move(name))
@@ -19,7 +26,8 @@ namespace Cardia
 		std::string shaderName = "basic";
 		const auto shaderPath = "resources/shaders/" + shaderName;
 		m_BasicShader = AssetsManager::Load<Shader>(shaderPath, AssetsManager::LoadType::Editor);
-		TypeID foo{typeid(Shader), "foobar"};
+		m_UBO = UniformBuffer::create(sizeof(UboData));
+		m_BasicShader->setBindingBlock("ubo", 0);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -71,23 +79,23 @@ namespace Cardia
 			return;
 		}
 
-		Renderer2D::beginScene(*mainCamera, mainCameraTransform);
-
-		const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		for (const auto entity : view)
-		{
-			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
-		}
-
-		const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
-		for (const auto entity : lightView)
-		{
-			auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
-			Renderer2D::addLight(transform, light);
-		}
-
-		Renderer2D::endScene();
+		// Renderer2D::beginScene(*mainCamera, mainCameraTransform);
+		//
+		// const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
+		// for (const auto entity : view)
+		// {
+		// 	auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
+		// 	Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
+		// }
+		//
+		// const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
+		// for (const auto entity : lightView)
+		// {
+		// 	auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
+		// 	Renderer2D::addLight(transform, light);
+		// }
+		//
+		// Renderer2D::endScene();
 
 		m_BasicShader->bind();
 		m_BasicShader->setInt("u_Texture", 0);
@@ -95,38 +103,47 @@ namespace Cardia
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
-			m_BasicShader->setMat4("u_Model", transform.getTransform());
+			m_UBO->bind(0);
+			UboData data {};
+			data.viewProjection = mainCamera->getViewProjectionMatrix();
+			data.model = transform.getTransform();
+			data.transposedInvertedModel = glm::transpose(glm::inverse(glm::mat3(transform.getTransform())));
+			m_UBO->setData(&data, sizeof(UboData));
 			meshRenderer.meshRenderer->Draw();
 		}
 	}
-
 	void Scene::OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform)
 	{
-		Renderer2D::beginScene(editorCamera, editorCameraTransform);
-
-		const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		for (const auto entity : view)
-		{
-			auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-			Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
-		}
-
-		const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
-		for (const auto entity : lightView)
-		{
-			auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
-			Renderer2D::addLight(transform, light);
-		}
-
-		Renderer2D::endScene();
+		// Renderer2D::beginScene(editorCamera, editorCameraTransform);
+		//
+		// const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
+		// for (const auto entity : view)
+		// {
+		// 	auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
+		// 	Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
+		// }
+		//
+		// const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
+		// for (const auto entity : lightView)
+		// {
+		// 	auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
+		// 	Renderer2D::addLight(transform, light);
+		// }
+		//
+		// Renderer2D::endScene();
 
 		m_BasicShader->bind();
-		m_BasicShader->setInt("u_Texture", 0);
+		// m_BasicShader->setInt("u_Texture", 0);
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
-			m_BasicShader->setMat4("u_Model", transform.getTransform());
+			m_UBO->bind(0);
+			UboData data {};
+			data.viewProjection = editorCamera.getProjectionMatrix() * glm::inverse(editorCameraTransform);
+			data.model = transform.getTransform();
+			data.transposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
+			m_UBO->setData(&data, sizeof(UboData));
 			meshRenderer.meshRenderer->Draw();
 		}
 	}
@@ -137,7 +154,7 @@ namespace Cardia
 		for (auto entity : view)
 		{
 			auto& cameraComponent = view.get<Component::Camera>(entity);
-			cameraComponent.camera.SetViewportSize((float) width, (float) height);
+			cameraComponent.camera.SetViewportSize(width, height);
 		}
 	}
 

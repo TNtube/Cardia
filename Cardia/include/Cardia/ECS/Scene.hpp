@@ -9,6 +9,8 @@
 #include <entt/entt.hpp>
 #include <filesystem>
 
+#include "Cardia/Renderer/Buffer.hpp"
+
 
 namespace Cardia
 {
@@ -40,6 +42,7 @@ namespace Cardia
 	private:
 		std::filesystem::path m_Path;
 		std::shared_ptr<Shader> m_BasicShader {};
+		std::unique_ptr<UniformBuffer> m_UBO {};
 		std::string m_Name;
 		entt::registry m_Registry;
 		friend class Entity;

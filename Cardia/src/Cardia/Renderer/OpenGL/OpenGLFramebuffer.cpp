@@ -185,8 +185,8 @@ namespace Cardia {
 		auto textFormat = GL_NONE;
 		switch (spec.TextureFormat)
 		{
-			case FramebufferTextureFormat::RGBA8:       textFormat = GL_RGBA8;
-			case FramebufferTextureFormat::RED_INTEGER: textFormat = GL_RED_INTEGER;
+			case FramebufferTextureFormat::RGBA8:       textFormat = GL_RGBA8; break;
+			case FramebufferTextureFormat::RED_INTEGER: textFormat = GL_RED_INTEGER; break;
 			default:break;
 		}
 

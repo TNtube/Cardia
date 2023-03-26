@@ -19,15 +19,24 @@ struct Vertex {
 layout (location = 0) out Vertex o_Vertex;
 layout (location = 5) out flat float o_EntityID;
 
-uniform mat4 u_ViewProjection;
-uniform mat4 u_Model;
+struct UBO
+{
+    mat4 viewProjection;
+    mat4 model;
+    mat4 transposedInvertedModel;
+};
+
+layout(binding = 0, std140) uniform type_ubo
+{
+    UBO ubo;
+} ubo;
 
 void main() {
-    o_Vertex.fragPosition = vec3(u_Model * vec4(a_Position, 1.0f));
-    o_Vertex.normal = mat3(transpose(inverse(u_Model))) * a_Normal;
+    o_Vertex.fragPosition = vec3(ubo.ubo.model * vec4(a_Position, 1.0f));
+    o_Vertex.normal = mat3(ubo.ubo.transposedInvertedModel) * a_Normal;
     o_Vertex.color = a_Color;
     o_Vertex.texturePosition = a_TexPos;
     o_Vertex.tilingFactor = a_TilingFactor;
     o_EntityID = a_EntityID;
-    gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0f);
+    gl_Position = ubo.ubo.viewProjection * ubo.ubo.model * vec4(a_Position, 1.0f);
 }

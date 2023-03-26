@@ -15,12 +15,12 @@ namespace Cardia
 	{
 	}
 
-	void Renderer::submit(const VertexArray* vertexArray, const Shader* shader, const glm::mat4& transform)
+	void Renderer::submit(const VertexArray* vertexArray, Shader* shader, const glm::mat4& transform)
 	{
 		shader->bind();
-		const auto& glShader = dynamic_cast<const Cardia::OpenGLShader&>(*shader);
-		glShader.setUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-		glShader.setUniformMat4("u_Model", transform);
+		shader->setMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		shader->setMat4("u_Model", transform);
+		shader->setMat3("u_TransposedInvertedModel", glm::transpose(glm::inverse(glm::mat3(transform))));
 
 		vertexArray->bind();
 		RenderAPI::get().drawIndexed(vertexArray);

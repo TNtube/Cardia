@@ -33,7 +33,7 @@ namespace {
 namespace std {
 	template<>
 	struct hash<TypeID> {
-		auto operator()(const TypeID& typeId) const -> ::size_t {
+		auto operator()(const TypeID& typeId) const noexcept -> ::size_t {
 			return hash<std::string>{}(typeId.ID) ^ hash<std::type_index>{}(typeId.type_index);
 		}
 	};
@@ -110,7 +110,7 @@ namespace Cardia
 		TypeID id {typeid(Shader), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Shader::create({absPath.string() + ".vert", absPath.string() + ".frag"}));
+			AssetRefCounter res(Shader::create({absPath.string() + ".vert.spirv", absPath.string() + ".frag.spirv"}));
 			m_Assets.insert_or_assign(id, res);
 		}
 

@@ -41,13 +41,13 @@ namespace Cardia
 		for (auto& filePath : filePaths)
 		{
 			GLenum shaderType;
-			std::string extension = std::filesystem::path(filePath).extension().string();
+			std::string extension = filePath.substr(filePath.find("."));
 			switch (string_hash(extension.c_str()+1))
 			{
-				case "frag"_sh:
+				case "frag.spirv"_sh:
 					shaderType = GL_FRAGMENT_SHADER;
 					break;
-				case "vert"_sh:
+				case "vert.spirv"_sh:
 					shaderType = GL_VERTEX_SHADER;
 					break;
 				default:
@@ -59,15 +59,27 @@ namespace Cardia
 
 			// Create an empty shader handle
 			GLuint shader = glCreateShader(shaderType);
-
+			
 			// Send the vertex shader source code to GL
 			// Note that std::string's .c_str is NULL character terminated.
+			std::vector<uint32_t> vect;
+			
 			std::string strSource = LoadShader(filePath);
-			const GLchar* source = strSource.c_str();
-			glShaderSource(shader, 1, &source, nullptr);
+			std::ifstream in(filePath, std::ios::in | std::ios::binary);
+			in.seekg(0, std::ios::end);
+			auto size = in.tellg();
+			in.seekg(0, std::ios::beg);
+			vect.resize(size / sizeof(uint32_t));
+			in.read((char*)vect.data(), size);
 
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, vect.data(), vect.size() * sizeof(uint32_t));
+			// Specialization is equivalent to compilation.
+			glSpecializeShader(shader,  "main", 0, nullptr, nullptr);
+
+			// const GLchar* source = strSource.c_str();
+			// glShaderSource(shader, 1, &source, nullptr);
 			// Compile the vertex shader
-			glCompileShader(shader);
+			// glCompileShader(shader);
 
 			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
@@ -78,7 +90,7 @@ namespace Cardia
 
 				// The maxLength includes the NULL character
 				std::vector<GLchar> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog.data());
 
 				// We don't need the shader anymore.
 				glDeleteShader(shader);
@@ -140,6 +152,18 @@ namespace Cardia
 		glUseProgram(0);
 	}
 
+	void OpenGLShader::setBindingBlock(const char* name, uint32_t binding)
+	{
+		uint32_t blockIndex = glGetUniformBlockIndex(m_ShaderID, name);
+		glUniformBlockBinding(m_ShaderID, blockIndex, binding);
+	}
+
+	void OpenGLShader::setUniformMat3(const std::string& name, glm::mat3 matrix) const
+	{
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
 	void OpenGLShader::setUniformMat4(const std::string& name, glm::mat4 matrix) const
 	{
 		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
@@ -178,6 +202,11 @@ namespace Cardia
 	void OpenGLShader::setFloat3(const std::string &name, const glm::vec3 &value)
 	{
 		setUniformFloat3(name, value);
+	}
+	
+	void OpenGLShader::setMat3(const std::string& name, const glm::mat3& value)
+	{
+		setUniformMat3(name, value);
 	}
 
 	void OpenGLShader::setMat4(const std::string &name, const glm::mat4 &value)

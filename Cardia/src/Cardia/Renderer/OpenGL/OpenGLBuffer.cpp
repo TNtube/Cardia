@@ -3,6 +3,8 @@
 
 #include <glad/glad.h>
 
+#include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
+
 
 namespace Cardia
 {
@@ -115,5 +117,44 @@ namespace Cardia
 	{
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_StorageBufferID);
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, data);
+	}
+
+	
+
+	OpenGLUniformBuffer::OpenGLUniformBuffer(void *data, uint32_t size) : m_Size(size)
+	{
+		glGenBuffers(1, &m_StorageBufferID);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_StorageBufferID);
+		glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_COPY);
+	}
+
+	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t size) : m_Size(size)
+	{
+		glGenBuffers(1, &m_StorageBufferID);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_StorageBufferID);
+		glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_COPY);
+	}
+
+	OpenGLUniformBuffer::~OpenGLUniformBuffer()
+	{
+		glDeleteBuffers(1, &m_StorageBufferID);
+	}
+
+	void OpenGLUniformBuffer::bind(int index) const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_StorageBufferID);
+		glBindBufferRange(GL_UNIFORM_BUFFER, index, m_StorageBufferID, 0, m_Size);
+
+	}
+
+	void OpenGLUniformBuffer::unbind() const
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	}
+
+	void OpenGLUniformBuffer::setData(const void *data, uint32_t size)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_StorageBufferID);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
 	}
 }
