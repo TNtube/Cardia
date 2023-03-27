@@ -67,9 +67,9 @@ namespace Cardia
 		m_Shader->setMat4("u_Model", glm::mat4(1));
 		m_Shader->setMat3("u_TransposedInvertedModel", glm::transpose(glm::mat4(1)));
 		if (m_CurrentTexture)
-			m_CurrentTexture->bind(0);
+			m_CurrentTexture->Bind(0);
 		else
-			whiteTexture->bind(0);
+			whiteTexture->Bind(0);
 
 		RenderAPI::get().drawIndexed(vertexArray, indexCount);
 	}

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Cardia/DataStructure/Vertex.hpp>
+#include <vulkan/vulkan_core.h>
+
 #include "Cardia/Core/Core.hpp"
 
 
@@ -97,6 +99,24 @@ namespace Cardia
 
 		std::vector<BufferElement> m_Elements;
 		int m_Stride{};
+	};
+
+	class Buffer
+	{
+	public:
+		Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+		Buffer(const Buffer&) = delete;
+		Buffer(Buffer&&) = delete;
+		Buffer& operator=(const Buffer&) = delete;
+		Buffer& operator=(Buffer&&) = delete;
+
+		void UploadData(size_t size, void* data) const;
+		const VkBuffer& GetBuffer() const { return m_Buffer; }
+		
+		virtual ~Buffer();
+	private:
+		VkBuffer m_Buffer {};
+		VkDeviceMemory m_BufferMemory {};
 	};
 
 	class VertexBuffer

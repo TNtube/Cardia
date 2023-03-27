@@ -26,6 +26,49 @@ namespace Cardia
 		}
 	}
 
+	Buffer::Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+	{
+		VkBufferCreateInfo bufferInfo {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = size;
+		bufferInfo.usage = usage;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		const auto& device = Renderer::Instance().GetDevice();
+
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &m_Buffer) != VK_SUCCESS)
+			throw std::runtime_error("Vulkan : failed to create vertex buffer !");
+
+		VkMemoryRequirements memoryRequirements {};
+		vkGetBufferMemoryRequirements(device, m_Buffer, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocateInfo {};
+		allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocateInfo.allocationSize = memoryRequirements.size;
+		allocateInfo.memoryTypeIndex = Renderer::Instance().FindMemoryType(memoryRequirements.memoryTypeBits, properties);
+
+		if (vkAllocateMemory(device, &allocateInfo, nullptr, &m_BufferMemory) != VK_SUCCESS)
+			throw std::runtime_error("Vulkan : Failed to allocate vertex buffer memory !");
+
+		vkBindBufferMemory(device, m_Buffer, m_BufferMemory, 0);
+	}
+
+	void Buffer::UploadData(size_t size, void* data) const
+	{
+		const auto& device = Renderer::Instance().GetDevice();
+		void* memory;
+		vkMapMemory(device, m_BufferMemory, 0, size, 0, &memory);
+		memcpy(data, data, size);
+		vkUnmapMemory(device, m_BufferMemory);
+	}
+
+	Buffer::~Buffer()
+	{
+		const auto& device = Renderer::Instance().GetDevice();
+		vkDestroyBuffer(device, m_Buffer, nullptr);
+		vkFreeMemory(device, m_BufferMemory, nullptr);
+	}
+
 	std::unique_ptr<VertexBuffer> VertexBuffer::create(uint32_t size)
 	{
 		RenderAPI::API& renderer = Renderer::getAPI();

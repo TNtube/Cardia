@@ -10,7 +10,7 @@
 namespace Cardia
 {
 	OpenGLTexture2D::OpenGLTexture2D(std::string path)
-		:m_Width(), m_Height(), m_TextureID()
+		: m_TextureID()
 	{
 		m_Path = std::move(path);
 		stbi_set_flip_vertically_on_load(true);
@@ -34,7 +34,6 @@ namespace Cardia
 		{
 			internalFormat = GL_RGBA8;
 			dataFormat = GL_RGBA;
-			m_IsTransparent = true;
 		}
 		else if (nbChannels == 3)
 		{
@@ -80,12 +79,12 @@ namespace Cardia
 		glDeleteTextures(1, &m_TextureID);
 	}
 
-	void OpenGLTexture2D::bind(int slot) const
+	void OpenGLTexture2D::Bind(int slot) const
 	{
 		glBindTextureUnit(slot, m_TextureID);
 	}
 
-	uint32_t OpenGLTexture2D::getRendererID()
+	uint32_t OpenGLTexture2D::GetRendererID()
 	{
 		return m_TextureID;
 	}

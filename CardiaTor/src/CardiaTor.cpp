@@ -83,8 +83,8 @@ namespace Cardia
 		{
 			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
 			{
-				// int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-				// m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
+				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
 			}
 		}
 
@@ -338,7 +338,7 @@ namespace Cardia
 
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
-		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->getRendererID())), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
+		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->GetRendererID())), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)
 			{

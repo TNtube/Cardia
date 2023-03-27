@@ -191,7 +191,7 @@ namespace Cardia
 		specification.layer = zIndex;
 		specification.shader = "basic";
 		if (texture)
-			specification.texture = texture->getPath();
+			specification.texture = texture->GetPath();
 
 		for (auto& batch : s_Data->batches)
 		{

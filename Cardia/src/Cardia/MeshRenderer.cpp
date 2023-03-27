@@ -27,11 +27,11 @@ namespace Cardia
 			auto& materials = m_Mesh->GetMaterials();
 			const auto materialIndex = m_Mesh->GetSubMeshes()[i].GetMaterialIndex();
 			if (materials.size() > materialIndex)
-				materials[materialIndex]->bind(0);
+				materials[materialIndex]->Bind(0);
 			else
 			{
 				auto whiteTexture = AssetsManager::Load<Texture2D>("resources/textures/white.jpg", AssetsManager::LoadType::Editor);
-				whiteTexture->bind(0);
+				whiteTexture->Bind(0);
 			}
 			m_SubMeshRenderers[i].Draw();
 		}

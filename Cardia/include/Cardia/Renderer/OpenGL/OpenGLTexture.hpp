@@ -12,15 +12,12 @@ namespace Cardia
 		explicit OpenGLTexture2D(int width, int height, void* data);
 		virtual ~OpenGLTexture2D() override;
 
-		inline uint32_t getWidth() const override { return m_Width; }
-		inline uint32_t getHeight() const override { return m_Height; }
-
 		inline bool operator==(const Texture& other) const override {
 			return m_TextureID == ((OpenGLTexture2D&)other).m_TextureID;
 		}
 
-		void bind(int slot) const override;
-		uint32_t getRendererID() override;
+		void Bind(int slot) const override;
+		uint32_t GetRendererID() override;
 
 	private:
 		int32_t m_Width{}, m_Height{};

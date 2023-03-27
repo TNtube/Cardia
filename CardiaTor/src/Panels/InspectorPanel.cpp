@@ -76,7 +76,7 @@ namespace Cardia::Panel
 			uint32_t whiteColor = 0xffffffff;
 
 			const auto white = Texture2D::create(1, 1, &whiteColor);
-			const auto texID = sprite.texture ? sprite.texture->getRendererID() : white->getRendererID();
+			const auto texID = sprite.texture ? sprite.texture->GetRendererID() : white->GetRendererID();
 
 			ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
 			if (ImGui::BeginDragDropTarget())
@@ -85,7 +85,7 @@ namespace Cardia::Panel
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
 					auto tex = AssetsManager::Load<Texture2D>(cStrPath);
-					if (tex->isLoaded())
+					if (tex->IsLoaded())
 					{
 						sprite.texture = std::move(tex);
 					}
@@ -125,7 +125,7 @@ namespace Cardia::Panel
 			if (!meshRendererC.meshRenderer->GetMesh()) return;
 			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
 			for (auto& material : materials) {
-				const auto texID = material->getRendererID();
+				const auto texID = material->GetRendererID();
 				ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -133,7 +133,7 @@ namespace Cardia::Panel
 					{
 						const auto* cStrPath = static_cast<const char*>(payload->Data);
 						auto tex = AssetsManager::Load<Texture2D>(cStrPath);
-						if (tex->isLoaded())
+						if (tex->IsLoaded())
 						{
 							material = std::move(tex);
 						}
