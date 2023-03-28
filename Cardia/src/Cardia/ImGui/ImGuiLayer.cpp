@@ -4,7 +4,7 @@
 #include "Cardia/Renderer/Renderer2D.hpp"
 
 #include <imgui.h>
-#include <imgui_impl_opengl3.h>
+// #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
@@ -39,12 +39,12 @@ namespace Cardia
 		const auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
-		ImGui_ImplOpenGL3_Init("#version 460");
+		// ImGui_ImplOpenGL3_Init("#version 460");
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-		ImGui_ImplOpenGL3_Shutdown();
+		// ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
@@ -58,7 +58,7 @@ namespace Cardia
 
 	void ImGuiLayer::Begin()
 	{
-		ImGui_ImplOpenGL3_NewFrame();
+		// ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -72,7 +72,7 @@ namespace Cardia
 
 		// Rendering
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
