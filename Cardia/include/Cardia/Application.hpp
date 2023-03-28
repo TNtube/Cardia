@@ -6,6 +6,7 @@
 #include "Cardia/Core/Window.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
+#include "Renderer/Renderer.hpp"
 
 
 namespace Cardia
@@ -14,7 +15,7 @@ namespace Cardia
 	{
 	public:
 		Application();
-		virtual ~Application() = default;
+		virtual ~Application();
 
 		void Run();
 		virtual void OnEvent(Event& e) = 0;
@@ -29,6 +30,7 @@ namespace Cardia
 
 	private:
 		std::unique_ptr<Window> m_Window;
+		Renderer& m_Renderer;
 		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 		ScriptEngine m_ScriptEngine;
 		bool m_Running = true;

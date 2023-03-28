@@ -39,6 +39,7 @@ namespace Cardia
 			cdAssert(glfwInit(), "Can't initialize glfw3.");
 			s_isGlfwInit = true;
 		}
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		m_Window = glfwCreateWindow(properties.width,
 			properties.height,
 			properties.title.c_str(),

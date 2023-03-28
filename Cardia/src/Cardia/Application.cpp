@@ -11,12 +11,13 @@ namespace Cardia
 {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application()
+	Application::Application() : m_Renderer(Renderer::Instance())
 	{
 		cdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
 
 		m_Window = Window::Create();
+		m_Renderer.Init(*m_Window);
 		m_Window->setEventCallback([this](Event& e)
 		{
 			EventDispatcher dispatcher(e);
@@ -26,6 +27,11 @@ namespace Cardia
 		});
 
 		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
+	}
+
+	Application::~Application()
+	{
+		m_Renderer.Finalize();
 	}
 
 	void Application::Run()
