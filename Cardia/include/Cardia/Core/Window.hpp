@@ -12,7 +12,7 @@ namespace Cardia
 		int width, height;
 		std::string title;
 
-		explicit WinProperties(std::string title = "Cardia",
+		explicit WinProperties(std::string title = "Cacardia",
 			int width = 1920,
 			int height = 1080)
 			: width(width), height(height), title(std::move(title)) {}
