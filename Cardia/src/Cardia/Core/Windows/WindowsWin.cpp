@@ -54,7 +54,7 @@ namespace Cardia
 				cdCoreAssert(false, "Invalid RenderAPI");
 				break;
 		}
-		m_RendererContext->init();
+		m_RendererContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		setVSync(true);
@@ -175,7 +175,7 @@ namespace Cardia
 	void WindowsWin::onUpdate()
 	{
 		glfwPollEvents();
-		m_RendererContext->swapBuffers();
+		m_RendererContext->SwapBuffers();
 	}
 
 	static std::pair<int, int> WinInitPos(GLFWwindow* win)

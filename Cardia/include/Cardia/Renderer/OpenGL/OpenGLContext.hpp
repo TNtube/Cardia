@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Cardia/Renderer/RendererContext.hpp"
+#include "Cardia/Renderer/RenderContext.hpp"
 
 
 struct GLFWwindow;
 
 namespace Cardia {
-	class OpenGLContext : public RendererContext
+	class OpenGLContext : public RenderContext
 	{
 	public:
 		explicit OpenGLContext(GLFWwindow* window);
 
-		void init() override;
-		void swapBuffers() override;
+		void Init() override;
+		void SwapBuffers() override;
 
 	private:
 		GLFWwindow* m_Window;

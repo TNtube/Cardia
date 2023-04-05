@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 
 
-void Cardia::OpenGLContext::init()
+void Cardia::OpenGLContext::Init()
 {
 	glfwMakeContextCurrent(m_Window);
 	const int result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
@@ -20,7 +20,7 @@ void Cardia::OpenGLContext::init()
 	glEnable(GL_CULL_FACE);
 }
 
-void Cardia::OpenGLContext::swapBuffers()
+void Cardia::OpenGLContext::SwapBuffers()
 {
 	glfwSwapBuffers(m_Window);
 }

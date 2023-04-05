@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cardia/Core/Window.hpp"
-#include "Cardia/Renderer/RendererContext.hpp"
+#include "Cardia/Renderer/RenderContext.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -44,6 +44,6 @@ namespace Cardia
 		static bool s_isGlfwInit; // Can only initialize glfw once.
 		GLFWwindow* m_Window;
 		WinData m_Data;
-		std::unique_ptr<RendererContext> m_RendererContext;
+		std::unique_ptr<RenderContext> m_RendererContext;
 	};
 }
