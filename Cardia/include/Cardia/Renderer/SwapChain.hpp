@@ -1,36 +1,77 @@
 ﻿#pragma once
-#include <vulkan/vulkan_core.h>
 
+// std lib headers
+#include <vector>
+
+#include "Device.hpp"
 
 namespace Cardia
 {
-	class Window;
-
 	class SwapChain
 	{
 	public:
-		explicit SwapChain(const Window& window);
+		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+
+		SwapChain(Device &deviceRef, VkExtent2D windowExtent);
 		virtual ~SwapChain();
 
-		void CreateFramebuffers();
+		SwapChain(const SwapChain &) = delete;
+		void operator=(const SwapChain &) = delete;
 
-	private:
+		VkFramebuffer GetFrameBuffer(int index) const { return m_SwapChainFramebuffers[index]; }
+		VkRenderPass GetRenderPass() const { return m_RenderPass; }
+		VkImageView GetImageView(int index) const { return m_SwapChainImageViews[index]; }
+		size_t ImageCount() const { return m_SwapChainImages.size(); }
+		VkFormat GetSwapChainImageFormat() const { return m_SwapChainImageFormat; }
+		VkExtent2D GetSwapChainExtent() const { return m_SwapChainExtent; }
+		uint32_t Width() const { return m_SwapChainExtent.width; }
+		uint32_t Height() const { return m_SwapChainExtent.height; }
+
+		float ExtentAspectRatio() const
+		{
+			return static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height);
+		}
+		VkFormat FindDepthFormat() const;
+
+		VkResult AcquireNextImage(uint32_t *imageIndex);
+		VkResult SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+
+	 private:
 		void CreateSwapChain();
 		void CreateImageViews();
 		void CreateDepthResources();
-		const Window& m_Window;
-		
-		VkSwapchainKHR m_SwapChain {};
-		std::vector<VkImage> m_Images {};
-		VkFormat m_ImageFormat {};
-		VkExtent2D m_Extent {};
-		
-		std::vector<VkImageView> m_ImageViews;
-		
-		VkImage m_DepthImage {};
-		VkDeviceMemory m_DepthImageMemory {};
-		VkImageView m_DepthImageView {};
-		
+		void CreateRenderPass();
+		void CreateFramebuffers();
+		void CreateSyncObjects();
+
+		// Helper functions
+		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
+				const std::vector<VkSurfaceFormatKHR> &availableFormats);
+		VkPresentModeKHR ChooseSwapPresentMode(
+				const std::vector<VkPresentModeKHR> &availablePresentModes);
+		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
+
+		VkFormat m_SwapChainImageFormat {};
+		VkExtent2D m_SwapChainExtent {};
+
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+		VkRenderPass m_RenderPass {};
+
+		std::vector<VkImage> m_DepthImages;
+		std::vector<VkDeviceMemory> m_DepthImageMemories;
+		std::vector<VkImageView> m_DepthImageViews;
+		std::vector<VkImage> m_SwapChainImages;
+		std::vector<VkImageView> m_SwapChainImageViews;
+
+		Device &m_Device;
+		VkExtent2D m_WindowExtent {};
+
+		VkSwapchainKHR swapChain {};
+
+		std::vector<VkSemaphore> imageAvailableSemaphores;
+		std::vector<VkSemaphore> renderFinishedSemaphores;
+		std::vector<VkFence> inFlightFences;
+		std::vector<VkFence> imagesInFlight;
+		size_t currentFrame = 0;
 	};
 }

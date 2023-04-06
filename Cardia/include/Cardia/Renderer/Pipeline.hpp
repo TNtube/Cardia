@@ -3,13 +3,25 @@
 
 namespace Cardia
 {
-	struct PipelineConfigInfo {};
+	struct PipelineConfigInfo {
+		VkViewport viewport;
+		VkRect2D scissor;
+		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+		VkPipelineMultisampleStateCreateInfo multisampleInfo;
+		VkPipelineColorBlendAttachmentState colorBlendAttachment;
+		VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+		VkPipelineLayout pipelineLayout = nullptr;
+		VkRenderPass renderPass = nullptr;
+		uint32_t subpass = 0;
+	};
+ 
 	
 	class Pipeline
 	{
 	public:
 		Pipeline(Device& device, const std::string& vertPath, const std::string& fragPath, const PipelineConfigInfo& configInfo);
-		virtual ~Pipeline() {}
+		virtual ~Pipeline();
 		Pipeline(const Pipeline&) = delete;
 		void operator=(const Pipeline&) = delete;
 
