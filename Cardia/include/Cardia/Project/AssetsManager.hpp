@@ -109,12 +109,12 @@ namespace Cardia
 		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
 		TypeID id {typeid(Shader), path.string()};
 
-		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Shader::create({absPath.string() + ".vert.spirv", absPath.string() + ".frag.spirv"}));
-			m_Assets.insert_or_assign(id, res);
-		}
+		// if (!m_Assets.contains(id)) {
+		// 	AssetRefCounter res(Shader::create({absPath.string() + ".vert.spirv", absPath.string() + ".frag.spirv"}));
+		// 	m_Assets.insert_or_assign(id, res);
+		// }
 
-		return std::static_pointer_cast<Shader>(m_Assets[id].Resource);
+		return nullptr;
 	}
 
 	template<>

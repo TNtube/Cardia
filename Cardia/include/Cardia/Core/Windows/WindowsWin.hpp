@@ -27,6 +27,7 @@ namespace Cardia
 		inline int getWidth() const override { return m_Data.width; }
 		inline int getHeight() const override { return m_Data.height; }
 		inline std::pair<int, int> getSize() const override { return {getWidth(), getHeight()}; }
+		inline VkExtent2D GetExtent() const override { return VkExtent2D {static_cast<unsigned>(m_Data.width), static_cast<unsigned>(m_Data.height)}; }
 
 
 		inline void setEventCallback(const std::function<void(Event&)>& callback) override { m_Data.eventCallback = callback; }
@@ -44,6 +45,5 @@ namespace Cardia
 		static bool s_isGlfwInit; // Can only initialize glfw once.
 		GLFWwindow* m_Window;
 		WinData m_Data;
-		std::unique_ptr<RenderContext> m_RendererContext;
 	};
 }

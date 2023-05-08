@@ -36,7 +36,7 @@ namespace Cardia
 		}
 
 		const Application& app = Application::get();
-		const auto window = static_cast<GLFWwindow*>(app.getWindow().getNativeWin());
+		const auto window = static_cast<GLFWwindow*>(app.GetWindow().getNativeWin());
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 
 		// ImGui_ImplOpenGL3_Init("#version 460");
@@ -66,7 +66,7 @@ namespace Cardia
 	void ImGuiLayer::End()
 	{
 		const Application& app = Application::get();
-		auto[w, h] = app.getWindow().getSize();
+		auto[w, h] = app.GetWindow().getSize();
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
 

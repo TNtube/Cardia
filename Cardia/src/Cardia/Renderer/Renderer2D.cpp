@@ -40,6 +40,7 @@ namespace Cardia
 
 	void Renderer2D::init()
 	{
+		return;
 		s_Data = std::make_unique<Renderer2DData>();
 		s_Stats = std::make_unique<Renderer2D::Stats>();
 		s_Data->batches.clear();
@@ -71,6 +72,7 @@ namespace Cardia
 
 	void Renderer2D::beginScene(Camera& camera, const glm::mat4& transform)
 	{
+		return;
 		s_Data->batches.clear();
 		s_Data->lightDataBuffer.clear();
 		s_Data->cameraPosition = glm::vec3(transform[3]);
@@ -83,6 +85,7 @@ namespace Cardia
 
 	void Renderer2D::endScene()
 	{
+		return;
 		s_Data->lightStorageBuffer = StorageBuffer::create(s_Data->lightDataBuffer.size() * sizeof(LightData));
 		s_Data->lightStorageBuffer->setData(s_Data->lightDataBuffer.data(), s_Data->lightDataBuffer.size() * sizeof(LightData));
 

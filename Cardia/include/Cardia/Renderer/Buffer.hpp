@@ -3,6 +3,7 @@
 #include <Cardia/DataStructure/Vertex.hpp>
 #include <vulkan/vulkan_core.h>
 
+#include "Device.hpp"
 #include "Cardia/Core/Core.hpp"
 
 
@@ -104,7 +105,7 @@ namespace Cardia
 	class Buffer
 	{
 	public:
-		Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+		Buffer(Device& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 		Buffer(const Buffer&) = delete;
 		Buffer(Buffer&&) = delete;
 		Buffer& operator=(const Buffer&) = delete;
@@ -115,6 +116,7 @@ namespace Cardia
 		
 		virtual ~Buffer();
 	private:
+		Device& m_Device;
 		VkBuffer m_Buffer {};
 		VkDeviceMemory m_BufferMemory {};
 	};

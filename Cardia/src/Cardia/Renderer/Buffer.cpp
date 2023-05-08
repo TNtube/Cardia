@@ -26,7 +26,8 @@ namespace Cardia
 		}
 	}
 
-	Buffer::Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+	Buffer::Buffer(Device& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+		: m_Device(device)
 	{
 		VkBufferCreateInfo bufferInfo {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -34,28 +35,28 @@ namespace Cardia
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		const auto& device = Renderer::Instance().GetDevice();
+		const auto& vkDevice = m_Device.GetDevice();
 
-		if (vkCreateBuffer(device, &bufferInfo, nullptr, &m_Buffer) != VK_SUCCESS)
+		if (vkCreateBuffer(vkDevice, &bufferInfo, nullptr, &m_Buffer) != VK_SUCCESS)
 			throw std::runtime_error("Vulkan : failed to create vertex buffer !");
 
 		VkMemoryRequirements memoryRequirements {};
-		vkGetBufferMemoryRequirements(device, m_Buffer, &memoryRequirements);
+		vkGetBufferMemoryRequirements(vkDevice, m_Buffer, &memoryRequirements);
 
 		VkMemoryAllocateInfo allocateInfo {};
 		allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocateInfo.allocationSize = memoryRequirements.size;
-		allocateInfo.memoryTypeIndex = Renderer::Instance().FindMemoryType(memoryRequirements.memoryTypeBits, properties);
+		allocateInfo.memoryTypeIndex = m_Device.FindMemoryType(memoryRequirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(device, &allocateInfo, nullptr, &m_BufferMemory) != VK_SUCCESS)
+		if (vkAllocateMemory(vkDevice, &allocateInfo, nullptr, &m_BufferMemory) != VK_SUCCESS)
 			throw std::runtime_error("Vulkan : Failed to allocate vertex buffer memory !");
 
-		vkBindBufferMemory(device, m_Buffer, m_BufferMemory, 0);
+		vkBindBufferMemory(vkDevice, m_Buffer, m_BufferMemory, 0);
 	}
 
 	void Buffer::UploadData(size_t size, void* data) const
 	{
-		const auto& device = Renderer::Instance().GetDevice();
+		const auto& device = m_Device.GetDevice();
 		void* memory;
 		vkMapMemory(device, m_BufferMemory, 0, size, 0, &memory);
 		memcpy(data, data, size);
@@ -64,7 +65,7 @@ namespace Cardia
 
 	Buffer::~Buffer()
 	{
-		const auto& device = Renderer::Instance().GetDevice();
+		const auto& device = m_Device.GetDevice();
 		vkDestroyBuffer(device, m_Buffer, nullptr);
 		vkFreeMemory(device, m_BufferMemory, nullptr);
 	}

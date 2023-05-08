@@ -11,13 +11,10 @@ namespace Cardia
 {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application() : m_Renderer(Renderer::Instance())
+	Application::Application()
 	{
 		cdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
-
-		m_Window = Window::Create();
-		m_Renderer.Init(*m_Window);
 		m_Window->setEventCallback([this](Event& e)
 		{
 			EventDispatcher dispatcher(e);
@@ -31,7 +28,6 @@ namespace Cardia
 
 	Application::~Application()
 	{
-		m_Renderer.Finalize();
 	}
 
 	void Application::Run()
@@ -44,14 +40,16 @@ namespace Cardia
 		{
 			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
 			time += Time::m_DeltaTime.seconds();
+			m_Window->onUpdate();
+
+			m_RenderContext.DrawFrame();
 
 			OnUpdate();
 
-			m_ImGuiLayer->Begin();
-			OnImGuiDraw();
-			m_ImGuiLayer->End();
+			// m_ImGuiLayer->Begin();
+			// OnImGuiDraw();
+			// m_ImGuiLayer->End();
 
-			m_Window->onUpdate();
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 
 		}

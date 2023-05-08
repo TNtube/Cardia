@@ -16,6 +16,11 @@ namespace Cardia
 		vkDestroyPipeline(m_Device.GetDevice(), m_GraphicsPipeline, nullptr);
 	}
 
+	void Pipeline::Bind(VkCommandBuffer commandBuffer) const
+	{
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+	}
+
 	PipelineConfigInfo Pipeline::DefaultPipelineConfigInfo(uint32_t width, uint32_t height)
 	{
 		PipelineConfigInfo info {};

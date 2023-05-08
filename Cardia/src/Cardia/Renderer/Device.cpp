@@ -196,7 +196,8 @@ void Device::CreateCommandPool() {
 
 void Device::CreateSurface()
 {
-	if (glfwCreateWindowSurface(m_Instance, static_cast<GLFWwindow*>(m_Window.getNativeWin()), nullptr, &m_Surface) != VK_SUCCESS) {
+	auto win = m_Window.getNativeWin();
+	if (glfwCreateWindowSurface(m_Instance, static_cast<GLFWwindow*>(win), nullptr, &m_Surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to craete window surface");
 	}
 }

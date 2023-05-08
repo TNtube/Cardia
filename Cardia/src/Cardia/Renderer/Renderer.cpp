@@ -1,28 +1,7 @@
 #include "cdpch.hpp"
-#include "Cardia/Renderer/OpenGL/OpenGLShader.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
-#include <map>
-#include <set>
-#include <GLFW/glfw3.h>
-
 #include "Cardia/Core/Window.hpp"
-
-
-const std::vector validationLayers = {
-	"VK_LAYER_KHRONOS_validation"
-};
-
-const std::vector deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-std::vector<const char*> GetRequiredInstanceExtensions();
-bool CheckValidationLayerSupport();
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
-void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
-bool IsDeviceSuitable(VkPhysicalDevice device);
-bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
 
 namespace Cardia

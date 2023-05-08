@@ -28,7 +28,7 @@ namespace Cardia::Panel
 		// fullscreen
 		static bool isFullscreen = false;
 		static bool isFullscreenPrev = false;
-		static Window &window = Application::get().getWindow();
+		static Window &window = Application::get().GetWindow();
 		// vsync
 		static bool isVsync = window.isVSync();
 		// dear imgui theme

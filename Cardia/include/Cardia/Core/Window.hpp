@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cdpch.hpp"
+#include "vulkan/vulkan.h"
 #include "Cardia/Core/Core.hpp"
 #include "Event.hpp"
 
@@ -27,6 +28,7 @@ namespace Cardia
 		virtual int getWidth() const = 0;
 		virtual int getHeight() const = 0;
 		virtual std::pair<int, int> getSize() const = 0;
+		virtual VkExtent2D GetExtent() const = 0;
 
 		virtual void setEventCallback(const std::function<void(Event&)>& callback) = 0;
 		virtual void setFullscreen(bool state) = 0;

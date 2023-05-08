@@ -24,6 +24,7 @@ namespace Cardia
 		virtual ~Pipeline();
 		Pipeline(const Pipeline&) = delete;
 		void operator=(const Pipeline&) = delete;
+		void Bind(VkCommandBuffer commandBuffer) const;
 
 		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);
 

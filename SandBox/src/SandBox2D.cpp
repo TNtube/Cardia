@@ -65,7 +65,7 @@ void SandBox2D::OnImGuiDraw()
 	// fullscreen
 	static bool isFullscreen = false;
 	static bool isFullscreenPrev = false;
-	static Cardia::Window &window = getWindow();
+	static Cardia::Window &window = GetWindow();
 	// vsync
 	static bool isVsync = window.isVSync();
 	// dear imgui theme

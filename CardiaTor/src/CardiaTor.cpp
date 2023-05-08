@@ -22,7 +22,7 @@ namespace Cardia
 {
 	CardiaTor::CardiaTor()
 	{
-		const auto &window = getWindow();
+		const auto &window = GetWindow();
 
 		m_PanelManager.CreatePanel<Panel::SceneHierarchyPanel>();
 		m_PanelManager.CreatePanel<Panel::InspectorPanel>();
@@ -41,7 +41,7 @@ namespace Cardia
 
 		FramebufferSpec spec{ window.getWidth(), window.getHeight() };
 		spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
-		m_Framebuffer = Framebuffer::create(spec);
+		// m_Framebuffer = Framebuffer::create(spec);
 
 		ImGuiIO &io = ImGui::GetIO();
 		io.IniFilename = "resources/editorconfig.ini";
@@ -54,10 +54,10 @@ namespace Cardia
 
 	void CardiaTor::OnUpdate()
 	{
-		m_Framebuffer->Bind();
-		RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
-		RenderAPI::get().clear();
-		m_Framebuffer->ClearAttachment(1, -1);
+		// m_Framebuffer->Bind();
+		// RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
+		// RenderAPI::get().clear();
+		// m_Framebuffer->ClearAttachment(1, -1);
 
 
 		if (m_EditorState == EditorState::Edit)
@@ -88,7 +88,7 @@ namespace Cardia
 			}
 		}
 
-		m_Framebuffer->Unbind();
+		// m_Framebuffer->Unbind();
 	}
 
 	void CardiaTor::EnableDocking()

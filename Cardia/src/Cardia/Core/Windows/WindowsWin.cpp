@@ -3,7 +3,6 @@
 
 #include "cdpch.hpp"
 #include "Cardia/Core/Windows/WindowsWin.hpp"
-#include "Cardia/Renderer/OpenGL/OpenGLContext.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
@@ -45,16 +44,6 @@ namespace Cardia
 			properties.title.c_str(),
 			nullptr, nullptr);
 
-		switch (RenderAPI::getAPI())
-		{
-			case RenderAPI::API::OpenGL:
-				m_RendererContext = std::make_unique<OpenGLContext>(m_Window);
-				break;
-			case RenderAPI::API::None:
-				cdCoreAssert(false, "Invalid RenderAPI");
-				break;
-		}
-		m_RendererContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		setVSync(true);
@@ -76,7 +65,7 @@ namespace Cardia
 				data->height = h;
 				WindowResizeEvent event(w, h);
 				data->eventCallback(event);
-				RenderAPI::get().setViewPort(0, 0, w, h);
+				// RenderAPI::get().setViewPort(0, 0, w, h);
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)
@@ -175,7 +164,6 @@ namespace Cardia
 	void WindowsWin::onUpdate()
 	{
 		glfwPollEvents();
-		m_RendererContext->SwapBuffers();
 	}
 
 	static std::pair<int, int> WinInitPos(GLFWwindow* win)
@@ -215,8 +203,6 @@ namespace Cardia
 
 	void WindowsWin::setVSync(bool state)
 	{
-		glfwSwapInterval(static_cast<int>(state));		// casting the bool give us the actual value wanted
-		m_Data.vSync = state;
 	}
 
 	

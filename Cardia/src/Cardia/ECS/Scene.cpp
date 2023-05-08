@@ -26,8 +26,8 @@ namespace Cardia
 		std::string shaderName = "basic";
 		const auto shaderPath = "resources/shaders/" + shaderName;
 		m_BasicShader = AssetsManager::Load<Shader>(shaderPath, AssetsManager::LoadType::Editor);
-		m_UBO = UniformBuffer::create(sizeof(UboData));
-		m_BasicShader->setBindingBlock("ubo", 0);
+		// m_UBO = UniformBuffer::create(sizeof(UboData));
+		// m_BasicShader->setBindingBlock("ubo", 0);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -132,19 +132,19 @@ namespace Cardia
 		//
 		// Renderer2D::endScene();
 
-		m_BasicShader->bind();
+		// m_BasicShader->bind();
 		// m_BasicShader->setInt("u_Texture", 0);
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
-			m_UBO->bind(0);
+			// m_UBO->bind(0);
 			UboData data {};
 			data.viewProjection = editorCamera.getProjectionMatrix() * glm::inverse(editorCameraTransform);
 			data.model = transform.getTransform();
 			data.transposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
-			m_UBO->setData(&data, sizeof(UboData));
-			meshRenderer.meshRenderer->Draw();
+			// m_UBO->setData(&data, sizeof(UboData));
+			// meshRenderer.meshRenderer->Draw();
 		}
 	}
 
