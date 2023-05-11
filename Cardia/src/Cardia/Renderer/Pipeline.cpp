@@ -87,8 +87,19 @@ namespace Cardia
 
 	std::vector<char> Pipeline::ReadFile(const std::filesystem::path& filepath)
 	{
-		std::ifstream t(filepath);
-		return { std::istreambuf_iterator<char>(t), std::istreambuf_iterator<char>() };
+		std::ifstream file(filepath, std::ios::ate | std::ios::binary);
+
+		if (!file.is_open()) {
+			throw std::runtime_error("failed to open file!");
+		}
+		const std::streamsize fileSize = file.tellg();
+		std::vector<char> buffer(fileSize);
+		file.seekg(0);
+		file.read(buffer.data(), fileSize);
+
+		file.close();
+
+		return buffer;
 	}
 
 	void Pipeline::CreateGraphicsPipeline(const std::string& vertPath, const std::string& fragPath,

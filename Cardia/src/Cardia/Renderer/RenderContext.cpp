@@ -10,6 +10,12 @@ namespace Cardia
 		CreateCommandBuffers();
 	}
 
+	RenderContext::~RenderContext()
+	{
+		vkDeviceWaitIdle(m_Device.GetDevice());
+		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
+	}
+
 	void RenderContext::Init()
 	{
 	}
@@ -53,8 +59,8 @@ namespace Cardia
 		pipelineConfig.pipelineLayout = m_PipelineLayout;
 		m_Pipeline = std::make_unique<Pipeline>(
 			m_Device,
-			"resources/shaders/basic.vert.spv",
-			"resources/shaders/basic.frag.spv",
+			"resources/shaders/simple.vert.spv",
+			"resources/shaders/simple.frag.spv",
 			pipelineConfig
 		);
 	}
@@ -74,7 +80,7 @@ namespace Cardia
 		}
 
 		for (int i = 0; i < m_CommandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo{};
+			VkCommandBufferBeginInfo beginInfo {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
 			if (vkBeginCommandBuffer(m_CommandBuffers[i], &beginInfo) != VK_SUCCESS) {
@@ -90,7 +96,7 @@ namespace Cardia
 			renderPassInfo.renderArea.extent = m_SwapChain.GetSwapChainExtent();
 
 			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
+			clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
 			clearValues[1].depthStencil = {1.0f, 0};
 			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 			renderPassInfo.pClearValues = clearValues.data();

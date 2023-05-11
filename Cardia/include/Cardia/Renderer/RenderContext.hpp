@@ -11,7 +11,7 @@ namespace Cardia
 	{
 	public:
 		explicit RenderContext(Window& window);
-		virtual ~RenderContext() = default;
+		virtual ~RenderContext();
 		void Init();
 		void DrawFrame();
 
