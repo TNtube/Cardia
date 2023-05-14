@@ -17,6 +17,14 @@ namespace Cardia
 		vkFreeMemory(m_Device.GetDevice(), m_VertexBufferMemory, nullptr);
 	}
 
+	SubMeshRenderer::SubMeshRenderer(SubMeshRenderer&& other) noexcept : m_Device(other.m_Device)
+	{
+		m_VertexBuffer = other.m_VertexBuffer;
+		m_VertexBufferMemory = other.m_VertexBufferMemory;
+		other.m_VertexBuffer = VK_NULL_HANDLE;
+		other.m_VertexBufferMemory = VK_NULL_HANDLE;
+	}
+
 	void SubMeshRenderer::SubmitSubMesh(SubMesh &subMesh)
 	{
 		m_VertexCount = static_cast<uint32_t>(subMesh.GetVertices().size());

@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <glm/vec3.hpp>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 
 namespace Cardia

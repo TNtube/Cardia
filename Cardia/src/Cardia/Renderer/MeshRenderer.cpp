@@ -1,3 +1,4 @@
+#include "cdpch.hpp"
 #include <Cardia/Renderer/Texture.hpp>
 #include <Cardia/Project/AssetsManager.hpp>
 #include "cdpch.hpp"

@@ -12,9 +12,10 @@ namespace Cardia
 	public:
 		SubMeshRenderer(Device &device, SubMesh &subMesh);
 		~SubMeshRenderer();
+		SubMeshRenderer(SubMeshRenderer && other) noexcept;
 
-		// SubMeshRenderer(const SubMeshRenderer &) = delete;
-		// SubMeshRenderer &operator=(const SubMeshRenderer &) = delete;
+		SubMeshRenderer(const SubMeshRenderer &) = delete;
+		SubMeshRenderer &operator=(const SubMeshRenderer &) = delete;
 		void SubmitSubMesh(SubMesh& subMesh);
 		void Bind(VkCommandBuffer commandBuffer) const;
 		void Draw(VkCommandBuffer commandBuffer) const;
