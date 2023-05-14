@@ -109,7 +109,7 @@ namespace Cardia
 			data.model = transform.getTransform();
 			data.transposedInvertedModel = glm::transpose(glm::inverse(glm::mat3(transform.getTransform())));
 			m_UBO->setData(&data, sizeof(UboData));
-			meshRenderer.meshRenderer->Draw();
+			// meshRenderer.meshRenderer->Draw();
 		}
 	}
 	void Scene::OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform)

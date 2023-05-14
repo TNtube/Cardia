@@ -10,13 +10,18 @@ namespace Cardia
 	class SubMeshRenderer
 	{
 	public:
-		SubMeshRenderer() = default;
+		SubMeshRenderer(Device &device, SubMesh &subMesh);
+		~SubMeshRenderer();
 
+		// SubMeshRenderer(const SubMeshRenderer &) = delete;
+		// SubMeshRenderer &operator=(const SubMeshRenderer &) = delete;
 		void SubmitSubMesh(SubMesh& subMesh);
-		void Draw();
+		void Bind(VkCommandBuffer commandBuffer) const;
+		void Draw(VkCommandBuffer commandBuffer) const;
 	private:
-		std::unique_ptr<VertexArray> m_VertexArray;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		Device& m_Device;
+		VkBuffer m_VertexBuffer {};
+		VkDeviceMemory m_VertexBufferMemory {};
+		uint32_t m_VertexCount {};
 	};
 }

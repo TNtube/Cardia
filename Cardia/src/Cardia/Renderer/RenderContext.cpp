@@ -5,6 +5,25 @@ namespace Cardia
 {
 	RenderContext::RenderContext(Window& window) : m_Window(window), m_Device(m_Window), m_SwapChain(m_Device, m_Window.GetExtent())
 	{
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+		auto& sub = mesh->GetSubMeshes().emplace_back();
+		glm::vec3 left{0.0f, -0.5f, 1.0f};
+		glm::vec3 right{0.5f, 0.5f, 1.0f};
+		glm::vec3 top{-0.5f, 0.5f, 1.0f};
+		auto leftTop = 0.5f * (left + top);
+		auto rightTop = 0.5f * (right + top);
+		auto leftRight = 0.5f * (left + right);
+		sub.GetVertices().push_back({left});
+		sub.GetVertices().push_back({leftRight});
+		sub.GetVertices().push_back({leftTop});
+		sub.GetVertices().push_back({leftRight});
+		sub.GetVertices().push_back({right});
+		sub.GetVertices().push_back({rightTop});
+		sub.GetVertices().push_back({leftTop});
+		sub.GetVertices().push_back({rightTop});
+		sub.GetVertices().push_back({top});
+		m_MeshRenderer.SubmitMesh(m_Device, mesh);
+
 		CreatePipelineLayout();
 		CreatePipeline();
 		CreateCommandBuffers();
@@ -14,10 +33,6 @@ namespace Cardia
 	{
 		vkDeviceWaitIdle(m_Device.GetDevice());
 		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
-	}
-
-	void RenderContext::Init()
-	{
 	}
 
 	void RenderContext::DrawFrame()
@@ -104,7 +119,7 @@ namespace Cardia
 			vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			m_Pipeline->Bind(m_CommandBuffers[i]);
-			vkCmdDraw(m_CommandBuffers[i], 3, 1, 0, 0);
+			m_MeshRenderer.Draw(m_CommandBuffers[i]);
 
 			vkCmdEndRenderPass(m_CommandBuffers[i]);
 			if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS) {

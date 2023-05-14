@@ -1,6 +1,8 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/Renderer/Pipeline.hpp"
 
+#include "Cardia/DataStructure/SubMesh.hpp"
+
 namespace Cardia
 {
 	Pipeline::Pipeline(Device& device, const std::string& vertPath, const std::string& fragPath,
@@ -128,12 +130,16 @@ namespace Cardia
 		shaderStages[1].pNext = nullptr;
 		shaderStages[1].pSpecializationInfo = nullptr;
 
+		const auto bindingDescriptions = SubMesh::Vertex::GetBindingDescriptions();
+		const auto attributeDescriptions = SubMesh::Vertex::GetAttributeDescriptions();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+		vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+
 
 		VkPipelineViewportStateCreateInfo viewportInfo {};
 		viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

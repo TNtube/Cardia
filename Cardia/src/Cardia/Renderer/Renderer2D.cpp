@@ -48,7 +48,7 @@ namespace Cardia
 		s_Data->lightDataBuffer.clear();
 		s_Data->vertexArray = VertexArray::create();
 
-		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices * sizeof(Vertex));
+		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices/* * sizeof(Vertex)*/);
 
 		vbo->setLayout({
 			{ShaderDataType::Float3, "a_Position"},
@@ -176,14 +176,14 @@ namespace Cardia
 		const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
 		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
 		{
-			auto vertex = Vertex();
-			vertex.position = transform * rectPositions[i];
-			vertex.normal = finalNormal;
-			vertex.color = color;
-			vertex.textureCoord = texCoords[i % 4];
-			vertex.tilingFactor = tilingFactor;
-			vertex.entityID = entityID;
-			mesh.GetVertices().push_back(vertex);
+			// auto vertex = Vertex();
+			// vertex.position = transform * rectPositions[i];
+			// vertex.normal = finalNormal;
+			// vertex.color = color;
+			// vertex.textureCoord = texCoords[i % 4];
+			// vertex.tilingFactor = tilingFactor;
+			// vertex.entityID = entityID;
+			// mesh.GetVertices().push_back(vertex);
 		}
 
 		mesh.GetIndices() = std::vector<uint32_t>({ 0, 1, 2, 2, 3, 0 });

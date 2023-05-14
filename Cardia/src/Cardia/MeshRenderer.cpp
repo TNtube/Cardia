@@ -7,33 +7,23 @@
 namespace Cardia
 {
 
-	void MeshRenderer::SubmitMesh(std::shared_ptr<Mesh> mesh)
+	void MeshRenderer::SubmitMesh(Device& device, std::shared_ptr<Mesh> mesh)
 	{
-		m_Mesh = std::move(mesh);
-		m_SubMeshRenderers.erase(m_SubMeshRenderers.begin(), m_SubMeshRenderers.end());
-		auto& subMeshes = m_Mesh->GetSubMeshes();
+		auto& subMeshes = mesh->GetSubMeshes();
 
 		for (auto& subMesh : subMeshes)
 		{
-			auto& subMeshRender = m_SubMeshRenderers.emplace_back();
+			auto& subMeshRender = m_SubMeshRenderers.emplace_back(device, subMesh);
 			subMeshRender.SubmitSubMesh(subMesh);
 		}
 	}
 
-	void MeshRenderer::Draw()
+	void MeshRenderer::Draw(VkCommandBuffer commandBuffer) const
 	{
-		for (size_t i = 0; i < m_SubMeshRenderers.size(); i++)
+		for (const auto& m_SubMeshRenderer : m_SubMeshRenderers)
 		{
-			auto& materials = m_Mesh->GetMaterials();
-			const auto materialIndex = m_Mesh->GetSubMeshes()[i].GetMaterialIndex();
-			if (materials.size() > materialIndex)
-				materials[materialIndex]->Bind(0);
-			else
-			{
-				auto whiteTexture = AssetsManager::Load<Texture2D>("resources/textures/white.jpg", AssetsManager::LoadType::Editor);
-				whiteTexture->Bind(0);
-			}
-			m_SubMeshRenderers[i].Draw();
+			m_SubMeshRenderer.Bind(commandBuffer);
+			m_SubMeshRenderer.Draw(commandBuffer);
 		}
 	}
 }

@@ -388,7 +388,7 @@ namespace Cardia::Serialization
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
 				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
-				meshRenderer.meshRenderer->SubmitMesh(mesh);
+				// meshRenderer.meshRenderer->SubmitMesh(mesh);
 
 				auto& materials = node[currComponent]["materials"];
 				for (const auto& texturePath : materials) {

@@ -112,7 +112,7 @@ namespace Cardia::Panel
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					auto mesh = AssetsManager::Load<Mesh>(path);
-					meshRendererC.meshRenderer->SubmitMesh(mesh);
+					// meshRendererC.meshRenderer->SubmitMesh(mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}

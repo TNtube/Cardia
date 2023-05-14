@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "Vertex.hpp"
+#include <glm/vec3.hpp>
+#include <vulkan/vulkan.h>
 
 
 namespace Cardia
@@ -9,6 +10,25 @@ namespace Cardia
 	class SubMesh
 	{
 	public:
+		
+		struct Vertex
+		{
+			glm::vec3 position;
+
+			/*
+			glm::vec3 position;
+			glm::vec3 normal;
+			glm::vec4 color;
+			glm::vec2 textureCoord;
+			float tilingFactor;
+			float entityID;
+			*/
+
+			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
+			static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+		};
+
+		
 		SubMesh() = default;
 		std::vector<Vertex>& GetVertices() { return  m_Vertices; }
 		const std::vector<Vertex>& GetVertices() const { return  m_Vertices; }

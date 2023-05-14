@@ -30,7 +30,7 @@ namespace Cardia
 	{
 		indexCount = 0;
 		indexOffset = 0;
-		vertexBufferData.clear();
+		// vertexBufferData.clear();
 		indexBufferData.clear();
 	}
 
@@ -42,7 +42,7 @@ namespace Cardia
 			{
 				const auto lambda = [this](const glm::vec3 va, const uint32_t ib)
 				{
-					return va + vertexBufferData[ib].position;
+					return va /*+ vertexBufferData[ib].position*/;
 				};
 				const auto vertexA = std::accumulate(a.begin(), a.end(), glm::vec3(0), lambda) / 3.0f;
 				const auto vertexB = std::accumulate(b.begin(), b.end(), glm::vec3(0), lambda) / 3.0f;
@@ -59,7 +59,7 @@ namespace Cardia
 		}
 		vertexArray->bind();
 
-		vertexBuffer->setData(vertexBufferData.data(), static_cast<int>(vertexBufferData.size()) * sizeof(Vertex));
+		// vertexBuffer->setData(vertexBufferData.data(), static_cast<int>(vertexBufferData.size()) * sizeof(Vertex));
 		indexBuffer->setData(iboData.data(), static_cast<int>(iboData.size()) * sizeof(uint32_t));
 
 		m_Shader->bind();
@@ -79,8 +79,8 @@ namespace Cardia
 		if (indexCount >= maxIndices)
 			return false;
 
-		vertexBufferData.reserve( vertexBufferData.size() + mesh->GetVertices().size() );
-		vertexBufferData.insert(vertexBufferData.end(), mesh->GetVertices().begin(), mesh->GetVertices().end());
+		// vertexBufferData.reserve( vertexBufferData.size() + mesh->GetVertices().size() );
+		// vertexBufferData.insert(vertexBufferData.end(), mesh->GetVertices().begin(), mesh->GetVertices().end());
 
 		std::vector<uint32_t>& indices = indexBufferData.emplace_back(mesh->GetIndices().begin(), mesh->GetIndices().end());
 		for (auto& index: indices)

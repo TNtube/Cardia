@@ -46,7 +46,7 @@ namespace Cardia
 		std::shared_ptr<Shader> m_Shader;
 		std::unique_ptr<Texture2D> whiteTexture;
 
-		std::vector<Vertex> vertexBufferData;
+		// std::vector<Vertex> vertexBufferData;
 		uint32_t indexCount = 0;
 
 		std::vector<std::vector<uint32_t>> indexBufferData;
