@@ -7,21 +7,10 @@ namespace Cardia
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		auto& sub = mesh->GetSubMeshes().emplace_back();
-		glm::vec3 left{0.0f, -0.5f, 1.0f};
-		glm::vec3 right{0.5f, 0.5f, 1.0f};
-		glm::vec3 top{-0.5f, 0.5f, 1.0f};
-		auto leftTop = 0.5f * (left + top);
-		auto rightTop = 0.5f * (right + top);
-		auto leftRight = 0.5f * (left + right);
-		sub.GetVertices().push_back({left});
-		sub.GetVertices().push_back({leftRight});
-		sub.GetVertices().push_back({leftTop});
-		sub.GetVertices().push_back({leftRight});
-		sub.GetVertices().push_back({right});
-		sub.GetVertices().push_back({rightTop});
-		sub.GetVertices().push_back({leftTop});
-		sub.GetVertices().push_back({rightTop});
-		sub.GetVertices().push_back({top});
+		
+		sub.GetVertices().push_back({{0.0f, -0.5f, 1.0f}, {1.0, 0.0, 0.0}});
+		sub.GetVertices().push_back({{0.5f, 0.5f, 1.0f}, {0.0, 1.0, 0.0}});
+		sub.GetVertices().push_back({{-0.5f, 0.5f, 1.0f}, {0.0, 0.0, 1.0}});
 		m_MeshRenderer.SubmitMesh(m_Device, mesh);
 
 		CreatePipelineLayout();
