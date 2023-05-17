@@ -105,10 +105,8 @@ namespace Cardia
 	{
 	public:
 		Buffer(Device& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-		Buffer(const Buffer&) = delete;
-		Buffer(Buffer&&) = delete;
-		Buffer& operator=(const Buffer&) = delete;
-		Buffer& operator=(Buffer&&) = delete;
+		Buffer(Buffer && other) noexcept;
+		Buffer& operator=(Buffer&& other) noexcept;
 
 		void UploadData(size_t size, void* data) const;
 		const VkBuffer& GetBuffer() const { return m_Buffer; }

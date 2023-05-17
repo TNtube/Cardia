@@ -20,6 +20,8 @@ namespace Cardia
 		if (vkCreateBuffer(vkDevice, &bufferInfo, nullptr, &m_Buffer) != VK_SUCCESS)
 			throw std::runtime_error("Vulkan : failed to create vertex buffer !");
 
+		Log::trace("Created buffer with address: {0}", fmt::ptr(&m_Buffer));
+
 		VkMemoryRequirements memoryRequirements {};
 		vkGetBufferMemoryRequirements(vkDevice, m_Buffer, &memoryRequirements);
 
@@ -31,7 +33,26 @@ namespace Cardia
 		if (vkAllocateMemory(vkDevice, &allocateInfo, nullptr, &m_BufferMemory) != VK_SUCCESS)
 			throw std::runtime_error("Vulkan : Failed to allocate vertex buffer memory !");
 
+		Log::trace("Allocated buffer memory with address: {0}", fmt::ptr(&m_BufferMemory));
+
 		vkBindBufferMemory(vkDevice, m_Buffer, m_BufferMemory, 0);
+	}
+
+	Buffer::Buffer(Buffer&& other) noexcept : m_Device(other.m_Device)
+	{
+		m_Buffer = other.m_Buffer;
+		m_BufferMemory = other.m_BufferMemory;
+		other.m_Buffer = VK_NULL_HANDLE;
+		other.m_BufferMemory = VK_NULL_HANDLE;
+	}
+
+	Buffer& Buffer::operator=(Buffer&& other) noexcept
+	{
+		m_Buffer = other.m_Buffer;
+		m_BufferMemory = other.m_BufferMemory;
+		other.m_Buffer = VK_NULL_HANDLE;
+		other.m_BufferMemory = VK_NULL_HANDLE;
+		return *this;
 	}
 
 	void Buffer::UploadData(size_t size, void* data) const
@@ -46,7 +67,11 @@ namespace Cardia
 	Buffer::~Buffer()
 	{
 		const auto& device = m_Device.GetDevice();
+		if (m_Buffer != VK_NULL_HANDLE)
+			Log::trace("Destroying buffer with address: {0}", fmt::ptr(&m_Buffer));
 		vkDestroyBuffer(device, m_Buffer, nullptr);
+		if (m_BufferMemory != VK_NULL_HANDLE)
+			Log::trace("Destroying buffer memory with address: {0}", fmt::ptr(&m_BufferMemory));
 		vkFreeMemory(device, m_BufferMemory, nullptr);
 	}
 

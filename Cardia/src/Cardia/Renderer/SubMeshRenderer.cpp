@@ -6,23 +6,22 @@
 
 namespace Cardia
 {
-	SubMeshRenderer::SubMeshRenderer(Device& device, SubMesh &subMesh) : m_Device(device)
+	SubMeshRenderer::SubMeshRenderer(Device& device, SubMesh &subMesh)
+		: m_Device(device),
+		m_VertexCount(static_cast<uint32_t>(subMesh.GetVertices().size())),
+		m_VertexBuffer(device,
+			sizeof(subMesh.GetVertices()[0]) * m_VertexCount,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 	{
 		SubmitSubMesh(subMesh);
 	}
 
-	SubMeshRenderer::~SubMeshRenderer()
-	{
-		vkDestroyBuffer(m_Device.GetDevice(), m_VertexBuffer, nullptr);
-		vkFreeMemory(m_Device.GetDevice(), m_VertexBufferMemory, nullptr);
-	}
+	SubMeshRenderer::~SubMeshRenderer() = default;
 
-	SubMeshRenderer::SubMeshRenderer(SubMeshRenderer&& other) noexcept : m_Device(other.m_Device)
+	SubMeshRenderer::SubMeshRenderer(SubMeshRenderer&& other) noexcept : m_Device(other.m_Device), m_VertexCount(other.m_VertexCount)
 	{
-		m_VertexBuffer = other.m_VertexBuffer;
-		m_VertexBufferMemory = other.m_VertexBufferMemory;
-		other.m_VertexBuffer = VK_NULL_HANDLE;
-		other.m_VertexBufferMemory = VK_NULL_HANDLE;
+		m_VertexBuffer = std::move(other.m_VertexBuffer);
 	}
 
 	void SubMeshRenderer::SubmitSubMesh(SubMesh &subMesh)
@@ -30,22 +29,12 @@ namespace Cardia
 		m_VertexCount = static_cast<uint32_t>(subMesh.GetVertices().size());
 		assert(m_VertexCount >= 3 && "Vertex count must be at least 3");
 		const VkDeviceSize bufferSize = sizeof(subMesh.GetVertices()[0]) * m_VertexCount;
-		m_Device.CreateBuffer(
-		    bufferSize,
-		    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-		    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		    m_VertexBuffer,
-		    m_VertexBufferMemory);
-
-		void *data;
-		vkMapMemory(m_Device.GetDevice(), m_VertexBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, subMesh.GetVertices().data(), bufferSize);
-		vkUnmapMemory(m_Device.GetDevice(), m_VertexBufferMemory);
+		m_VertexBuffer.UploadData(bufferSize, subMesh.GetVertices().data());
 	}
 
 	void SubMeshRenderer::Bind(VkCommandBuffer commandBuffer) const
 	{
-		const VkBuffer buffers[] = {m_VertexBuffer};
+		const VkBuffer buffers[] = {m_VertexBuffer.GetBuffer()};
 		constexpr VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 	}

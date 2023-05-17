@@ -21,8 +21,7 @@ namespace Cardia
 		void Draw(VkCommandBuffer commandBuffer) const;
 	private:
 		Device& m_Device;
-		VkBuffer m_VertexBuffer {};
-		VkDeviceMemory m_VertexBufferMemory {};
-		uint32_t m_VertexCount {};
+		uint32_t m_VertexCount;
+		Buffer m_VertexBuffer;
 	};
 }
