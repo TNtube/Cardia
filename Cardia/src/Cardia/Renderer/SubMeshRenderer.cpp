@@ -19,9 +19,8 @@ namespace Cardia
 
 	SubMeshRenderer::~SubMeshRenderer() = default;
 
-	SubMeshRenderer::SubMeshRenderer(SubMeshRenderer&& other) noexcept : m_Device(other.m_Device), m_VertexCount(other.m_VertexCount)
+	SubMeshRenderer::SubMeshRenderer(SubMeshRenderer&& other) noexcept : m_Device(other.m_Device), m_VertexCount(other.m_VertexCount), m_VertexBuffer(std::move(other.m_VertexBuffer))
 	{
-		m_VertexBuffer = std::move(other.m_VertexBuffer);
 	}
 
 	void SubMeshRenderer::SubmitSubMesh(SubMesh &subMesh)
