@@ -55,12 +55,12 @@ namespace Cardia
 		return *this;
 	}
 
-	void Buffer::UploadData(size_t size, void* data) const
+	void Buffer::UploadData(size_t size, const void* data) const
 	{
 		const auto& device = m_Device.GetDevice();
 		void* memory;
 		vkMapMemory(device, m_BufferMemory, 0, size, 0, &memory);
-		memcpy(data, data, size);
+		memcpy(memory, data, size);
 		vkUnmapMemory(device, m_BufferMemory);
 	}
 

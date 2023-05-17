@@ -108,7 +108,7 @@ namespace Cardia
 		Buffer(Buffer && other) noexcept;
 		Buffer& operator=(Buffer&& other) noexcept;
 
-		void UploadData(size_t size, void* data) const;
+		void UploadData(size_t size, const void* data) const;
 		const VkBuffer& GetBuffer() const { return m_Buffer; }
 		
 		virtual ~Buffer();
