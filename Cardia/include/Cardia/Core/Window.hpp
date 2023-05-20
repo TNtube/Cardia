@@ -29,6 +29,8 @@ namespace Cardia
 		virtual int getHeight() const = 0;
 		virtual std::pair<int, int> getSize() const = 0;
 		virtual VkExtent2D GetExtent() const = 0;
+		virtual bool WasResized() const = 0;
+		virtual void ResetResizedFlag() = 0;
 
 		virtual void setEventCallback(const std::function<void(Event&)>& callback) = 0;
 		virtual void setFullscreen(bool state) = 0;

@@ -63,9 +63,9 @@ namespace Cardia
 				const auto data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 				data->width = w;
 				data->height = h;
+				data->resized = true;
 				WindowResizeEvent event(w, h);
 				data->eventCallback(event);
-				// RenderAPI::get().setViewPort(0, 0, w, h);
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* win, int x, int y)

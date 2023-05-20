@@ -13,10 +13,11 @@ namespace Cardia
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 		SwapChain(Device &deviceRef, VkExtent2D windowExtent);
+		SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous);
 		virtual ~SwapChain();
 
 		SwapChain(const SwapChain &) = delete;
-		void operator=(const SwapChain &) = delete;
+		SwapChain& operator=(const SwapChain &) = delete;
 
 		VkFramebuffer GetFrameBuffer(int index) const { return m_SwapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() const { return m_RenderPass; }
@@ -37,6 +38,7 @@ namespace Cardia
 		VkResult SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
 	 private:
+		void Init();
 		void CreateSwapChain();
 		void CreateImageViews();
 		void CreateDepthResources();
@@ -67,6 +69,7 @@ namespace Cardia
 		VkExtent2D m_WindowExtent {};
 
 		VkSwapchainKHR swapChain {};
+		std::shared_ptr<SwapChain> m_PreviousSwapChain;
 
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;

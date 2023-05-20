@@ -19,12 +19,14 @@ namespace Cardia
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
+		void RecreateSwapChain();
+		void RecordCommandBuffer(int imageIndex) const;
 		
 
 	private:
 		Window& m_Window;
 		Device m_Device;
-		SwapChain m_SwapChain;
+		std::unique_ptr<SwapChain> m_SwapChain;
 		std::unique_ptr<Pipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout {};
 		std::vector<VkCommandBuffer> m_CommandBuffers;

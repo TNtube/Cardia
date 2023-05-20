@@ -1,9 +1,11 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/Renderer/RenderContext.hpp"
 
+#include <GLFW/glfw3.h>
+
 namespace Cardia
 {
-	RenderContext::RenderContext(Window& window) : m_Window(window), m_Device(m_Window), m_SwapChain(m_Device, m_Window.GetExtent())
+	RenderContext::RenderContext(Window& window) : m_Window(window), m_Device(m_Window)
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		auto& sub = mesh->GetSubMeshes().emplace_back();
@@ -14,7 +16,7 @@ namespace Cardia
 		m_MeshRenderer.SubmitMesh(m_Device, mesh);
 
 		CreatePipelineLayout();
-		CreatePipeline();
+		RecreateSwapChain();
 		CreateCommandBuffers();
 	}
 
@@ -27,14 +29,26 @@ namespace Cardia
 	void RenderContext::DrawFrame()
 	{
 		uint32_t imageIndex;
-		auto result = m_SwapChain.AcquireNextImage(&imageIndex);
+		auto result = m_SwapChain->AcquireNextImage(&imageIndex);
 
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			RecreateSwapChain();
+			return;
+		}
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			throw std::runtime_error("Vulkan : Failed to present swap chain image !");
 		}
 
-		result = m_SwapChain.SubmitCommandBuffers(&m_CommandBuffers[imageIndex], &imageIndex);
+		RecordCommandBuffer(imageIndex);
+		result = m_SwapChain->SubmitCommandBuffers(&m_CommandBuffers[imageIndex], &imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.WasResized())
+		{
+			m_Window.ResetResizedFlag();
+			RecreateSwapChain();
+			return;
+		}
 		if (result != VK_SUCCESS)
 		{
 			throw std::runtime_error("Vulkan : Failed to present swap chain image !");
@@ -58,8 +72,8 @@ namespace Cardia
 
 	void RenderContext::CreatePipeline()
 	{
-		auto pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain.Width(), m_SwapChain.Height());
-		pipelineConfig.renderPass = m_SwapChain.GetRenderPass();
+		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
+		pipelineConfig.renderPass = m_SwapChain->GetRenderPass();
 		pipelineConfig.pipelineLayout = m_PipelineLayout;
 		m_Pipeline = std::make_unique<Pipeline>(
 			m_Device,
@@ -69,9 +83,23 @@ namespace Cardia
 		);
 	}
 
+	void RenderContext::RecreateSwapChain()
+	{
+		auto extent = m_Window.GetExtent();
+		while (extent.width == 0 || extent.height == 0)
+		{
+			extent = m_Window.GetExtent();
+			glfwWaitEvents();
+		}
+		vkDeviceWaitIdle(m_Device.GetDevice());
+		m_SwapChain.reset();
+		m_SwapChain = std::make_unique<SwapChain>(m_Device, extent);
+		CreatePipeline();
+	}
+
 	void RenderContext::CreateCommandBuffers()
 	{
-		m_CommandBuffers.resize(m_SwapChain.ImageCount());
+		m_CommandBuffers.resize(m_SwapChain->ImageCount());
 
 		VkCommandBufferAllocateInfo allocateInfo {};
 		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -82,38 +110,53 @@ namespace Cardia
 		if (vkAllocateCommandBuffers(m_Device.GetDevice(), &allocateInfo, m_CommandBuffers.data()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
+	}
 
-		for (int i = 0; i < m_CommandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo {};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	void RenderContext::RecordCommandBuffer(int imageIndex) const
+	{
+		VkCommandBufferBeginInfo beginInfo {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-			if (vkBeginCommandBuffer(m_CommandBuffers[i], &beginInfo) != VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
+		if (vkBeginCommandBuffer(m_CommandBuffers[imageIndex], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
 
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = m_SwapChain.GetRenderPass();
-			renderPassInfo.framebuffer = m_SwapChain.GetFrameBuffer(i);
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = m_SwapChain->GetRenderPass();
+		renderPassInfo.framebuffer = m_SwapChain->GetFrameBuffer(imageIndex);
 
-			renderPassInfo.renderArea.offset = {0, 0};
-			renderPassInfo.renderArea.extent = m_SwapChain.GetSwapChainExtent();
+		renderPassInfo.renderArea.offset = {0, 0};
+		renderPassInfo.renderArea.extent = m_SwapChain->GetSwapChainExtent();
 
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
-			clearValues[1].depthStencil = {1.0f, 0};
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
+		clearValues[1].depthStencil = {1.0f, 0};
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-			vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(m_CommandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			m_Pipeline->Bind(m_CommandBuffers[i]);
-			m_MeshRenderer.Draw(m_CommandBuffers[i]);
+		// VkViewport viewport {
+		// 	.x = 0.0f,
+		// 	.y = 0.0f,
+		// 	.width = static_cast<float>(m_SwapChain->GetSwapChainExtent().width),
+		// 	.height = static_cast<float>(m_SwapChain->GetSwapChainExtent().height),
+		// 	.minDepth = 0.0f,
+		// 	.maxDepth = 1.0f
+		// };
+		//
+		// VkRect2D scissor { {0, 0}, m_SwapChain->GetSwapChainExtent() };
+		//
+		// vkCmdSetViewport(m_CommandBuffers[imageIndex], 0,  1, &viewport);
+		// vkCmdSetScissor(m_CommandBuffers[imageIndex], 0,  1, &scissor);
 
-			vkCmdEndRenderPass(m_CommandBuffers[i]);
-			if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
+		m_Pipeline->Bind(m_CommandBuffers[imageIndex]);
+		m_MeshRenderer.Draw(m_CommandBuffers[imageIndex]);
+
+		vkCmdEndRenderPass(m_CommandBuffers[imageIndex]);
+		if (vkEndCommandBuffer(m_CommandBuffers[imageIndex]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
 }

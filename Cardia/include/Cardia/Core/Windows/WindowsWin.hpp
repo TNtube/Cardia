@@ -13,6 +13,7 @@ namespace Cardia
 		std::string title;
 		int width, height;
 		bool vSync;
+		bool resized;
 
 		std::function<void(Event&)> eventCallback;
 	};
@@ -28,6 +29,9 @@ namespace Cardia
 		inline int getHeight() const override { return m_Data.height; }
 		inline std::pair<int, int> getSize() const override { return {getWidth(), getHeight()}; }
 		inline VkExtent2D GetExtent() const override { return VkExtent2D {static_cast<unsigned>(m_Data.width), static_cast<unsigned>(m_Data.height)}; }
+
+		inline bool WasResized() const override { return m_Data.resized; }
+		inline void ResetResizedFlag() override { m_Data.resized = false; }
 
 
 		inline void setEventCallback(const std::function<void(Event&)>& callback) override { m_Data.eventCallback = callback; }

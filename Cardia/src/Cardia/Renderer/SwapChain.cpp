@@ -1,5 +1,4 @@
-﻿
-#include "Cardia/Renderer/SwapChain.hpp"
+﻿#include "Cardia/Renderer/SwapChain.hpp"
 
 // std
 #include <array>
@@ -10,10 +9,20 @@
 #include <set>
 #include <stdexcept>
 
-namespace Cardia {
-
+namespace Cardia
+{
 	SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent)
 			: m_Device{deviceRef}, m_WindowExtent{extent} {
+		Init();
+	}
+
+	SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
+			: m_Device{deviceRef}, m_WindowExtent{extent}, m_PreviousSwapChain{std::move(previous)} {
+		Init();
+		m_PreviousSwapChain = nullptr;
+	}
+
+	void SwapChain::Init() {
 		CreateSwapChain();
 		CreateImageViews();
 		CreateRenderPass();
@@ -72,8 +81,7 @@ namespace Cardia {
 		return result;
 	}
 
-	VkResult SwapChain::SubmitCommandBuffers(
-			const VkCommandBuffer *buffers, uint32_t *imageIndex) {
+	VkResult SwapChain::SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
 		if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
 			vkWaitForFences(m_Device.GetDevice(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
 		}
@@ -113,9 +121,8 @@ namespace Cardia {
 
 		presentInfo.pImageIndices = imageIndex;
 
-		auto result = vkQueuePresentKHR(m_Device.PresentQueue(), &presentInfo);
-
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+		const auto result = vkQueuePresentKHR(m_Device.PresentQueue(), &presentInfo);
 
 		return result;
 	}
@@ -163,7 +170,7 @@ namespace Cardia {
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
+		createInfo.oldSwapchain = m_PreviousSwapChain == nullptr ? VK_NULL_HANDLE : m_PreviousSwapChain->swapChain;
 
 		if (vkCreateSwapchainKHR(m_Device.GetDevice(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create swap chain!");
@@ -238,15 +245,13 @@ namespace Cardia {
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
+
+		dependency.dstSubpass = 0;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.srcAccessMask = 0;
-		dependency.srcStageMask =
-				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstSubpass = 0;
-		dependency.dstStageMask =
-				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask =
-				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
 		std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
 		VkRenderPassCreateInfo renderPassInfo = {};
