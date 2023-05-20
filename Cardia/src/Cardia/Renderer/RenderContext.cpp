@@ -10,9 +10,9 @@ namespace Cardia
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		auto& sub = mesh->GetSubMeshes().emplace_back();
 		
-		sub.GetVertices().push_back({{0.0f, -0.5f, 1.0f}, {1.0, 0.0, 0.0}});
-		sub.GetVertices().push_back({{0.5f, 0.5f, 1.0f}, {0.0, 1.0, 0.0}});
-		sub.GetVertices().push_back({{-0.5f, 0.5f, 1.0f}, {0.0, 0.0, 1.0}});
+		sub.GetVertices().push_back({{0.0f, -0.5f, 0.0f}, {1.0, 0.0, 0.0}});
+		sub.GetVertices().push_back({{0.5f, 0.5f, 0.0f}, {0.0, 1.0, 0.0}});
+		sub.GetVertices().push_back({{-0.5f, 0.5f, 0.0f}, {0.0, 0.0, 1.0}});
 		m_MeshRenderer.SubmitMesh(m_Device, mesh);
 
 		CreatePipelineLayout();
@@ -92,8 +92,19 @@ namespace Cardia
 			glfwWaitEvents();
 		}
 		vkDeviceWaitIdle(m_Device.GetDevice());
-		m_SwapChain.reset();
-		m_SwapChain = std::make_unique<SwapChain>(m_Device, extent);
+		
+		if (m_SwapChain == nullptr)
+		{
+			m_SwapChain = std::make_unique<SwapChain>(m_Device, extent);
+		} else
+		{
+			m_SwapChain = std::make_unique<SwapChain>(m_Device, extent, std::move(m_SwapChain));
+			if (m_SwapChain->ImageCount() != m_CommandBuffers.size())
+			{
+				FreeCommandBuffers();
+				CreateCommandBuffers();
+			}
+		}
 		CreatePipeline();
 	}
 
@@ -112,7 +123,17 @@ namespace Cardia
 		}
 	}
 
-	void RenderContext::RecordCommandBuffer(int imageIndex) const
+	void RenderContext::FreeCommandBuffers()
+	{
+		vkFreeCommandBuffers(
+			m_Device.GetDevice(),
+			m_Device.GetCommandPool(),
+			static_cast<uint32_t>(m_CommandBuffers.size()),
+			m_CommandBuffers.data());
+		m_CommandBuffers.clear();
+	}
+
+	void RenderContext::RecordCommandBuffer(uint32_t imageIndex) const
 	{
 		VkCommandBufferBeginInfo beginInfo {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -150,6 +171,21 @@ namespace Cardia
 		//
 		// vkCmdSetViewport(m_CommandBuffers[imageIndex], 0,  1, &viewport);
 		// vkCmdSetScissor(m_CommandBuffers[imageIndex], 0,  1, &scissor);
+
+		const auto extent = m_SwapChain->GetSwapChainExtent();
+		VkViewport viewport {};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(extent.width);
+		viewport.height = static_cast<float>(extent.height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(m_CommandBuffers[imageIndex], 0, 1, &viewport);
+
+		VkRect2D scissor {};
+		scissor.offset = {0, 0};
+		scissor.extent = extent;
+		vkCmdSetScissor(m_CommandBuffers[imageIndex], 0, 1, &scissor);
 
 		m_Pipeline->Bind(m_CommandBuffers[imageIndex]);
 		m_MeshRenderer.Draw(m_CommandBuffers[imageIndex]);

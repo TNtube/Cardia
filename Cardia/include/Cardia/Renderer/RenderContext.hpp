@@ -19,8 +19,9 @@ namespace Cardia
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
+		void FreeCommandBuffers();
 		void RecreateSwapChain();
-		void RecordCommandBuffer(int imageIndex) const;
+		void RecordCommandBuffer(uint32_t imageIndex) const;
 		
 
 	private:

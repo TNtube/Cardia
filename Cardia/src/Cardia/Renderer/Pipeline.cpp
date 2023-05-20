@@ -158,6 +158,16 @@ namespace Cardia
 		colorBlendInfo.blendConstants[1] = 0.0f;  // Optional
 		colorBlendInfo.blendConstants[2] = 0.0f;  // Optional
 		colorBlendInfo.blendConstants[3] = 0.0f;  // Optional
+		
+		std::vector<VkDynamicState> dynamicStates = {
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_SCISSOR
+		};
+
+		VkPipelineDynamicStateCreateInfo dynamicState {};
+		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+		dynamicState.pDynamicStates = dynamicStates.data();
 
 		VkGraphicsPipelineCreateInfo pipelineInfo {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -170,7 +180,7 @@ namespace Cardia
 		pipelineInfo.pMultisampleState = &info.multisampleInfo;
 		pipelineInfo.pColorBlendState = &colorBlendInfo;
 		pipelineInfo.pDepthStencilState = &info.depthStencilInfo;
-		pipelineInfo.pDynamicState = nullptr;
+		pipelineInfo.pDynamicState = &dynamicState;
 
 		pipelineInfo.layout = info.pipelineLayout;
 		pipelineInfo.renderPass = info.renderPass;
