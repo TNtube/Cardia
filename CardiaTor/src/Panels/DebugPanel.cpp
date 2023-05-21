@@ -63,17 +63,17 @@ namespace Cardia::Panel
 				elapsedTime += Time::deltaTime().seconds();
 
 
-				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().drawCalls).c_str(),
-					"Draw Calls");
-				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().triangleCount).c_str(),
-					"Triangle Count");
+				// ImGui::LabelText(
+				// 	std::to_string(Renderer2D::getStats().drawCalls).c_str(),
+				// 	"Draw Calls");
+				// ImGui::LabelText(
+				// 	std::to_string(Renderer2D::getStats().triangleCount).c_str(),
+				// 	"Triangle Count");
 				ImGui::Separator();
 				ImGui::Text("GPU's Info");
-				ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
-				ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
-				ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
+				// ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
+				// ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
+				// ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
 				ImGui::Separator();
 				ImGui::TreePop();
 			}
@@ -83,7 +83,7 @@ namespace Cardia::Panel
 			if (isOpen)
 			{
 				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-				RenderAPI::get().setWireFrame(isWireframeMode);
+				// RenderAPI::get().setWireFrame(isWireframeMode);
 
 				ImGui::Checkbox("Fullscreen?", &isFullscreen);
 				if (isFullscreen != isFullscreenPrev)

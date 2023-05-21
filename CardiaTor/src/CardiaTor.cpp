@@ -83,8 +83,8 @@ namespace Cardia
 		{
 			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
 			{
-				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
+				// int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+				// m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
 			}
 		}
 
@@ -296,12 +296,12 @@ namespace Cardia
 		const auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		const uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+		// const uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
 		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
 		{
-			m_Framebuffer->Resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
+			// m_Framebuffer->Resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
 			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
 		}
 		auto io = ImGui::GetIO();
@@ -309,9 +309,9 @@ namespace Cardia
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 
-		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
-			     ImVec2{m_SceneSize.x, m_SceneSize.y},
-			     ImVec2{0, 1}, ImVec2{1, 0});
+		// ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
+		// 	     ImVec2{m_SceneSize.x, m_SceneSize.y},
+		// 	     ImVec2{0, 1}, ImVec2{1, 0});
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -338,7 +338,7 @@ namespace Cardia
 
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
-		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->GetRendererID())), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
+		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(0)), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)
 			{

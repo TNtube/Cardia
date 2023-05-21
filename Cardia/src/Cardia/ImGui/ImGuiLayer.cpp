@@ -5,14 +5,19 @@
 
 #include <imgui.h>
 // #include <imgui_impl_opengl3.h>
+#include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
 
 namespace Cardia
 {
-	ImGuiLayer::ImGuiLayer()
+	ImGuiLayer::ImGuiLayer(RenderContext& renderContext) : m_RenderContext(renderContext)
 	{
+		const Application& app = Application::get();
+		const auto window = static_cast<GLFWwindow*>(app.GetWindow().getNativeWin());
+		const auto& device = m_RenderContext.m_Device;
+		
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -21,6 +26,53 @@ namespace Cardia
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		
+		ImGui_ImplGlfw_InitForVulkan(window, true);
+
+		{
+			VkDescriptorPoolSize pool_sizes[] =
+			{
+				{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+			};
+			VkDescriptorPoolCreateInfo pool_info = {};
+			pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+			pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+			pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
+			pool_info.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(pool_sizes));
+			pool_info.pPoolSizes = pool_sizes;
+			vkCreateDescriptorPool(device.m_Device, &pool_info, nullptr, &m_DescriptorPool);
+		}
+
+		ImGui_ImplVulkan_InitInfo init_info = {};
+		init_info.Instance = device.m_Instance;
+		init_info.PhysicalDevice = device.m_PhysicalDevice;
+		init_info.Device = device.m_Device;
+		init_info.QueueFamily = device.FindQueueFamilies(device.m_PhysicalDevice).GraphicsFamily;
+		init_info.Queue = device.m_GraphicsQueue;
+		init_info.PipelineCache = VK_NULL_HANDLE;
+		init_info.DescriptorPool = m_DescriptorPool;
+		init_info.Subpass = 0;
+		init_info.MinImageCount = SwapChain::MAX_FRAMES_IN_FLIGHT;
+		init_info.ImageCount = 2;
+		init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+		init_info.Allocator = VK_NULL_HANDLE;
+		init_info.CheckVkResultFn = [](VkResult err)
+		{
+			if (err == 0)
+				return;
+			Log::coreError("Vulkan Error : VkResult = {0}", err);
+		};
+		ImGui_ImplVulkan_Init(&init_info, m_RenderContext.m_SwapChain->GetRenderPass());
 
 		constexpr float fontSize = 16.0f;
 		io.Fonts->AddFontFromFileTTF("resources/fonts/opensans/OpenSans-Bold.ttf", fontSize);
@@ -35,30 +87,27 @@ namespace Cardia
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		const Application& app = Application::get();
-		const auto window = static_cast<GLFWwindow*>(app.GetWindow().getNativeWin());
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-
-		// ImGui_ImplOpenGL3_Init("#version 460");
+		auto commandBuffer = device.BeginSingleTimeCommands();
+		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+		device.EndSingleTimeCommands(commandBuffer);
+		vkDeviceWaitIdle(device.m_Device);
+		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-		// ImGui_ImplOpenGL3_Shutdown();
+		const auto& device = m_RenderContext.m_Device;
+		vkDeviceWaitIdle(device.GetDevice());
+		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-	}
-
-	void ImGuiLayer::onEvent(Event &event)
-	{
-		// ImGuiIO& io = ImGui::GetIO();
-		//event.handled |= event.isInCategory(EventCategory::EventCatMouse) & io.WantCaptureMouse;
-		//event.handled |= event.isInCategory(EventCategory::EventCatKeyboard) & io.WantCaptureKeyboard;
+		vkDestroyDescriptorPool(device.m_Device, m_DescriptorPool, nullptr);
 	}
 
 	void ImGuiLayer::Begin()
 	{
-		// ImGui_ImplOpenGL3_NewFrame();
+		// Start the Dear ImGui frame
+		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -72,7 +121,6 @@ namespace Cardia
 
 		// Rendering
 		ImGui::Render();
-		// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -82,4 +130,5 @@ namespace Cardia
 			glfwMakeContextCurrent(backup_current_context);
 		}
 	}
+
 }

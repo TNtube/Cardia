@@ -80,7 +80,7 @@ namespace Cardia::Panel
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			const auto id = m_FolderIcon->GetRendererID();
+			const auto id = 0; // m_FolderIcon->GetRendererID();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
 			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0}))
@@ -101,7 +101,7 @@ namespace Cardia::Panel
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			const auto id = m_FileIcon->GetRendererID();
+			const auto id = 0; // m_FileIcon->GetRendererID();
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
 			ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
 

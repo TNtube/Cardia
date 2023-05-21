@@ -46,8 +46,8 @@ struct QueueFamilyIndices {
 		VkFormat FindSupportedFormat(
 				const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
-		VkCommandBuffer BeginSingleTimeCommands();
-		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+		VkCommandBuffer BeginSingleTimeCommands() const;
+		void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 		void CopyBufferToImage(
 				VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
@@ -66,6 +66,7 @@ struct QueueFamilyIndices {
 #endif
 
 	 private:
+		friend class ImGuiLayer;
 		void CreateInstance();
 		void SetupDebugMessenger();
 		void CreateSurface();
@@ -77,7 +78,7 @@ struct QueueFamilyIndices {
 		bool IsDeviceSuitable(VkPhysicalDevice device);
 		std::vector<const char *> GetRequiredExtensions();
 		bool CheckValidationLayerSupport();
-		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device) const;
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 		void HasGflwRequiredInstanceExtensions();
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);

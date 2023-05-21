@@ -324,7 +324,8 @@ bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
 	return requiredExtensions.empty();
 }
 
-QueueFamilyIndices Device::FindQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices Device::FindQueueFamilies(VkPhysicalDevice device) const
+{
 	QueueFamilyIndices indices;
 
 	uint32_t queueFamilyCount = 0;
@@ -410,7 +411,8 @@ uint32_t Device::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-VkCommandBuffer Device::BeginSingleTimeCommands() {
+VkCommandBuffer Device::BeginSingleTimeCommands() const
+{
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -428,7 +430,8 @@ VkCommandBuffer Device::BeginSingleTimeCommands() {
 	return commandBuffer;
 }
 
-void Device::EndSingleTimeCommands(VkCommandBuffer commandBuffer) {
+void Device::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
+{
 	vkEndCommandBuffer(commandBuffer);
 
 	VkSubmitInfo submitInfo{};

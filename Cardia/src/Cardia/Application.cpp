@@ -23,7 +23,7 @@ namespace Cardia
 			OnEvent(e);
 		});
 
-		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
+		m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_RenderContext);
 	}
 
 	Application::~Application()
@@ -42,13 +42,13 @@ namespace Cardia
 			time += Time::m_DeltaTime.seconds();
 			m_Window->onUpdate();
 
-			m_RenderContext.DrawFrame();
-
 			OnUpdate();
 
-			// m_ImGuiLayer->Begin();
-			// OnImGuiDraw();
-			// m_ImGuiLayer->End();
+			m_ImGuiLayer->Begin();
+			OnImGuiDraw();
+			m_ImGuiLayer->End();
+
+			m_RenderContext.DrawFrame();
 
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 

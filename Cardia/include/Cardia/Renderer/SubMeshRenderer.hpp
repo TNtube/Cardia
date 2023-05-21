@@ -22,6 +22,8 @@ namespace Cardia
 	private:
 		Device& m_Device;
 		uint32_t m_VertexCount;
+		uint32_t m_IndexCount;
 		Buffer m_VertexBuffer;
+		Buffer m_IndexBuffer;
 	};
 }

@@ -1,6 +1,7 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/Renderer/RenderContext.hpp"
 
+#include <imgui_impl_vulkan.h>
 #include <GLFW/glfw3.h>
 
 namespace Cardia
@@ -9,10 +10,15 @@ namespace Cardia
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		auto& sub = mesh->GetSubMeshes().emplace_back();
-		
-		sub.GetVertices().push_back({{0.0f, -0.5f, 0.0f}, {1.0, 0.0, 0.0}});
-		sub.GetVertices().push_back({{0.5f, 0.5f, 0.0f}, {0.0, 1.0, 0.0}});
-		sub.GetVertices().push_back({{-0.5f, 0.5f, 0.0f}, {0.0, 0.0, 1.0}});
+
+		sub.GetVertices() = {
+			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 1.0f}}
+		};
+
+		sub.GetIndices() = {0, 1, 2, 2, 3, 0};
 		m_MeshRenderer.SubmitMesh(m_Device, mesh);
 
 		CreatePipelineLayout();
@@ -137,6 +143,7 @@ namespace Cardia
 	{
 		VkCommandBufferBeginInfo beginInfo {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 		if (vkBeginCommandBuffer(m_CommandBuffers[imageIndex], &beginInfo) != VK_SUCCESS) {
 			throw std::runtime_error("failed to begin recording command buffer!");
@@ -189,6 +196,7 @@ namespace Cardia
 
 		m_Pipeline->Bind(m_CommandBuffers[imageIndex]);
 		m_MeshRenderer.Draw(m_CommandBuffers[imageIndex]);
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffers[imageIndex]);
 
 		vkCmdEndRenderPass(m_CommandBuffers[imageIndex]);
 		if (vkEndCommandBuffer(m_CommandBuffers[imageIndex]) != VK_SUCCESS) {
