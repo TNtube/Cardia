@@ -39,7 +39,7 @@ namespace Cardia
 
 		bufferSize = sizeof(subMesh.GetIndices()[0]) * m_IndexCount;
 
-		Buffer stagingBuffer(
+		const Buffer stagingBuffer(
 			m_Device,
 			bufferSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,

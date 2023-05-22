@@ -39,8 +39,8 @@ namespace Cardia
 		m_IconPlay = AssetsManager::Load<Texture2D>("resources/icons/play.png");
 		m_IconStop = AssetsManager::Load<Texture2D>("resources/icons/pause.png");
 
-		FramebufferSpec spec{ window.getWidth(), window.getHeight() };
-		spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		FramebufferSpecification spec{ window.getWidth(), window.getHeight() };
+		// spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		// m_Framebuffer = Framebuffer::create(spec);
 
 		ImGuiIO &io = ImGui::GetIO();

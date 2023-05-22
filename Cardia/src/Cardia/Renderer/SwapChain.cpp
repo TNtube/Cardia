@@ -48,10 +48,6 @@ namespace Cardia
 			vkFreeMemory(m_Device.GetDevice(), m_DepthImageMemories[i], nullptr);
 		}
 
-		for (auto framebuffer : m_SwapChainFramebuffers) {
-			vkDestroyFramebuffer(m_Device.GetDevice(), framebuffer, nullptr);
-		}
-
 		vkDestroyRenderPass(m_Device.GetDevice(), m_RenderPass, nullptr);
 
 		// cleanup synchronization objects
@@ -269,27 +265,15 @@ namespace Cardia
 	}
 
 	void SwapChain::CreateFramebuffers() {
-		m_SwapChainFramebuffers.resize(ImageCount());
+		m_SwapChainFramebuffers.reserve(ImageCount());
 		for (size_t i = 0; i < ImageCount(); i++) {
-			std::array<VkImageView, 2> attachments = {m_SwapChainImageViews[i], m_DepthImageViews[i]};
-
-			VkExtent2D swapChainExtent = GetSwapChainExtent();
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = m_RenderPass;
-			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-			framebufferInfo.pAttachments = attachments.data();
-			framebufferInfo.width = swapChainExtent.width;
-			framebufferInfo.height = swapChainExtent.height;
-			framebufferInfo.layers = 1;
-
-			if (vkCreateFramebuffer(
-							m_Device.GetDevice(),
-							&framebufferInfo,
-							nullptr,
-							&m_SwapChainFramebuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create framebuffer!");
-			}
+			std::vector attachments = {m_SwapChainImageViews[i], m_DepthImageViews[i]};
+			FramebufferSpecification specification {
+				.width = GetSwapChainExtent().width,
+				.height = GetSwapChainExtent().height,
+				.attachments = attachments
+			};
+			m_SwapChainFramebuffers.emplace_back(m_Device, m_RenderPass, specification);
 		}
 	}
 
