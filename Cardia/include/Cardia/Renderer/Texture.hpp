@@ -29,28 +29,32 @@ namespace Cardia
 	class Texture2D : public Texture
 	{
 	public:
-		Texture2D() = default;
-		explicit Texture2D(const Device& device, const std::filesystem::path& path);
+		explicit Texture2D(Device& device, const std::filesystem::path& path);
 		virtual ~Texture2D() override;
 
 		virtual uint32_t GetHeight() const override { return m_Height; }
 		virtual uint32_t GetWidth() const override { return m_Width; }
 
 		VkSampler GetSampler() const { return m_TextureSampler; }
+		VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
 
 		static std::unique_ptr<Texture2D> create(const std::string& path);
 		static std::unique_ptr<Texture2D> create(int width, int height, void* data);
 
 	private:
-		void CopyBufferToImage(VkBuffer buffer, uint32_t width, uint32_t height) const;
+		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
+		void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
 		void CreateTextureSampler();
+		void CreateTextureDescriptorSet();
 
 		uint32_t m_Width {};
 		uint32_t m_Height {};
 		
+		Device& m_Device;
 		VkImage m_TextureImage {};
 		VkDeviceMemory m_TextureImageMemory {};
 		VkImageView m_TextureImageView {};
 		VkSampler m_TextureSampler {};
+		VkDescriptorSet m_DescriptorSet {};
 	};
 }
