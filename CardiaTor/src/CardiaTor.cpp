@@ -36,8 +36,8 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = AssetsManager::Load<Texture2D>("resources/icons/play.png");
-		m_IconStop = AssetsManager::Load<Texture2D>("resources/icons/pause.png");
+		m_IconPlay = std::make_unique<Texture2D>(m_RenderContext.GetDevice(), "resources/icons/play.png");
+		m_IconStop = std::make_unique<Texture2D>(m_RenderContext.GetDevice(), "resources/icons/pause.png");
 
 		// FramebufferSpecification spec{ window.getWidth(), window.getHeight() };
 		// spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -296,7 +296,7 @@ namespace Cardia
 		const auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		// const uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+		const uint32_t textureID = 0; // m_Framebuffer->GetColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
 		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
@@ -309,9 +309,9 @@ namespace Cardia
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 
-		// ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
-		// 	     ImVec2{m_SceneSize.x, m_SceneSize.y},
-		// 	     ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
+			     ImVec2{m_SceneSize.x, m_SceneSize.y},
+			     ImVec2{0, 1}, ImVec2{1, 0});
 
 		if (ImGui::BeginDragDropTarget())
 		{

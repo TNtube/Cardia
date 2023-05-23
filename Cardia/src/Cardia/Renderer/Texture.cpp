@@ -48,6 +48,8 @@ namespace Cardia
 
 
 		CreateImageView(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+		CreateTextureSampler();
+		CreateTextureDescriptorSet();
 	}
 
 	Texture2D::~Texture2D()

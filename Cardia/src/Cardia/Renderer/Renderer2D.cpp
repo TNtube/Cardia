@@ -193,8 +193,8 @@ namespace Cardia
 		specification.alpha = color.a < 1.0f;
 		specification.layer = zIndex;
 		specification.shader = "basic";
-		if (texture)
-			specification.texture = texture->GetPath();
+		// if (texture)
+		// 	specification.texture = texture->GetPath();
 
 		for (auto& batch : s_Data->batches)
 		{

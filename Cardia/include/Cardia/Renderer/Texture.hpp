@@ -15,12 +15,8 @@ namespace Cardia
 		virtual ~Texture() = default;
 		virtual uint32_t GetHeight() const = 0;
 		virtual uint32_t GetWidth() const = 0;
-
-		virtual void Bind(int slot = 0) const = 0;
-		virtual bool operator==(const Texture& other) const = 0;
-		virtual uint32_t GetRendererID() = 0;
-		virtual bool IsLoaded() { return m_Loaded; }
-		virtual std::string GetPath() const { return m_Path; }
+		virtual VkSampler GetSampler() const = 0;
+		virtual VkDescriptorSet GetDescriptorSet() const = 0;
 	protected:
 		bool m_Loaded = false;
 		std::string m_Path {};
@@ -35,8 +31,8 @@ namespace Cardia
 		virtual uint32_t GetHeight() const override { return m_Height; }
 		virtual uint32_t GetWidth() const override { return m_Width; }
 
-		VkSampler GetSampler() const { return m_TextureSampler; }
-		VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
+		VkSampler GetSampler() const override { return m_TextureSampler; }
+		VkDescriptorSet GetDescriptorSet() const override { return m_DescriptorSet; }
 
 		static std::unique_ptr<Texture2D> create(const std::string& path);
 		static std::unique_ptr<Texture2D> create(int width, int height, void* data);

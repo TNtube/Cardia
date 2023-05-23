@@ -31,12 +31,14 @@ namespace Cardia
 
 	private:
 		std::unique_ptr<Window> m_Window = Window::Create();
+
+	protected:
 		RenderContext m_RenderContext {*m_Window};
+	private:
 		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 		ScriptEngine m_ScriptEngine;
 		bool m_Running = true;
 		static Application* s_Instance;
-
 	};
 
 	std::unique_ptr<Application> CreateApplication();

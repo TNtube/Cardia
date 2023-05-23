@@ -15,6 +15,8 @@ namespace Cardia
 		virtual ~RenderContext();
 		void DrawFrame();
 
+		Device& GetDevice() { return m_Device; }
+
 	private:
 		void CreatePipelineLayout();
 		void CreatePipeline();
