@@ -1,7 +1,6 @@
 #include "cdpch.hpp"
 
 #include "Cardia/Renderer/Renderer2D.hpp"
-#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Renderer/Batch.hpp"
 
@@ -30,7 +29,7 @@ namespace Cardia
 		std::unique_ptr<Shader> basicShader;
 		glm::mat4 viewProjectionMatrix {};
 
-		std::unique_ptr<VertexArray> vertexArray;
+		// std::unique_ptr<VertexArray> vertexArray;
 		std::unique_ptr<StorageBuffer> lightStorageBuffer;
 		std::vector<LightData> lightDataBuffer;
 
@@ -46,7 +45,7 @@ namespace Cardia
 		s_Data->batches.clear();
 		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert.spirv", "resources/shaders/basic.frag.spirv"});
 		s_Data->lightDataBuffer.clear();
-		s_Data->vertexArray = VertexArray::create();
+		// s_Data->vertexArray = VertexArray::create();
 
 		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices/* * sizeof(Vertex)*/);
 
@@ -59,10 +58,10 @@ namespace Cardia
 			{ShaderDataType::Float, "a_EntityID"}
 		});
 
-		s_Data->vertexArray->setVertexBuffer(std::move(vbo));
+		// s_Data->vertexArray->setVertexBuffer(std::move(vbo));
 
 		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
-		s_Data->vertexArray->setIndexBuffer(std::move(ibo));
+		// s_Data->vertexArray->setIndexBuffer(std::move(ibo));
 	}
 
 	void Renderer2D::quit()
@@ -99,7 +98,7 @@ namespace Cardia
 		{
 			if (lastLayer != std::to_string(batch.specification.layer))
 			{
-				RenderAPI::get().clearDepthBuffer();
+				// RenderAPI::get().clearDepthBuffer();
 			}
 			batch.render(batch.specification.alpha);
 			s_Stats->drawCalls++;
@@ -201,7 +200,7 @@ namespace Cardia
 			if (batch.specification == specification && batch.addMesh(&mesh))
 				return;
 		}
-		auto& batch = s_Data->batches.emplace_back(s_Data->vertexArray.get(), s_Data->cameraPosition, texture, specification);
+		auto& batch = s_Data->batches.emplace_back(s_Data->cameraPosition, texture, specification);
 		batch.addMesh(&mesh);
 	}
 

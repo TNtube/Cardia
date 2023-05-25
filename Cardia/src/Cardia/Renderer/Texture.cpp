@@ -49,7 +49,6 @@ namespace Cardia
 
 		CreateImageView(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 		CreateTextureSampler();
-		CreateTextureDescriptorSet();
 	}
 
 	Texture2D::~Texture2D()
@@ -177,36 +176,5 @@ namespace Cardia
 	
 		if (vkCreateSampler(m_Device.GetDevice(), &samplerInfo, nullptr, &m_TextureSampler) != VK_SUCCESS)
 			throw std::runtime_error("failed to create texture sampler!");
-	}
-
-	void Texture2D::CreateTextureDescriptorSet()
-	{
-		VkDescriptorSetAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-
-		// TODO : descriptorPool & descriptorSetLayout
-		// allocInfo.descriptorPool = descriptorPool;
-		// allocInfo.descriptorSetCount = 1;
-		// allocInfo.pSetLayouts = &textureDescriptorSetLayout;
-
-		if (vkAllocateDescriptorSets(m_Device.GetDevice(), &allocInfo, &m_DescriptorSet) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate descriptor sets!");
-		}
-
-		VkDescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = m_TextureImageView;
-		imageInfo.sampler = m_TextureSampler;
-
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = m_DescriptorSet;
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets(m_Device.GetDevice(), 1, &descriptorWrite, 0, nullptr);
 	}
 }

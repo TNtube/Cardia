@@ -76,7 +76,7 @@ namespace Cardia::Panel
 			uint32_t whiteColor = 0xffffffff;
 
 			const auto white = Texture2D::create(1, 1, &whiteColor);
-			const auto texID = sprite.texture ? sprite.texture->GetDescriptorSet() : white->GetDescriptorSet();
+			const auto texID = nullptr; // sprite.texture ? sprite.texture->GetDescriptorSet() : white->GetDescriptorSet();
 
 			ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
 			if (ImGui::BeginDragDropTarget())
@@ -125,7 +125,7 @@ namespace Cardia::Panel
 			if (!meshRendererC.meshRenderer->GetMesh()) return;
 			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
 			for (auto& material : materials) {
-				const auto texID = material->GetDescriptorSet();
+				const auto texID = nullptr; // material->GetDescriptorSet();
 				ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
 				if (ImGui::BeginDragDropTarget())
 				{

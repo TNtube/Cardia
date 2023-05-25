@@ -2,7 +2,6 @@
 
 
 #include "Cardia/DataStructure/SubMesh.hpp"
-#include "VertexArray.hpp"
 #include "Buffer.hpp"
 
 namespace Cardia

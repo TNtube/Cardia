@@ -16,7 +16,6 @@ namespace Cardia
 		virtual uint32_t GetHeight() const = 0;
 		virtual uint32_t GetWidth() const = 0;
 		virtual VkSampler GetSampler() const = 0;
-		virtual VkDescriptorSet GetDescriptorSet() const = 0;
 	protected:
 		bool m_Loaded = false;
 		std::string m_Path {};
@@ -32,7 +31,6 @@ namespace Cardia
 		virtual uint32_t GetWidth() const override { return m_Width; }
 
 		VkSampler GetSampler() const override { return m_TextureSampler; }
-		VkDescriptorSet GetDescriptorSet() const override { return m_DescriptorSet; }
 
 		static std::unique_ptr<Texture2D> create(const std::string& path);
 		static std::unique_ptr<Texture2D> create(int width, int height, void* data);
@@ -41,7 +39,6 @@ namespace Cardia
 		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 		void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
 		void CreateTextureSampler();
-		void CreateTextureDescriptorSet();
 
 		uint32_t m_Width {};
 		uint32_t m_Height {};
@@ -51,6 +48,5 @@ namespace Cardia
 		VkDeviceMemory m_TextureImageMemory {};
 		VkImageView m_TextureImageView {};
 		VkSampler m_TextureSampler {};
-		VkDescriptorSet m_DescriptorSet {};
 	};
 }

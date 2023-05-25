@@ -1,7 +1,6 @@
 #include "cdpch.hpp"
 #include "Cardia/Application.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
-#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <GLFW/glfw3.h>
@@ -32,7 +31,6 @@ namespace Cardia
 
 	void Application::Run()
 	{
-		RenderAPI::init();
 		Renderer2D::init();
 
 		float time = 0.0f;

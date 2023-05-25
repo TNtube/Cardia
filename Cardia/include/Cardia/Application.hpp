@@ -6,7 +6,6 @@
 #include "Cardia/Core/Window.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
-#include "Renderer/Renderer.hpp"
 #include "Renderer/RenderContext.hpp"
 
 

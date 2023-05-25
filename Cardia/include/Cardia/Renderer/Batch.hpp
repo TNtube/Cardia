@@ -4,7 +4,6 @@
 #include "Cardia/DataStructure/Mesh.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
-#include "VertexArray.hpp"
 
 namespace Cardia
 {
@@ -32,7 +31,7 @@ namespace Cardia
 	class Batch
 	{
 	public:
-		Batch(VertexArray* va, const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
+		Batch(const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
 		bool addMesh(SubMesh* mesh);
@@ -40,9 +39,9 @@ namespace Cardia
 	private:
 		glm::vec3 camPos {};
 
-		VertexArray* vertexArray;
-		VertexBuffer* vertexBuffer = nullptr;
-		IndexBuffer* indexBuffer = nullptr;
+		// VertexArray* vertexArray;
+		// VertexBuffer* vertexBuffer = nullptr;
+		// IndexBuffer* indexBuffer = nullptr;
 		std::shared_ptr<Shader> m_Shader;
 		std::unique_ptr<Texture2D> whiteTexture;
 

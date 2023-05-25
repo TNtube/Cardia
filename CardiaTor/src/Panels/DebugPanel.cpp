@@ -4,7 +4,6 @@
 
 #include "Cardia/Application.hpp"
 #include "Cardia/Core/Window.hpp"
-#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Panels/PanelManager.hpp"
 
