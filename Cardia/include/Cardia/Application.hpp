@@ -6,7 +6,7 @@
 #include "Cardia/Core/Window.hpp"
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
-#include "Renderer/RenderContext.hpp"
+#include "Renderer/Renderer.hpp"
 
 
 namespace Cardia
@@ -32,7 +32,7 @@ namespace Cardia
 		std::unique_ptr<Window> m_Window = Window::Create();
 
 	protected:
-		RenderContext m_RenderContext {*m_Window};
+		Renderer m_RenderContext {*m_Window};
 	private:
 		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 		ScriptEngine m_ScriptEngine;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cardia/Core/Window.hpp"
-#include "Cardia/Renderer/RenderContext.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 
 #include <GLFW/glfw3.h>
 

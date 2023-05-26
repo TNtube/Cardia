@@ -11,7 +11,7 @@
 
 namespace Cardia
 {
-	ImGuiLayer::ImGuiLayer(RenderContext& renderContext) : m_RenderContext(renderContext)
+	ImGuiLayer::ImGuiLayer(Renderer& renderContext) : m_RenderContext(renderContext)
 	{
 		const Application& app = Application::get();
 		const auto window = static_cast<GLFWwindow*>(app.GetWindow().getNativeWin());

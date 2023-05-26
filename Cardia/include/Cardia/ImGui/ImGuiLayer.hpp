@@ -4,14 +4,14 @@
 
 #include "Cardia/Core/Event.hpp"
 #include "Cardia/Core/Time.hpp"
-#include "Cardia/Renderer/RenderContext.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 
 
 namespace Cardia
 {
 	class ImGuiLayer {
 	public:
-		ImGuiLayer(RenderContext& renderContext);
+		ImGuiLayer(Renderer& renderContext);
 		~ImGuiLayer();
 
 		void onEvent(Event &event) {};
@@ -20,7 +20,7 @@ namespace Cardia
 		void End();
 
 	private:
-		RenderContext& m_RenderContext;
+		Renderer& m_RenderContext;
 		VkDescriptorPool m_DescriptorPool {};
 		float m_Time {};
 	};

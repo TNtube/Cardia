@@ -5,12 +5,21 @@
 
 namespace Cardia
 {
-	Buffer::Buffer(Device& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
-		: m_Device(device)
+	static VkDeviceSize GetAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment) {
+		if (minOffsetAlignment > 0) {
+			return (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1);
+		}
+		return instanceSize;
+	}
+
+	Buffer::Buffer(Device& device, VkDeviceSize size, uint32_t instanceCount, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffsetAlignment)
+		: m_Device(device), m_InstanceSize(size)
 	{
+		m_AlignmentSize = GetAlignment(size, minOffsetAlignment);
+		const auto bufferSize = m_AlignmentSize * instanceCount;
 		VkBufferCreateInfo bufferInfo {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
+		bufferInfo.size = bufferSize;
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -37,31 +46,53 @@ namespace Cardia
 	{
 		m_Buffer = other.m_Buffer;
 		m_BufferMemory = other.m_BufferMemory;
+		m_MappedMemory = other.m_MappedMemory;
+
 		other.m_Buffer = VK_NULL_HANDLE;
 		other.m_BufferMemory = VK_NULL_HANDLE;
+		other.m_MappedMemory = nullptr;
+
+		m_AlignmentSize = other.m_AlignmentSize;
+		m_InstanceSize = other.m_InstanceSize;
 	}
 
 	Buffer& Buffer::operator=(Buffer&& other) noexcept
 	{
 		m_Buffer = other.m_Buffer;
 		m_BufferMemory = other.m_BufferMemory;
+		m_MappedMemory = other.m_MappedMemory;
+
 		other.m_Buffer = VK_NULL_HANDLE;
 		other.m_BufferMemory = VK_NULL_HANDLE;
+		other.m_MappedMemory = nullptr;
+
+		m_AlignmentSize = other.m_AlignmentSize;
+		m_InstanceSize = other.m_InstanceSize;
+
 		return *this;
 	}
 
-	void Buffer::UploadData(size_t size, const void* data) const
+	void Buffer::UploadData(VkDeviceSize size, const void* data, VkDeviceSize offset)
 	{
-		const auto& device = m_Device.GetDevice();
-		void* memory;
-		vkMapMemory(device, m_BufferMemory, 0, size, 0, &memory);
-		memcpy(memory, data, size);
-		vkUnmapMemory(device, m_BufferMemory);
+		if (!m_MappedMemory)
+		{
+			vkMapMemory(m_Device.GetDevice(), m_BufferMemory, 0, size, 0, &m_MappedMemory);
+		}
+		auto memOffset = static_cast<char*>(m_MappedMemory);
+		memOffset += offset;
+		memcpy(memOffset, data, size);
+	}
+
+	void Buffer::UploadDataAtIndex(const void* data, uint32_t index)
+	{
+		UploadData(m_InstanceSize, data, index * m_InstanceSize);
 	}
 
 	Buffer::~Buffer()
 	{
 		const auto& device = m_Device.GetDevice();
+		if (m_MappedMemory)
+			vkUnmapMemory(device, m_BufferMemory);
 		vkDestroyBuffer(device, m_Buffer, nullptr);
 		vkFreeMemory(device, m_BufferMemory, nullptr);
 	}

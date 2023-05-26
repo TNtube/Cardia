@@ -104,11 +104,12 @@ namespace Cardia
 	class Buffer
 	{
 	public:
-		Buffer(Device& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+		Buffer(Device& device, VkDeviceSize size, uint32_t instanceCount, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffsetAlignment = 1);
 		Buffer(Buffer && other) noexcept;
 		Buffer& operator=(Buffer&& other) noexcept;
 
-		void UploadData(size_t size, const void* data) const;
+		void UploadData(VkDeviceSize size, const void* data, VkDeviceSize offset = 0);
+		void UploadDataAtIndex(const void* data, uint32_t index);
 		const VkBuffer& GetBuffer() const { return m_Buffer; }
 		
 		virtual ~Buffer();
@@ -116,6 +117,9 @@ namespace Cardia
 		Device& m_Device;
 		VkBuffer m_Buffer {};
 		VkDeviceMemory m_BufferMemory {};
+		void* m_MappedMemory = nullptr;
+		VkDeviceSize m_InstanceSize;
+		VkDeviceSize m_AlignmentSize;
 	};
 
 	class VertexBuffer

@@ -8,11 +8,18 @@
 
 namespace Cardia
 {
-	class RenderContext
+	struct UBO
+	{
+		glm::mat4 viewProjection;
+		glm::mat4 model;
+		glm::mat4 transposedInvertedModel;
+	};
+
+	class Renderer
 	{
 	public:
-		explicit RenderContext(Window& window);
-		virtual ~RenderContext();
+		explicit Renderer(Window& window);
+		virtual ~Renderer();
 		void DrawFrame();
 
 		Device& GetDevice() { return m_Device; }
@@ -34,7 +41,8 @@ namespace Cardia
 		std::unique_ptr<Pipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout {};
 		std::vector<VkCommandBuffer> m_CommandBuffers;
+		Buffer m_UboBuffer;
+
 		MeshRenderer m_MeshRenderer;
-		
 	};
 }

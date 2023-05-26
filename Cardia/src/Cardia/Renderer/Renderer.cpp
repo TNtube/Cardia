@@ -1,14 +1,17 @@
 ﻿#include "cdpch.hpp"
-#include "Cardia/Renderer/RenderContext.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 
 #include <imgui_impl_vulkan.h>
 #include <GLFW/glfw3.h>
 
 namespace Cardia
 {
-	RenderContext::RenderContext(Window& window) : m_Window(window), m_Device(m_Window)
+	Renderer::Renderer(Window& window)
+		: m_Window(window),
+		m_Device(m_Window),
+		m_UboBuffer(m_Device, sizeof(UBO), SwapChain::MAX_FRAMES_IN_FLIGHT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 	{
-		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+		const std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		auto& sub = mesh->GetSubMeshes().emplace_back();
 
 		sub.GetVertices() = {
@@ -26,13 +29,13 @@ namespace Cardia
 		CreateCommandBuffers();
 	}
 
-	RenderContext::~RenderContext()
+	Renderer::~Renderer()
 	{
 		vkDeviceWaitIdle(m_Device.GetDevice());
 		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
 	}
 
-	void RenderContext::DrawFrame()
+	void Renderer::DrawFrame()
 	{
 		uint32_t imageIndex;
 		auto result = m_SwapChain->AcquireNextImage(&imageIndex);
@@ -61,7 +64,7 @@ namespace Cardia
 		}
 	}
 
-	void RenderContext::CreatePipelineLayout()
+	void Renderer::CreatePipelineLayout()
 	{
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
 		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -76,7 +79,7 @@ namespace Cardia
 		}
 	}
 
-	void RenderContext::CreatePipeline()
+	void Renderer::CreatePipeline()
 	{
 		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
 		pipelineConfig.renderPass = m_SwapChain->GetRenderPass();
@@ -89,7 +92,7 @@ namespace Cardia
 		);
 	}
 
-	void RenderContext::RecreateSwapChain()
+	void Renderer::RecreateSwapChain()
 	{
 		auto extent = m_Window.GetExtent();
 		while (extent.width == 0 || extent.height == 0)
@@ -114,7 +117,7 @@ namespace Cardia
 		CreatePipeline();
 	}
 
-	void RenderContext::CreateCommandBuffers()
+	void Renderer::CreateCommandBuffers()
 	{
 		m_CommandBuffers.resize(m_SwapChain->ImageCount());
 
@@ -129,7 +132,7 @@ namespace Cardia
 		}
 	}
 
-	void RenderContext::FreeCommandBuffers()
+	void Renderer::FreeCommandBuffers()
 	{
 		vkFreeCommandBuffers(
 			m_Device.GetDevice(),
@@ -139,7 +142,7 @@ namespace Cardia
 		m_CommandBuffers.clear();
 	}
 
-	void RenderContext::RecordCommandBuffer(uint32_t imageIndex) const
+	void Renderer::RecordCommandBuffer(uint32_t imageIndex) const
 	{
 		VkCommandBufferBeginInfo beginInfo {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

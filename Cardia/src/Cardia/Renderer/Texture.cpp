@@ -38,7 +38,7 @@ namespace Cardia
 
 
 		const auto imageSize = static_cast<uint32_t>(texWidth * texHeight * 4);
-		const Buffer buffer(device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		buffer.UploadData(imageSize, pixels);
 		stbi_image_free(pixels);
 
