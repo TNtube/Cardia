@@ -17,6 +17,7 @@ namespace Cardia
 		void onEvent(Event &event) {};
 
 		void Begin();
+		void Render(VkCommandBuffer commandBuffer);
 		void End();
 
 	private:

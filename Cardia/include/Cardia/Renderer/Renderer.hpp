@@ -8,25 +8,22 @@
 
 namespace Cardia
 {
-	struct UBO
-	{
-		glm::mat4 viewProjection;
-		glm::mat4 model;
-		glm::mat4 transposedInvertedModel;
-	};
-
 	class Renderer
 	{
 	public:
 		explicit Renderer(Window& window);
 		virtual ~Renderer();
-		void DrawFrame();
+
+		VkCommandBuffer Begin();
+		void End();
+		void BeginSwapChainRenderPass() const;
+		void EndSwapChainRenderPass() const;
 
 		Device& GetDevice() { return m_Device; }
+		SwapChain& GetSwapChain() { return *m_SwapChain; }
+		uint32_t GetFrameIndex() { return m_CurrentImageIndex; }
 
 	private:
-		void CreatePipelineLayout();
-		void CreatePipeline();
 		void CreateCommandBuffers();
 		void FreeCommandBuffers();
 		void RecreateSwapChain();
@@ -38,10 +35,10 @@ namespace Cardia
 		Window& m_Window;
 		Device m_Device;
 		std::unique_ptr<SwapChain> m_SwapChain;
-		std::unique_ptr<Pipeline> m_Pipeline;
-		VkPipelineLayout m_PipelineLayout {};
 		std::vector<VkCommandBuffer> m_CommandBuffers;
-		Buffer m_UboBuffer;
+
+		uint32_t m_CurrentImageIndex {};
+		uint32_t m_CurrentFrameIndex {};
 
 		MeshRenderer m_MeshRenderer;
 	};

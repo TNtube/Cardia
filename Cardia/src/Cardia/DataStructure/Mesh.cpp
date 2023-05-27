@@ -39,6 +39,7 @@ namespace Cardia
 				vertex.position.x = ai_mesh->mVertices[i].x;
 				vertex.position.y = ai_mesh->mVertices[i].y;
 				vertex.position.z = ai_mesh->mVertices[i].z;
+				vertex.color = glm::vec3(1.f, 0.f, 0.f);
 				// if (ai_mesh->HasNormals())
 				// {
 				// 	vertex.normal.x = ai_mesh->mNormals[i].x;

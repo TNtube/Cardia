@@ -25,6 +25,7 @@ namespace Cardia
 		~CardiaTor() override = default;
 		void AddCommand(std::unique_ptr<Command> command);
 		void OnUpdate() override;
+		void OnRender(VkCommandBuffer commandBuffer) override;
 		void OnEvent(Event& event) override;
 		void OnImGuiDraw() override;
 		void SetSelectedEntity(Entity entity);

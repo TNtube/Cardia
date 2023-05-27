@@ -22,12 +22,10 @@ namespace Cardia
 			OnEvent(e);
 		});
 
-		m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_RenderContext);
+		m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Renderer);
 	}
 
-	Application::~Application()
-	{
-	}
+	Application::~Application() = default;
 
 	void Application::Run()
 	{
@@ -42,11 +40,22 @@ namespace Cardia
 
 			OnUpdate();
 
-			m_ImGuiLayer->Begin();
-			OnImGuiDraw();
-			m_ImGuiLayer->End();
+			if (const auto commandBuffer = m_Renderer.Begin())
+			{
+				m_ImGuiLayer->Begin();
+				m_Renderer.BeginSwapChainRenderPass();
 
-			m_RenderContext.DrawFrame();
+				OnImGuiDraw();
+
+				m_ImGuiLayer->End();
+
+				OnRender(commandBuffer);
+
+				m_ImGuiLayer->Render(commandBuffer);
+
+				m_Renderer.EndSwapChainRenderPass();
+				m_Renderer.End();
+			}
 
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 

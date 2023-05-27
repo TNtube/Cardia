@@ -30,14 +30,14 @@ namespace Cardia
 		m_PanelManager.CreatePanel<Panel::FileHierarchyPanel>();
 		m_PanelManager.CreatePanel<Panel::ConsolePanel>();
 
-		m_CurrentScene = std::make_unique<Scene>();
+		m_CurrentScene = std::make_unique<Scene>(m_Renderer);
 
 		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = std::make_unique<Texture2D>(m_RenderContext.GetDevice(), "resources/icons/play.png");
-		m_IconStop = std::make_unique<Texture2D>(m_RenderContext.GetDevice(), "resources/icons/pause.png");
+		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), "resources/icons/play.png");
+		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), "resources/icons/pause.png");
 
 		// FramebufferSpecification spec{ window.getWidth(), window.getHeight() };
 		// spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -62,12 +62,10 @@ namespace Cardia
 
 		if (m_EditorState == EditorState::Edit)
 		{
-			m_CurrentScene->OnUpdateEditor(m_EditorCamera.GetCamera(), m_EditorCamera.GetTransform());
 			m_EditorCamera.OnUpdate();
-		}
-		if (m_EditorState == EditorState::Play)
+		} else if (m_EditorState == EditorState::Play)
 		{
-			m_CurrentScene->OnRuntimeUpdate();
+			ScriptEngine::Instance().OnRuntimeUpdate();
 		}
 
 		auto[mx, my] = ImGui::GetMousePos();
@@ -89,6 +87,17 @@ namespace Cardia
 		}
 
 		// m_Framebuffer->Unbind();
+	}
+
+	void CardiaTor::OnRender(VkCommandBuffer commandBuffer)
+	{
+		if (m_EditorState == EditorState::Edit)
+		{
+			m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransform());
+		} else if (m_EditorState == EditorState::Play)
+		{
+			m_CurrentScene->OnRuntimeRender(commandBuffer);
+		}
 	}
 
 	void CardiaTor::EnableDocking()
@@ -251,9 +260,9 @@ namespace Cardia
 
 	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
 	{
-		auto newScene = std::make_unique<Scene>(scenePath);
+		auto newScene = std::make_unique<Scene>(m_Renderer, scenePath);
 		Serialization::SceneSerializer serializer(*newScene);
-		if (!serializer.Deserialize(scenePath))
+		if (!serializer.Deserialize(m_Renderer, scenePath))
 		{
 			Log::info("Unable to load {0}", scenePath.string());
 		}

@@ -20,7 +20,7 @@ namespace Cardia
 		SwapChain(const SwapChain &) = delete;
 		SwapChain& operator=(const SwapChain &) = delete;
 
-		VkFramebuffer GetFrameBuffer(int index) const { return m_SwapChainFramebuffers[index].GetFramebuffer(); }
+		VkFramebuffer GetFrameBuffer(uint32_t index) const { return m_SwapChainFramebuffers[index].GetFramebuffer(); }
 		VkRenderPass GetRenderPass() const { return m_RenderPass; }
 		VkImageView GetImageView(int index) const { return m_SwapChainImageViews[index]; }
 		size_t ImageCount() const { return m_SwapChainImages.size(); }

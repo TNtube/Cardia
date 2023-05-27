@@ -10,6 +10,7 @@
 #include <filesystem>
 
 #include "Cardia/Renderer/Buffer.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 
 
 namespace Cardia
@@ -18,19 +19,19 @@ namespace Cardia
 	class Scene
 	{
 	public:
-		explicit Scene(std::string name = "Default Scene");
-		explicit Scene(std::filesystem::path path);
-		virtual ~Scene() = default;
+		Scene(Renderer& renderer, std::string name = "Default Scene");
+		Scene(Renderer& renderer, std::filesystem::path path);
+		virtual ~Scene();
 		Entity CreateEntity(const std::string& name = "");
 		Entity CreateEntityFromId(UUID uuid);
 
 		void DestroyEntity(entt::entity entity);
 
 		static std::unique_ptr<Scene> Copy(Scene& src);
-		void OnRuntimeUpdate();
 		void OnRuntimeStart();
 		void OnRuntimeStop();
-		void OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform);
+		void OnRuntimeRender(VkCommandBuffer commandBuffer);
+		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const glm::mat4& cameraTransform);
 		void OnViewportResize(float width, float height);
 		Entity GetEntityByUUID(const UUID& uuid);
 		inline const char* GetName() const { return m_Name.c_str(); }
@@ -40,9 +41,11 @@ namespace Cardia
 		void clear();
 
 	private:
+		Renderer& m_Renderer;
 		std::filesystem::path m_Path;
-		std::shared_ptr<Shader> m_BasicShader {};
-		std::unique_ptr<UniformBuffer> m_UBO {};
+		std::shared_ptr<Pipeline> m_Pipeline {};
+		std::unique_ptr<Buffer> m_UBO {};
+		VkPipelineLayout m_PipelineLayout; // TODO: Remove ?
 		std::string m_Name;
 		entt::registry m_Registry;
 		friend class Entity;

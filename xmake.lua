@@ -60,6 +60,9 @@ target("Cardia")
     add_packages("python", { public = true })
     add_packages("pybind11", { public = true })
 
+    add_defines("GLM_FORCE_RADIANS")
+    add_defines("GLM_FORCE_DEPTH_ZERO_TO_ONE")
+
 --[[    after_build(function(target)
         os.execv("python", {"-m", "pip", "install", target:scriptdir().."/cardia.py/dist/cardia.py-0.0.1-py3-none-any.whl", "--force-reinstall"})
     end)

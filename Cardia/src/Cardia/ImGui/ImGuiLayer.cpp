@@ -111,6 +111,11 @@ namespace Cardia
 		ImGui::NewFrame();
 	}
 
+	void ImGuiLayer::Render(VkCommandBuffer commandBuffer)
+	{
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+	}
+
 	void ImGuiLayer::End()
 	{
 		const Application& app = Application::get();

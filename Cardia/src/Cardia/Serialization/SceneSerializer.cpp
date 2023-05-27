@@ -325,7 +325,7 @@ namespace Cardia::Serialization
 		return true;
 	}
 
-	bool Serialization::SceneSerializer::Deserialize(const std::filesystem::path &path)
+	bool Serialization::SceneSerializer::Deserialize(Renderer& renderer, const std::filesystem::path &path)
 	{
 		Json::Value root;
 		std::ifstream file(path);
@@ -338,10 +338,10 @@ namespace Cardia::Serialization
 			return false;
 		}
 
-		return Deserialize(root);
+		return Deserialize(renderer, root);
 	}
 
-	bool SceneSerializer::Deserialize(const Json::Value &root)
+	bool SceneSerializer::Deserialize(Renderer& renderer, const Json::Value &root)
 	{
 		for (const auto& node: root)
 		{
@@ -388,7 +388,7 @@ namespace Cardia::Serialization
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
 				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
-				// meshRenderer.meshRenderer->SubmitMesh(mesh);
+				meshRenderer.meshRenderer->SubmitMesh(renderer.GetDevice(), mesh);
 
 				auto& materials = node[currComponent]["materials"];
 				for (const auto& texturePath : materials) {

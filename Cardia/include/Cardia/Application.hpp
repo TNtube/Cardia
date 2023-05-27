@@ -20,6 +20,7 @@ namespace Cardia
 		void Run();
 		virtual void OnEvent(Event& e) = 0;
 		virtual void OnUpdate() = 0;
+		virtual void OnRender(VkCommandBuffer commandBuffer) = 0;
 		virtual void OnImGuiDraw() = 0;
 		virtual Scene* GetCurrentScene() = 0;
 		bool onWinClose(WindowCloseEvent& e);
@@ -32,7 +33,7 @@ namespace Cardia
 		std::unique_ptr<Window> m_Window = Window::Create();
 
 	protected:
-		Renderer m_RenderContext {*m_Window};
+		Renderer m_Renderer {*m_Window};
 	private:
 		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 		ScriptEngine m_ScriptEngine;
