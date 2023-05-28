@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 #include <vulkan/vulkan.hpp>
 
 
@@ -15,6 +15,8 @@ namespace Cardia
 		{
 			glm::vec3 position;
 			glm::vec3 color;
+			glm::vec3 normal;
+			glm::vec2 textureCoord;
 
 			/*
 			glm::vec3 position;

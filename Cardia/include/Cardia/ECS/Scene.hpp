@@ -21,6 +21,7 @@ namespace Cardia
 	public:
 		Scene(Renderer& renderer, std::string name = "Default Scene");
 		Scene(Renderer& renderer, std::filesystem::path path);
+		void Init();
 		virtual ~Scene();
 		Entity CreateEntity(const std::string& name = "");
 		Entity CreateEntityFromId(UUID uuid);
@@ -41,11 +42,9 @@ namespace Cardia
 		void clear();
 
 	private:
+		bool m_Inited = false;
 		Renderer& m_Renderer;
 		std::filesystem::path m_Path;
-		std::shared_ptr<Pipeline> m_Pipeline {};
-		std::unique_ptr<Buffer> m_UBO {};
-		VkPipelineLayout m_PipelineLayout; // TODO: Remove ?
 		std::string m_Name;
 		entt::registry m_Registry;
 		friend class Entity;

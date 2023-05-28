@@ -12,11 +12,64 @@ namespace Cardia
 	{
 		RecreateSwapChain();
 		CreateCommandBuffers();
+		m_DescriptorPool = DescriptorPool::Builder(m_Device)
+					.SetMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+					.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+					.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+					.Build();
+
+		m_UboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (auto& uboBuffer : m_UboBuffers)
+		{
+			uboBuffer = std::make_unique<Buffer>(
+				m_Device,
+				sizeof(UboData),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+		}
+
+		m_DescriptorSetLayout = DescriptorSetLayout::Builder(m_Device)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.Build();
+
+		for (std::size_t i = 0; i < m_DescriptorSets.size(); i++) {
+			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
+			DescriptorWriter(*m_DescriptorSetLayout, *m_DescriptorPool)
+				.WriteBuffer(0, &bufferInfo)
+				.Build(m_DescriptorSets[i]);
+		}
+
+		std::vector descriptorSetLayouts{m_DescriptorSetLayout->GetDescriptorSetLayout()};
+
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
+		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+
+		if (vkCreatePipelineLayout(m_Device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Vulkan : Failed to create pipeline layout");
+		}
+		
+		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
+		pipelineConfig.renderPass = m_SwapChain->GetRenderPass();
+		pipelineConfig.pipelineLayout = m_PipelineLayout;
+		m_Pipeline = std::make_unique<Pipeline>(
+			m_Device,
+			"resources/shaders/simple.vert.spv",
+			"resources/shaders/simple.frag.spv",
+			pipelineConfig
+		);
 	}
 
 	Renderer::~Renderer()
 	{
 		vkDeviceWaitIdle(m_Device.GetDevice());
+		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
 	}
 
 	VkCommandBuffer Renderer::Begin()
@@ -83,9 +136,9 @@ namespace Cardia
 		const auto extent = m_SwapChain->GetSwapChainExtent();
 		VkViewport viewport {};
 		viewport.x = 0.0f;
-		viewport.y = 0.0f;
+		viewport.y = static_cast<float>(extent.height);
 		viewport.width = static_cast<float>(extent.width);
-		viewport.height = static_cast<float>(extent.height);
+		viewport.height = -static_cast<float>(extent.height);
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 		vkCmdSetViewport(m_CommandBuffers[m_CurrentImageIndex], 0, 1, &viewport);

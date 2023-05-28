@@ -74,13 +74,9 @@ namespace Cardia
 
 	void Buffer::UploadData(VkDeviceSize size, const void* data, VkDeviceSize offset)
 	{
-		if (!m_MappedMemory)
-		{
-			vkMapMemory(m_Device.GetDevice(), m_BufferMemory, 0, size, 0, &m_MappedMemory);
-		}
-		auto memOffset = static_cast<char*>(m_MappedMemory);
-		memOffset += offset;
-		memcpy(memOffset, data, size);
+		vkMapMemory(m_Device.GetDevice(), m_BufferMemory, 0, VK_WHOLE_SIZE, 0, &m_MappedMemory);
+		memcpy(m_MappedMemory, data, m_InstanceSize);
+		vkUnmapMemory(m_Device.GetDevice(), m_BufferMemory);
 	}
 
 	void Buffer::UploadDataAtIndex(const void* data, uint32_t index)
@@ -88,11 +84,19 @@ namespace Cardia
 		UploadData(m_InstanceSize, data, index * m_InstanceSize);
 	}
 
+	VkDescriptorBufferInfo Buffer::DescriptorInfo(VkDeviceSize size, VkDeviceSize offset) const
+	{
+		return VkDescriptorBufferInfo{
+			m_Buffer,
+			offset,
+			size,
+		};
+	}
+
 	Buffer::~Buffer()
 	{
 		const auto& device = m_Device.GetDevice();
-		if (m_MappedMemory)
-			vkUnmapMemory(device, m_BufferMemory);
+		// if (m_MappedMemory)
 		vkDeviceWaitIdle(device);
 		vkDestroyBuffer(device, m_Buffer, nullptr);
 		vkFreeMemory(device, m_BufferMemory, nullptr);

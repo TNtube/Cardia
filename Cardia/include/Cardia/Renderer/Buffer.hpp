@@ -110,6 +110,7 @@ namespace Cardia
 
 		void UploadData(VkDeviceSize size, const void* data, VkDeviceSize offset = 0);
 		void UploadDataAtIndex(const void* data, uint32_t index);
+		VkDescriptorBufferInfo DescriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 		const VkBuffer& GetBuffer() const { return m_Buffer; }
 		
 		virtual ~Buffer();

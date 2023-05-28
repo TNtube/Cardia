@@ -225,6 +225,7 @@ namespace Cardia
 		}
 		ScriptEngine::InvalidateProject();
 		OpenScene(AssetsManager::GetAssetAbsolutePath(Project::GetActive()->GetConfig().StartScene));
+		m_CurrentScene->Init();
 	}
 
 	void CardiaTor::InvalidateScene()

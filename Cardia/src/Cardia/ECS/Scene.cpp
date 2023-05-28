@@ -12,12 +12,6 @@
 
 namespace Cardia
 {
-	struct UboData
-	{
-		glm::mat4 viewProjection;
-		glm::mat4 model;
-		glm::mat4 transposedInvertedModel;
-	};
 
 
 	Scene::Scene(Renderer& renderer, std::string name)
@@ -25,35 +19,6 @@ namespace Cardia
 	{
 		std::string shaderName = "basic";
 		const auto shaderPath = "resources/shaders/" + shaderName;
-
-		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
-		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutCreateInfo.setLayoutCount = 0;
-		pipelineLayoutCreateInfo.pSetLayouts = nullptr;
-		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-
-		if (vkCreatePipelineLayout(m_Renderer.GetDevice().GetDevice(), &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Vulkan : Failed to create pipeline layout");
-		}
-		
-		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_Renderer.GetSwapChain().Width(), m_Renderer.GetSwapChain().Height());
-		pipelineConfig.renderPass = m_Renderer.GetSwapChain().GetRenderPass();
-		pipelineConfig.pipelineLayout = m_PipelineLayout;
-		m_Pipeline = std::make_unique<Pipeline>(
-			m_Renderer.GetDevice(),
-			"resources/shaders/simple.vert.spv",
-			"resources/shaders/simple.frag.spv",
-			pipelineConfig
-		);
-		
-		m_UBO = std::make_unique<Buffer>(
-			m_Renderer.GetDevice(),
-			sizeof(UboData),
-			SwapChain::MAX_FRAMES_IN_FLIGHT,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	}
 
 	Scene::Scene(Renderer& renderer, std::filesystem::path path) : Scene(renderer, path.filename().string())
@@ -61,9 +26,15 @@ namespace Cardia
 		m_Path = std::move(path);
 	}
 
+	void Scene::Init()
+	{
+		if (m_Inited) return;
+		
+		m_Inited = true;
+	}
+
 	Scene::~Scene()
 	{
-		vkDestroyPipelineLayout(m_Renderer.GetDevice().GetDevice(), m_PipelineLayout, nullptr);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -137,9 +108,23 @@ namespace Cardia
 
 		// m_BasicShader->bind();
 		// m_BasicShader->setInt("u_Texture", 0);
-		m_Pipeline->Bind(commandBuffer);
+		if (!m_Inited) return;
+
+		const auto frameIndex = m_Renderer.GetFrameIndex();
+
+		m_Renderer.GetPipeline().Bind(commandBuffer);
 
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		if (meshView.size_hint() > 0)
+		{
+			vkCmdBindDescriptorSets(
+				commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				m_Renderer.GetPipelineLayout(),
+				0, 1,
+				&m_Renderer.GetCurrentDescriptorSet(),
+				0, nullptr);
+		}
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
@@ -148,15 +133,15 @@ namespace Cardia
 			data.viewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
 			data.model = transform.getTransform();
 			data.transposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
-			m_UBO->UploadDataAtIndex(&data, m_Renderer.GetFrameIndex());
+			m_Renderer.GetCurrentUboBuffer().UploadData(sizeof(UboData), &data);
 			meshRenderer.meshRenderer->Draw(commandBuffer);
 		}
 	}
 
 	void Scene::OnViewportResize(float width, float height)
 	{
-		auto view = m_Registry.view<Component::Camera>();
-		for (auto entity : view)
+		const auto view = m_Registry.view<Component::Camera>();
+		for (const auto entity : view)
 		{
 			auto& cameraComponent = view.get<Component::Camera>(entity);
 			cameraComponent.camera.SetViewportSize(width, height);

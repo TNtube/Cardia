@@ -13,6 +13,7 @@ namespace Cardia
 
 	Pipeline::~Pipeline()
 	{
+		vkDeviceWaitIdle(m_Device.GetDevice());
 		vkDestroyShaderModule(m_Device.GetDevice(), m_VertShader, nullptr);
 		vkDestroyShaderModule(m_Device.GetDevice(), m_FragShader, nullptr);
 		vkDestroyPipeline(m_Device.GetDevice(), m_GraphicsPipeline, nullptr);
