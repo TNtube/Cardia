@@ -8,8 +8,9 @@
 namespace Cardia
 {
 
-	void MeshRenderer::SubmitMesh(Device& device, std::shared_ptr<Mesh> mesh)
+	void MeshRenderer::SubmitMesh(Device& device, const std::shared_ptr<Mesh>& mesh)
 	{
+		m_Mesh = mesh;
 		auto& subMeshes = mesh->GetSubMeshes();
 
 		for (auto& subMesh : subMeshes)

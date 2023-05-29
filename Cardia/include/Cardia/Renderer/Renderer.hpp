@@ -32,6 +32,7 @@ namespace Cardia
 		DescriptorPool& GetDescriptorSetPool() const { return *m_DescriptorPool; }
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
+		DescriptorSetLayout& GetDescriptorSetLayout() const { return *m_DescriptorSetLayout; }
 		VkDescriptorSet& GetCurrentDescriptorSet() { return m_DescriptorSets[m_CurrentFrameIndex]; }
 		Buffer& GetCurrentUboBuffer() const { return *m_UboBuffers[m_CurrentFrameIndex]; }
 		uint32_t GetFrameIndex() const { return m_CurrentImageIndex; }

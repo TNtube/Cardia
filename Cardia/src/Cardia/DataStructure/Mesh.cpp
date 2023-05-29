@@ -34,12 +34,11 @@ namespace Cardia
 			vertices.reserve(ai_mesh->mNumVertices);
 			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {
 				SubMesh::Vertex vertex{};
-				// vertex.color = glm::vec4(1);
+				vertex.color = glm::vec4(1);
 
 				vertex.position.x = ai_mesh->mVertices[i].x;
 				vertex.position.y = ai_mesh->mVertices[i].y;
 				vertex.position.z = ai_mesh->mVertices[i].z;
-				vertex.color = glm::vec3(1.f, 0.f, 0.f);
 				if (ai_mesh->HasNormals())
 				{
 					vertex.normal.x = ai_mesh->mNormals[i].x;

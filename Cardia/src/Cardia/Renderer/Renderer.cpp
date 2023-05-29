@@ -16,6 +16,7 @@ namespace Cardia
 					.SetMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
 					.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
 					.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+					.SetPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
 					.Build();
 
 		m_UboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -31,15 +32,8 @@ namespace Cardia
 
 		m_DescriptorSetLayout = DescriptorSetLayout::Builder(m_Device)
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			// .AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.Build();
-
-		for (std::size_t i = 0; i < m_DescriptorSets.size(); i++) {
-			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
-			DescriptorWriter(*m_DescriptorSetLayout, *m_DescriptorPool)
-				.WriteBuffer(0, &bufferInfo)
-				.Build(m_DescriptorSets[i]);
-		}
 
 		std::vector descriptorSetLayouts{m_DescriptorSetLayout->GetDescriptorSetLayout()};
 
@@ -64,6 +58,13 @@ namespace Cardia
 			"resources/shaders/simple.frag.spv",
 			pipelineConfig
 		);
+
+		for (std::size_t i = 0; i < m_DescriptorSets.size(); i++) {
+			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
+			DescriptorWriter(*m_DescriptorSetLayout, *m_DescriptorPool)
+				.WriteBuffer(0, &bufferInfo)
+				.Build(m_DescriptorSets[i]);
+		}
 	}
 
 	Renderer::~Renderer()

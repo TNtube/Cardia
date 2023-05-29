@@ -58,6 +58,7 @@ Device::Device(Window &window) : m_Window{window} {
 }
 
 Device::~Device() {
+	vkDeviceWaitIdle(m_Device);
 	vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 	vkDestroyDevice(m_Device, nullptr);
 

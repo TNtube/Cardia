@@ -26,13 +26,6 @@ namespace Cardia
 		m_Path = std::move(path);
 	}
 
-	void Scene::Init()
-	{
-		if (m_Inited) return;
-		
-		m_Inited = true;
-	}
-
 	Scene::~Scene()
 	{
 	}
@@ -108,11 +101,16 @@ namespace Cardia
 
 		// m_BasicShader->bind();
 		// m_BasicShader->setInt("u_Texture", 0);
-		if (!m_Inited) return;
 
 		const auto frameIndex = m_Renderer.GetFrameIndex();
 
 		m_Renderer.GetPipeline().Bind(commandBuffer);
+
+
+		// auto bufferInfo = m_Renderer.GetCurrentUboBuffer().DescriptorInfo();
+		// DescriptorWriter(m_Renderer.GetDescriptorSetLayout(), m_Renderer.GetDescriptorSetPool())
+		// 	.WriteBuffer(0, &bufferInfo)
+		// 	.Overwrite(m_Renderer.GetCurrentDescriptorSet());
 
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		if (meshView.size_hint() > 0)
