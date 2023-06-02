@@ -5,8 +5,48 @@
 
 namespace Cardia
 {
+	PipelineLayout::PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
+		: m_Device(device)
+	{
+		Init(descriptorSetLayouts);
+	}
+
+	PipelineLayout::PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts)
+		: m_Device(device)
+	{
+		std::vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
+		std::ranges::transform(
+			descriptorSetLayouts,
+			std::back_inserter(vkDescriptorSetLayouts),
+			[](const DescriptorSetLayout& descriptor)
+			{
+				return descriptor.GetDescriptorSetLayout();
+			});
+		Init(vkDescriptorSetLayouts);
+	}
+
+	PipelineLayout::~PipelineLayout()
+	{
+		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
+	}
+
+	void PipelineLayout::Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
+	{
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
+		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+
+		if (vkCreatePipelineLayout(m_Device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Vulkan : Failed to create pipeline layout");
+		}
+	}
+
 	Pipeline::Pipeline(Device& device, const std::string& vertPath, const std::string& fragPath,
-		const PipelineConfigInfo& info) : m_Device(device)
+			   const PipelineConfigInfo& info) : m_Device(device)
 	{
 		CreateGraphicsPipeline(vertPath, fragPath, info);
 	}

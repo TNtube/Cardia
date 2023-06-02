@@ -122,6 +122,22 @@ namespace Cardia
 		return true;
 	}
 
+	void DescriptorPool::FreeDescriptors(std::vector<DescriptorSet>& descriptors) const
+	{
+		std::vector<VkDescriptorSet> vkDescriptors;
+
+		std::ranges::transform(
+			descriptors,
+			std::back_inserter(vkDescriptors),
+			[](DescriptorSet& descriptor)
+			{
+				const auto out = descriptor.m_DescriptorSet;
+				descriptor.m_DescriptorSet = VK_NULL_HANDLE;
+				return out;
+			});
+		FreeDescriptors(vkDescriptors);
+	}
+
 	void DescriptorPool::FreeDescriptors(const std::vector<VkDescriptorSet>& descriptors) const
 	{
 		vkFreeDescriptorSets(
@@ -137,10 +153,10 @@ namespace Cardia
 	}
 
 
-	DescriptorWriter::DescriptorWriter(DescriptorSetLayout& setLayout, DescriptorPool& pool)
+	DescriptorSet::Writer::Writer(DescriptorSetLayout& setLayout, DescriptorPool& pool)
 		: m_SetLayout{setLayout}, m_Pool{pool} {}
 	
-	DescriptorWriter& DescriptorWriter::WriteBuffer(
+	DescriptorSet::Writer& DescriptorSet::Writer::WriteBuffer(
 		uint32_t binding, VkDescriptorBufferInfo *bufferInfo)
 	{
 		assert(m_SetLayout.m_Bindings.count(binding) == 1 && "Layout does not contain specified binding");
@@ -162,7 +178,7 @@ namespace Cardia
 		return *this;
 	}
 
-	DescriptorWriter& DescriptorWriter::WriteImage(
+	DescriptorSet::Writer& DescriptorSet::Writer::WriteImage(
 		uint32_t binding, VkDescriptorImageInfo *imageInfo) {
 		assert(m_SetLayout.m_Bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
@@ -183,19 +199,38 @@ namespace Cardia
 		return *this;
 	}
 
-	bool DescriptorWriter::Build(VkDescriptorSet& set) {
-		const bool success = m_Pool.AllocateDescriptor(m_SetLayout.GetDescriptorSetLayout(), set);
+	std::optional<DescriptorSet> DescriptorSet::Writer::Build() {
+		DescriptorSet descriptorSet(m_Pool);
+		const bool success = m_Pool.AllocateDescriptor(m_SetLayout.GetDescriptorSetLayout(), descriptorSet.m_DescriptorSet);
 		if (!success) {
-			return false;
+			return {};
 		}
-		Overwrite(set);
-		return true;
+		Overwrite(descriptorSet);
+		return {std::move(descriptorSet)};
 	}
 
-	void DescriptorWriter::Overwrite(VkDescriptorSet& set) {
+	void DescriptorSet::Writer::Overwrite(const DescriptorSet& set) {
 		for (auto& write : m_Writes) {
-			write.dstSet = set;
+			write.dstSet = set.m_DescriptorSet;
 		}
 		vkUpdateDescriptorSets(m_Pool.m_Device.GetDevice(), m_Writes.size(), m_Writes.data(), 0, nullptr);
+	}
+
+	DescriptorSet::~DescriptorSet()
+	{
+		m_Pool.FreeDescriptors({m_DescriptorSet});
+	}
+
+	DescriptorSet::DescriptorSet(DescriptorSet&& other) noexcept : m_Pool(other.m_Pool)
+	{
+		m_DescriptorSet = other.m_DescriptorSet;
+		other.m_DescriptorSet = VK_NULL_HANDLE;
+	}
+
+	DescriptorSet& DescriptorSet::operator=(DescriptorSet&& other) noexcept
+	{
+		m_DescriptorSet = other.m_DescriptorSet;
+		other.m_DescriptorSet = VK_NULL_HANDLE;
+		return *this;
 	}
 }

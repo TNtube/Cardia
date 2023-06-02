@@ -37,7 +37,7 @@ namespace Cardia {
 		VkDescriptorSetLayout m_DescriptorSetLayout{};
 		std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> m_Bindings;
 
-		friend class DescriptorWriter;
+		friend class DescriptorSet;
 	};
 
 	class DescriptorPool {
@@ -68,6 +68,7 @@ namespace Cardia {
 
 		bool AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 
+		void FreeDescriptors(std::vector<DescriptorSet>& descriptors) const;
 		void FreeDescriptors(const std::vector<VkDescriptorSet>& descriptors) const;
 
 		void ResetPool() const;
@@ -76,23 +77,41 @@ namespace Cardia {
 		Device& m_Device;
 		VkDescriptorPool m_DescriptorPool{};
 
-		friend class DescriptorWriter;
+		friend class DescriptorSet;
 	};
 
-	class DescriptorWriter
+	class DescriptorSet
 	{
 	public:
-		DescriptorWriter(DescriptorSetLayout& setLayout, DescriptorPool& pool);
+		class Writer
+		{
+		public:
+			Writer(DescriptorSetLayout& setLayout, DescriptorPool& pool);
 
-		DescriptorWriter& WriteBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo);
-		DescriptorWriter& WriteImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
+			Writer& WriteBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo);
+			Writer& WriteImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
 
-		bool Build(VkDescriptorSet& set);
-		void Overwrite(VkDescriptorSet& set);
+			std::optional<DescriptorSet> Build();
+			void Overwrite(const DescriptorSet& set);
 	
+		private:
+			DescriptorSetLayout& m_SetLayout;
+			DescriptorPool& m_Pool;
+			std::vector<VkWriteDescriptorSet> m_Writes;
+		};
+
+		virtual ~DescriptorSet();
+		DescriptorSet(DescriptorSet && other) noexcept;
+		DescriptorSet& operator=(DescriptorSet&& other) noexcept;
+		DescriptorSet(const DescriptorSet&) = delete;
+		DescriptorSet& operator=(const DescriptorSet&) = delete;
+		const VkDescriptorSet& GetDescriptor() const { return m_DescriptorSet; }
+
 	private:
-		DescriptorSetLayout& m_SetLayout;
+		explicit DescriptorSet(DescriptorPool& descriptorPool) : m_Pool(descriptorPool) {}
 		DescriptorPool& m_Pool;
-		std::vector<VkWriteDescriptorSet> m_Writes;
+		VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
+
+		friend class DescriptorPool;
 	};
 }

@@ -37,21 +37,11 @@ namespace Cardia
 
 		std::vector descriptorSetLayouts{m_DescriptorSetLayout->GetDescriptorSetLayout()};
 
-		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
-		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-		pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
-		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-
-		if (vkCreatePipelineLayout(m_Device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Vulkan : Failed to create pipeline layout");
-		}
+		m_PipelineLayout = std::make_unique<PipelineLayout>(m_Device, descriptorSetLayouts);
 		
 		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
 		pipelineConfig.renderPass = m_SwapChain->GetRenderPass();
-		pipelineConfig.pipelineLayout = m_PipelineLayout;
+		pipelineConfig.pipelineLayout = m_PipelineLayout->GetPipelineLayout();
 		m_Pipeline = std::make_unique<Pipeline>(
 			m_Device,
 			"resources/shaders/simple.vert.spv",
@@ -59,18 +49,13 @@ namespace Cardia
 			pipelineConfig
 		);
 
-		for (std::size_t i = 0; i < m_DescriptorSets.size(); i++) {
+		for (std::size_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
 			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
-			DescriptorWriter(*m_DescriptorSetLayout, *m_DescriptorPool)
+			m_DescriptorSets.emplace_back(
+				*DescriptorSet::Writer(*m_DescriptorSetLayout, *m_DescriptorPool)
 				.WriteBuffer(0, &bufferInfo)
-				.Build(m_DescriptorSets[i]);
+				.Build());
 		}
-	}
-
-	Renderer::~Renderer()
-	{
-		vkDeviceWaitIdle(m_Device.GetDevice());
-		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
 	}
 
 	VkCommandBuffer Renderer::Begin()

@@ -1,8 +1,10 @@
 ﻿#pragma once
+#include "Descriptors.hpp"
 #include "Device.hpp"
 
 namespace Cardia
 {
+
 	struct PipelineConfigInfo {
 		VkViewport viewport;
 		VkRect2D scissor;
@@ -15,8 +17,22 @@ namespace Cardia
 		VkRenderPass renderPass = nullptr;
 		uint32_t subpass = 0;
 	};
- 
-	
+
+	class PipelineLayout
+	{
+	public:
+		PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+		PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts);
+		~PipelineLayout();
+
+		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
+
+	private:
+		void Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+		Device& m_Device;
+		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
+	};
+
 	class Pipeline
 	{
 	public:

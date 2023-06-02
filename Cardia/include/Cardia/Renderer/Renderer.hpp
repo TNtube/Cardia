@@ -20,7 +20,7 @@ namespace Cardia
 	{
 	public:
 		explicit Renderer(Window& window);
-		virtual ~Renderer();
+		virtual ~Renderer() = default;
 
 		VkCommandBuffer Begin();
 		void End();
@@ -31,9 +31,9 @@ namespace Cardia
 		SwapChain& GetSwapChain() const { return *m_SwapChain; }
 		DescriptorPool& GetDescriptorSetPool() const { return *m_DescriptorPool; }
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
-		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
+		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
 		DescriptorSetLayout& GetDescriptorSetLayout() const { return *m_DescriptorSetLayout; }
-		VkDescriptorSet& GetCurrentDescriptorSet() { return m_DescriptorSets[m_CurrentFrameIndex]; }
+		DescriptorSet& GetCurrentDescriptorSet() { return m_DescriptorSets[m_CurrentFrameIndex]; }
 		Buffer& GetCurrentUboBuffer() const { return *m_UboBuffers[m_CurrentFrameIndex]; }
 		uint32_t GetFrameIndex() const { return m_CurrentImageIndex; }
 
@@ -57,9 +57,9 @@ namespace Cardia
 		std::unique_ptr<DescriptorPool> m_DescriptorPool;
 
 		std::vector<std::unique_ptr<Buffer>> m_UboBuffers;
-		std::vector<VkDescriptorSet> m_DescriptorSets{SwapChain::MAX_FRAMES_IN_FLIGHT};
+		std::vector<DescriptorSet> m_DescriptorSets;
 		std::unique_ptr<DescriptorSetLayout> m_DescriptorSetLayout;
-		VkPipelineLayout m_PipelineLayout {}; // TODO: Remove ?
+		std::unique_ptr<PipelineLayout> m_PipelineLayout; // TODO: Remove ?
 		std::shared_ptr<Pipeline> m_Pipeline {};
 
 		MeshRenderer m_MeshRenderer;

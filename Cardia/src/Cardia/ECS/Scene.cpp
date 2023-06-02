@@ -118,9 +118,9 @@ namespace Cardia
 			vkCmdBindDescriptorSets(
 				commandBuffer,
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				m_Renderer.GetPipelineLayout(),
+				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
 				0, 1,
-				&m_Renderer.GetCurrentDescriptorSet(),
+				&m_Renderer.GetCurrentDescriptorSet().GetDescriptor(),
 				0, nullptr);
 		}
 		for (const auto entity : meshView)
