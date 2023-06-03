@@ -6,31 +6,26 @@
 #include <vulkan/vulkan.h>
 
 #include "Device.hpp"
+#include "Descriptors.hpp"
 
 
 namespace Cardia
 {
-	class Texture {
-	public:
-		virtual ~Texture() = default;
-		virtual uint32_t GetHeight() const = 0;
-		virtual uint32_t GetWidth() const = 0;
-		virtual VkSampler GetSampler() const = 0;
-	protected:
-		bool m_Loaded = false;
-		std::string m_Path {};
-	};
 
-	class Texture2D : public Texture
+	class Renderer;
+	class Texture2D
 	{
 	public:
-		explicit Texture2D(Device& device, const std::filesystem::path& path);
-		virtual ~Texture2D() override;
+		Texture2D(Device& device, Renderer& renderer, const std::filesystem::path& path);
+		virtual ~Texture2D();
 
-		virtual uint32_t GetHeight() const override { return m_Height; }
-		virtual uint32_t GetWidth() const override { return m_Width; }
+		virtual uint32_t GetHeight() const { return m_Height; }
+		virtual uint32_t GetWidth() const { return m_Width; }
 
-		VkSampler GetSampler() const override { return m_TextureSampler; }
+		VkSampler GetSampler() const { return m_TextureSampler; }
+		DescriptorSet& GetDescriptorSet() const { return *m_TextureDescriptorSet; }
+		
+		void Bind(VkCommandBuffer commandBuffer) const;
 
 		static std::unique_ptr<Texture2D> create(const std::string& path);
 		static std::unique_ptr<Texture2D> create(int width, int height, void* data);
@@ -44,9 +39,11 @@ namespace Cardia
 		uint32_t m_Height {};
 		
 		Device& m_Device;
+		Renderer& m_Renderer;
 		VkImage m_TextureImage {};
 		VkDeviceMemory m_TextureImageMemory {};
 		VkImageView m_TextureImageView {};
 		VkSampler m_TextureSampler {};
+		std::unique_ptr<DescriptorSet> m_TextureDescriptorSet {};
 	};
 }

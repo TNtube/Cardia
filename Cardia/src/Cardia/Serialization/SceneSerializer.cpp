@@ -373,7 +373,11 @@ namespace Cardia::Serialization
 				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
 				spriteRenderer.color = node[currComponent]["color"].as<glm::vec4>();
 
-				auto texture = AssetsManager::Load<Texture2D>(node[currComponent]["texture"].asString());
+				spriteRenderer.texture =
+					std::make_shared<Texture2D>(
+						renderer.GetDevice(),
+						renderer,
+						node[currComponent]["texture"].asString());
 				// if (texture && texture->IsLoaded())
 				// {
 				// 	spriteRenderer.texture = std::move(texture);
@@ -392,7 +396,18 @@ namespace Cardia::Serialization
 
 				auto& materials = node[currComponent]["materials"];
 				for (const auto& texturePath : materials) {
-					auto texture = AssetsManager::Load<Texture2D>(texturePath.asString());
+					std::filesystem::path path = texturePath.asString();
+					if (path.empty())
+					{
+						continue;
+					}
+					
+					auto texture = 
+					std::make_shared<Texture2D>(
+						renderer.GetDevice(),
+						renderer,
+						AssetsManager::GetAssetAbsolutePath(path));
+						meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));
 					// if (texture && texture->IsLoaded())
 					// {
 					// 	meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));

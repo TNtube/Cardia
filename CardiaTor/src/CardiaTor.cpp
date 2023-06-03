@@ -36,8 +36,8 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), "resources/icons/play.png");
-		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), "resources/icons/pause.png");
+		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/play.png");
+		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/pause.png");
 
 		// FramebufferSpecification spec{ window.getWidth(), window.getHeight() };
 		// spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };

@@ -51,7 +51,7 @@ namespace Cardia
 					// a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
 					// use models where a vertex can have multiple texture coordinates, so we always take the first set (0).
 					vertex.textureCoord.x = ai_mesh->mTextureCoords[0][i].x;
-					vertex.textureCoord.y = ai_mesh->mTextureCoords[0][i].y;
+					vertex.textureCoord.y = 1.0f - ai_mesh->mTextureCoords[0][i].y;
 				}
 				else
 					vertex.textureCoord = glm::vec2(0.0f, 0.0f);

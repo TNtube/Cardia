@@ -9,27 +9,29 @@
 namespace Cardia {
 	class DescriptorSetLayout {
 	public:
-			class Builder {
-			public:
-				Builder(Device& device) : m_Device{device} {}
+		class Builder {
+		public:
+			Builder(Device& device) : m_Device{device} {}
 
-				Builder& AddBinding(
-					uint32_t binding,
-					VkDescriptorType descriptorType,
-					VkShaderStageFlags stageFlags,
-					uint32_t count = 1);
-				std::unique_ptr<DescriptorSetLayout> Build() const;
+			Builder& AddBinding(
+				uint32_t binding,
+				VkDescriptorType descriptorType,
+				VkShaderStageFlags stageFlags,
+				uint32_t count = 1);
+			std::unique_ptr<DescriptorSetLayout> Build() const;
 
-			private:
-				Device& m_Device;
-				std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
-			};
+		private:
+			Device& m_Device;
+			std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
+		};
 
 		DescriptorSetLayout(
 			Device& device, const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings);
 		~DescriptorSetLayout();
 		DescriptorSetLayout(const DescriptorSetLayout&) = delete;
 		DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
+		DescriptorSetLayout(const DescriptorSetLayout&&) = delete;
+		DescriptorSetLayout& operator=(const DescriptorSetLayout&&) = delete;
 
 		VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 	private:
@@ -65,6 +67,8 @@ namespace Cardia {
 		~DescriptorPool();
 		DescriptorPool(const DescriptorPool&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&) = delete;
+		DescriptorPool(const DescriptorPool&&) = delete;
+		DescriptorPool& operator=(const DescriptorPool&&) = delete;
 
 		bool AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 

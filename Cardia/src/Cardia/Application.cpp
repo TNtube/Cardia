@@ -51,7 +51,7 @@ namespace Cardia
 
 				OnRender(commandBuffer);
 
-				// m_ImGuiLayer->Render(commandBuffer);
+				m_ImGuiLayer->Render(commandBuffer);
 
 				m_Renderer.EndSwapChainRenderPass();
 				m_Renderer.End();

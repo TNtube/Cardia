@@ -4,7 +4,9 @@
 #include <vulkan/vulkan.h>
 
 #include "Cardia/Renderer/Buffer.hpp"
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
+#include "Cardia/Renderer/Renderer.hpp"
 
 namespace Cardia
 {
@@ -12,12 +14,29 @@ namespace Cardia
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	Texture2D::Texture2D(Device& device, const std::filesystem::path& path) : m_Device(device)
+	Texture2D::Texture2D(Device& device, Renderer& renderer, const std::filesystem::path& path) : m_Device(device), m_Renderer(renderer)
 	{
-		int texWidth, texHeight, texChannels;
+		int texWidth {}, texHeight {}, texChannels {};
 		stbi_uc* pixels = stbi_load(path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+
+		unsigned char white[] = {255, 255, 255, 255};
 		if (!pixels)
-			throw std::runtime_error("stbi : failed to load texture image !");
+		{
+			Log::coreTrace("Path not loaded is {0}", path.string());
+			Log::coreTrace(stbi_failure_reason());
+			texWidth = 1;
+			texHeight = 1;
+			pixels = white;
+		} else
+		{
+			Log::coreTrace("Path loaded is {0}", path.string());
+		}
+
+		const auto imageSize = static_cast<uint32_t>(texWidth * texHeight * 4);
+		Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		buffer.UploadData(imageSize, pixels);
+		if (pixels != white)
+			stbi_image_free(pixels);
 
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -35,12 +54,7 @@ namespace Cardia
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		device.CreateImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_TextureImage, m_TextureImageMemory);
-
-
-		const auto imageSize = static_cast<uint32_t>(texWidth * texHeight * 4);
-		Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-		buffer.UploadData(imageSize, pixels);
-		stbi_image_free(pixels);
+		
 
 		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		device.CopyBufferToImage(buffer.GetBuffer(), m_TextureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
@@ -49,6 +63,16 @@ namespace Cardia
 
 		CreateImageView(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 		CreateTextureSampler();
+
+		VkDescriptorImageInfo imageBufferInfo;
+		imageBufferInfo.sampler = m_TextureSampler;
+		imageBufferInfo.imageView = m_TextureImageView;
+		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		m_TextureDescriptorSet = std::make_unique<DescriptorSet>(
+			*DescriptorSet::Writer(renderer.GetTextureSetLayout(), renderer.GetDescriptorSetPool())
+				.WriteImage(0, &imageBufferInfo)
+				.Build());
 	}
 
 	Texture2D::~Texture2D()
@@ -57,6 +81,17 @@ namespace Cardia
 		vkDestroyImageView(m_Device.GetDevice(), m_TextureImageView, nullptr);
 		vkDestroyImage(m_Device.GetDevice(), m_TextureImage, nullptr);
 		vkFreeMemory(m_Device.GetDevice(), m_TextureImageMemory, nullptr);
+	}
+
+	void Texture2D::Bind(VkCommandBuffer commandBuffer) const
+	{
+		vkCmdBindDescriptorSets(
+			commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+			1, 1,
+			&m_TextureDescriptorSet->GetDescriptor(),
+			0, nullptr);
 	}
 
 	// Old Way

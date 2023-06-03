@@ -23,7 +23,11 @@ namespace Cardia
 	public:
 		PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
 		PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts);
-		~PipelineLayout();
+		PipelineLayout(const PipelineLayout&) = delete;
+		PipelineLayout& operator=(const PipelineLayout&) = delete;
+		PipelineLayout(const PipelineLayout&&) = delete;
+		PipelineLayout& operator=(const PipelineLayout&&) = delete;
+		virtual ~PipelineLayout();
 
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
 
@@ -40,6 +44,9 @@ namespace Cardia
 		virtual ~Pipeline();
 		Pipeline(const Pipeline&) = delete;
 		Pipeline& operator=(const Pipeline&) = delete;
+		Pipeline(const Pipeline&&) = delete;
+		Pipeline& operator=(const Pipeline&&) = delete;
+
 		void Bind(VkCommandBuffer commandBuffer) const;
 
 		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);

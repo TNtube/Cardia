@@ -87,7 +87,7 @@ namespace Cardia
 		info.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 		info.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
 		info.rasterizationInfo.lineWidth = 1.0f;
-		info.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+		info.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 		info.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		info.rasterizationInfo.depthBiasEnable = VK_FALSE;
 		info.rasterizationInfo.depthBiasConstantFactor = 0.0f;

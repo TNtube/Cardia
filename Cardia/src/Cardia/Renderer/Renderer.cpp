@@ -13,9 +13,9 @@ namespace Cardia
 		RecreateSwapChain();
 		CreateCommandBuffers();
 		m_DescriptorPool = DescriptorPool::Builder(m_Device)
-					.SetMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-					.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-					.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+					.SetMaxSets(1000)
+					.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
+					.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
 					.SetPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
 					.Build();
 
@@ -30,12 +30,18 @@ namespace Cardia
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 		}
 
-		m_DescriptorSetLayout = DescriptorSetLayout::Builder(m_Device)
+		m_UboDescriptorSetLayout = DescriptorSetLayout::Builder(m_Device)
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			// .AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.Build();
 
-		std::vector descriptorSetLayouts{m_DescriptorSetLayout->GetDescriptorSetLayout()};
+		m_TextureDescriptorSetLayout = DescriptorSetLayout::Builder(m_Device)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.Build();
+
+		std::vector descriptorSetLayouts {
+			m_UboDescriptorSetLayout->GetDescriptorSetLayout(),
+			m_TextureDescriptorSetLayout->GetDescriptorSetLayout()
+		};
 
 		m_PipelineLayout = std::make_unique<PipelineLayout>(m_Device, descriptorSetLayouts);
 		
@@ -52,7 +58,7 @@ namespace Cardia
 		for (std::size_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
 			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
 			m_DescriptorSets.emplace_back(
-				*DescriptorSet::Writer(*m_DescriptorSetLayout, *m_DescriptorPool)
+				*DescriptorSet::Writer(*m_UboDescriptorSetLayout, *m_DescriptorPool)
 				.WriteBuffer(0, &bufferInfo)
 				.Build());
 		}

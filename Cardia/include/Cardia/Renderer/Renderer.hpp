@@ -32,7 +32,8 @@ namespace Cardia
 		DescriptorPool& GetDescriptorSetPool() const { return *m_DescriptorPool; }
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
 		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
-		DescriptorSetLayout& GetDescriptorSetLayout() const { return *m_DescriptorSetLayout; }
+		DescriptorSetLayout& GetUboSetLayout() const { return *m_UboDescriptorSetLayout; }
+		DescriptorSetLayout& GetTextureSetLayout() const { return *m_TextureDescriptorSetLayout; }
 		DescriptorSet& GetCurrentDescriptorSet() { return m_DescriptorSets[m_CurrentFrameIndex]; }
 		Buffer& GetCurrentUboBuffer() const { return *m_UboBuffers[m_CurrentFrameIndex]; }
 		uint32_t GetFrameIndex() const { return m_CurrentImageIndex; }
@@ -58,7 +59,8 @@ namespace Cardia
 
 		std::vector<std::unique_ptr<Buffer>> m_UboBuffers;
 		std::vector<DescriptorSet> m_DescriptorSets;
-		std::unique_ptr<DescriptorSetLayout> m_DescriptorSetLayout;
+		std::unique_ptr<DescriptorSetLayout> m_UboDescriptorSetLayout;
+		std::unique_ptr<DescriptorSetLayout> m_TextureDescriptorSetLayout;
 		std::unique_ptr<PipelineLayout> m_PipelineLayout; // TODO: Remove ?
 		std::shared_ptr<Pipeline> m_Pipeline {};
 
