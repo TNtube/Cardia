@@ -11,18 +11,17 @@ namespace Cardia
 {
 	class ImGuiLayer {
 	public:
-		ImGuiLayer(Renderer& renderContext);
+		ImGuiLayer(Renderer& renderer);
 		~ImGuiLayer();
 
-		void onEvent(Event &event) {};
+		void OnEvent(Event &event) {}
 
 		void Begin();
 		void Render(VkCommandBuffer commandBuffer);
 		void End();
 
 	private:
-		Renderer& m_RenderContext;
-		VkDescriptorPool m_DescriptorPool {};
+		Renderer& m_Renderer;
 		float m_Time {};
 	};
 }

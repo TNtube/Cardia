@@ -318,9 +318,9 @@ namespace Cardia
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 
-		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
-			     ImVec2{m_SceneSize.x, m_SceneSize.y},
-			     ImVec2{0, 1}, ImVec2{1, 0});
+		// ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
+		// 	     ImVec2{m_SceneSize.x, m_SceneSize.y},
+		// 	     ImVec2{0, 1}, ImVec2{1, 0});
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -347,7 +347,9 @@ namespace Cardia
 
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
-		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(0)), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
+
+		static auto set = ImGui_ImplVulkan_AddTexture(icon->GetSampler(), icon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		if (ImGui::ImageButton(set, ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)
 			{

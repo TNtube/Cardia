@@ -44,7 +44,6 @@ namespace Cardia
 		void RedoCommand();
 		std::shared_ptr<Texture2D> m_IconPlay;
 		std::shared_ptr<Texture2D> m_IconStop;
-		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::unique_ptr<Scene> m_LastEditorScene;

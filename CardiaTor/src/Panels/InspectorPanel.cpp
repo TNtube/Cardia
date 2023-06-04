@@ -124,8 +124,8 @@ namespace Cardia::Panel
 
 			if (!meshRendererC.meshRenderer->GetMesh()) return;
 			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
-			for (auto& material : materials) {
-				const auto texID = nullptr; // material->GetDescriptorSet();
+			for (const auto& material : materials) {
+				const auto texID = material->GetDescriptorSet().GetDescriptor();
 				ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
 				if (ImGui::BeginDragDropTarget())
 				{

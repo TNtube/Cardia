@@ -18,7 +18,7 @@ namespace Cardia
 		{
 			EventDispatcher dispatcher(e);
 			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
-			m_ImGuiLayer->onEvent(e);
+			m_ImGuiLayer->OnEvent(e);
 			OnEvent(e);
 		});
 

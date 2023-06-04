@@ -70,6 +70,8 @@ namespace Cardia {
 		DescriptorPool(const DescriptorPool&&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&&) = delete;
 
+		const VkDescriptorPool& GetPool() const { return m_DescriptorPool; }
+
 		bool AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 
 		void FreeDescriptors(std::vector<DescriptorSet>& descriptors) const;

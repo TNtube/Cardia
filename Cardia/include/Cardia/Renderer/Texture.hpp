@@ -23,6 +23,7 @@ namespace Cardia
 		virtual uint32_t GetWidth() const { return m_Width; }
 
 		VkSampler GetSampler() const { return m_TextureSampler; }
+		VkImageView GetView() const { return m_TextureImageView; }
 		DescriptorSet& GetDescriptorSet() const { return *m_TextureDescriptorSet; }
 		
 		void Bind(VkCommandBuffer commandBuffer) const;
