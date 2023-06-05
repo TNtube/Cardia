@@ -42,6 +42,7 @@ namespace Cardia {
 		friend class DescriptorSet;
 	};
 
+
 	class DescriptorPool {
 	public:
 		class Builder {
@@ -50,7 +51,7 @@ namespace Cardia {
 			Builder& AddPoolSize(VkDescriptorType descriptorType, uint32_t count);
 			Builder& SetPoolFlags(VkDescriptorPoolCreateFlags flags);
 			Builder& SetMaxSets(uint32_t count);
-			std::unique_ptr<DescriptorPool> Build() const;
+			DescriptorPool Build() const;
 
 		private:
 			Device& m_Device;
@@ -67,12 +68,12 @@ namespace Cardia {
 		~DescriptorPool();
 		DescriptorPool(const DescriptorPool&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&) = delete;
-		DescriptorPool(const DescriptorPool&&) = delete;
-		DescriptorPool& operator=(const DescriptorPool&&) = delete;
+		DescriptorPool(DescriptorPool&& other) noexcept;
+		DescriptorPool& operator=(DescriptorPool&& other) noexcept;
 
 		const VkDescriptorPool& GetPool() const { return m_DescriptorPool; }
 
-		bool AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
+		VkResult AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 
 		void FreeDescriptors(std::vector<DescriptorSet>& descriptors) const;
 		void FreeDescriptors(const std::vector<VkDescriptorSet>& descriptors) const;
@@ -81,10 +82,48 @@ namespace Cardia {
 
 	private:
 		Device& m_Device;
-		VkDescriptorPool m_DescriptorPool{};
+		VkDescriptorPool m_DescriptorPool {VK_NULL_HANDLE};
 
 		friend class DescriptorSet;
 	};
+
+
+	class DescriptorAllocator
+	{
+	public:
+		DescriptorAllocator(Device& device) : m_Device(device) {}
+
+		void ResetPools();
+		std::optional<DescriptorSet> Allocate(const DescriptorSetLayout& layout);
+
+	private:
+		DescriptorPool CreatePool(uint32_t count, VkDescriptorPoolCreateFlags flags) const;
+		DescriptorPool& GrabPool();
+
+		Device& m_Device;
+
+		DescriptorPool* m_CurrentPool {};
+		std::vector<DescriptorPool> m_UsedPools;
+		std::vector<DescriptorPool> m_FreePools;
+
+		const std::vector<std::pair<VkDescriptorType, float>> m_PoolSizes
+		{
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 0.5f },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4.f },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 4.f },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1.f },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1.f },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1.f },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2.f },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2.f },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1.f },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1.f },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 0.5f }
+		};
+
+		friend class DescriptorSet;
+	};
+
 
 	class DescriptorSet
 	{
@@ -92,29 +131,30 @@ namespace Cardia {
 		class Writer
 		{
 		public:
-			Writer(DescriptorSetLayout& setLayout, DescriptorPool& pool);
-
-			Writer& WriteBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo);
+			Writer(DescriptorAllocator& allocator, DescriptorSetLayout& setLayout);
+			Writer& WriteBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
 			Writer& WriteImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
 
 			std::optional<DescriptorSet> Build();
 			void Overwrite(const DescriptorSet& set);
 	
 		private:
+			DescriptorAllocator& m_Allocator;
 			DescriptorSetLayout& m_SetLayout;
-			DescriptorPool& m_Pool;
 			std::vector<VkWriteDescriptorSet> m_Writes;
 		};
 
+
+		explicit DescriptorSet(DescriptorPool& descriptorPool) : m_Pool(descriptorPool) {}
 		virtual ~DescriptorSet();
 		DescriptorSet(DescriptorSet && other) noexcept;
 		DescriptorSet& operator=(DescriptorSet&& other) noexcept;
 		DescriptorSet(const DescriptorSet&) = delete;
 		DescriptorSet& operator=(const DescriptorSet&) = delete;
 		const VkDescriptorSet& GetDescriptor() const { return m_DescriptorSet; }
+		VkDescriptorSet& GetDescriptor() { return m_DescriptorSet; }
 
 	private:
-		explicit DescriptorSet(DescriptorPool& descriptorPool) : m_Pool(descriptorPool) {}
 		DescriptorPool& m_Pool;
 		VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
 

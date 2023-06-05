@@ -15,7 +15,7 @@ namespace Cardia
 	{
 		const Application& app = Application::get();
 		const auto window = static_cast<GLFWwindow*>(app.GetWindow().getNativeWin());
-		const auto& device = m_Renderer.m_Device;
+		auto& device = m_Renderer.m_Device;
 		
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -28,6 +28,23 @@ namespace Cardia
 		
 		ImGui_ImplGlfw_InitForVulkan(window, true);
 
+		m_Pool = std::make_unique<DescriptorPool>(
+			DescriptorPool::Builder(device)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_SAMPLER, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000)
+				.AddPoolSize( VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 100)
+				.SetMaxSets(1000)
+				.SetPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+				.Build());
+
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = device.m_Instance;
 		init_info.PhysicalDevice = device.m_PhysicalDevice;
@@ -35,7 +52,7 @@ namespace Cardia
 		init_info.QueueFamily = device.FindQueueFamilies(device.m_PhysicalDevice).GraphicsFamily;
 		init_info.Queue = device.m_GraphicsQueue;
 		init_info.PipelineCache = VK_NULL_HANDLE;
-		init_info.DescriptorPool = m_Renderer.GetDescriptorSetPool().GetPool();
+		init_info.DescriptorPool = m_Pool->GetPool();
 		init_info.Subpass = 0;
 		init_info.MinImageCount = SwapChain::MAX_FRAMES_IN_FLIGHT;
 		init_info.ImageCount = 2;

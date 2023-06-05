@@ -22,6 +22,7 @@ namespace Cardia
 
 	private:
 		Renderer& m_Renderer;
+		std::unique_ptr<DescriptorPool> m_Pool;
 		float m_Time {};
 	};
 }

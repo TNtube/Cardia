@@ -29,7 +29,7 @@ namespace Cardia
 
 		Device& GetDevice() { return m_Device; }
 		SwapChain& GetSwapChain() const { return *m_SwapChain; }
-		DescriptorPool& GetDescriptorSetPool() const { return *m_DescriptorPool; }
+		DescriptorAllocator& GetDescriptorAllocator() const { return *m_DescriptorAllocator; }
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
 		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
 		DescriptorSetLayout& GetUboSetLayout() const { return *m_UboDescriptorSetLayout; }
@@ -55,7 +55,7 @@ namespace Cardia
 		uint32_t m_CurrentImageIndex {};
 		uint32_t m_CurrentFrameIndex {};
 
-		std::unique_ptr<DescriptorPool> m_DescriptorPool;
+		std::unique_ptr<DescriptorAllocator> m_DescriptorAllocator;
 
 		std::vector<std::unique_ptr<Buffer>> m_UboBuffers;
 		std::vector<DescriptorSet> m_DescriptorSets;

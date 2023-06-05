@@ -70,9 +70,9 @@ namespace Cardia
 		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		m_TextureDescriptorSet = std::make_unique<DescriptorSet>(
-			*DescriptorSet::Writer(renderer.GetTextureSetLayout(), renderer.GetDescriptorSetPool())
-				.WriteImage(0, &imageBufferInfo)
-				.Build());
+			*DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), renderer.GetTextureSetLayout())
+					.WriteImage(0, &imageBufferInfo)
+					.Build());
 	}
 
 	Texture2D::~Texture2D()

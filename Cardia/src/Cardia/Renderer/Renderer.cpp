@@ -12,12 +12,7 @@ namespace Cardia
 	{
 		RecreateSwapChain();
 		CreateCommandBuffers();
-		m_DescriptorPool = DescriptorPool::Builder(m_Device)
-					.SetMaxSets(1000)
-					.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
-					.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
-					.SetPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
-					.Build();
+		m_DescriptorAllocator = std::make_unique<DescriptorAllocator>(m_Device);
 
 		m_UboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (auto& uboBuffer : m_UboBuffers)
@@ -58,15 +53,15 @@ namespace Cardia
 		for (std::size_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
 			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
 			m_DescriptorSets.emplace_back(
-				*DescriptorSet::Writer(*m_UboDescriptorSetLayout, *m_DescriptorPool)
-				.WriteBuffer(0, &bufferInfo)
-				.Build());
+				*DescriptorSet::Writer(*m_DescriptorAllocator, *m_UboDescriptorSetLayout)
+					.WriteBuffer(0, &bufferInfo)
+					.Build());
 		}
 	}
 
 	VkCommandBuffer Renderer::Begin()
 	{
-		auto result = m_SwapChain->AcquireNextImage(&m_CurrentImageIndex);
+		const auto result = m_SwapChain->AcquireNextImage(&m_CurrentImageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{

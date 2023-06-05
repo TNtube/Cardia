@@ -76,8 +76,8 @@ namespace Cardia
 		return *this;
 	}
 
-	std::unique_ptr<DescriptorPool> DescriptorPool::Builder::Build() const {
-		return std::make_unique<DescriptorPool>(m_Device, m_MaxSets, m_PoolFlags, m_PoolSizes);
+	DescriptorPool DescriptorPool::Builder::Build() const {
+		return {m_Device, m_MaxSets, m_PoolFlags, m_PoolSizes};
 	}
 
 
@@ -104,7 +104,19 @@ namespace Cardia
 		vkDestroyDescriptorPool(m_Device.GetDevice(), m_DescriptorPool, nullptr);
 	}
 
-	bool DescriptorPool::AllocateDescriptor(
+	DescriptorPool::DescriptorPool(DescriptorPool&& other) noexcept
+		: m_Device(other.m_Device)
+	{
+		std::swap(m_DescriptorPool, other.m_DescriptorPool);
+	}
+
+	DescriptorPool& DescriptorPool::operator=(DescriptorPool&& other) noexcept
+	{
+		std::swap(m_DescriptorPool, other.m_DescriptorPool);
+		return *this;
+	}
+
+	VkResult DescriptorPool::AllocateDescriptor(
 		const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const
 	{
 		VkDescriptorSetAllocateInfo allocInfo{};
@@ -116,10 +128,7 @@ namespace Cardia
 
 		// Might want to create a "DescriptorPoolManager" class that handles this case, and builds
 		// a new pool whenever an old pool fills up. But this is beyond our current scope
-		if (vkAllocateDescriptorSets(m_Device.GetDevice(), &allocInfo, &descriptor) != VK_SUCCESS) {
-			return false;
-		}
-		return true;
+		return vkAllocateDescriptorSets(m_Device.GetDevice(), &allocInfo, &descriptor);
 	}
 
 	void DescriptorPool::FreeDescriptors(std::vector<DescriptorSet>& descriptors) const
@@ -149,15 +158,88 @@ namespace Cardia
 
 	void DescriptorPool::ResetPool() const
 	{
-	  vkResetDescriptorPool(m_Device.GetDevice(), m_DescriptorPool, 0);
+		vkResetDescriptorPool(m_Device.GetDevice(), m_DescriptorPool, 0);
+	}
+
+	void DescriptorAllocator::ResetPools()
+	{
+		for (auto& p : m_UsedPools)
+		{
+			p.ResetPool();
+		}
+
+		m_FreePools = std::move(m_UsedPools);
+		m_UsedPools.clear();
+		m_CurrentPool = nullptr;
+	}
+
+	std::optional<DescriptorSet> DescriptorAllocator::Allocate(const DescriptorSetLayout& layout)
+	{
+		if (!m_CurrentPool)
+		{
+			m_CurrentPool = &GrabPool();
+		}
+
+		DescriptorSet descriptorSet(*m_CurrentPool);
+		auto result = m_CurrentPool->AllocateDescriptor(layout.GetDescriptorSetLayout(), descriptorSet.GetDescriptor());
+
+		switch (result) {
+		case VK_SUCCESS:
+			//all good, return
+			return { std::move(descriptorSet) };
+		case VK_ERROR_FRAGMENTED_POOL:
+		case VK_ERROR_OUT_OF_POOL_MEMORY:
+			//reallocate pool
+			break;
+		default:
+			//unrecoverable error
+			return {};
+		}
+
+		m_CurrentPool = &GrabPool();
+		descriptorSet = DescriptorSet(*m_CurrentPool);
+		result = m_CurrentPool->AllocateDescriptor(layout.GetDescriptorSetLayout(), descriptorSet.GetDescriptor());
+
+		if (result != VK_SUCCESS)
+			return {};
+
+		return { std::move(descriptorSet) };
+	}
+
+	DescriptorPool DescriptorAllocator::CreatePool(uint32_t count, VkDescriptorPoolCreateFlags flags) const
+	{
+		auto poolBuilder = DescriptorPool::Builder(m_Device);
+		for (auto [type, factor] : m_PoolSizes)
+		{
+			poolBuilder.AddPoolSize(type, static_cast<uint32_t>(factor * static_cast<float>(count)));
+		}
+
+		poolBuilder.SetMaxSets(count);
+		poolBuilder.SetPoolFlags(flags);
+
+		return poolBuilder.Build();
+	}
+
+	DescriptorPool& DescriptorAllocator::GrabPool()
+	{
+		if (!m_FreePools.empty())
+		{
+			DescriptorPool& pool = m_FreePools.back();
+			m_FreePools.pop_back();
+			return pool;
+		}
+		else {
+			m_UsedPools.push_back(CreatePool(1000, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT));
+			return m_UsedPools.back();
+		}
 	}
 
 
-	DescriptorSet::Writer::Writer(DescriptorSetLayout& setLayout, DescriptorPool& pool)
-		: m_SetLayout{setLayout}, m_Pool{pool} {}
+	DescriptorSet::Writer::Writer(DescriptorAllocator& allocator, DescriptorSetLayout& setLayout)
+		: m_Allocator{allocator}, m_SetLayout{setLayout} {}
 	
 	DescriptorSet::Writer& DescriptorSet::Writer::WriteBuffer(
-		uint32_t binding, VkDescriptorBufferInfo *bufferInfo)
+		uint32_t binding, const VkDescriptorBufferInfo *bufferInfo)
 	{
 		assert(m_SetLayout.m_Bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
@@ -200,20 +282,19 @@ namespace Cardia
 	}
 
 	std::optional<DescriptorSet> DescriptorSet::Writer::Build() {
-		DescriptorSet descriptorSet(m_Pool);
-		const bool success = m_Pool.AllocateDescriptor(m_SetLayout.GetDescriptorSetLayout(), descriptorSet.m_DescriptorSet);
-		if (!success) {
+		auto out = m_Allocator.Allocate(m_SetLayout);
+		if (!out.has_value()) {
 			return {};
 		}
-		Overwrite(descriptorSet);
-		return {std::move(descriptorSet)};
+		Overwrite(out.value());
+		return out;
 	}
 
 	void DescriptorSet::Writer::Overwrite(const DescriptorSet& set) {
 		for (auto& write : m_Writes) {
 			write.dstSet = set.m_DescriptorSet;
 		}
-		vkUpdateDescriptorSets(m_Pool.m_Device.GetDevice(), m_Writes.size(), m_Writes.data(), 0, nullptr);
+		vkUpdateDescriptorSets(m_Allocator.m_Device.GetDevice(), m_Writes.size(), m_Writes.data(), 0, nullptr);
 	}
 
 	DescriptorSet::~DescriptorSet()
