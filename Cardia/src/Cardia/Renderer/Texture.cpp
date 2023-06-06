@@ -69,8 +69,12 @@ namespace Cardia
 		imageBufferInfo.imageView = m_TextureImageView;
 		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
+		auto& textureLayout = DescriptorSetLayout::Builder(renderer.GetDescriptorLayoutCache())
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.Build();
+
 		m_TextureDescriptorSet = std::make_unique<DescriptorSet>(
-			*DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), renderer.GetTextureSetLayout())
+			*DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), textureLayout)
 					.WriteImage(0, &imageBufferInfo)
 					.Build());
 	}

@@ -16,14 +16,14 @@ namespace Cardia
 		assert(std::ranges::find_if(m_Bindings, [binding](const VkDescriptorSetLayoutBinding& layoutBinding)
 				{
 					return layoutBinding.binding == binding;
-				}) != m_Bindings.end() && "Binding already in use");
+				}) == m_Bindings.end() && "Binding already in use");
 		
 		VkDescriptorSetLayoutBinding layoutBinding{};
 		layoutBinding.binding = binding;
 		layoutBinding.descriptorType = descriptorType;
 		layoutBinding.descriptorCount = count;
 		layoutBinding.stageFlags = stageFlags;
-		m_Bindings[binding] = layoutBinding;
+		m_Bindings.push_back(layoutBinding);
 		return *this;
 	}
 
@@ -350,7 +350,7 @@ namespace Cardia
 	}
 
 	DescriptorSet::Writer& DescriptorSet::Writer::WriteImage(
-		uint32_t binding, VkDescriptorImageInfo *imageInfo) {
+		uint32_t binding, VkDescriptorImageInfo* imageInfo) {
 		assert(std::ranges::count_if(m_SetLayout.m_Bindings, [binding](const VkDescriptorSetLayoutBinding& layoutBinding)
 				{
 					return layoutBinding.binding == binding;

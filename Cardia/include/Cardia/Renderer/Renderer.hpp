@@ -30,10 +30,9 @@ namespace Cardia
 		Device& GetDevice() { return m_Device; }
 		SwapChain& GetSwapChain() const { return *m_SwapChain; }
 		DescriptorAllocator& GetDescriptorAllocator() const { return *m_DescriptorAllocator; }
+		DescriptorLayoutCache& GetDescriptorLayoutCache() const { return *m_DescriptorLayoutCache; }
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
 		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
-		DescriptorSetLayout& GetUboSetLayout() const { return *m_UboDescriptorSetLayout; }
-		DescriptorSetLayout& GetTextureSetLayout() const { return *m_TextureDescriptorSetLayout; }
 		DescriptorSet& GetCurrentDescriptorSet() { return m_DescriptorSets[m_CurrentFrameIndex]; }
 		Buffer& GetCurrentUboBuffer() const { return *m_UboBuffers[m_CurrentFrameIndex]; }
 		uint32_t GetFrameIndex() const { return m_CurrentImageIndex; }
@@ -42,7 +41,6 @@ namespace Cardia
 		void CreateCommandBuffers();
 		void FreeCommandBuffers();
 		void RecreateSwapChain();
-		void RecordCommandBuffer(uint32_t imageIndex) const;
 		
 
 	private:
@@ -56,11 +54,10 @@ namespace Cardia
 		uint32_t m_CurrentFrameIndex {};
 
 		std::unique_ptr<DescriptorAllocator> m_DescriptorAllocator;
+		std::unique_ptr<DescriptorLayoutCache> m_DescriptorLayoutCache;
+		std::vector<DescriptorSet> m_DescriptorSets;
 
 		std::vector<std::unique_ptr<Buffer>> m_UboBuffers;
-		std::vector<DescriptorSet> m_DescriptorSets;
-		std::unique_ptr<DescriptorSetLayout> m_UboDescriptorSetLayout;
-		std::unique_ptr<DescriptorSetLayout> m_TextureDescriptorSetLayout;
 		std::unique_ptr<PipelineLayout> m_PipelineLayout; // TODO: Remove ?
 		std::shared_ptr<Pipeline> m_Pipeline {};
 
