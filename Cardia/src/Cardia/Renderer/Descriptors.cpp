@@ -13,35 +13,32 @@ namespace Cardia
 		VkShaderStageFlags stageFlags,
 		uint32_t count)
 	{
-		assert(!bindings.contains(binding) && "Binding already in use");
+		assert(std::ranges::find_if(m_Bindings, [binding](const VkDescriptorSetLayoutBinding& layoutBinding)
+				{
+					return layoutBinding.binding == binding;
+				}) != m_Bindings.end() && "Binding already in use");
+		
 		VkDescriptorSetLayoutBinding layoutBinding{};
 		layoutBinding.binding = binding;
 		layoutBinding.descriptorType = descriptorType;
 		layoutBinding.descriptorCount = count;
 		layoutBinding.stageFlags = stageFlags;
-		bindings[binding] = layoutBinding;
+		m_Bindings[binding] = layoutBinding;
 		return *this;
 	}
 
-	std::unique_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::Build() const {
-		return std::make_unique<DescriptorSetLayout>(m_Device, bindings);
+	DescriptorSetLayout& DescriptorSetLayout::Builder::Build() const {
+		return m_Cache.CreateLayout(m_Bindings);
 	}
 
 
-	DescriptorSetLayout::DescriptorSetLayout(
-		Device& device, const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings)
+	DescriptorSetLayout::DescriptorSetLayout(Device& device, const std::vector<VkDescriptorSetLayoutBinding>& bindings)
 	: m_Device{device}, m_Bindings{bindings}
 	{
-		std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-		setLayoutBindings.reserve(bindings.size());
-		for (auto val : bindings | std::views::values) {
-			setLayoutBindings.push_back(val);
-		}
-
 		VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
 		descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-		descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+		descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+		descriptorSetLayoutInfo.pBindings = bindings.data();
 
 		if (vkCreateDescriptorSetLayout(
 			m_Device.GetDevice(),
@@ -56,6 +53,95 @@ namespace Cardia
 		vkDestroyDescriptorSetLayout(m_Device.GetDevice(), m_DescriptorSetLayout, nullptr);
 	}
 
+	DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& other) noexcept
+		: m_Device(other.m_Device),
+		m_DescriptorSetLayout(other.m_DescriptorSetLayout),
+		m_Bindings(std::move(other.m_Bindings))
+	{
+		other.m_DescriptorSetLayout = VK_NULL_HANDLE;
+	}
+
+	DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& other) noexcept
+	{
+		m_DescriptorSetLayout = other.m_DescriptorSetLayout;
+		m_Bindings = std::move(other.m_Bindings);
+		return *this;
+	}
+
+
+	DescriptorSetLayout& DescriptorLayoutCache::CreateLayout(
+		const std::vector<VkDescriptorSetLayoutBinding>& bindings)
+	{
+		DescriptorLayoutInfo layoutInfo;
+		layoutInfo.Bindings.reserve(bindings.size());
+		bool isSorted = true;
+		int32_t lastBinding = -1;
+		for (const auto& binding : bindings)
+		{
+			layoutInfo.Bindings.push_back(binding);
+
+			//check that the bindings are in strict increasing order
+			if (static_cast<int32_t>(binding.binding) > lastBinding)
+			{
+				lastBinding = static_cast<int32_t>(binding.binding);
+			}
+			else{
+				isSorted = false;
+			}
+		}
+
+		if (!isSorted)
+		{
+			std::ranges::sort(layoutInfo.Bindings, [](const VkDescriptorSetLayoutBinding& a, const VkDescriptorSetLayoutBinding& b)
+				{
+					return a.binding < b.binding;
+				});
+		}
+
+		const auto it = m_LayoutCache.find(layoutInfo);
+		if (it != m_LayoutCache.end())
+		{
+			return it->second;
+		}
+
+		DescriptorSetLayout layout{m_Device, layoutInfo.Bindings};
+		m_LayoutCache.insert({layoutInfo, std::move(layout)});
+		return m_LayoutCache.at(layoutInfo);
+	}
+
+	bool DescriptorLayoutCache::DescriptorLayoutInfo::operator==(const DescriptorLayoutInfo& other) const
+	{
+		if (other.Bindings.size() != Bindings.size())
+			return false;
+		for (size_t i = 0; i < Bindings.size(); i++) {
+			if (other.Bindings[i].binding != Bindings[i].binding)
+				return false;
+			if (other.Bindings[i].descriptorType != Bindings[i].descriptorType)
+				return false;
+			if (other.Bindings[i].descriptorCount != Bindings[i].descriptorCount)
+				return false;
+			if (other.Bindings[i].stageFlags != Bindings[i].stageFlags)
+				return false;
+		}
+		return true;
+	}
+
+	size_t DescriptorLayoutCache::DescriptorLayoutInfo::hash() const
+	{
+
+		size_t result = std::hash<size_t>()(Bindings.size());
+
+		for (const VkDescriptorSetLayoutBinding& b : Bindings)
+		{
+			//pack the binding data into a single int64. Not fully correct but its ok
+			size_t binding_hash = b.binding | b.descriptorType << 8 | b.descriptorCount << 16 | b.stageFlags << 24;
+
+			//shuffle the packed binding data and xor it with the main hash
+			result ^= std::hash<size_t>()(binding_hash);
+		}
+
+		return result;
+	}
 
 	DescriptorPool::Builder& DescriptorPool::Builder::AddPoolSize(
 		VkDescriptorType descriptorType, uint32_t count)
@@ -241,7 +327,10 @@ namespace Cardia
 	DescriptorSet::Writer& DescriptorSet::Writer::WriteBuffer(
 		uint32_t binding, const VkDescriptorBufferInfo *bufferInfo)
 	{
-		assert(m_SetLayout.m_Bindings.count(binding) == 1 && "Layout does not contain specified binding");
+		assert(std::ranges::count_if(m_SetLayout.m_Bindings, [binding](const VkDescriptorSetLayoutBinding& layoutBinding)
+				{
+					return layoutBinding.binding == binding;
+				}) == 1 && "Layout does not contain specified binding");
 
 		const auto& bindingDescription = m_SetLayout.m_Bindings[binding];
 
@@ -262,9 +351,12 @@ namespace Cardia
 
 	DescriptorSet::Writer& DescriptorSet::Writer::WriteImage(
 		uint32_t binding, VkDescriptorImageInfo *imageInfo) {
-		assert(m_SetLayout.m_Bindings.count(binding) == 1 && "Layout does not contain specified binding");
+		assert(std::ranges::count_if(m_SetLayout.m_Bindings, [binding](const VkDescriptorSetLayoutBinding& layoutBinding)
+				{
+					return layoutBinding.binding == binding;
+				}) == 1 && "Layout does not contain specified binding");
 
-		auto& bindingDescription = m_SetLayout.m_Bindings[binding];
+		const auto& bindingDescription = m_SetLayout.m_Bindings[binding];
 
 		assert(
 			bindingDescription.descriptorCount == 1 &&

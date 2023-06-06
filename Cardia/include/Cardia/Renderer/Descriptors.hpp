@@ -7,43 +7,79 @@
 #include <vector>
 
 namespace Cardia {
-	class DescriptorSetLayout {
+	class DescriptorLayoutCache;
+
+	class DescriptorSetLayout
+	{
 	public:
 		class Builder {
 		public:
-			Builder(Device& device) : m_Device{device} {}
+			Builder(DescriptorLayoutCache& cache) : m_Cache(cache) {}
 
 			Builder& AddBinding(
 				uint32_t binding,
 				VkDescriptorType descriptorType,
 				VkShaderStageFlags stageFlags,
 				uint32_t count = 1);
-			std::unique_ptr<DescriptorSetLayout> Build() const;
+			DescriptorSetLayout& Build() const;
 
 		private:
-			Device& m_Device;
-			std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
+			DescriptorLayoutCache& m_Cache;
+			std::vector<VkDescriptorSetLayoutBinding> m_Bindings{};
 		};
 
-		DescriptorSetLayout(
-			Device& device, const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings);
+		DescriptorSetLayout(Device& device, const std::vector<VkDescriptorSetLayoutBinding>& bindings);
 		~DescriptorSetLayout();
 		DescriptorSetLayout(const DescriptorSetLayout&) = delete;
 		DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
-		DescriptorSetLayout(const DescriptorSetLayout&&) = delete;
-		DescriptorSetLayout& operator=(const DescriptorSetLayout&&) = delete;
+		DescriptorSetLayout(DescriptorSetLayout&& other) noexcept;
+		DescriptorSetLayout& operator=(DescriptorSetLayout&& other) noexcept;
 
 		VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 	private:
 		Device& m_Device;
 		VkDescriptorSetLayout m_DescriptorSetLayout{};
-		std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> m_Bindings;
+		std::vector<VkDescriptorSetLayoutBinding> m_Bindings;
 
 		friend class DescriptorSet;
 	};
 
+	class DescriptorLayoutCache
+	{
+	public:
+		DescriptorLayoutCache(Device& device) : m_Device(device) {}
 
-	class DescriptorPool {
+		DescriptorSetLayout& CreateLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
+
+		struct DescriptorLayoutInfo {
+			std::vector<VkDescriptorSetLayoutBinding> Bindings;
+
+			bool operator==(const DescriptorLayoutInfo& other) const;
+
+			size_t hash() const;
+		};
+
+		friend class DescriptorSetLayout;
+
+	private:
+
+		struct DescriptorLayoutHash
+		{
+
+			std::size_t operator()(const DescriptorLayoutInfo& k) const
+			{
+				return k.hash();
+			}
+		};
+
+		Device& m_Device;
+		std::unordered_map<DescriptorLayoutInfo, DescriptorSetLayout, DescriptorLayoutHash> m_LayoutCache;
+	};
+
+
+
+	class DescriptorPool
+	{
 	public:
 		class Builder {
 		public:
