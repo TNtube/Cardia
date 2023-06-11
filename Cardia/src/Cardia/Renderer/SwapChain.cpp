@@ -9,6 +9,8 @@
 #include <set>
 #include <stdexcept>
 
+#include "Cardia/Renderer/Renderer.hpp"
+
 namespace Cardia
 {
 	SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent)
@@ -28,7 +30,6 @@ namespace Cardia
 		CreateRenderPass();
 		CreateDepthResources();
 		CreateFramebuffers();
-		CreateSyncObjects();
 	}
 
 	SwapChain::~SwapChain() {
@@ -37,9 +38,9 @@ namespace Cardia
 		}
 		m_SwapChainImageViews.clear();
 
-		if (swapChain != nullptr) {
-			vkDestroySwapchainKHR(m_Device.GetDevice(), swapChain, nullptr);
-			swapChain = nullptr;
+		if (m_SwapChain != nullptr) {
+			vkDestroySwapchainKHR(m_Device.GetDevice(), m_SwapChain, nullptr);
+			m_SwapChain = nullptr;
 		}
 
 		for (int i = 0; i < m_DepthImages.size(); i++) {
@@ -49,59 +50,48 @@ namespace Cardia
 		}
 
 		vkDestroyRenderPass(m_Device.GetDevice(), m_RenderPass, nullptr);
-
-		// cleanup synchronization objects
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(m_Device.GetDevice(), renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(m_Device.GetDevice(), imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(m_Device.GetDevice(), inFlightFences[i], nullptr);
-		}
 	}
 
-	VkResult SwapChain::AcquireNextImage(uint32_t *imageIndex) {
+	VkResult SwapChain::AcquireNextImage(const FrameData &frame, uint32_t *imageIndex) const
+	{
 		vkWaitForFences(
 				m_Device.GetDevice(),
 				1,
-				&inFlightFences[currentFrame],
+				&frame.RenderFence,
 				VK_TRUE,
 				std::numeric_limits<uint64_t>::max());
+		vkResetFences(m_Device.GetDevice(), 1, &frame.RenderFence);
 
-		VkResult result = vkAcquireNextImageKHR(
+		const VkResult result = vkAcquireNextImageKHR(
 				m_Device.GetDevice(),
-				swapChain,
+				m_SwapChain,
 				std::numeric_limits<uint64_t>::max(),
-				imageAvailableSemaphores[currentFrame],	// must be a not signaled semaphore
+				frame.PresentSemaphore,	// must be a not signaled semaphore
 				VK_NULL_HANDLE,
 				imageIndex);
 
 		return result;
 	}
 
-	VkResult SwapChain::SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
-		if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
-			vkWaitForFences(m_Device.GetDevice(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
-		}
-		imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
-
+	VkResult SwapChain::SubmitCommandBuffers(const FrameData& frame, const uint32_t *imageIndex) const
+	{
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+		VkSemaphore waitSemaphores[] = {frame.PresentSemaphore};
 		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = buffers;
+		submitInfo.pCommandBuffers = &frame.MainCommandBuffer;
 
-		VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+		VkSemaphore signalSemaphores[] = {frame.RenderSemaphore};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		vkResetFences(m_Device.GetDevice(), 1, &inFlightFences[currentFrame]);
-		if (vkQueueSubmit(m_Device.GraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) !=
-				VK_SUCCESS) {
+		if (vkQueueSubmit(m_Device.GraphicsQueue(), 1, &submitInfo, frame.RenderFence) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
@@ -111,13 +101,12 @@ namespace Cardia
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
-		VkSwapchainKHR swapChains[] = {swapChain};
+		VkSwapchainKHR swapChains[] = {m_SwapChain};
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 
 		presentInfo.pImageIndices = imageIndex;
 
-		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 		const auto result = vkQueuePresentKHR(m_Device.PresentQueue(), &presentInfo);
 
 		return result;
@@ -166,9 +155,9 @@ namespace Cardia
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		createInfo.oldSwapchain = m_PreviousSwapChain == nullptr ? VK_NULL_HANDLE : m_PreviousSwapChain->swapChain;
+		createInfo.oldSwapchain = m_PreviousSwapChain == nullptr ? VK_NULL_HANDLE : m_PreviousSwapChain->m_SwapChain;
 
-		if (vkCreateSwapchainKHR(m_Device.GetDevice(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+		if (vkCreateSwapchainKHR(m_Device.GetDevice(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create swap chain!");
 		}
 
@@ -176,9 +165,9 @@ namespace Cardia
 		// allowed to create a swap chain with more. That's why we'll first query the final number of
 		// images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 		// retrieve the handles.
-		vkGetSwapchainImagesKHR(m_Device.GetDevice(), swapChain, &imageCount, nullptr);
+		vkGetSwapchainImagesKHR(m_Device.GetDevice(), m_SwapChain, &imageCount, nullptr);
 		m_SwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device.GetDevice(), swapChain, &imageCount, m_SwapChainImages.data());
+		vkGetSwapchainImagesKHR(m_Device.GetDevice(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
 		m_SwapChainImageFormat = surfaceFormat.format;
 		m_SwapChainExtent = extent;
@@ -321,30 +310,6 @@ namespace Cardia
 
 			if (vkCreateImageView(m_Device.GetDevice(), &viewInfo, nullptr, &m_DepthImageViews[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create texture image view!");
-			}
-		}
-	}
-
-	void SwapChain::CreateSyncObjects() {
-		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-		imagesInFlight.resize(ImageCount(), VK_NULL_HANDLE);
-
-		VkSemaphoreCreateInfo semaphoreInfo = {};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-		VkFenceCreateInfo fenceInfo = {};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			if (vkCreateSemaphore(m_Device.GetDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) !=
-							VK_SUCCESS ||
-					vkCreateSemaphore(m_Device.GetDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) !=
-							VK_SUCCESS ||
-					vkCreateFence(m_Device.GetDevice(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create synchronization objects for a frame!");
 			}
 		}
 	}

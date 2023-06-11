@@ -11,16 +11,33 @@ namespace Cardia
 {
 	struct UboData
 	{
-		glm::mat4 viewProjection;
-		glm::mat4 model;
-		glm::mat4 transposedInvertedModel;
+		glm::mat4 ViewProjection;
+		glm::mat4 Model;
+		glm::mat4 TransposedInvertedModel;
+	};
+
+	struct FrameData final
+	{
+		VkSemaphore PresentSemaphore {};
+		VkSemaphore RenderSemaphore {};
+		VkFence RenderFence {};
+
+		VkCommandBuffer MainCommandBuffer {};
+
+		std::shared_ptr<Buffer> UboBuffer;
+		std::shared_ptr<DescriptorSet> UboDescriptorSet;
 	};
 
 	class Renderer
 	{
 	public:
+		Renderer(const Renderer& other) = delete;
+		Renderer(Renderer&& other) noexcept = delete;
+		Renderer& operator=(const Renderer& other) = delete;
+		Renderer& operator=(Renderer&& other) noexcept = delete;
+
 		explicit Renderer(Window& window);
-		virtual ~Renderer() = default;
+		virtual ~Renderer();
 
 		VkCommandBuffer Begin();
 		void End();
@@ -33,13 +50,11 @@ namespace Cardia
 		DescriptorLayoutCache& GetDescriptorLayoutCache() const { return *m_DescriptorLayoutCache; }
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
 		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
-		DescriptorSet& GetCurrentDescriptorSet() { return m_DescriptorSets[m_CurrentFrameIndex]; }
-		Buffer& GetCurrentUboBuffer() const { return *m_UboBuffers[m_CurrentFrameIndex]; }
-		uint32_t GetFrameIndex() const { return m_CurrentImageIndex; }
+		const FrameData& GetCurrentFrame() const { return m_Frames[m_CurrentFrameNumber % SwapChain::MAX_FRAMES_IN_FLIGHT]; }
 
 	private:
 		void CreateCommandBuffers();
-		void FreeCommandBuffers();
+		void CreateSyncObjects();
 		void RecreateSwapChain();
 		
 
@@ -48,16 +63,14 @@ namespace Cardia
 		Window& m_Window;
 		Device m_Device;
 		std::unique_ptr<SwapChain> m_SwapChain;
-		std::vector<VkCommandBuffer> m_CommandBuffers;
-
-		uint32_t m_CurrentImageIndex {};
-		uint32_t m_CurrentFrameIndex {};
-
 		std::unique_ptr<DescriptorAllocator> m_DescriptorAllocator;
 		std::unique_ptr<DescriptorLayoutCache> m_DescriptorLayoutCache;
-		std::vector<DescriptorSet> m_DescriptorSets;
 
-		std::vector<std::unique_ptr<Buffer>> m_UboBuffers;
+		uint32_t m_CurrentImageIndex {};
+		uint32_t m_CurrentFrameNumber {};
+
+		std::vector<FrameData> m_Frames{SwapChain::MAX_FRAMES_IN_FLIGHT};
+
 		std::unique_ptr<PipelineLayout> m_PipelineLayout; // TODO: Remove ?
 		std::shared_ptr<Pipeline> m_Pipeline {};
 

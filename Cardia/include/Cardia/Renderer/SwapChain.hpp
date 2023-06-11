@@ -8,10 +8,11 @@
 
 namespace Cardia
 {
+	struct FrameData;
 	class SwapChain
 	{
 	public:
-		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+		static constexpr uint8_t MAX_FRAMES_IN_FLIGHT = 2;
 
 		SwapChain(Device &deviceRef, VkExtent2D windowExtent);
 		SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous);
@@ -35,8 +36,8 @@ namespace Cardia
 		}
 		VkFormat FindDepthFormat() const;
 
-		VkResult AcquireNextImage(uint32_t *imageIndex);
-		VkResult SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+		VkResult AcquireNextImage(const FrameData& frame, uint32_t *imageIndex) const;
+		VkResult SubmitCommandBuffers(const FrameData& frame, const uint32_t *imageIndex) const;
 
 	 private:
 		void Init();
@@ -45,7 +46,6 @@ namespace Cardia
 		void CreateDepthResources();
 		void CreateRenderPass();
 		void CreateFramebuffers();
-		void CreateSyncObjects();
 
 		// Helper functions
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
@@ -69,13 +69,7 @@ namespace Cardia
 		Device &m_Device;
 		VkExtent2D m_WindowExtent {};
 
-		VkSwapchainKHR swapChain {};
+		VkSwapchainKHR m_SwapChain {};
 		std::shared_ptr<SwapChain> m_PreviousSwapChain;
-
-		std::vector<VkSemaphore> imageAvailableSemaphores;
-		std::vector<VkSemaphore> renderFinishedSemaphores;
-		std::vector<VkFence> inFlightFences;
-		std::vector<VkFence> imagesInFlight;
-		size_t currentFrame = 0;
 	};
 }

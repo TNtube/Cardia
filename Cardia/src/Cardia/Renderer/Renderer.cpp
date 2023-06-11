@@ -12,18 +12,8 @@ namespace Cardia
 	{
 		RecreateSwapChain();
 		CreateCommandBuffers();
+		CreateSyncObjects();
 		m_DescriptorAllocator = std::make_unique<DescriptorAllocator>(m_Device);
-
-		m_UboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (auto& uboBuffer : m_UboBuffers)
-		{
-			uboBuffer = std::make_unique<Buffer>(
-				m_Device,
-				sizeof(UboData),
-				1,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-		}
 
 		m_DescriptorLayoutCache = std::make_unique<DescriptorLayoutCache>(m_Device);
 
@@ -52,18 +42,39 @@ namespace Cardia
 			pipelineConfig
 		);
 
-		for (std::size_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-			auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
-			m_DescriptorSets.emplace_back(
+		for (auto& frame : m_Frames)
+		{
+			frame.UboBuffer = std::make_shared<Buffer>(
+				m_Device,
+				sizeof(UboData),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+			auto bufferInfo = frame.UboBuffer->DescriptorInfo();
+
+			frame.UboDescriptorSet = std::make_unique<DescriptorSet>(
 				*DescriptorSet::Writer(*m_DescriptorAllocator, uboSetLayout)
 					.WriteBuffer(0, &bufferInfo)
 					.Build());
 		}
 	}
 
+	Renderer::~Renderer()
+	{
+		// cleanup synchronization objects
+		for (const auto& frame: m_Frames) {
+			vkDestroySemaphore(m_Device.GetDevice(), frame.RenderSemaphore, nullptr);
+			vkDestroySemaphore(m_Device.GetDevice(), frame.PresentSemaphore, nullptr);
+			vkDestroyFence(m_Device.GetDevice(), frame.RenderFence, nullptr);
+		}
+	}
+
 	VkCommandBuffer Renderer::Begin()
 	{
-		const auto result = m_SwapChain->AcquireNextImage(&m_CurrentImageIndex);
+		m_CurrentFrameNumber++;
+		const auto& frame = GetCurrentFrame();
+		const auto result = m_SwapChain->AcquireNextImage(frame, &m_CurrentImageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
@@ -79,19 +90,20 @@ namespace Cardia
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		if (vkBeginCommandBuffer(m_CommandBuffers[m_CurrentImageIndex], &beginInfo) != VK_SUCCESS) {
+		if (vkBeginCommandBuffer(frame.MainCommandBuffer, &beginInfo) != VK_SUCCESS) {
 			throw std::runtime_error("failed to begin recording command buffer!");
 		}
 
-		return m_CommandBuffers[m_CurrentImageIndex];
+		return frame.MainCommandBuffer;
 	}
 
 	void Renderer::End()
 	{
-		if (vkEndCommandBuffer(m_CommandBuffers[m_CurrentImageIndex]) != VK_SUCCESS) {
+		const auto& frame = GetCurrentFrame();
+		if (vkEndCommandBuffer(frame.MainCommandBuffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}
-		const auto result = m_SwapChain->SubmitCommandBuffers(&m_CommandBuffers[m_CurrentImageIndex], &m_CurrentImageIndex);
+		const auto result = m_SwapChain->SubmitCommandBuffers(frame, &m_CurrentImageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.WasResized())
 		{
 			m_Window.ResetResizedFlag();
@@ -106,6 +118,7 @@ namespace Cardia
 
 	void Renderer::BeginSwapChainRenderPass() const
 	{
+		const auto& frame = GetCurrentFrame();
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = m_SwapChain->GetRenderPass();
@@ -120,7 +133,7 @@ namespace Cardia
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentImageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(frame.MainCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		const auto extent = m_SwapChain->GetSwapChainExtent();
 		VkViewport viewport {};
@@ -130,17 +143,17 @@ namespace Cardia
 		viewport.height = -static_cast<float>(extent.height);
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(m_CommandBuffers[m_CurrentImageIndex], 0, 1, &viewport);
+		vkCmdSetViewport(frame.MainCommandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor {};
 		scissor.offset = {0, 0};
 		scissor.extent = extent;
-		vkCmdSetScissor(m_CommandBuffers[m_CurrentImageIndex], 0, 1, &scissor);
+		vkCmdSetScissor(frame.MainCommandBuffer, 0, 1, &scissor);
 	}
 
 	void Renderer::EndSwapChainRenderPass() const
 	{
-		vkCmdEndRenderPass(m_CommandBuffers[m_CurrentImageIndex]);
+		vkCmdEndRenderPass(GetCurrentFrame().MainCommandBuffer);
 	}
 
 	void Renderer::RecreateSwapChain()
@@ -159,36 +172,42 @@ namespace Cardia
 		} else
 		{
 			m_SwapChain = std::make_unique<SwapChain>(m_Device, extent, std::move(m_SwapChain));
-			if (m_SwapChain->ImageCount() != m_CommandBuffers.size())
-			{
-				FreeCommandBuffers();
-				CreateCommandBuffers();
-			}
 		}
 	}
 
 	void Renderer::CreateCommandBuffers()
 	{
-		m_CommandBuffers.resize(m_SwapChain->ImageCount());
-
 		VkCommandBufferAllocateInfo allocateInfo {};
 		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocateInfo.commandPool = m_Device.GetCommandPool();
-		allocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
+		allocateInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(m_Device.GetDevice(), &allocateInfo, m_CommandBuffers.data()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate command buffers!");
+		for (auto& frame: m_Frames)
+		{
+			if (vkAllocateCommandBuffers(m_Device.GetDevice(), &allocateInfo, &frame.MainCommandBuffer) != VK_SUCCESS) {
+				throw std::runtime_error("failed to allocate command buffers!");
+			}
 		}
 	}
 
-	void Renderer::FreeCommandBuffers()
+	void Renderer::CreateSyncObjects()
 	{
-		vkFreeCommandBuffers(
-			m_Device.GetDevice(),
-			m_Device.GetCommandPool(),
-			static_cast<uint32_t>(m_CommandBuffers.size()),
-			m_CommandBuffers.data());
-		m_CommandBuffers.clear();
+		VkSemaphoreCreateInfo semaphoreInfo = {};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		VkFenceCreateInfo fenceInfo = {};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		for (auto& frame: m_Frames)
+		{
+			if (vkCreateSemaphore(m_Device.GetDevice(), &semaphoreInfo, nullptr, &frame.PresentSemaphore) != VK_SUCCESS ||
+				vkCreateSemaphore(m_Device.GetDevice(), &semaphoreInfo, nullptr, &frame.RenderSemaphore) != VK_SUCCESS ||
+				vkCreateFence(m_Device.GetDevice(), &fenceInfo, nullptr, &frame.RenderFence) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to create synchronization objects for a frame!");
+			}
+		}
 	}
 }

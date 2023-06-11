@@ -15,8 +15,8 @@ struct SwapChainSupportDetails {
 };
 
 struct QueueFamilyIndices {
-	uint32_t GraphicsFamily;
-	uint32_t PresentFamily;
+	uint32_t GraphicsFamily {};
+	uint32_t PresentFamily {};
 	bool GraphicsFamilyHasValue = false;
 	bool PresentFamilyHasValue = false;
 	bool IsComplete() const { return GraphicsFamilyHasValue && PresentFamilyHasValue; }
@@ -40,9 +40,9 @@ struct QueueFamilyIndices {
 		VkQueue GraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue PresentQueue() const { return m_PresentQueue; }
 
-		SwapChainSupportDetails GetSwapChainSupport() { return QuerySwapChainSupport(m_PhysicalDevice); }
+		SwapChainSupportDetails GetSwapChainSupport() const { return QuerySwapChainSupport(m_PhysicalDevice); }
 		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-		QueueFamilyIndices FindPhysicalQueueFamilies() { return FindQueueFamilies(m_PhysicalDevice); }
+		QueueFamilyIndices FindPhysicalQueueFamilies() const { return FindQueueFamilies(m_PhysicalDevice); }
 		VkFormat FindSupportedFormat(
 				const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 

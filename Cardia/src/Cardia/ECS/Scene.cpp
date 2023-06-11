@@ -28,7 +28,9 @@ namespace Cardia
 
 	Scene::~Scene()
 	{
-	}
+		// TODO : Move this to assets manager
+		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
+	};
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
@@ -102,8 +104,6 @@ namespace Cardia
 		// m_BasicShader->bind();
 		// m_BasicShader->setInt("u_Texture", 0);
 
-		const auto frameIndex = m_Renderer.GetFrameIndex();
-
 		m_Renderer.GetPipeline().Bind(commandBuffer);
 
 
@@ -113,6 +113,7 @@ namespace Cardia
 		// 	.Overwrite(m_Renderer.GetCurrentDescriptorSet());
 
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		auto& frame = m_Renderer.GetCurrentFrame();
 		if (meshView.size_hint() > 0)
 		{
 			vkCmdBindDescriptorSets(
@@ -120,7 +121,7 @@ namespace Cardia
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
 				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
 				0, 1,
-				&m_Renderer.GetCurrentDescriptorSet().GetDescriptor(),
+				&frame.UboDescriptorSet->GetDescriptor(),
 				0, nullptr);
 		}
 		for (const auto entity : meshView)
@@ -128,10 +129,10 @@ namespace Cardia
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
 			UboData data {};
-			data.viewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
-			data.model = transform.getTransform();
-			data.transposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
-			m_Renderer.GetCurrentUboBuffer().UploadData(sizeof(UboData), &data);
+			data.ViewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
+			data.Model = transform.getTransform();
+			data.TransposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
+			frame.UboBuffer->UploadData(sizeof(UboData), &data);
 			meshRenderer.meshRenderer->Draw(commandBuffer);
 		}
 	}
