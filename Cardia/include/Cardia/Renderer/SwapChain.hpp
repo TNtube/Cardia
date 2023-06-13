@@ -48,9 +48,9 @@ namespace Cardia
 		void CreateFramebuffers();
 
 		// Helper functions
-		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
+		static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
 				const std::vector<VkSurfaceFormatKHR> &availableFormats);
-		VkPresentModeKHR ChooseSwapPresentMode(
+		static VkPresentModeKHR ChooseSwapPresentMode(
 				const std::vector<VkPresentModeKHR> &availablePresentModes);
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
 

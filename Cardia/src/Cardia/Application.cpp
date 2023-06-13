@@ -42,18 +42,21 @@ namespace Cardia
 
 			if (const auto commandBuffer = m_Renderer.Begin())
 			{
-				m_ImGuiLayer->Begin();
-				m_Renderer.BeginSwapChainRenderPass();
-
-				OnImGuiDraw();
-
-				m_ImGuiLayer->End();
+				m_Renderer.BeginRenderPass(m_Renderer.GetSwapChain().GetRenderPass());
 
 				OnRender(commandBuffer);
 
-				// m_ImGuiLayer->Render(commandBuffer);
+				m_Renderer.EndRenderPass();
 
-				m_Renderer.EndSwapChainRenderPass();
+
+				m_ImGuiLayer->Begin();
+
+				OnImGuiDraw();
+				m_ImGuiLayer->Render(commandBuffer);
+
+				m_ImGuiLayer->End();
+
+
 				m_Renderer.End();
 			}
 

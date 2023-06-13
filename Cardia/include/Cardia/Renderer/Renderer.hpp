@@ -41,8 +41,8 @@ namespace Cardia
 
 		VkCommandBuffer Begin();
 		void End();
-		void BeginSwapChainRenderPass() const;
-		void EndSwapChainRenderPass() const;
+		void BeginRenderPass(VkRenderPass renderPass) const;
+		void EndRenderPass() const;
 
 		Device& GetDevice() { return m_Device; }
 		SwapChain& GetSwapChain() const { return *m_SwapChain; }
@@ -59,7 +59,6 @@ namespace Cardia
 		
 
 	private:
-		friend class ImGuiLayer;
 		Window& m_Window;
 		Device m_Device;
 		std::unique_ptr<SwapChain> m_SwapChain;

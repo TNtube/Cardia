@@ -21,7 +21,10 @@ namespace Cardia
 		void End();
 
 	private:
+		void CreateRenderPass();
+		void CreatePool();
 		Renderer& m_Renderer;
+		VkRenderPass m_RenderPass {};
 		std::unique_ptr<DescriptorPool> m_Pool;
 		float m_Time {};
 	};
