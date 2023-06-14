@@ -14,6 +14,7 @@ namespace Cardia
 	ImGuiLayer::ImGuiLayer(Renderer& renderer) : m_Renderer(renderer)
 	{
 		CreateRenderPass();
+		CreateFramebuffers();
 		CreatePool();
 		
 		const Application& app = Application::get();
@@ -79,11 +80,12 @@ namespace Cardia
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+		vkDestroyRenderPass(m_Renderer.GetDevice().GetDevice(), m_RenderPass, nullptr);
 	}
 
-	void ImGuiLayer::Begin()
+	void ImGuiLayer::Begin() const
 	{
-		m_Renderer.BeginRenderPass(m_RenderPass);
+		m_Renderer.BeginRenderPass(m_Framebuffers[m_Renderer.GetCurrentImageIndex()], m_RenderPass);
 		// Start the Dear ImGui frame
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -95,7 +97,7 @@ namespace Cardia
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 	}
 
-	void ImGuiLayer::End()
+	void ImGuiLayer::End() const
 	{
 		const Application& app = Application::get();
 		auto[w, h] = app.GetWindow().getSize();
@@ -153,6 +155,22 @@ namespace Cardia
 		
 		if (vkCreateRenderPass(m_Renderer.GetDevice().GetDevice(), &info, nullptr, &m_RenderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
+		}
+	}
+
+	void ImGuiLayer::CreateFramebuffers()
+	{
+		const auto& swapchain = m_Renderer.GetSwapChain();
+		const auto extent = swapchain.GetSwapChainExtent();
+		m_Framebuffers.reserve(swapchain.ImageCount());
+		for (uint32_t i = 0; i < swapchain.ImageCount(); i++) {
+			const std::vector attachments = {swapchain.GetImageView(i)};
+			FramebufferSpecification specification {
+				.width = extent.width,
+				.height = extent.height,
+				.attachments = attachments
+			};
+			m_Framebuffers.emplace_back(m_Renderer.GetDevice(), m_RenderPass, specification);
 		}
 	}
 

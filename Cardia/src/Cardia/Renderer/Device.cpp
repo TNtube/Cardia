@@ -88,6 +88,7 @@ void Device::CreateInstance() {
 	createInfo.pApplicationInfo = &appInfo;
 
 	auto extensions = GetRequiredExtensions();
+	// extensions.push_back("VK_KHR_imageless_framebuffer");
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames = extensions.data();
 

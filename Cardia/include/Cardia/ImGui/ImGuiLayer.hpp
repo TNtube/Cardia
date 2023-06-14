@@ -16,15 +16,17 @@ namespace Cardia
 
 		void OnEvent(Event &event) {}
 
-		void Begin();
+		void Begin() const;
 		void Render(VkCommandBuffer commandBuffer);
-		void End();
+		void End() const;
 
 	private:
 		void CreateRenderPass();
+		void CreateFramebuffers();
 		void CreatePool();
 		Renderer& m_Renderer;
 		VkRenderPass m_RenderPass {};
+		std::vector<Framebuffer> m_Framebuffers;
 		std::unique_ptr<DescriptorPool> m_Pool;
 		float m_Time {};
 	};

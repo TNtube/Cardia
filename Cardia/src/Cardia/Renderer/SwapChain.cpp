@@ -253,10 +253,11 @@ namespace Cardia
 		}
 	}
 
-	void SwapChain::CreateFramebuffers() {
+	void SwapChain::CreateFramebuffers()
+	{
 		m_SwapChainFramebuffers.reserve(ImageCount());
 		for (size_t i = 0; i < ImageCount(); i++) {
-			std::vector attachments = {m_SwapChainImageViews[i], m_DepthImageViews[i]};
+			const std::vector attachments = {m_SwapChainImageViews[i], m_DepthImageViews[i]};
 			FramebufferSpecification specification {
 				.width = GetSwapChainExtent().width,
 				.height = GetSwapChainExtent().height,

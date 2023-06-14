@@ -9,6 +9,7 @@ namespace Cardia
 	{
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.flags = spec.flags;
 		framebufferInfo.renderPass = renderPass;
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(spec.attachments.size());
 		framebufferInfo.pAttachments = spec.attachments.data();

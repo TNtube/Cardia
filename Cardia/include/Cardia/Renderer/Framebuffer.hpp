@@ -10,6 +10,7 @@ namespace Cardia
 		uint32_t width;
 		uint32_t height;
 		std::vector<VkImageView> attachments;
+		VkFramebufferCreateFlags flags = 0;
 	};
 
 	class Framebuffer

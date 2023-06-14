@@ -41,7 +41,8 @@ namespace Cardia
 
 		VkCommandBuffer Begin();
 		void End();
-		void BeginRenderPass(VkRenderPass renderPass) const;
+		void BeginRenderPass(const Framebuffer& frameBuffer, VkRenderPass renderPass) const;
+		void BeginSwapChainRenderPass() const;
 		void EndRenderPass() const;
 
 		Device& GetDevice() { return m_Device; }
@@ -51,6 +52,7 @@ namespace Cardia
 		Pipeline& GetPipeline() const { return *m_Pipeline; }
 		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
 		const FrameData& GetCurrentFrame() const { return m_Frames[m_CurrentFrameNumber % SwapChain::MAX_FRAMES_IN_FLIGHT]; }
+		uint32_t GetCurrentImageIndex() const { return m_CurrentImageIndex; }
 
 	private:
 		void CreateCommandBuffers();

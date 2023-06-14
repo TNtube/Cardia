@@ -116,13 +116,13 @@ namespace Cardia
 		}
 	}
 
-	void Renderer::BeginRenderPass(VkRenderPass renderPass) const
+	void Renderer::BeginRenderPass(const Framebuffer& frameBuffer, VkRenderPass renderPass) const
 	{
 		const auto& frame = GetCurrentFrame();
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderPass;
-		renderPassInfo.framebuffer = m_SwapChain->GetFrameBuffer(m_CurrentImageIndex);
+		renderPassInfo.framebuffer = frameBuffer.GetFramebuffer();
 
 		renderPassInfo.renderArea.offset = {0, 0};
 		renderPassInfo.renderArea.extent = m_SwapChain->GetSwapChainExtent();
@@ -149,6 +149,11 @@ namespace Cardia
 		scissor.offset = {0, 0};
 		scissor.extent = extent;
 		vkCmdSetScissor(frame.MainCommandBuffer, 0, 1, &scissor);
+	}
+
+	void Renderer::BeginSwapChainRenderPass() const
+	{
+		BeginRenderPass(m_SwapChain->GetFrameBuffer(m_CurrentImageIndex), m_SwapChain->GetRenderPass());
 	}
 
 	void Renderer::EndRenderPass() const
