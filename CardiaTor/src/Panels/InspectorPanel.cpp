@@ -78,7 +78,7 @@ namespace Cardia::Panel
 			const auto white = Texture2D::create(1, 1, &whiteColor);
 			const auto texID = nullptr; // sprite.texture ? sprite.texture->GetDescriptorSet() : white->GetDescriptorSet();
 
-			ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
+			// ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))

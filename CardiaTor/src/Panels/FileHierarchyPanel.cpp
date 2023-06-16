@@ -83,14 +83,17 @@ namespace Cardia::Panel
 			const auto id = 0; // m_FolderIcon->GetRendererID();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
-			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0}))
-			{
-				m_CurrentPath /= path;
-			}
+			// if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0}))
+			// {
+			// 	m_CurrentPath /= path;
+			// }
 			ImGui::PopStyleColor();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
-			ImGui::Text("%s", path.c_str());
+			if (ImGui::Button(path.c_str()))
+			{
+				m_CurrentPath /= path;
+			}
 
 			ImGui::NextColumn();
 			ImGui::PopID();
@@ -103,14 +106,14 @@ namespace Cardia::Panel
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			const auto id = 0; // m_FileIcon->GetRendererID();
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
-			ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
+			// ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
 
-			if (ImGui::BeginDragDropSource())
-			{
-				std::string itemPath = (pathFromAssets / path).string();
-				ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
-				ImGui::EndDragDropSource();
-			}
+			// if (ImGui::BeginDragDropSource())
+			// {
+			// 	std::string itemPath = (pathFromAssets / path).string();
+			// 	ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
+			// 	ImGui::EndDragDropSource();
+			// }
 
 			ImGui::PopStyleColor();
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);

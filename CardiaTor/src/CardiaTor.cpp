@@ -345,12 +345,13 @@ namespace Cardia
 		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
-		Texture2D* icon = m_EditorState == EditorState::Edit ? m_IconPlay.get() : m_IconStop.get();
-
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
 
-		static auto set = ImGui_ImplVulkan_AddTexture(icon->GetSampler(), icon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		static auto& playSet = m_IconPlay->GetDescriptorSet();
+		static auto& stopSet = m_IconStop->GetDescriptorSet();
+
+		auto set = m_EditorState == EditorState::Edit ? playSet.GetDescriptor() : stopSet.GetDescriptor();
 		if (ImGui::ImageButton(set, ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)
