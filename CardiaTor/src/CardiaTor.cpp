@@ -17,6 +17,8 @@
 #include "Cardia/Project/AssetsManager.hpp"
 #include "Panels/ConsolePanel.hpp"
 
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
+
 
 namespace Cardia
 {

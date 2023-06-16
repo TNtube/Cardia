@@ -44,14 +44,14 @@ namespace Cardia
 			{
 				m_Renderer.BeginSwapChainRenderPass();
 				OnRender(commandBuffer);
-				m_Renderer.EndRenderPass();
-
 
 				m_ImGuiLayer->Begin();
 				OnImGuiDraw();
-				m_ImGuiLayer->Render(commandBuffer);
 				m_ImGuiLayer->End();
 
+				m_ImGuiLayer->Render(commandBuffer);
+
+				m_Renderer.EndRenderPass();
 
 				m_Renderer.End();
 			}

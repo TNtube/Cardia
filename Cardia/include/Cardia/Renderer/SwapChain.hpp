@@ -39,7 +39,7 @@ namespace Cardia
 		VkResult AcquireNextImage(const FrameData& frame, uint32_t *imageIndex) const;
 		VkResult SubmitCommandBuffers(const FrameData& frame, const uint32_t *imageIndex) const;
 
-	 private:
+	private:
 		void Init();
 		void CreateSwapChain();
 		void CreateImageViews();

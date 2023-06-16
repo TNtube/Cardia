@@ -4,7 +4,7 @@
 #include "Cardia/Renderer/Renderer2D.hpp"
 
 #include <imgui.h>
-#include <imgui_impl_vulkan.h>
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 #include <imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
@@ -13,8 +13,6 @@ namespace Cardia
 {
 	ImGuiLayer::ImGuiLayer(Renderer& renderer) : m_Renderer(renderer)
 	{
-		CreateRenderPass();
-		CreateFramebuffers();
 		CreatePool();
 		
 		const Application& app = Application::get();
@@ -51,7 +49,7 @@ namespace Cardia
 				return;
 			Log::coreError("Vulkan Error : VkResult = {0}", err);
 		};
-		ImGui_ImplVulkan_Init(&init_info, m_RenderPass);
+		ImGui_ImplVulkan_Init(&init_info, m_Renderer.GetSwapChain().GetRenderPass());
 
 		constexpr float fontSize = 16.0f;
 		io.Fonts->AddFontFromFileTTF("resources/fonts/opensans/OpenSans-Bold.ttf", fontSize);
@@ -80,12 +78,10 @@ namespace Cardia
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-		vkDestroyRenderPass(m_Renderer.GetDevice().GetDevice(), m_RenderPass, nullptr);
 	}
 
 	void ImGuiLayer::Begin() const
 	{
-		m_Renderer.BeginRenderPass(m_Framebuffers[m_Renderer.GetCurrentImageIndex()], m_RenderPass);
 		// Start the Dear ImGui frame
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -111,66 +107,6 @@ namespace Cardia
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
-		}
-		m_Renderer.EndRenderPass();
-	}
-
-	void ImGuiLayer::CreateRenderPass()
-	{
-		VkAttachmentDescription attachment = {};
-		attachment.format = m_Renderer.GetSwapChain().GetSwapChainImageFormat();
-		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-		VkAttachmentReference color_attachment = {};
-		color_attachment.attachment = 0;
-		color_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &color_attachment;
-
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-		VkRenderPassCreateInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		info.attachmentCount = 1;
-		info.pAttachments = &attachment;
-		info.subpassCount = 1;
-		info.pSubpasses = &subpass;
-		info.dependencyCount = 1;
-		info.pDependencies = &dependency;
-		
-		if (vkCreateRenderPass(m_Renderer.GetDevice().GetDevice(), &info, nullptr, &m_RenderPass) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create render pass!");
-		}
-	}
-
-	void ImGuiLayer::CreateFramebuffers()
-	{
-		const auto& swapchain = m_Renderer.GetSwapChain();
-		const auto extent = swapchain.GetSwapChainExtent();
-		m_Framebuffers.reserve(swapchain.ImageCount());
-		for (uint32_t i = 0; i < swapchain.ImageCount(); i++) {
-			const std::vector attachments = {swapchain.GetImageView(i)};
-			FramebufferSpecification specification {
-				.width = extent.width,
-				.height = extent.height,
-				.attachments = attachments
-			};
-			m_Framebuffers.emplace_back(m_Renderer.GetDevice(), m_RenderPass, specification);
 		}
 	}
 

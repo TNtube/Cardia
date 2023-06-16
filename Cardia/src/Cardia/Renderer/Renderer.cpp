@@ -1,7 +1,6 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
-#include <imgui_impl_vulkan.h>
 #include <GLFW/glfw3.h>
 
 namespace Cardia
