@@ -49,7 +49,7 @@ namespace Cardia
 				return;
 			Log::coreError("Vulkan Error : VkResult = {0}", err);
 		};
-		ImGui_ImplVulkan_Init(&init_info, m_Renderer.GetSwapChain().GetRenderPass());
+		ImGui_ImplVulkan_Init(&init_info, m_Renderer.GetSwapChain().GetRenderPass().GetRenderPass());
 
 		constexpr float fontSize = 16.0f;
 		io.Fonts->AddFontFromFileTTF("resources/fonts/opensans/OpenSans-Bold.ttf", fontSize);

@@ -22,15 +22,12 @@ namespace Cardia
 		unsigned char white[] = {255, 255, 255, 255};
 		if (!pixels)
 		{
-			Log::coreTrace("Path not loaded is {0}", path.string());
-			Log::coreTrace(stbi_failure_reason());
+			Log::coreError(stbi_failure_reason());
 			texWidth = 1;
 			texHeight = 1;
 			pixels = white;
-		} else
-		{
-			Log::coreTrace("Path loaded is {0}", path.string());
 		}
+		CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
 
 		const auto imageSize = static_cast<uint32_t>(texWidth * texHeight * 4);
 		Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -38,46 +35,23 @@ namespace Cardia
 		if (pixels != white)
 			stbi_image_free(pixels);
 
-		VkImageCreateInfo imageInfo{};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = texWidth;
-		imageInfo.extent.height = texHeight;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		device.CreateImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_TextureImage, m_TextureImageMemory);
-		
-
-		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		device.CopyBufferToImage(buffer.GetBuffer(), m_TextureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
-		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-
-		CreateImageView(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
-		CreateTextureSampler();
-
-		VkDescriptorImageInfo imageBufferInfo;
-		imageBufferInfo.sampler = m_TextureSampler;
-		imageBufferInfo.imageView = m_TextureImageView;
-		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-		auto& textureLayout = DescriptorSetLayout::Builder(renderer.GetDescriptorLayoutCache())
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			.Build();
-
-		m_TextureDescriptorSet = std::make_unique<DescriptorSet>(
-			*DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), textureLayout)
-					.WriteImage(0, &imageBufferInfo)
-					.Build());
+		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
+
+	Texture2D::Texture2D(
+		Device& device,
+		Renderer& renderer,
+		const VkExtent2D& size,
+		VkFormat format,
+		VkImageUsageFlags usageFlags,
+		VkImageAspectFlags aspectFlags) : m_Device(device), m_Renderer(renderer)
+	{
+		CreateImage(size.width, size.height, format, usageFlags, aspectFlags);
+		TransitionImageLayout(m_TextureImage, format, aspectFlags, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+
 
 	Texture2D::~Texture2D()
 	{
@@ -109,8 +83,45 @@ namespace Cardia
 		return nullptr;
 	}
 
-	void Texture2D::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
-	                                      VkImageLayout newLayout) const
+	void Texture2D::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags)
+	{
+		VkImageCreateInfo imageInfo{};
+		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageInfo.extent.width = width;
+		imageInfo.extent.height = height;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+		imageInfo.format = format;
+		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		imageInfo.usage = usageFlags | VK_IMAGE_USAGE_SAMPLED_BIT;
+		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		m_Device.CreateImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_TextureImage, m_TextureImageMemory);
+
+		CreateImageView(format, aspectFlags);
+		CreateTextureSampler();
+
+		VkDescriptorImageInfo imageBufferInfo;
+		imageBufferInfo.sampler = m_TextureSampler;
+		imageBufferInfo.imageView = m_TextureImageView;
+		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		auto& textureLayout = DescriptorSetLayout::Builder(m_Renderer.GetDescriptorLayoutCache())
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.Build();
+
+		m_TextureDescriptorSet = std::make_unique<DescriptorSet>(
+			*DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), textureLayout)
+					.WriteImage(0, &imageBufferInfo)
+					.Build());
+	}
+
+	void Texture2D::TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout,
+					      VkImageLayout newLayout) const
 	{
 		const VkCommandBuffer commandBuffer = m_Device.BeginSingleTimeCommands();
 
@@ -121,7 +132,7 @@ namespace Cardia
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.image = image;
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.aspectMask = aspectFlags;
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
@@ -156,6 +167,13 @@ namespace Cardia
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		} else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		} else {
 			throw std::invalid_argument("Vulkan : unsupported layout transition !");
 		}

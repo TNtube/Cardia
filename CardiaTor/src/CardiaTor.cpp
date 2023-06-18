@@ -24,7 +24,9 @@ namespace Cardia
 {
 	CardiaTor::CardiaTor()
 	{
-		const auto &window = GetWindow();
+		CreateOffscreenFrameData();
+
+		m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Renderer);
 
 		m_PanelManager.CreatePanel<Panel::SceneHierarchyPanel>();
 		m_PanelManager.CreatePanel<Panel::InspectorPanel>();
@@ -91,15 +93,107 @@ namespace Cardia
 		// m_Framebuffer->Unbind();
 	}
 
-	void CardiaTor::OnRender(VkCommandBuffer commandBuffer)
+	void CardiaTor::OnRender()
 	{
-		if (m_EditorState == EditorState::Edit)
+		if (const auto commandBuffer = m_Renderer.Begin())
 		{
-			m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransform());
-		} else if (m_EditorState == EditorState::Play)
-		{
-			m_CurrentScene->OnRuntimeRender(commandBuffer);
+			// Offscreen rendering
+			m_Renderer.BeginRenderPass(m_OffscreenFrameData->Framebuffer, m_OffscreenFrameData->RenderPass);
+
+			if (m_EditorState == EditorState::Edit)
+			{
+				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransform());
+			} else if (m_EditorState == EditorState::Play)
+			{
+				m_CurrentScene->OnRuntimeRender(commandBuffer);
+			}
+
+			m_Renderer.EndRenderPass();
+
+			// Draw to swapchain
+			m_Renderer.BeginSwapChainRenderPass();
+			m_ImGuiLayer->Begin();
+			OnImGuiDraw();
+			m_ImGuiLayer->End();
+
+			m_ImGuiLayer->Render(commandBuffer);
+			m_Renderer.EndRenderPass();
+			m_Renderer.End();
 		}
+	}
+
+	void CardiaTor::CreateOffscreenFrameData()
+	{
+		const auto& swapChain = m_Renderer.GetSwapChain();
+		const auto extent = swapChain.GetSwapChainExtent();
+		auto imageFormat = swapChain.GetSwapChainImageFormat();
+		auto depthFormat = swapChain.FindDepthFormat();
+
+		VkAttachmentDescription colorAttachment = {};
+		colorAttachment.format = imageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkAttachmentReference colorAttachmentRef;
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = depthFormat;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference depthAttachmentRef;
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+		VkSubpassDependency dependency = {};
+
+		dependency.dstSubpass = 0;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.srcAccessMask = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+		RenderPassSpecification specification {
+			.AttachmentDescriptions = {colorAttachment, depthAttachment},
+			.SubpassDescription = subpass,
+			.SubpassDependency = dependency
+		};
+
+		RenderPass renderPass(m_Renderer.GetDevice(), specification);
+
+		Texture2D colorTexture{ m_Renderer.GetDevice(), m_Renderer, extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
+		Texture2D depthTexture{ m_Renderer.GetDevice(), m_Renderer, extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
+
+		const std::vector attachments = {colorTexture.GetView(), depthTexture.GetView()};
+		const FramebufferSpecification framebufferSpecification {
+			.width = extent.width,
+			.height = extent.height,
+			.attachments = attachments
+		};
+
+		Framebuffer framebuffer{ m_Renderer.GetDevice(), renderPass, framebufferSpecification };
+
+		m_OffscreenFrameData = std::make_unique<OffscreenFrameData>(std::move(renderPass), std::move(colorTexture), std::move(depthTexture), std::move(framebuffer));
+
 	}
 
 	void CardiaTor::EnableDocking()
@@ -307,7 +401,6 @@ namespace Cardia
 		const auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		const uint32_t textureID = 0; // m_Framebuffer->GetColorAttachmentRendererID();
 
 		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
 		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
@@ -320,9 +413,10 @@ namespace Cardia
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 
-		// ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
-		// 	     ImVec2{m_SceneSize.x, m_SceneSize.y},
-		// 	     ImVec2{0, 1}, ImVec2{1, 0});
+		const auto& textureID = m_OffscreenFrameData->ColorTexture;
+		ImGui::Image(textureID.GetDescriptorSet().GetDescriptor(),
+			     ImVec2{m_SceneSize.x, m_SceneSize.y},
+			     ImVec2{0, 1}, ImVec2{1, 0});
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -437,6 +531,8 @@ namespace Cardia
 
 	void CardiaTor::OnEvent(Event& event)
 	{
+		m_ImGuiLayer->OnEvent(event);
+
 		if (m_HoverViewport)
 		{
 			// Mouse inside viewport
@@ -448,7 +544,7 @@ namespace Cardia
 		dispatcher.dispatch<KeyDownEvent>([this](const KeyDownEvent& e)
 		{
 			auto ctrl = Input::isKeyPressed(Key::LeftCtrl) || Input::isKeyPressed(Key::RightCtrl);
-			auto shift = Input::isKeyPressed(Key::LeftShift) || Input::isKeyPressed(Key::LeftShift);
+			auto shift = Input::isKeyPressed(Key::LeftShift) || Input::isKeyPressed(Key::RightShift);
 			if (ctrl)
 			{
 				switch (e.getKeyCode())

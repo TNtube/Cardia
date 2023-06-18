@@ -33,7 +33,7 @@ namespace Cardia
 	}
 
 	SwapChain::~SwapChain() {
-		for (auto imageView : m_SwapChainImageViews) {
+		for (const auto imageView : m_SwapChainImageViews) {
 			vkDestroyImageView(m_Device.GetDevice(), imageView, nullptr);
 		}
 		m_SwapChainImageViews.clear();
@@ -49,7 +49,6 @@ namespace Cardia
 			vkFreeMemory(m_Device.GetDevice(), m_DepthImageMemories[i], nullptr);
 		}
 
-		vkDestroyRenderPass(m_Device.GetDevice(), m_RenderPass, nullptr);
 	}
 
 	VkResult SwapChain::AcquireNextImage(const FrameData &frame, uint32_t *imageIndex) const
@@ -214,8 +213,8 @@ namespace Cardia
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
@@ -238,19 +237,13 @@ namespace Cardia
 		dependency.srcAccessMask = 0;
 		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-		std::array attachments = {colorAttachment, depthAttachment};
-		VkRenderPassCreateInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		renderPassInfo.pAttachments = attachments.data();
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
-		renderPassInfo.dependencyCount = 1;
-		renderPassInfo.pDependencies = &dependency;
+		RenderPassSpecification specification {
+			.AttachmentDescriptions = {colorAttachment, depthAttachment},
+			.SubpassDescription = subpass,
+			.SubpassDependency = dependency
+		};
 
-		if (vkCreateRenderPass(m_Device.GetDevice(), &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create render pass!");
-		}
+		m_RenderPass = std::make_unique<RenderPass>(m_Device, specification);
 	}
 
 	void SwapChain::CreateFramebuffers()
@@ -263,7 +256,7 @@ namespace Cardia
 				.height = GetSwapChainExtent().height,
 				.attachments = attachments
 			};
-			m_SwapChainFramebuffers.emplace_back(m_Device, m_RenderPass, specification);
+			m_SwapChainFramebuffers.emplace_back(m_Device, *m_RenderPass, specification);
 		}
 	}
 

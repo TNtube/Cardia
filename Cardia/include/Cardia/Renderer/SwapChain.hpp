@@ -5,6 +5,7 @@
 
 #include "Device.hpp"
 #include "Framebuffer.hpp"
+#include "RenderPass.hpp"
 
 namespace Cardia
 {
@@ -22,7 +23,7 @@ namespace Cardia
 		SwapChain& operator=(const SwapChain &) = delete;
 
 		const Framebuffer& GetFrameBuffer(uint32_t index) const { return m_SwapChainFramebuffers[index]; }
-		VkRenderPass GetRenderPass() const { return m_RenderPass; }
+		RenderPass& GetRenderPass() const { return *m_RenderPass; }
 		VkImageView GetImageView(uint32_t index) const { return m_SwapChainImageViews[index]; }
 		size_t ImageCount() const { return m_SwapChainImages.size(); }
 		VkFormat GetSwapChainImageFormat() const { return m_SwapChainImageFormat; }
@@ -58,7 +59,7 @@ namespace Cardia
 		VkExtent2D m_SwapChainExtent {};
 
 		std::vector<Framebuffer> m_SwapChainFramebuffers;
-		VkRenderPass m_RenderPass {};
+		std::unique_ptr<RenderPass> m_RenderPass {};
 
 		std::vector<VkImage> m_DepthImages;
 		std::vector<VkDeviceMemory> m_DepthImageMemories;

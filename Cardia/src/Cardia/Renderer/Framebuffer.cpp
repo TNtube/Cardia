@@ -5,12 +5,12 @@
 namespace Cardia
 {
 
-	Framebuffer::Framebuffer(Device& device, const VkRenderPass& renderPass, const FramebufferSpecification& spec) : m_Device(device)
+	Framebuffer::Framebuffer(Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec) : m_Device(device)
 	{
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.flags = spec.flags;
-		framebufferInfo.renderPass = renderPass;
+		framebufferInfo.renderPass = renderPass.GetRenderPass();
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(spec.attachments.size());
 		framebufferInfo.pAttachments = spec.attachments.data();
 		framebufferInfo.width = spec.width;

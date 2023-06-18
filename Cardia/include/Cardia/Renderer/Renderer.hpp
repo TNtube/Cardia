@@ -1,9 +1,10 @@
 #pragma once
-#include "Descriptors.hpp"
 #include "Cardia/Core/Window.hpp"
+#include "Descriptors.hpp"
 #include "Device.hpp"
 #include "MeshRenderer.hpp"
 #include "Pipeline.hpp"
+#include "RenderPass.hpp"
 #include "SwapChain.hpp"
 
 
@@ -41,7 +42,7 @@ namespace Cardia
 
 		VkCommandBuffer Begin();
 		void End();
-		void BeginRenderPass(const Framebuffer& frameBuffer, VkRenderPass renderPass) const;
+		void BeginRenderPass(const Framebuffer& frameBuffer, const RenderPass& renderPass) const;
 		void BeginSwapChainRenderPass() const;
 		void EndRenderPass() const;
 

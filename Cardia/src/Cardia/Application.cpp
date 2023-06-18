@@ -18,11 +18,8 @@ namespace Cardia
 		{
 			EventDispatcher dispatcher(e);
 			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
-			m_ImGuiLayer->OnEvent(e);
 			OnEvent(e);
 		});
-
-		m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Renderer);
 	}
 
 	Application::~Application() = default;
@@ -40,21 +37,8 @@ namespace Cardia
 
 			OnUpdate();
 
-			if (const auto commandBuffer = m_Renderer.Begin())
-			{
-				m_Renderer.BeginSwapChainRenderPass();
-				OnRender(commandBuffer);
+			OnRender();
 
-				m_ImGuiLayer->Begin();
-				OnImGuiDraw();
-				m_ImGuiLayer->End();
-
-				m_ImGuiLayer->Render(commandBuffer);
-
-				m_Renderer.EndRenderPass();
-
-				m_Renderer.End();
-			}
 
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 

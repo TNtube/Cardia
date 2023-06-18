@@ -32,7 +32,7 @@ namespace Cardia
 		m_PipelineLayout = std::make_unique<PipelineLayout>(m_Device, descriptorSetLayouts);
 		
 		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
-		pipelineConfig.renderPass = m_SwapChain->GetRenderPass();
+		pipelineConfig.renderPass = m_SwapChain->GetRenderPass().GetRenderPass();
 		pipelineConfig.pipelineLayout = m_PipelineLayout->GetPipelineLayout();
 		m_Pipeline = std::make_unique<Pipeline>(
 			m_Device,
@@ -115,12 +115,12 @@ namespace Cardia
 		}
 	}
 
-	void Renderer::BeginRenderPass(const Framebuffer& frameBuffer, VkRenderPass renderPass) const
+	void Renderer::BeginRenderPass(const Framebuffer& frameBuffer, const RenderPass& renderPass) const
 	{
 		const auto& frame = GetCurrentFrame();
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPass;
+		renderPassInfo.renderPass = renderPass.GetRenderPass();
 		renderPassInfo.framebuffer = frameBuffer.GetFramebuffer();
 
 		renderPassInfo.renderArea.offset = {0, 0};

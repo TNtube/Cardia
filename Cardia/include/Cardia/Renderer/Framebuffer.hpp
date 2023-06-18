@@ -2,6 +2,8 @@
 #include "Device.hpp"
 #include <vulkan/vulkan.h>
 
+#include "RenderPass.hpp"
+
 
 namespace Cardia
 {
@@ -16,7 +18,7 @@ namespace Cardia
 	class Framebuffer
 	{
 	public:
-		Framebuffer(Device& device, const VkRenderPass& renderPass, const FramebufferSpecification& spec);
+		Framebuffer(Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec);
 		virtual ~Framebuffer();
 		Framebuffer(const Framebuffer &) = delete;
 		Framebuffer& operator=(const Framebuffer &) = delete;
