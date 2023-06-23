@@ -49,7 +49,6 @@ namespace Cardia
 		VkImageAspectFlags aspectFlags) : m_Device(device), m_Renderer(renderer)
 	{
 		CreateImage(size.width, size.height, format, usageFlags, aspectFlags);
-		TransitionImageLayout(m_TextureImage, format, aspectFlags, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
 

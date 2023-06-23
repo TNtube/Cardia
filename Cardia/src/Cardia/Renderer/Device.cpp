@@ -31,9 +31,9 @@ VkResult CreateDebugUtilsMessengerEXT(
 		"vkCreateDebugUtilsMessengerEXT"));
 	if (func != nullptr) {
 		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-	} else {
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
+
+	return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 void DestroyDebugUtilsMessengerEXT(
