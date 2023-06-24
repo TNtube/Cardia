@@ -39,7 +39,6 @@ namespace Cardia
 
 			OnRender();
 
-
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 
 		}

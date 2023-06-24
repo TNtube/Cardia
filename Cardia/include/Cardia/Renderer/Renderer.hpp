@@ -41,7 +41,7 @@ namespace Cardia
 		virtual ~Renderer();
 
 		VkCommandBuffer Begin();
-		void End();
+		bool End();
 		void BeginRenderPass(const Framebuffer& frameBuffer, const RenderPass& renderPass) const;
 		void BeginSwapChainRenderPass() const;
 		void EndRenderPass() const;

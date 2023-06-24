@@ -39,6 +39,6 @@ namespace Cardia
 	private:
 		Device& m_Device;
 		VkFramebuffer m_Framebuffer {};
-
+		VkExtent2D m_Extent {};
 	};
 }

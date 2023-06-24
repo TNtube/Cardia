@@ -5,7 +5,7 @@
 namespace Cardia
 {
 
-	Framebuffer::Framebuffer(Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec) : m_Device(device)
+	Framebuffer::Framebuffer(Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec) : m_Device(device), m_Extent(spec.width, spec.height)
 	{
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -29,12 +29,14 @@ namespace Cardia
 	Framebuffer::Framebuffer(Framebuffer&& other) noexcept : m_Device(other.m_Device)
 	{
 		m_Framebuffer = other.m_Framebuffer;
+		m_Extent = other.m_Extent;
 		other.m_Framebuffer = VK_NULL_HANDLE;
 	}
 
 	Framebuffer& Framebuffer::operator=(Framebuffer&& other) noexcept
 	{
 		m_Framebuffer = other.m_Framebuffer;
+		m_Extent = other.m_Extent;
 		other.m_Framebuffer = VK_NULL_HANDLE;
 		return *this;
 	}

@@ -252,8 +252,8 @@ namespace Cardia
 		for (size_t i = 0; i < ImageCount(); i++) {
 			const std::vector attachments = {m_SwapChainImageViews[i], m_DepthImageViews[i]};
 			FramebufferSpecification specification {
-				.width = GetSwapChainExtent().width,
-				.height = GetSwapChainExtent().height,
+				.width = m_SwapChainExtent.width,
+				.height = m_SwapChainExtent.height,
 				.attachments = attachments
 			};
 			m_SwapChainFramebuffers.emplace_back(m_Device, *m_RenderPass, specification);
@@ -262,7 +262,6 @@ namespace Cardia
 
 	void SwapChain::CreateDepthResources() {
 		VkFormat depthFormat = FindDepthFormat();
-		VkExtent2D swapChainExtent = GetSwapChainExtent();
 
 		m_DepthImages.resize(ImageCount());
 		m_DepthImageMemories.resize(ImageCount());
@@ -272,8 +271,8 @@ namespace Cardia
 			VkImageCreateInfo imageInfo{};
 			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = swapChainExtent.width;
-			imageInfo.extent.height = swapChainExtent.height;
+			imageInfo.extent.width = m_SwapChainExtent.width;
+			imageInfo.extent.height = m_SwapChainExtent.height;
 			imageInfo.extent.depth = 1;
 			imageInfo.mipLevels = 1;
 			imageInfo.arrayLayers = 1;

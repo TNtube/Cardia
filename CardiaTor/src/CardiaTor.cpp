@@ -95,6 +95,7 @@ namespace Cardia
 
 	void CardiaTor::OnRender()
 	{
+		bool failed;
 		if (const auto commandBuffer = m_Renderer.Begin())
 		{
 			// Offscreen rendering
@@ -118,14 +119,23 @@ namespace Cardia
 
 			m_ImGuiLayer->Render(commandBuffer);
 			m_Renderer.EndRenderPass();
-			m_Renderer.End();
+			failed = m_Renderer.End();
+		} else
+		{
+			failed = true;
+		}
+
+		// If the swapchain is out of date or the pass failed, recreate offscreen framebuffer
+		if (failed)
+		{
+			CreateOffscreenFrameData();
 		}
 	}
 
 	void CardiaTor::CreateOffscreenFrameData()
 	{
 		const auto& swapChain = m_Renderer.GetSwapChain();
-		const auto extent = swapChain.GetSwapChainExtent();
+		const auto extent = swapChain.GetExtent();
 		auto imageFormat = swapChain.GetSwapChainImageFormat();
 		auto depthFormat = swapChain.FindDepthFormat();
 
@@ -191,6 +201,9 @@ namespace Cardia
 		};
 
 		Framebuffer framebuffer{ m_Renderer.GetDevice(), renderPass, framebufferSpecification };
+
+		// TODO: Make waiting for device idle a device method
+		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
 
 		m_OffscreenFrameData = std::make_unique<OffscreenFrameData>(std::move(renderPass), std::move(colorTexture), std::move(depthTexture), std::move(framebuffer));
 
@@ -402,11 +415,15 @@ namespace Cardia
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
-		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
-		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
+		const auto [width, height] = ImGui::GetContentRegionAvail();
+		if (m_SceneSize != glm::vec2(width, height))
 		{
-			// m_Framebuffer->Resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
-			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
+			m_SceneSize = {width, height};
+			// CreateOffscreenFrameData({static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
+			m_EditorCamera.SetViewportSize(m_SceneSize.x, m_SceneSize.y);
+			m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
+			ImGui::End();
+			return;
 		}
 		auto io = ImGui::GetIO();
 		static float zoom = 1.0f;
@@ -483,9 +500,6 @@ namespace Cardia
 //			drawLists->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
 //
 //		drawLists->PopClipRect();
-
-		m_EditorCamera.SetViewportSize(m_SceneSize.x, m_SceneSize.y);
-		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 
 		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
 		{
@@ -586,6 +600,11 @@ namespace Cardia
 				if (sceneHierarchy)
 					sceneHierarchy->SetSelectedEntity(m_HoveredEntity);
 			}
+		});
+
+		dispatcher.dispatch<WindowResizeEvent>([this](const WindowResizeEvent& e)
+		{
+			CreateOffscreenFrameData();
 		});
 	}
 

@@ -27,7 +27,7 @@ namespace Cardia
 		VkImageView GetImageView(uint32_t index) const { return m_SwapChainImageViews[index]; }
 		size_t ImageCount() const { return m_SwapChainImages.size(); }
 		VkFormat GetSwapChainImageFormat() const { return m_SwapChainImageFormat; }
-		VkExtent2D GetSwapChainExtent() const { return m_SwapChainExtent; }
+		VkExtent2D GetExtent() const { return m_SwapChainExtent; }
 		uint32_t Width() const { return m_SwapChainExtent.width; }
 		uint32_t Height() const { return m_SwapChainExtent.height; }
 

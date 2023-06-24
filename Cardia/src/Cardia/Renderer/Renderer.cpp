@@ -96,7 +96,7 @@ namespace Cardia
 		return frame.MainCommandBuffer;
 	}
 
-	void Renderer::End()
+	bool Renderer::End()
 	{
 		const auto& frame = GetCurrentFrame();
 		if (vkEndCommandBuffer(frame.MainCommandBuffer) != VK_SUCCESS) {
@@ -107,12 +107,14 @@ namespace Cardia
 		{
 			m_Window.ResetResizedFlag();
 			RecreateSwapChain();
-			return;
+			return true;
 		}
 		if (result != VK_SUCCESS)
 		{
 			throw std::runtime_error("Vulkan : Failed to present swap chain image !");
 		}
+
+		return false;
 	}
 
 	void Renderer::BeginRenderPass(const Framebuffer& frameBuffer, const RenderPass& renderPass) const
@@ -124,7 +126,7 @@ namespace Cardia
 		renderPassInfo.framebuffer = frameBuffer.GetFramebuffer();
 
 		renderPassInfo.renderArea.offset = {0, 0};
-		renderPassInfo.renderArea.extent = m_SwapChain->GetSwapChainExtent();
+		renderPassInfo.renderArea.extent = m_SwapChain->GetExtent();
 
 		std::array<VkClearValue, 2> clearValues{};
 		clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
@@ -134,7 +136,7 @@ namespace Cardia
 
 		vkCmdBeginRenderPass(frame.MainCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		const auto extent = m_SwapChain->GetSwapChainExtent();
+		const auto extent = m_SwapChain->GetExtent();
 		VkViewport viewport {};
 		viewport.x = 0.0f;
 		viewport.y = static_cast<float>(extent.height);
