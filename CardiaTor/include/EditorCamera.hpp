@@ -21,10 +21,9 @@ namespace Cardia
 
 		inline void SetViewportSize(float width, float height) { m_Camera.SetViewportSize(width, height); }
 
-		glm::mat4 GetTransform() const
-		{
-			return m_Transform.getTransform();
-		}
+		glm::mat4 GetTransformMatrix() const { return m_Transform.getTransform(); }
+
+		Component::Transform& GetTransformComponent() { return m_Transform; }
 
 		SceneCamera& GetCamera()
 		{

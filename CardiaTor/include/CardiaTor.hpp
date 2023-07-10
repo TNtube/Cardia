@@ -52,6 +52,8 @@ namespace Cardia
 		void OnImGuiDraw() override;
 		void SetSelectedEntity(Entity entity);
 
+		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
+
 		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
 
 	private:

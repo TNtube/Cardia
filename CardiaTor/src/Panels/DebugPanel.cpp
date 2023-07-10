@@ -6,6 +6,8 @@
 #include "Cardia/Core/Window.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Panels/PanelManager.hpp"
+#include "CardiaTor.hpp"
+#include "EditorUI/DragData.hpp"
 
 
 namespace Cardia::Panel
@@ -120,6 +122,15 @@ namespace Cardia::Panel
 				default:
 					break;
 			}
+		}
+
+		if (ImGui::CollapsingHeader("Editor Camera", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			auto& camera = appContext->GetEditorCamera();
+			auto& transform = camera.GetTransformComponent();
+			EditorUI::DragFloat3("Position", transform.position);
+			EditorUI::DragFloat3("Rotation", transform.rotation);
+			EditorUI::DragFloat3("Scale", transform.scale);
 		}
 
 		ImGui::End();
