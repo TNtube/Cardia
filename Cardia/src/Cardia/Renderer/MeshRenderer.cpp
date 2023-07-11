@@ -28,8 +28,9 @@ namespace Cardia
 			const auto materialIndex = m_Mesh->GetSubMeshes()[i].GetMaterialIndex();
 			if (materials.size() > materialIndex)
 			{
-				Texture2D& texture = *materials[materialIndex];
-				texture.Bind(commandBuffer);
+				auto texture = materials[materialIndex];
+				if (texture)
+					texture->Bind(commandBuffer);
 			}
 			m_SubMeshRenderers[i].Bind(commandBuffer);
 			m_SubMeshRenderers[i].Draw(commandBuffer);

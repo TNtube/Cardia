@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "CardiaTor.hpp"
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/ECS/Entity.hpp"
 #include "EditorUI/DragData.hpp"
@@ -100,7 +101,7 @@ namespace Cardia::Panel
 
 		// MeshRendererC Component
 
-		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [](Component::MeshRendererC& meshRendererC) {
+		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext](Component::MeshRendererC& meshRendererC) {
 			char buffer[128] {0};
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
 			AssetsManager::GetPathFromAsset(meshRendererC.meshRenderer->GetMesh()).string().copy(buffer, bufferSize);
@@ -112,7 +113,8 @@ namespace Cardia::Panel
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					auto mesh = AssetsManager::Load<Mesh>(path);
-					// meshRendererC.meshRenderer->SubmitMesh(mesh);
+					
+					meshRendererC.meshRenderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -124,18 +126,25 @@ namespace Cardia::Panel
 
 			if (!meshRendererC.meshRenderer->GetMesh()) return;
 			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
-			for (const auto& material : materials) {
-				const auto texID = material->GetDescriptorSet().GetDescriptor();
+			for (auto& material : materials) {
+				const auto texID = material ? material->GetDescriptorSet().GetDescriptor() : nullptr;
 				ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
 						const auto* cStrPath = static_cast<const char*>(payload->Data);
-						auto tex = AssetsManager::Load<Texture2D>(cStrPath);
+						
+						std::filesystem::path path = cStrPath;
+						auto texture = 
+							std::make_shared<Texture2D>(
+								appContext->GetRenderer().GetDevice(),
+								appContext->GetRenderer(),
+								AssetsManager::GetAssetAbsolutePath(path));
+
 						// if (tex->IsLoaded())
 						// {
-						// 	material = std::move(tex);
+							material = std::move(texture);
 						// }
 					}
 					ImGui::EndDragDropTarget();

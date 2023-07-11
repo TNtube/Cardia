@@ -193,14 +193,18 @@ namespace Cardia::Serialization
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::MeshRendererC& component)
 	{
 
+		auto mesh = component.meshRenderer->GetMesh();
 		Json::Value node;
 
-		node["path"] = AssetsManager::GetPathFromAsset(component.meshRenderer->GetMesh()).string();
-		Json::Value materials;
-		for (const auto& material : component.meshRenderer->GetMesh()->GetMaterials()) {
-			materials.append(AssetsManager::GetPathFromAsset(material).string());
+		if (mesh)
+		{
+			node["path"] = AssetsManager::GetPathFromAsset(component.meshRenderer->GetMesh()).string();
+			Json::Value materials;
+			for (const auto& material : component.meshRenderer->GetMesh()->GetMaterials()) {
+				materials.append(AssetsManager::GetPathFromAsset(material).string());
+			}
+			node["materials"] = materials;
 		}
-		node["materials"] = materials;
 
 		auto idx = static_cast<uint32_t>(entity);
 		m_Root[idx][Component::MeshRendererC::ClassName()] = node;

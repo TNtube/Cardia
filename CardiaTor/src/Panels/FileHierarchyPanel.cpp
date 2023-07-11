@@ -79,7 +79,7 @@ namespace Cardia::Panel
 		{
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0, 0.7f));
 			const auto id = 0; // m_FolderIcon->GetRendererID();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
@@ -87,13 +87,12 @@ namespace Cardia::Panel
 			// {
 			// 	m_CurrentPath /= path;
 			// }
-			ImGui::PopStyleColor();
-
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
-			if (ImGui::Button(path.c_str()))
+			if (ImGui::Button(path.c_str(), button_sz))
 			{
 				m_CurrentPath /= path;
 			}
+			
+			ImGui::PopStyleColor();
 
 			ImGui::NextColumn();
 			ImGui::PopID();
@@ -103,21 +102,21 @@ namespace Cardia::Panel
 		{
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.3f, 0.8f, 0.7f));
 			const auto id = 0; // m_FileIcon->GetRendererID();
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
-			// ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
+			ImGui::Button(path.c_str(), button_sz);
 
-			// if (ImGui::BeginDragDropSource())
-			// {
-			// 	std::string itemPath = (pathFromAssets / path).string();
-			// 	ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
-			// 	ImGui::EndDragDropSource();
-			// }
+			if (ImGui::BeginDragDropSource())
+			{
+				std::string itemPath = (pathFromAssets / path).string();
+				ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
+				ImGui::EndDragDropSource();
+			}
 
 			ImGui::PopStyleColor();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
-			ImGui::Text("%s", path.c_str());
+			// ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
+			// ImGui::Text("%s", path.c_str());
 			ImGui::NextColumn();
 			ImGui::PopID();
 		}

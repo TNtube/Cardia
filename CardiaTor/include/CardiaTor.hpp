@@ -53,6 +53,7 @@ namespace Cardia
 		void SetSelectedEntity(Entity entity);
 
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
+		Renderer& GetRenderer() { return m_Renderer; }
 
 		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
 
