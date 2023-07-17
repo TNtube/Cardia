@@ -21,8 +21,8 @@ namespace Cardia
 	class PipelineLayout
 	{
 	public:
-		PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
-		PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts);
+		PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
+		PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
 		PipelineLayout(const PipelineLayout&) = delete;
 		PipelineLayout& operator=(const PipelineLayout&) = delete;
 		PipelineLayout(const PipelineLayout&&) = delete;
@@ -32,7 +32,7 @@ namespace Cardia
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
 
 	private:
-		void Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+		void Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
 		Device& m_Device;
 		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 	};

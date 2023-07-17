@@ -16,14 +16,18 @@ layout (location = 0) out Vertex vertex;
 layout(set = 0, binding = 0) uniform UBO
 {
     mat4 viewProjection;
+} ubo;
+
+layout(push_constant) uniform constants
+{
     mat4 model;
     mat4 transposedInvertedModel;
-} ubo;
+} pushConstants;
 
 
 void main() {
-    gl_Position = ubo.viewProjection * ubo.model * vec4(position, 1.0f);
+    gl_Position = ubo.viewProjection * pushConstants.model * vec4(position, 1.0f);
     vertex.color = color;
-    vertex.normal = mat3(ubo.transposedInvertedModel) * normal;
+    vertex.normal = mat3(pushConstants.transposedInvertedModel) * normal;
     vertex.textureCoord = textureCoord;
 }

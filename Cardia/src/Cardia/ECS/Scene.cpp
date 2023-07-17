@@ -83,37 +83,10 @@ namespace Cardia
 
 	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const glm::mat4& cameraTransform)
 	{
-		// Renderer2D::beginScene(editorCamera, editorCameraTransform);
-		//
-		// const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		// for (const auto entity : view)
-		// {
-		// 	auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-		// 	Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
-		// }
-		//
-		// const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
-		// for (const auto entity : lightView)
-		// {
-		// 	auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
-		// 	Renderer2D::addLight(transform, light);
-		// }
-		//
-		// Renderer2D::endScene();
-
-		// m_BasicShader->bind();
-		// m_BasicShader->setInt("u_Texture", 0);
-
 		m_Renderer.GetPipeline().Bind(commandBuffer);
-
-
-		// auto bufferInfo = m_Renderer.GetCurrentUboBuffer().DescriptorInfo();
-		// DescriptorWriter(m_Renderer.GetDescriptorSetLayout(), m_Renderer.GetDescriptorSetPool())
-		// 	.WriteBuffer(0, &bufferInfo)
-		// 	.Overwrite(m_Renderer.GetCurrentDescriptorSet());
+		auto& frame = m_Renderer.GetCurrentFrame();
 
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
-		auto& frame = m_Renderer.GetCurrentFrame();
 		if (meshView.size_hint() > 0)
 		{
 			vkCmdBindDescriptorSets(
@@ -123,16 +96,23 @@ namespace Cardia
 				0, 1,
 				&frame.UboDescriptorSet->GetDescriptor(),
 				0, nullptr);
+			UboData data {};
+			data.ViewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
+			frame.UboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
-			UboData data {};
-			data.ViewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
-			data.Model = transform.getTransform();
-			data.TransposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
-			frame.UboBuffer->UploadData(sizeof(UboData), &data);
+			PushConstantData constants {};
+			constants.Model = transform.getTransform();
+			constants.TransposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
+			vkCmdPushConstants(
+				commandBuffer,
+				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				VK_SHADER_STAGE_VERTEX_BIT,
+				0, sizeof(PushConstantData),
+				&constants);
 			meshRenderer.meshRenderer->Draw(commandBuffer);
 		}
 	}

@@ -13,6 +13,10 @@ namespace Cardia
 	struct UboData
 	{
 		glm::mat4 ViewProjection;
+	};
+	
+	struct PushConstantData
+	{
 		glm::mat4 Model;
 		glm::mat4 TransposedInvertedModel;
 	};

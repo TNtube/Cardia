@@ -74,7 +74,7 @@ namespace Cardia
 
 	void Buffer::UploadData(VkDeviceSize size, const void* data, VkDeviceSize offset)
 	{
-		vkMapMemory(m_Device.GetDevice(), m_BufferMemory, 0, VK_WHOLE_SIZE, 0, &m_MappedMemory);
+		vkMapMemory(m_Device.GetDevice(), m_BufferMemory, offset, size, 0, &m_MappedMemory);
 		memcpy(m_MappedMemory, data, m_InstanceSize);
 		vkUnmapMemory(m_Device.GetDevice(), m_BufferMemory);
 	}

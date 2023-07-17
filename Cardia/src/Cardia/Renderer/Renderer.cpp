@@ -29,7 +29,16 @@ namespace Cardia
 			textureLayout.GetDescriptorSetLayout()
 		};
 
-		m_PipelineLayout = std::make_unique<PipelineLayout>(m_Device, descriptorSetLayouts);
+		VkPushConstantRange pushConstant;
+		pushConstant.offset = 0;
+		pushConstant.size = sizeof(PushConstantData);
+		pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		std::vector pushConstantRanges {
+			pushConstant
+		};
+
+		m_PipelineLayout = std::make_unique<PipelineLayout>(m_Device, descriptorSetLayouts, pushConstantRanges);
 		
 		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
 		pipelineConfig.renderPass = m_SwapChain->GetRenderPass().GetRenderPass();

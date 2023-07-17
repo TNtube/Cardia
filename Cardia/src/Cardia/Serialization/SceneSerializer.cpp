@@ -395,8 +395,7 @@ namespace Cardia::Serialization
 			if (node.isMember(currComponent)) {
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
-				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
-				meshRenderer.meshRenderer->SubmitMesh(renderer.GetDevice(), mesh);
+				auto mesh = std::make_shared<Mesh>(Mesh::ReadMeshFromFile(AssetsManager::GetAssetAbsolutePath(node[currComponent]["path"].asString()).string()));
 
 				auto& materials = node[currComponent]["materials"];
 				for (const auto& texturePath : materials) {
@@ -411,12 +410,13 @@ namespace Cardia::Serialization
 						renderer.GetDevice(),
 						renderer,
 						AssetsManager::GetAssetAbsolutePath(path));
-						meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));
+					mesh->GetMaterials().push_back(std::move(texture));
 					// if (texture && texture->IsLoaded())
 					// {
 					// 	meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));
 					// }
 				}
+				meshRenderer.meshRenderer->SubmitMesh(renderer.GetDevice(), mesh);
 			}
 
 			currComponent = Component::Camera::ClassName();

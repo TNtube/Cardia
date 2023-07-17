@@ -5,13 +5,13 @@
 
 namespace Cardia
 {
-	PipelineLayout::PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
+	PipelineLayout::PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges)
 		: m_Device(device)
 	{
-		Init(descriptorSetLayouts);
+		Init(descriptorSetLayouts, pushConstantRanges);
 	}
 
-	PipelineLayout::PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts)
+	PipelineLayout::PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges)
 		: m_Device(device)
 	{
 		std::vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
@@ -22,7 +22,7 @@ namespace Cardia
 			{
 				return descriptor.GetDescriptorSetLayout();
 			});
-		Init(vkDescriptorSetLayouts);
+		Init(vkDescriptorSetLayouts, pushConstantRanges);
 	}
 
 	PipelineLayout::~PipelineLayout()
@@ -30,14 +30,14 @@ namespace Cardia
 		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
 	}
 
-	void PipelineLayout::Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
+	void PipelineLayout::Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges)
 	{
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
 		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
 		pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
-		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+		pipelineLayoutCreateInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
+		pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
 
 		if (vkCreatePipelineLayout(m_Device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
 		{

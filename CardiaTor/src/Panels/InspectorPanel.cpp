@@ -112,7 +112,7 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
-					auto mesh = AssetsManager::Load<Mesh>(path);
+					auto mesh = std::make_shared<Mesh>(Mesh::ReadMeshFromFile(AssetsManager::GetAssetAbsolutePath(path).string()));
 					
 					meshRendererC.meshRenderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
 				}
