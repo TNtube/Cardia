@@ -432,8 +432,7 @@ namespace Cardia
 
 		const auto& textureID = m_OffscreenFrameData->ColorTexture;
 		ImGui::Image(textureID.GetDescriptorSet().GetDescriptor(),
-			     ImVec2{m_SceneSize.x, m_SceneSize.y},
-			     ImVec2{0, 1}, ImVec2{1, 0});
+			     ImVec2{m_SceneSize.x, m_SceneSize.y});
 
 		if (ImGui::BeginDragDropTarget())
 		{
