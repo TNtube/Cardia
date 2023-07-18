@@ -10,8 +10,9 @@
 #include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Core/Time.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 
-namespace {
+namespace Cardia {
 	struct TypeID
 	{
 		std::type_index type_index;
@@ -32,8 +33,8 @@ namespace {
 
 namespace std {
 	template<>
-	struct hash<TypeID> {
-		auto operator()(const TypeID& typeId) const noexcept -> ::size_t {
+	struct hash<Cardia::TypeID> {
+		auto operator()(const Cardia::TypeID& typeId) const noexcept -> ::size_t {
 			return hash<std::string>{}(typeId.ID) ^ hash<std::type_index>{}(typeId.type_index);
 		}
 	};
@@ -50,6 +51,8 @@ namespace Cardia
 		};
 
 	public:
+		explicit AssetsManager(Renderer& renderer);
+		static void Init(Renderer& renderer);
 		static std::filesystem::path GetPathFromAsset(const std::shared_ptr<void>& resource);
 
 		static std::filesystem::path GetAssetAbsolutePath(const std::filesystem::path& relative) {
@@ -70,13 +73,16 @@ namespace Cardia
 
 		static void CollectGarbage(bool forceCollection = true);
 
-		static AssetsManager& Instance() { static AssetsManager instance; return instance; }
+		static AssetsManager& Instance() { return *s_Instance; }
 	private:
-		AssetsManager() = default;
 
 		static std::filesystem::path GetAbsolutePath(const std::filesystem::path& relative, LoadType loadType);
 		template<typename T>
 		std::shared_ptr<T> LoadImpl(const std::filesystem::path& path, LoadType loadType);
+
+		static std::unique_ptr<AssetsManager> s_Instance;
+
+		Renderer& m_Renderer;
 		std::unordered_map<TypeID, AssetRefCounter> m_Assets;
 
 		// Collection related
@@ -120,11 +126,11 @@ namespace Cardia
 	template<>
 	inline std::shared_ptr<Texture2D> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
-		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		TypeID id {typeid(Texture2D), path.string()};
+		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
+		const TypeID id {typeid(Texture2D), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Texture2D::create(absPath.string()));
+			AssetRefCounter res(std::make_shared<Texture2D>(m_Renderer.GetDevice(), m_Renderer, absPath.string()));
 			m_Assets.insert_or_assign(id, res);
 		}
 
@@ -134,11 +140,11 @@ namespace Cardia
 	template<>
 	inline std::shared_ptr<Mesh> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
-		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		TypeID id {typeid(Mesh), path.string()};
+		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
+		const TypeID id {typeid(Mesh), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(std::make_unique<Mesh>(Mesh::ReadMeshFromFile(absPath.string())));
+			AssetRefCounter res(Mesh::ReadMeshFromFile(absPath.string()));
 			m_Assets.insert_or_assign(id, res);
 		}
 

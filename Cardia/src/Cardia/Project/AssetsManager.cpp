@@ -6,6 +6,14 @@ constexpr std::uint32_t MAX_UNUSED_COUNT = 2;
 
 namespace Cardia
 {
+	std::unique_ptr<AssetsManager> AssetsManager::s_Instance = nullptr;
+
+	void AssetsManager::Init(Renderer& renderer)
+	{
+		cdCoreAssert(!s_Instance, "AssetsManager already exists");
+		s_Instance = std::make_unique<AssetsManager>(renderer);
+	}
+
 	void AssetsManager::CollectGarbage(bool forceCollection)
 	{
 		for (auto& resource : Instance().m_Assets) {
@@ -15,7 +23,7 @@ namespace Cardia
 				resource.second.UnusedCounter = 0;
 			}
 
-			if (resource.second.UnusedCounter > MAX_UNUSED_COUNT) {
+			if (resource.second.UnusedCounter >= MAX_UNUSED_COUNT) {
 				Instance().m_Assets.erase(resource.first);
 			}
 		}
@@ -30,17 +38,16 @@ namespace Cardia
 		}
 	}
 
-	std::filesystem::path
-	AssetsManager::GetAbsolutePath(const std::filesystem::path &relative, AssetsManager::LoadType loadType)
+	AssetsManager::AssetsManager(Renderer& renderer) : m_Renderer(renderer) {}
+
+	std::filesystem::path AssetsManager::GetAbsolutePath(const std::filesystem::path &relative, LoadType loadType)
 	{
 		switch (loadType) {
-
 			case LoadType::Editor:
 				return relative;
-				break;
 			case LoadType::Game:
 				return GetAssetAbsolutePath(relative);
-				break;
 		}
+		return {};
 	}
 }

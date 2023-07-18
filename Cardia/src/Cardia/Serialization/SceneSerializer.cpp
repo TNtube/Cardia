@@ -395,7 +395,7 @@ namespace Cardia::Serialization
 			if (node.isMember(currComponent)) {
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
-				auto mesh = std::make_shared<Mesh>(Mesh::ReadMeshFromFile(AssetsManager::GetAssetAbsolutePath(node[currComponent]["path"].asString()).string()));
+				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
 
 				auto& materials = node[currComponent]["materials"];
 				for (const auto& texturePath : materials) {

@@ -85,11 +85,10 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					auto tex = AssetsManager::Load<Texture2D>(cStrPath);
-					// if (tex->IsLoaded())
-					// {
-					// 	sprite.texture = std::move(tex);
-					// }
+					if (auto tex = AssetsManager::Load<Texture2D>(cStrPath))
+					{
+						sprite.texture = std::move(tex);
+					}
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -112,7 +111,7 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
-					auto mesh = std::make_shared<Mesh>(Mesh::ReadMeshFromFile(AssetsManager::GetAssetAbsolutePath(path).string()));
+					auto mesh = AssetsManager::Load<Mesh>(path);
 					
 					meshRendererC.meshRenderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
 				}
@@ -136,16 +135,10 @@ namespace Cardia::Panel
 						const auto* cStrPath = static_cast<const char*>(payload->Data);
 						
 						std::filesystem::path path = cStrPath;
-						auto texture = 
-							std::make_shared<Texture2D>(
-								appContext->GetRenderer().GetDevice(),
-								appContext->GetRenderer(),
-								AssetsManager::GetAssetAbsolutePath(path));
-
-						// if (tex->IsLoaded())
-						// {
+						if (auto texture = AssetsManager::Load<Texture2D>(path))
+						{
 							material = std::move(texture);
-						// }
+						}
 					}
 					ImGui::EndDragDropTarget();
 				}

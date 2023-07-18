@@ -9,9 +9,9 @@
 
 namespace Cardia
 {
-	Mesh Mesh::ReadMeshFromFile(const std::string &path)
+	std::shared_ptr<Mesh> Mesh::ReadMeshFromFile(const std::string &path)
 	{
-		Mesh mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		Assimp::Importer importer;
 		const aiScene *scene = importer.ReadFile(path, aiProcessPreset_TargetRealtime_Fast);
 
@@ -22,8 +22,8 @@ namespace Cardia
 		}
 
 		Log::coreWarn("Num of meshes loaded : {0}", scene->mNumMeshes);
-		for (int ind = 0; ind < scene->mNumMeshes; ind++) {
-			auto& subMesh = mesh.GetSubMeshes().emplace_back();
+		for (uint32_t ind = 0; ind < scene->mNumMeshes; ind++) {
+			auto& subMesh = mesh->GetSubMeshes().emplace_back();
 			std::vector<SubMesh::Vertex>& vertices = subMesh.GetVertices();
 			std::vector<uint32_t>& indices = subMesh.GetIndices();
 

@@ -22,11 +22,16 @@ namespace Cardia
 		});
 	}
 
-	Application::~Application() = default;
+	Application::~Application()
+	{
+		AssetsManager::CollectGarbage(true);
+		Renderer2D::quit();
+	};
 
 	void Application::Run()
 	{
 		Renderer2D::init();
+		AssetsManager::Init(m_Renderer);
 
 		float time = 0.0f;
 		while (m_Running)
@@ -40,9 +45,7 @@ namespace Cardia
 			OnRender();
 
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
-
 		}
-		Renderer2D::quit();
 	}
 
 	bool Application::onWinClose(WindowCloseEvent& e)
