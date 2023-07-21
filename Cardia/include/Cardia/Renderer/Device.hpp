@@ -15,8 +15,8 @@ struct SwapChainSupportDetails {
 };
 
 struct QueueFamilyIndices {
-	uint32_t GraphicsFamily;
-	uint32_t PresentFamily;
+	uint32_t GraphicsFamily {};
+	uint32_t PresentFamily {};
 	bool GraphicsFamilyHasValue = false;
 	bool PresentFamilyHasValue = false;
 	bool IsComplete() const { return GraphicsFamilyHasValue && PresentFamilyHasValue; }
@@ -40,23 +40,23 @@ struct QueueFamilyIndices {
 		VkQueue GraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue PresentQueue() const { return m_PresentQueue; }
 
-		SwapChainSupportDetails GetSwapChainSupport() { return QuerySwapChainSupport(m_PhysicalDevice); }
-		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-		QueueFamilyIndices FindPhysicalQueueFamilies() { return FindQueueFamilies(m_PhysicalDevice); }
+		SwapChainSupportDetails GetSwapChainSupport() const { return QuerySwapChainSupport(m_PhysicalDevice); }
+		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+		QueueFamilyIndices FindPhysicalQueueFamilies() const { return FindQueueFamilies(m_PhysicalDevice); }
 		VkFormat FindSupportedFormat(
-				const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+				const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
-		VkCommandBuffer BeginSingleTimeCommands();
-		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
-		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+		VkCommandBuffer BeginSingleTimeCommands() const;
+		void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
 		void CopyBufferToImage(
-				VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
+				VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
 
 		void CreateImageWithInfo(
 			const VkImageCreateInfo &imageInfo,
 			VkMemoryPropertyFlags properties,
 			VkImage &image,
-			VkDeviceMemory &imageMemory);
+			VkDeviceMemory &imageMemory) const;
 
 		VkPhysicalDeviceProperties Properties {};
 #ifdef NDEBUG
@@ -66,6 +66,7 @@ struct QueueFamilyIndices {
 #endif
 
 	 private:
+		friend class ImGuiLayer;
 		void CreateInstance();
 		void SetupDebugMessenger();
 		void CreateSurface();
@@ -74,14 +75,14 @@ struct QueueFamilyIndices {
 		void CreateCommandPool();
 
 		// helper functions
-		bool IsDeviceSuitable(VkPhysicalDevice device);
-		std::vector<const char *> GetRequiredExtensions();
-		bool CheckValidationLayerSupport();
-		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+		bool IsDeviceSuitable(VkPhysicalDevice device) const;
+		std::vector<const char *> GetRequiredExtensions() const;
+		bool CheckValidationLayerSupport() const;
+		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device) const;
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 		void HasGflwRequiredInstanceExtensions();
-		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
-		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+		bool CheckDeviceExtensionSupport(VkPhysicalDevice device) const;
+		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device) const;
 
 		VkInstance m_Instance {};
 		VkDebugUtilsMessengerEXT m_DebugMessenger {};

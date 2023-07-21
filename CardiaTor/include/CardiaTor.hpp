@@ -6,6 +6,7 @@
 #include <stack>
 
 #include "EditorCamera.hpp"
+#include "Cardia/Renderer/RenderPass.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Command/Commands.hpp"
 
@@ -17,21 +18,47 @@ namespace Cardia
 		Play,
 		Edit
 	};
+
+	struct OffscreenFrameData
+	{
+		OffscreenFrameData(RenderPass renderPass, Texture2D colorTexture, Texture2D depthTexture, Framebuffer framebuffer)
+			: RenderPass{std::move(renderPass)},
+			  ColorTexture{std::move(colorTexture)},
+			  DepthTexture{std::move(depthTexture)},
+			  Framebuffer{std::move(framebuffer)}
+		{}
+		RenderPass RenderPass;
+		Texture2D ColorTexture;
+		Texture2D DepthTexture;
+		Framebuffer Framebuffer;
+	};
+
+
 	class CardiaTor : public Application
 	{
 	public:
+		CardiaTor(const CardiaTor& other) = delete;
+		CardiaTor& operator=(const CardiaTor& other) = delete;
+		CardiaTor(CardiaTor&& other) noexcept = delete;
+		CardiaTor& operator=(CardiaTor&& other) noexcept = delete;
+
 		CardiaTor();
 
 		~CardiaTor() override = default;
 		void AddCommand(std::unique_ptr<Command> command);
 		void OnUpdate() override;
+		void OnRender() override;
 		void OnEvent(Event& event) override;
 		void OnImGuiDraw() override;
 		void SetSelectedEntity(Entity entity);
 
+		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
+		Renderer& GetRenderer() { return m_Renderer; }
+
 		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
 
 	private:
+		void CreateOffscreenFrameData();
 		void EnableDocking();
 		void OpenProject();
 		void InvalidateProject();
@@ -41,9 +68,13 @@ namespace Cardia
 		void ReloadScene();
 		void UndoCommand();
 		void RedoCommand();
+
+		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
+
+		std::unique_ptr<OffscreenFrameData> m_OffscreenFrameData;
+
 		std::shared_ptr<Texture2D> m_IconPlay;
 		std::shared_ptr<Texture2D> m_IconStop;
-		std::unique_ptr<Framebuffer> m_Framebuffer;
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::unique_ptr<Scene> m_LastEditorScene;

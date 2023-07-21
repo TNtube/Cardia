@@ -12,6 +12,7 @@ public:
 
 	void OnUpdate() override;
 	void OnEvent(Cardia::Event& event) override;
+	void OnRender() override {}
 	void OnImGuiDraw() override;
 	Cardia::Scene* GetCurrentScene() override{ return nullptr; }
 

@@ -1,11 +1,10 @@
 #include "cdpch.hpp"
 #include "Cardia/Application.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
-#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <GLFW/glfw3.h>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 
 namespace Cardia
 {
@@ -19,22 +18,21 @@ namespace Cardia
 		{
 			EventDispatcher dispatcher(e);
 			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
-			m_ImGuiLayer->onEvent(e);
 			OnEvent(e);
 		});
-
-		m_ImGuiLayer = std::make_unique<ImGuiLayer>();
+		
+		Renderer2D::init();
+		AssetsManager::Init(m_Renderer);
 	}
 
 	Application::~Application()
 	{
-	}
+		AssetsManager::CollectGarbage(true);
+		Renderer2D::quit();
+	};
 
 	void Application::Run()
 	{
-		RenderAPI::init();
-		Renderer2D::init();
-
 		float time = 0.0f;
 		while (m_Running)
 		{
@@ -42,18 +40,12 @@ namespace Cardia
 			time += Time::m_DeltaTime.seconds();
 			m_Window->onUpdate();
 
-			m_RenderContext.DrawFrame();
-
 			OnUpdate();
 
-			// m_ImGuiLayer->Begin();
-			// OnImGuiDraw();
-			// m_ImGuiLayer->End();
+			OnRender();
 
 			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
-
 		}
-		Renderer2D::quit();
 	}
 
 	bool Application::onWinClose(WindowCloseEvent& e)

@@ -7,7 +7,6 @@
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include "Renderer/Renderer.hpp"
-#include "Renderer/RenderContext.hpp"
 
 
 namespace Cardia
@@ -21,6 +20,7 @@ namespace Cardia
 		void Run();
 		virtual void OnEvent(Event& e) = 0;
 		virtual void OnUpdate() = 0;
+		virtual void OnRender() = 0;
 		virtual void OnImGuiDraw() = 0;
 		virtual Scene* GetCurrentScene() = 0;
 		bool onWinClose(WindowCloseEvent& e);
@@ -31,12 +31,13 @@ namespace Cardia
 
 	private:
 		std::unique_ptr<Window> m_Window = Window::Create();
-		RenderContext m_RenderContext {*m_Window};
-		std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
+
+	protected:
+		Renderer m_Renderer {*m_Window};
+	private:
 		ScriptEngine m_ScriptEngine;
 		bool m_Running = true;
 		static Application* s_Instance;
-
 	};
 
 	std::unique_ptr<Application> CreateApplication();

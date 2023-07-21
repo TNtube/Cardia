@@ -1,8 +1,10 @@
 ﻿#pragma once
+#include "Descriptors.hpp"
 #include "Device.hpp"
 
 namespace Cardia
 {
+
 	struct PipelineConfigInfo {
 		VkViewport viewport;
 		VkRect2D scissor;
@@ -15,8 +17,26 @@ namespace Cardia
 		VkRenderPass renderPass = nullptr;
 		uint32_t subpass = 0;
 	};
- 
-	
+
+	class PipelineLayout
+	{
+	public:
+		PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
+		PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
+		PipelineLayout(const PipelineLayout&) = delete;
+		PipelineLayout& operator=(const PipelineLayout&) = delete;
+		PipelineLayout(const PipelineLayout&&) = delete;
+		PipelineLayout& operator=(const PipelineLayout&&) = delete;
+		virtual ~PipelineLayout();
+
+		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
+
+	private:
+		void Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
+		Device& m_Device;
+		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
+	};
+
 	class Pipeline
 	{
 	public:
@@ -24,6 +44,9 @@ namespace Cardia
 		virtual ~Pipeline();
 		Pipeline(const Pipeline&) = delete;
 		Pipeline& operator=(const Pipeline&) = delete;
+		Pipeline(const Pipeline&&) = delete;
+		Pipeline& operator=(const Pipeline&&) = delete;
+
 		void Bind(VkCommandBuffer commandBuffer) const;
 
 		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);

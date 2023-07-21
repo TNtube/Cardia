@@ -14,15 +14,19 @@
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Cardia/Project/Project.hpp"
-#include "Cardia/Project/AssetsManager.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "Panels/ConsolePanel.hpp"
+
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 
 namespace Cardia
 {
 	CardiaTor::CardiaTor()
 	{
-		const auto &window = GetWindow();
+		CreateOffscreenFrameData();
+
+		m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Renderer);
 
 		m_PanelManager.CreatePanel<Panel::SceneHierarchyPanel>();
 		m_PanelManager.CreatePanel<Panel::InspectorPanel>();
@@ -30,17 +34,17 @@ namespace Cardia
 		m_PanelManager.CreatePanel<Panel::FileHierarchyPanel>();
 		m_PanelManager.CreatePanel<Panel::ConsolePanel>();
 
-		m_CurrentScene = std::make_unique<Scene>();
+		m_CurrentScene = std::make_unique<Scene>(m_Renderer);
 
 		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = AssetsManager::Load<Texture2D>("resources/icons/play.png");
-		m_IconStop = AssetsManager::Load<Texture2D>("resources/icons/pause.png");
+		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/play.png");
+		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/pause.png");
 
-		FramebufferSpec spec{ window.getWidth(), window.getHeight() };
-		spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		// FramebufferSpecification spec{ window.getWidth(), window.getHeight() };
+		// spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		// m_Framebuffer = Framebuffer::create(spec);
 
 		ImGuiIO &io = ImGui::GetIO();
@@ -62,12 +66,10 @@ namespace Cardia
 
 		if (m_EditorState == EditorState::Edit)
 		{
-			m_CurrentScene->OnUpdateEditor(m_EditorCamera.GetCamera(), m_EditorCamera.GetTransform());
 			m_EditorCamera.OnUpdate();
-		}
-		if (m_EditorState == EditorState::Play)
+		} else if (m_EditorState == EditorState::Play)
 		{
-			m_CurrentScene->OnRuntimeUpdate();
+			ScriptEngine::Instance().OnRuntimeUpdate();
 		}
 
 		auto[mx, my] = ImGui::GetMousePos();
@@ -83,12 +85,128 @@ namespace Cardia
 		{
 			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
 			{
-				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
+				// int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+				// m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
 			}
 		}
 
 		// m_Framebuffer->Unbind();
+	}
+
+	void CardiaTor::OnRender()
+	{
+		bool failed;
+		if (const auto commandBuffer = m_Renderer.Begin())
+		{
+			// Offscreen rendering
+			m_Renderer.BeginRenderPass(m_OffscreenFrameData->Framebuffer, m_OffscreenFrameData->RenderPass);
+
+			if (m_EditorState == EditorState::Edit)
+			{
+				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransformMatrix());
+			} else if (m_EditorState == EditorState::Play)
+			{
+				m_CurrentScene->OnRuntimeRender(commandBuffer);
+			}
+
+			m_Renderer.EndRenderPass();
+
+			// Draw to swapchain
+			m_Renderer.BeginSwapChainRenderPass();
+			m_ImGuiLayer->Begin();
+			OnImGuiDraw();
+			m_ImGuiLayer->End();
+
+			m_ImGuiLayer->Render(commandBuffer);
+			m_Renderer.EndRenderPass();
+			failed = m_Renderer.End();
+		} else
+		{
+			failed = true;
+		}
+
+		// If the swapchain is out of date or the pass failed, recreate offscreen framebuffer
+		if (failed)
+		{
+			CreateOffscreenFrameData();
+		}
+	}
+
+	void CardiaTor::CreateOffscreenFrameData()
+	{
+		const auto& swapChain = m_Renderer.GetSwapChain();
+		const auto extent = swapChain.GetExtent();
+		auto imageFormat = swapChain.GetSwapChainImageFormat();
+		auto depthFormat = swapChain.FindDepthFormat();
+
+		VkAttachmentDescription colorAttachment = {};
+		colorAttachment.format = imageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkAttachmentReference colorAttachmentRef;
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = depthFormat;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkAttachmentReference depthAttachmentRef;
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+		VkSubpassDependency dependency = {};
+
+		dependency.dstSubpass = 0;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.srcAccessMask = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+		RenderPassSpecification specification {
+			.AttachmentDescriptions = {colorAttachment, depthAttachment},
+			.SubpassDescription = subpass,
+			.SubpassDependency = dependency
+		};
+
+		RenderPass renderPass(m_Renderer.GetDevice(), specification);
+
+		Texture2D colorTexture{ m_Renderer.GetDevice(), m_Renderer, extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
+		Texture2D depthTexture{ m_Renderer.GetDevice(), m_Renderer, extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
+
+		const std::vector attachments = {colorTexture.GetView(), depthTexture.GetView()};
+		const FramebufferSpecification framebufferSpecification {
+			.width = extent.width,
+			.height = extent.height,
+			.attachments = attachments
+		};
+
+		Framebuffer framebuffer{ m_Renderer.GetDevice(), renderPass, framebufferSpecification };
+
+		// TODO: Make waiting for device idle a device method
+		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
+
+		m_OffscreenFrameData = std::make_unique<OffscreenFrameData>(std::move(renderPass), std::move(colorTexture), std::move(depthTexture), std::move(framebuffer));
+
 	}
 
 	void CardiaTor::EnableDocking()
@@ -251,9 +369,9 @@ namespace Cardia
 
 	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
 	{
-		auto newScene = std::make_unique<Scene>(scenePath);
+		auto newScene = std::make_unique<Scene>(m_Renderer, scenePath);
 		Serialization::SceneSerializer serializer(*newScene);
-		if (!serializer.Deserialize(scenePath))
+		if (!serializer.Deserialize(m_Renderer, scenePath))
 		{
 			Log::info("Unable to load {0}", scenePath.string());
 		}
@@ -296,22 +414,25 @@ namespace Cardia
 		const auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y,
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		const uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 
-		ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
-		if (m_SceneSize != glm::vec2(scenePanelSize.x, scenePanelSize.y))
+		const auto [width, height] = ImGui::GetContentRegionAvail();
+		if (m_SceneSize != glm::vec2(width, height))
 		{
-			m_Framebuffer->Resize(static_cast<int>(scenePanelSize.x), static_cast<int>(scenePanelSize.y));
-			m_SceneSize = {scenePanelSize.x, scenePanelSize.y};
+			m_SceneSize = {width, height};
+			// CreateOffscreenFrameData({static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
+			m_EditorCamera.SetViewportSize(m_SceneSize.x, m_SceneSize.y);
+			m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
+			ImGui::End();
+			return;
 		}
 		auto io = ImGui::GetIO();
 		static float zoom = 1.0f;
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 
-		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(textureID)),
-			     ImVec2{m_SceneSize.x, m_SceneSize.y},
-			     ImVec2{0, 1}, ImVec2{1, 0});
+		const auto& textureID = m_OffscreenFrameData->ColorTexture;
+		ImGui::Image(textureID.GetDescriptorSet().GetDescriptor(),
+			     ImVec2{m_SceneSize.x, m_SceneSize.y});
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -334,11 +455,14 @@ namespace Cardia
 		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
-		Texture2D* icon = m_EditorState == EditorState::Edit ? m_IconPlay.get() : m_IconStop.get();
-
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
-		if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(icon->GetRendererID())), ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
+
+		static auto& playSet = m_IconPlay->GetDescriptorSet();
+		static auto& stopSet = m_IconStop->GetDescriptorSet();
+
+		auto set = m_EditorState == EditorState::Edit ? playSet.GetDescriptor() : stopSet.GetDescriptor();
+		if (ImGui::ImageButton(set, ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)
 			{
@@ -375,9 +499,6 @@ namespace Cardia
 //			drawLists->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
 //
 //		drawLists->PopClipRect();
-
-		m_EditorCamera.SetViewportSize(m_SceneSize.x, m_SceneSize.y);
-		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 
 		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
 		{
@@ -423,6 +544,8 @@ namespace Cardia
 
 	void CardiaTor::OnEvent(Event& event)
 	{
+		m_ImGuiLayer->OnEvent(event);
+
 		if (m_HoverViewport)
 		{
 			// Mouse inside viewport
@@ -434,7 +557,7 @@ namespace Cardia
 		dispatcher.dispatch<KeyDownEvent>([this](const KeyDownEvent& e)
 		{
 			auto ctrl = Input::isKeyPressed(Key::LeftCtrl) || Input::isKeyPressed(Key::RightCtrl);
-			auto shift = Input::isKeyPressed(Key::LeftShift) || Input::isKeyPressed(Key::LeftShift);
+			auto shift = Input::isKeyPressed(Key::LeftShift) || Input::isKeyPressed(Key::RightShift);
 			if (ctrl)
 			{
 				switch (e.getKeyCode())
@@ -476,6 +599,11 @@ namespace Cardia
 				if (sceneHierarchy)
 					sceneHierarchy->SetSelectedEntity(m_HoveredEntity);
 			}
+		});
+
+		dispatcher.dispatch<WindowResizeEvent>([this](const WindowResizeEvent& e)
+		{
+			CreateOffscreenFrameData();
 		});
 	}
 

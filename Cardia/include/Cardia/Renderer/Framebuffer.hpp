@@ -1,64 +1,44 @@
 #pragma once
+#include "Device.hpp"
+#include <vulkan/vulkan.h>
+
+#include "RenderPass.hpp"
 
 
 namespace Cardia
 {
-	enum class FramebufferTextureFormat
+	struct FramebufferSpecification
 	{
-		None = 0,
-
-		// Color
-		RGBA8,
-		RED_INTEGER,
-
-		// Depth/stencil
-		DEPTH24STENCIL8,
-
-		// Defaults
-		Depth = DEPTH24STENCIL8
-	};
-
-	struct FramebufferTextureSpecification
-	{
-		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(FramebufferTextureFormat format)
-			: TextureFormat(format) {}
-
-		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
-	};
-
-	struct FramebufferAttachmentSpecification
-	{
-		FramebufferAttachmentSpecification() = default;
-		FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
-			: Attachments(attachments) {}
-
-		std::vector<FramebufferTextureSpecification> Attachments;
-	};
-
-	struct FramebufferSpec
-	{
-		int width;
-		int height;
-		FramebufferAttachmentSpecification attachments;
-		uint32_t samples = 1;
+		uint32_t width;
+		uint32_t height;
+		std::vector<VkImageView> attachments;
+		VkFramebufferCreateFlags flags = 0;
 	};
 
 	class Framebuffer
 	{
 	public:
-		virtual ~Framebuffer() = default;
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
+		Framebuffer(Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec);
+		virtual ~Framebuffer();
+		Framebuffer(const Framebuffer &) = delete;
+		Framebuffer& operator=(const Framebuffer &) = delete;
+		Framebuffer(Framebuffer && other) noexcept;
+		Framebuffer& operator=(Framebuffer&& other) noexcept;
 
-		virtual void Resize(int width, int height) = 0;
-		virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) = 0;
-
-		virtual void ClearAttachment(uint32_t attachmentIndex, int value) = 0;
-
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
-
-		static std::unique_ptr<Framebuffer> create(const FramebufferSpec& spec);
-
+		const VkFramebuffer& GetFramebuffer() const { return m_Framebuffer; }
+		// void Bind() const;
+		// void Unbind() const;
+		//
+		// void Resize(int width, int height);
+		// int ReadPixel(uint32_t attachmentIndex, int x, int y);
+		//
+		// void ClearAttachment(uint32_t attachmentIndex, int value);
+		//
+		// uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const;
+		
+	private:
+		Device& m_Device;
+		VkFramebuffer m_Framebuffer {};
+		VkExtent2D m_Extent {};
 	};
 }

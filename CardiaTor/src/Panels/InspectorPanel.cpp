@@ -4,13 +4,14 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "CardiaTor.hpp"
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/ECS/Entity.hpp"
 #include "EditorUI/DragData.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Application.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "Cardia/Project/Project.hpp"
-#include "Cardia/Project/AssetsManager.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 
@@ -70,22 +71,19 @@ namespace Cardia::Panel
 
 		// SpriteRenderer Component
 
-		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
+		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [appContext](Component::SpriteRenderer& sprite) {
 			EditorUI::ColorEdit4("Color", glm::value_ptr(sprite.color));
-			EditorUI::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0);
-			uint32_t whiteColor = 0xffffffff;
 
-			const auto white = Texture2D::create(1, 1, &whiteColor);
-			const auto texID = sprite.texture ? sprite.texture->GetRendererID() : white->GetRendererID();
+			auto& white = appContext->GetRenderer().GetWhiteTexture();
+			const VkDescriptorSet texID = sprite.texture ? sprite.texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
 
-			ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
+			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					auto tex = AssetsManager::Load<Texture2D>(cStrPath);
-					if (tex->IsLoaded())
+					if (auto tex = AssetsManager::Load<Texture2D>(cStrPath))
 					{
 						sprite.texture = std::move(tex);
 					}
@@ -100,7 +98,7 @@ namespace Cardia::Panel
 
 		// MeshRendererC Component
 
-		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [](Component::MeshRendererC& meshRendererC) {
+		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext](Component::MeshRendererC& meshRendererC) {
 			char buffer[128] {0};
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
 			AssetsManager::GetPathFromAsset(meshRendererC.meshRenderer->GetMesh()).string().copy(buffer, bufferSize);
@@ -112,30 +110,30 @@ namespace Cardia::Panel
 				{
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					auto mesh = AssetsManager::Load<Mesh>(path);
-					// meshRendererC.meshRenderer->SubmitMesh(mesh);
+					
+					meshRendererC.meshRenderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
-
-			uint32_t whiteColor = 0xffffffff;
-			static const auto white = Texture2D::create(1, 1, &whiteColor);
 
 			ImGui::Text("Materials");
 
 			if (!meshRendererC.meshRenderer->GetMesh()) return;
 			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
 			for (auto& material : materials) {
-				const auto texID = material->GetRendererID();
-				ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<size_t>(texID)), {15, 15}, {0, 1}, {1, 0});
+				auto& white = appContext->GetRenderer().GetWhiteTexture();
+				const VkDescriptorSet texID = material ? material->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
+				ImGui::Image(texID, {15, 15});
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 					{
 						const auto* cStrPath = static_cast<const char*>(payload->Data);
-						auto tex = AssetsManager::Load<Texture2D>(cStrPath);
-						if (tex->IsLoaded())
+						
+						std::filesystem::path path = cStrPath;
+						if (auto texture = AssetsManager::Load<Texture2D>(path))
 						{
-							material = std::move(tex);
+							material = std::move(texture);
 						}
 					}
 					ImGui::EndDragDropTarget();

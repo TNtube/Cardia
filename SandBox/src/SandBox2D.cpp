@@ -6,8 +6,8 @@
 
 SandBox2D::SandBox2D()
 {
-	m_TextureSquare = Cardia::Texture2D::create("resources/square.jpg");
-	m_TextureBox = Cardia::Texture2D::create("resources/container.jpg");
+	// m_TextureSquare = Cardia::Texture2D::create("resources/square.jpg");
+	// m_TextureBox = Cardia::Texture2D::create("resources/container.jpg");
 
 	std::uniform_int_distribution<int> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
@@ -45,8 +45,8 @@ void SandBox2D::OnUpdate()
 		snakePos.emplace_front(head.x + vx, head.y + vy, head.z);
 	}
 
-	Cardia::RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
-	Cardia::RenderAPI::get().clear();
+	// Cardia::RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
+	// Cardia::RenderAPI::get().clear();
 }
 
 void SandBox2D::OnImGuiDraw()
@@ -101,7 +101,7 @@ void SandBox2D::OnImGuiDraw()
 		if (ImGui::TreeNode("Options"))
 		{
 			ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-			Cardia::RenderAPI::get().setWireFrame(isWireframeMode);
+			// Cardia::RenderAPI::get().setWireFrame(isWireframeMode);
 
 			ImGui::Checkbox("Fullscreen?", &isFullscreen);
 			if (isFullscreen != isFullscreenPrev)

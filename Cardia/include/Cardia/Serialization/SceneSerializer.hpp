@@ -4,6 +4,7 @@
 #include "Cardia/ECS/Scene.hpp"
 #include "Cardia/ECS/Entity.hpp"
 #include "Cardia/ECS/Components.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 
 namespace Cardia::Serialization
 {
@@ -16,8 +17,8 @@ namespace Cardia::Serialization
 
 		bool Serialize(const std::filesystem::path& path);
 		bool Serialize(Json::Value& root);
-		bool Deserialize(const std::filesystem::path& path);
-		bool Deserialize(const Json::Value& root);
+		bool Deserialize(Renderer& renderer, const std::filesystem::path& path);
+		bool Deserialize(Renderer& renderer, const Json::Value& root);
 
 	private:
 		Scene& m_Scene;

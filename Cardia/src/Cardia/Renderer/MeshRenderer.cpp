@@ -1,6 +1,6 @@
 #include "cdpch.hpp"
-#include <Cardia/Renderer/Texture.hpp>
-#include <Cardia/Project/AssetsManager.hpp>
+#include "Cardia/Renderer/Texture.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "cdpch.hpp"
 
 #include "Cardia/Renderer/MeshRenderer.hpp"
@@ -8,8 +8,9 @@
 namespace Cardia
 {
 
-	void MeshRenderer::SubmitMesh(Device& device, std::shared_ptr<Mesh> mesh)
+	void MeshRenderer::SubmitMesh(Device& device, const std::shared_ptr<Mesh>& mesh)
 	{
+		m_Mesh = mesh;
 		auto& subMeshes = mesh->GetSubMeshes();
 
 		for (auto& subMesh : subMeshes)
@@ -21,10 +22,18 @@ namespace Cardia
 
 	void MeshRenderer::Draw(VkCommandBuffer commandBuffer) const
 	{
-		for (const auto& m_SubMeshRenderer : m_SubMeshRenderers)
+		auto& materials = m_Mesh->GetMaterials();
+		for (size_t i = 0; i < m_SubMeshRenderers.size(); i++)
 		{
-			m_SubMeshRenderer.Bind(commandBuffer);
-			m_SubMeshRenderer.Draw(commandBuffer);
+			const auto materialIndex = m_Mesh->GetSubMeshes()[i].GetMaterialIndex();
+			if (materials.size() > materialIndex)
+			{
+				auto texture = materials[materialIndex];
+				if (texture)
+					texture->Bind(commandBuffer);
+			}
+			m_SubMeshRenderers[i].Bind(commandBuffer);
+			m_SubMeshRenderers[i].Draw(commandBuffer);
 		}
 	}
 }

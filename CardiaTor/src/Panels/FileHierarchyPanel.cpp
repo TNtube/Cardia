@@ -6,6 +6,7 @@
 
 #include "Cardia/Core/Log.hpp"
 #include "Cardia/Application.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Project/Project.hpp"
 
@@ -14,8 +15,8 @@ namespace Cardia::Panel
 	int FileHierarchyPanel::m_LastWindowId = 0;
 	FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++)
 	{
-		m_FolderIcon = Texture2D::create("resources/icons/folder.png");
-		m_FileIcon = Texture2D::create("resources/icons/file.png");
+		m_FolderIcon = AssetsManager::Load<Texture2D>("resources/icons/folder.png");
+		m_FileIcon = AssetsManager::Load<Texture2D>("resources/icons/file.png");
 	}
 
 	void FileHierarchyPanel::OnImGuiRender(CardiaTor* appContext)
@@ -80,13 +81,14 @@ namespace Cardia::Panel
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			const auto id = m_FolderIcon->GetRendererID();
+			const auto id = m_FolderIcon->GetDescriptorSet().GetDescriptor();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
-			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0}))
+			if (ImGui::ImageButton(id, button_sz))
 			{
 				m_CurrentPath /= path;
 			}
+			
 			ImGui::PopStyleColor();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
@@ -101,9 +103,10 @@ namespace Cardia::Panel
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			const auto id = m_FileIcon->GetRendererID();
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
-			ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<size_t>(id)), button_sz, {0, 1}, {1, 0});
+
+			const auto id = m_FileIcon->GetDescriptorSet().GetDescriptor();
+			ImGui::ImageButton(id, button_sz);
 
 			if (ImGui::BeginDragDropSource())
 			{
@@ -113,8 +116,10 @@ namespace Cardia::Panel
 			}
 
 			ImGui::PopStyleColor();
+
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - ImGui::CalcTextSize(path.c_str()).x / 2.0f + ImGui::GetStyle().ItemSpacing.x / 2);
 			ImGui::Text("%s", path.c_str());
+
 			ImGui::NextColumn();
 			ImGui::PopID();
 		}

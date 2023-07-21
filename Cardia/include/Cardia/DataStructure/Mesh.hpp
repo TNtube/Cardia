@@ -15,7 +15,7 @@ namespace Cardia
 		std::vector<std::shared_ptr<Texture2D>>& GetMaterials() { return  m_Materials; }
 		const std::vector<std::shared_ptr<Texture2D>>& GetMaterials() const { return  m_Materials; }
 
-		static Mesh ReadMeshFromFile(const std::string& path);
+		static std::shared_ptr<Mesh> ReadMeshFromFile(const std::string& path);
 
 	private:
 		std::vector<std::shared_ptr<Texture2D>> m_Materials;

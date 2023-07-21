@@ -1,5 +1,5 @@
 #include <Cardia/Serialization/SceneSerializer.hpp>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 #include <utility>
 #include "cdpch.hpp"
 #include "Cardia/ECS/Scene.hpp"
@@ -12,23 +12,25 @@
 
 namespace Cardia
 {
-	struct UboData
-	{
-		glm::mat4 viewProjection;
-		glm::mat4 model;
-		glm::mat4 transposedInvertedModel;
-	};
 
 
-	Scene::Scene(std::string name)
-		: m_Name(std::move(name))
+	Scene::Scene(Renderer& renderer, std::string name)
+		: m_Renderer(renderer), m_Name(std::move(name))
 	{
 		std::string shaderName = "basic";
 		const auto shaderPath = "resources/shaders/" + shaderName;
-		m_BasicShader = AssetsManager::Load<Shader>(shaderPath, AssetsManager::LoadType::Editor);
-		// m_UBO = UniformBuffer::create(sizeof(UboData));
-		// m_BasicShader->setBindingBlock("ubo", 0);
 	}
+
+	Scene::Scene(Renderer& renderer, std::filesystem::path path) : Scene(renderer, path.filename().string())
+	{
+		m_Path = std::move(path);
+	}
+
+	Scene::~Scene()
+	{
+		// TODO : Move this to assets manager
+		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
+	};
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
@@ -52,10 +54,8 @@ namespace Cardia
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::OnRuntimeUpdate()
+	void Scene::OnRuntimeRender(VkCommandBuffer commandBuffer)
 	{
-		ScriptEngine::Instance().OnRuntimeUpdate();
-
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 mainCameraTransform;
 
@@ -78,80 +78,51 @@ namespace Cardia
 			Log::error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
 			return;
 		}
-
-		// Renderer2D::beginScene(*mainCamera, mainCameraTransform);
-		//
-		// const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		// for (const auto entity : view)
-		// {
-		// 	auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-		// 	Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
-		// }
-		//
-		// const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
-		// for (const auto entity : lightView)
-		// {
-		// 	auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
-		// 	Renderer2D::addLight(transform, light);
-		// }
-		//
-		// Renderer2D::endScene();
-
-		m_BasicShader->bind();
-		m_BasicShader->setInt("u_Texture", 0);
-		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
-		for (const auto entity : meshView)
-		{
-			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
-			m_UBO->bind(0);
-			UboData data {};
-			data.viewProjection = mainCamera->getViewProjectionMatrix();
-			data.model = transform.getTransform();
-			data.transposedInvertedModel = glm::transpose(glm::inverse(glm::mat3(transform.getTransform())));
-			m_UBO->setData(&data, sizeof(UboData));
-			// meshRenderer.meshRenderer->Draw();
-		}
+		OnRender(commandBuffer, *mainCamera, mainCameraTransform);
 	}
-	void Scene::OnUpdateEditor(Camera& editorCamera, const glm::mat4& editorCameraTransform)
-	{
-		// Renderer2D::beginScene(editorCamera, editorCameraTransform);
-		//
-		// const auto view = m_Registry.view<Component::Transform, Component::SpriteRenderer>();
-		// for (const auto entity : view)
-		// {
-		// 	auto [transform, spriteRenderer] = view.get<Component::Transform, Component::SpriteRenderer>(entity);
-		// 	Renderer2D::drawRect(transform.getTransform(), spriteRenderer.texture.get(), spriteRenderer.color, spriteRenderer.tillingFactor, spriteRenderer.zIndex, static_cast<float>(entity));
-		// }
-		//
-		// const auto lightView = m_Registry.view<Component::Transform, Component::Light>();
-		// for (const auto entity : lightView)
-		// {
-		// 	auto [transform, light] = lightView.get<Component::Transform, Component::Light>(entity);
-		// 	Renderer2D::addLight(transform, light);
-		// }
-		//
-		// Renderer2D::endScene();
 
-		// m_BasicShader->bind();
-		// m_BasicShader->setInt("u_Texture", 0);
+	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const glm::mat4& cameraTransform)
+	{
+		m_Renderer.GetPipeline().Bind(commandBuffer);
+		auto& frame = m_Renderer.GetCurrentFrame();
+
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		if (meshView.size_hint() > 0)
+		{
+			vkCmdBindDescriptorSets(
+				commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				0, 1,
+				&frame.UboDescriptorSet->GetDescriptor(),
+				0, nullptr);
+			UboData data {};
+			data.ViewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
+			frame.UboBuffer->UploadData(sizeof(UboData), &data);
+		}
 		for (const auto entity : meshView)
 		{
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
-			UboData data {};
-			data.viewProjection = editorCamera.getProjectionMatrix() * glm::inverse(editorCameraTransform);
-			data.model = transform.getTransform();
-			data.transposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
-			// m_UBO->setData(&data, sizeof(UboData));
-			// meshRenderer.meshRenderer->Draw();
+			PushConstantData constants {};
+			constants.Model = transform.getTransform();
+			constants.TransposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
+			vkCmdPushConstants(
+				commandBuffer,
+				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				VK_SHADER_STAGE_VERTEX_BIT,
+				0, sizeof(PushConstantData),
+				&constants);
+
+			m_Renderer.GetWhiteTexture().Bind(commandBuffer);
+			meshRenderer.meshRenderer->Draw(commandBuffer);
 		}
 	}
 
 	void Scene::OnViewportResize(float width, float height)
 	{
-		auto view = m_Registry.view<Component::Camera>();
-		for (auto entity : view)
+		const auto view = m_Registry.view<Component::Camera>();
+		for (const auto entity : view)
 		{
 			auto& cameraComponent = view.get<Component::Camera>(entity);
 			cameraComponent.camera.SetViewportSize(width, height);
@@ -189,20 +160,15 @@ namespace Cardia
 
 	std::unique_ptr<Scene> Scene::Copy(Scene& src)
 	{
-		std::unique_ptr<Scene> dst = std::make_unique<Scene>(src.m_Name);
+		std::unique_ptr<Scene> dst = std::make_unique<Scene>(src.m_Renderer, src.m_Name);
 
 		Serialization::SceneSerializer srcSerializer(src);
 		Serialization::SceneSerializer dstSerializer(*dst);
 
 		Json::Value root;
 		srcSerializer.Serialize(root);
-		dstSerializer.Deserialize(root);
+		dstSerializer.Deserialize(dst->m_Renderer, root);
 
 		return std::move(dst);
-	}
-
-	Scene::Scene(std::filesystem::path path) : Scene(path.filename().string())
-	{
-		m_Path = std::move(path);
 	}
 }

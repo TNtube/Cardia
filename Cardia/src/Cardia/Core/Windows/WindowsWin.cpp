@@ -3,7 +3,6 @@
 
 #include "cdpch.hpp"
 #include "Cardia/Core/Windows/WindowsWin.hpp"
-#include "Cardia/Renderer/Renderer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 
@@ -193,7 +192,7 @@ namespace Cardia
 
 		int vpWidth, vpHeight;
 		glfwGetFramebufferSize(m_Window, &vpWidth, &vpHeight);
-		RenderAPI::get().setViewPort(0, 0, vpWidth, vpHeight);
+		// RenderAPI::get().setViewPort(0, 0, vpWidth, vpHeight);
 	}
 
 	bool WindowsWin::isFullscreen() const

@@ -19,13 +19,10 @@
 
 // ----- Renderer ------------------------
 
-#include "Cardia/Renderer/Renderer.hpp"
-#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 
 #include "Cardia/Renderer/Buffer.hpp"
 #include "Cardia/Renderer/Shader.hpp"
-#include "Cardia/Renderer/VertexArray.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 #include "Cardia/Renderer/Framebuffer.hpp"
 

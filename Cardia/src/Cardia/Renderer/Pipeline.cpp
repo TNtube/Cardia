@@ -5,14 +5,55 @@
 
 namespace Cardia
 {
+	PipelineLayout::PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges)
+		: m_Device(device)
+	{
+		Init(descriptorSetLayouts, pushConstantRanges);
+	}
+
+	PipelineLayout::PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges)
+		: m_Device(device)
+	{
+		std::vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
+		std::ranges::transform(
+			descriptorSetLayouts,
+			std::back_inserter(vkDescriptorSetLayouts),
+			[](const DescriptorSetLayout& descriptor)
+			{
+				return descriptor.GetDescriptorSetLayout();
+			});
+		Init(vkDescriptorSetLayouts, pushConstantRanges);
+	}
+
+	PipelineLayout::~PipelineLayout()
+	{
+		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
+	}
+
+	void PipelineLayout::Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges)
+	{
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
+		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+		pipelineLayoutCreateInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
+		pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
+
+		if (vkCreatePipelineLayout(m_Device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Vulkan : Failed to create pipeline layout");
+		}
+	}
+
 	Pipeline::Pipeline(Device& device, const std::string& vertPath, const std::string& fragPath,
-		const PipelineConfigInfo& info) : m_Device(device)
+			   const PipelineConfigInfo& info) : m_Device(device)
 	{
 		CreateGraphicsPipeline(vertPath, fragPath, info);
 	}
 
 	Pipeline::~Pipeline()
 	{
+		vkDeviceWaitIdle(m_Device.GetDevice());
 		vkDestroyShaderModule(m_Device.GetDevice(), m_VertShader, nullptr);
 		vkDestroyShaderModule(m_Device.GetDevice(), m_FragShader, nullptr);
 		vkDestroyPipeline(m_Device.GetDevice(), m_GraphicsPipeline, nullptr);
@@ -46,7 +87,7 @@ namespace Cardia
 		info.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 		info.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
 		info.rasterizationInfo.lineWidth = 1.0f;
-		info.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+		info.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 		info.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		info.rasterizationInfo.depthBiasEnable = VK_FALSE;
 		info.rasterizationInfo.depthBiasConstantFactor = 0.0f;
@@ -158,6 +199,16 @@ namespace Cardia
 		colorBlendInfo.blendConstants[1] = 0.0f;  // Optional
 		colorBlendInfo.blendConstants[2] = 0.0f;  // Optional
 		colorBlendInfo.blendConstants[3] = 0.0f;  // Optional
+		
+		std::vector<VkDynamicState> dynamicStates = {
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_SCISSOR
+		};
+
+		VkPipelineDynamicStateCreateInfo dynamicState {};
+		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+		dynamicState.pDynamicStates = dynamicStates.data();
 
 		VkGraphicsPipelineCreateInfo pipelineInfo {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -170,7 +221,7 @@ namespace Cardia
 		pipelineInfo.pMultisampleState = &info.multisampleInfo;
 		pipelineInfo.pColorBlendState = &colorBlendInfo;
 		pipelineInfo.pDepthStencilState = &info.depthStencilInfo;
-		pipelineInfo.pDynamicState = nullptr;
+		pipelineInfo.pDynamicState = &dynamicState;
 
 		pipelineInfo.layout = info.pipelineLayout;
 		pipelineInfo.renderPass = info.renderPass;

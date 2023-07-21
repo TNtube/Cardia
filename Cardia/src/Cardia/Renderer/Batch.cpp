@@ -2,27 +2,22 @@
 #include "Cardia/Renderer/Batch.hpp"
 
 #include <numeric>
-#include <Cardia/Project/AssetsManager.hpp>
-
-#include "Cardia/Renderer/RenderAPI.hpp"
+#include <Cardia/Asset/AssetsManager.hpp>
 
 
 namespace Cardia
 {
-	Batch::Batch(VertexArray* va, const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification) :
+	Batch::Batch(const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification) :
 		specification(specification), camPos(cameraPosition), m_CurrentTexture(texture)
 	{
-		vertexArray = va;
 
-		vertexBuffer = &va->getVertexBuffer();
-		indexBuffer = &va->getIndexBuffer();
+		// vertexBuffer = &va->getVertexBuffer();
+		// indexBuffer = &va->getIndexBuffer();
 		indexOffset = 0;
 
 		const auto shaderPath = "resources/shaders/" + specification.shader;
 		m_Shader = AssetsManager::Load<Shader>(shaderPath);
 
-		uint32_t whiteColor = 0xffffffff;
-		whiteTexture = Texture2D::create(1, 1, &whiteColor);
 		startBash();
 	}
 
@@ -57,21 +52,21 @@ namespace Cardia
 			iboData.reserve(object.size());
 			iboData.insert(iboData.end(), object.begin(), object.end());
 		}
-		vertexArray->bind();
+		// vertexArray->bind();
 
 		// vertexBuffer->setData(vertexBufferData.data(), static_cast<int>(vertexBufferData.size()) * sizeof(Vertex));
-		indexBuffer->setData(iboData.data(), static_cast<int>(iboData.size()) * sizeof(uint32_t));
+		// indexBuffer->setData(iboData.data(), static_cast<int>(iboData.size()) * sizeof(uint32_t));
 
 		m_Shader->bind();
 		m_Shader->setInt("u_Texture", 0);
 		m_Shader->setMat4("u_Model", glm::mat4(1));
 		m_Shader->setMat3("u_TransposedInvertedModel", glm::transpose(glm::mat4(1)));
-		if (m_CurrentTexture)
-			m_CurrentTexture->Bind(0);
-		else
-			whiteTexture->Bind(0);
+		// if (m_CurrentTexture)
+		// 	m_CurrentTexture->Bind(0);
+		// else
+		// 	whiteTexture->Bind(0);
 
-		RenderAPI::get().drawIndexed(vertexArray, indexCount);
+		// RenderAPI::get().drawIndexed(vertexArray, indexCount);
 	}
 
 	bool Batch::addMesh(SubMesh* mesh)

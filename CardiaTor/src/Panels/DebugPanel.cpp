@@ -4,9 +4,10 @@
 
 #include "Cardia/Application.hpp"
 #include "Cardia/Core/Window.hpp"
-#include "Cardia/Renderer/RenderAPI.hpp"
 #include "Cardia/Renderer/Renderer2D.hpp"
 #include "Panels/PanelManager.hpp"
+#include "CardiaTor.hpp"
+#include "EditorUI/DragData.hpp"
 
 
 namespace Cardia::Panel
@@ -63,17 +64,17 @@ namespace Cardia::Panel
 				elapsedTime += Time::deltaTime().seconds();
 
 
-				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().drawCalls).c_str(),
-					"Draw Calls");
-				ImGui::LabelText(
-					std::to_string(Renderer2D::getStats().triangleCount).c_str(),
-					"Triangle Count");
+				// ImGui::LabelText(
+				// 	std::to_string(Renderer2D::getStats().drawCalls).c_str(),
+				// 	"Draw Calls");
+				// ImGui::LabelText(
+				// 	std::to_string(Renderer2D::getStats().triangleCount).c_str(),
+				// 	"Triangle Count");
 				ImGui::Separator();
 				ImGui::Text("GPU's Info");
-				ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
-				ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
-				ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
+				// ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
+				// ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
+				// ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
 				ImGui::Separator();
 				ImGui::TreePop();
 			}
@@ -83,7 +84,7 @@ namespace Cardia::Panel
 			if (isOpen)
 			{
 				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-				RenderAPI::get().setWireFrame(isWireframeMode);
+				// RenderAPI::get().setWireFrame(isWireframeMode);
 
 				ImGui::Checkbox("Fullscreen?", &isFullscreen);
 				if (isFullscreen != isFullscreenPrev)
@@ -121,6 +122,15 @@ namespace Cardia::Panel
 				default:
 					break;
 			}
+		}
+
+		if (ImGui::CollapsingHeader("Editor Camera", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			auto& camera = appContext->GetEditorCamera();
+			auto& transform = camera.GetTransformComponent();
+			EditorUI::DragFloat3("Position", transform.position);
+			EditorUI::DragFloat3("Rotation", transform.rotation);
+			EditorUI::DragFloat3("Scale", transform.scale);
 		}
 
 		ImGui::End();

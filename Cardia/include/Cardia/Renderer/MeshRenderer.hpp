@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "Cardia/DataStructure/Mesh.hpp"
 #include "SubMeshRenderer.hpp"
 
@@ -12,7 +13,7 @@ namespace Cardia
 	public:
 		MeshRenderer() = default;
 
-		void SubmitMesh(Device& device, std::shared_ptr<Mesh> mesh);
+		void SubmitMesh(Device& device, const std::shared_ptr<Mesh>& mesh);
 		std::shared_ptr<Mesh> GetMesh() { return m_Mesh; }
 		void Draw(VkCommandBuffer commandBuffer) const;
 	private:

@@ -4,7 +4,7 @@
 #include <json/json.h>
 #include <Cardia/Serialization/SceneSerializer.hpp>
 #include <Cardia/Project/Project.hpp>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 
 
 namespace Json {
@@ -193,14 +193,18 @@ namespace Cardia::Serialization
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::MeshRendererC& component)
 	{
 
+		auto mesh = component.meshRenderer->GetMesh();
 		Json::Value node;
 
-		node["path"] = AssetsManager::GetPathFromAsset(component.meshRenderer->GetMesh()).string();
-		Json::Value materials;
-		for (const auto& material : component.meshRenderer->GetMesh()->GetMaterials()) {
-			materials.append(AssetsManager::GetPathFromAsset(material).string());
+		if (mesh)
+		{
+			node["path"] = AssetsManager::GetPathFromAsset(component.meshRenderer->GetMesh()).string();
+			Json::Value materials;
+			for (const auto& material : component.meshRenderer->GetMesh()->GetMaterials()) {
+				materials.append(AssetsManager::GetPathFromAsset(material).string());
+			}
+			node["materials"] = materials;
 		}
-		node["materials"] = materials;
 
 		auto idx = static_cast<uint32_t>(entity);
 		m_Root[idx][Component::MeshRendererC::ClassName()] = node;
@@ -325,7 +329,7 @@ namespace Cardia::Serialization
 		return true;
 	}
 
-	bool Serialization::SceneSerializer::Deserialize(const std::filesystem::path &path)
+	bool Serialization::SceneSerializer::Deserialize(Renderer& renderer, const std::filesystem::path &path)
 	{
 		Json::Value root;
 		std::ifstream file(path);
@@ -338,10 +342,10 @@ namespace Cardia::Serialization
 			return false;
 		}
 
-		return Deserialize(root);
+		return Deserialize(renderer, root);
 	}
 
-	bool SceneSerializer::Deserialize(const Json::Value &root)
+	bool SceneSerializer::Deserialize(Renderer& renderer, const Json::Value &root)
 	{
 		for (const auto& node: root)
 		{
@@ -373,11 +377,15 @@ namespace Cardia::Serialization
 				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
 				spriteRenderer.color = node[currComponent]["color"].as<glm::vec4>();
 
-				auto texture = AssetsManager::Load<Texture2D>(node[currComponent]["texture"].asString());
-				if (texture && texture->IsLoaded())
-				{
-					spriteRenderer.texture = std::move(texture);
-				}
+				spriteRenderer.texture =
+					std::make_shared<Texture2D>(
+						renderer.GetDevice(),
+						renderer,
+						node[currComponent]["texture"].asString());
+				// if (texture && texture->IsLoaded())
+				// {
+				// 	spriteRenderer.texture = std::move(texture);
+				// }
 
 				spriteRenderer.tillingFactor = node[currComponent]["tillingFactor"].asFloat();
 				spriteRenderer.zIndex = node[currComponent]["zIndex"].asInt();
@@ -388,16 +396,27 @@ namespace Cardia::Serialization
 				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
 
 				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
-				// meshRenderer.meshRenderer->SubmitMesh(mesh);
 
 				auto& materials = node[currComponent]["materials"];
 				for (const auto& texturePath : materials) {
-					auto texture = AssetsManager::Load<Texture2D>(texturePath.asString());
-					if (texture && texture->IsLoaded())
+					std::filesystem::path path = texturePath.asString();
+					if (path.empty())
 					{
-						meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));
+						continue;
 					}
+					
+					auto texture = 
+					std::make_shared<Texture2D>(
+						renderer.GetDevice(),
+						renderer,
+						AssetsManager::GetAssetAbsolutePath(path));
+					mesh->GetMaterials().push_back(std::move(texture));
+					// if (texture && texture->IsLoaded())
+					// {
+					// 	meshRenderer.meshRenderer->GetMesh()->GetMaterials().push_back(std::move(texture));
+					// }
 				}
+				meshRenderer.meshRenderer->SubmitMesh(renderer.GetDevice(), mesh);
 			}
 
 			currComponent = Component::Camera::ClassName();

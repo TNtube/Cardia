@@ -2,7 +2,6 @@
 
 
 #include "Cardia/DataStructure/SubMesh.hpp"
-#include "VertexArray.hpp"
 #include "Buffer.hpp"
 
 namespace Cardia
@@ -22,6 +21,8 @@ namespace Cardia
 	private:
 		Device& m_Device;
 		uint32_t m_VertexCount;
+		uint32_t m_IndexCount;
 		Buffer m_VertexBuffer;
+		Buffer m_IndexBuffer;
 	};
 }
