@@ -113,6 +113,8 @@ namespace Cardia
 				VK_SHADER_STAGE_VERTEX_BIT,
 				0, sizeof(PushConstantData),
 				&constants);
+
+			m_Renderer.GetWhiteTexture().Bind(commandBuffer);
 			meshRenderer.meshRenderer->Draw(commandBuffer);
 		}
 	}

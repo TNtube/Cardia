@@ -40,9 +40,9 @@ namespace Cardia
 		Component::Transform m_Transform;
 
 		glm::vec2 m_InitialMousePosition { 0.0f, 0.0f };
-		float m_MovementSpeed = 100;
-		float m_BaseMovementSpeed = 100;
-		float m_MaxMovementSpeed = 1000;
+		float m_MovementSpeed = 10;
+		float m_BaseMovementSpeed = 10;
+		float m_MaxMovementSpeed = 100;
 
 	};
 }

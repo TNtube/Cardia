@@ -2,6 +2,6 @@
 	"Project": {
 		"Name" : "HelloCardia",
 		"AssetsDirectory" : "Assets/",
-		"StartScene" : "./sponza.cardia"
+		"StartScene" : "./HelloCardia.cardia"
 	}
 }

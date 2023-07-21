@@ -20,5 +20,5 @@ void main() {
     vec4 color = texture(texSampler, vertex.textureCoord) * vec4(vertex.color, 1.0f);
     if (color.a <= 0.01)
         discard;
-    outColor = color /*** diffuse*/;
+    outColor = color * diffuse;
 }
