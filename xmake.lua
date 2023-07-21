@@ -110,7 +110,7 @@ target("CardiaTor")
 
     add_headerfiles("CardiaTor/include/**.hpp")
     add_headerfiles("CardiaTor/resources/**") -- a hack for the moment
-    add_files("CardiaTor/src/**.cpp")
+    add_files("CardiaTor/src/**.cpp", "CardiaTor/resources/logo/resource.rc")
     add_includedirs("CardiaTor/include/", {public = true})
     set_rundir("CardiaTor/")
 
