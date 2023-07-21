@@ -10,8 +10,8 @@
 #include "EditorUI/DragData.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Application.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "Cardia/Project/Project.hpp"
-#include "Cardia/Project/AssetsManager.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 
@@ -71,15 +71,13 @@ namespace Cardia::Panel
 
 		// SpriteRenderer Component
 
-		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [](Component::SpriteRenderer& sprite) {
+		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [appContext](Component::SpriteRenderer& sprite) {
 			EditorUI::ColorEdit4("Color", glm::value_ptr(sprite.color));
-			EditorUI::DragFloat("Tiling Factor", &sprite.tillingFactor, 0.05f, 0);
-			uint32_t whiteColor = 0xffffffff;
 
-			const auto white = Texture2D::create(1, 1, &whiteColor);
-			const auto texID = nullptr; // sprite.texture ? sprite.texture->GetDescriptorSet() : white->GetDescriptorSet();
+			auto& white = appContext->GetRenderer().GetWhiteTexture();
+			const VkDescriptorSet texID = sprite.texture ? sprite.texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
 
-			// ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
+			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
@@ -118,16 +116,14 @@ namespace Cardia::Panel
 				ImGui::EndDragDropTarget();
 			}
 
-			uint32_t whiteColor = 0xffffffff;
-			static const auto white = Texture2D::create(1, 1, &whiteColor);
-
 			ImGui::Text("Materials");
 
 			if (!meshRendererC.meshRenderer->GetMesh()) return;
 			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
 			for (auto& material : materials) {
-				const auto texID = material ? material->GetDescriptorSet().GetDescriptor() : nullptr;
-				ImGui::Image(texID, {15, 15}, {0, 1}, {1, 0});
+				auto& white = appContext->GetRenderer().GetWhiteTexture();
+				const VkDescriptorSet texID = material ? material->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
+				ImGui::Image(texID, {15, 15});
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))

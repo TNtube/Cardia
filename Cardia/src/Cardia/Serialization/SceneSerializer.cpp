@@ -4,7 +4,7 @@
 #include <json/json.h>
 #include <Cardia/Serialization/SceneSerializer.hpp>
 #include <Cardia/Project/Project.hpp>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 
 
 namespace Json {

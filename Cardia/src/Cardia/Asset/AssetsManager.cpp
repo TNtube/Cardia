@@ -1,5 +1,5 @@
 #include "cdpch.hpp"
-#include "Cardia/Project/AssetsManager.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 
 constexpr std::chrono::duration<float> GC_COLLECTION_DURATION = std::chrono::duration<float>(2.0f);
 constexpr std::uint32_t MAX_UNUSED_COUNT = 2;

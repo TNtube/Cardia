@@ -4,7 +4,7 @@
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <GLFW/glfw3.h>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 
 namespace Cardia
 {
@@ -20,6 +20,9 @@ namespace Cardia
 			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
 			OnEvent(e);
 		});
+		
+		Renderer2D::init();
+		AssetsManager::Init(m_Renderer);
 	}
 
 	Application::~Application()
@@ -30,9 +33,6 @@ namespace Cardia
 
 	void Application::Run()
 	{
-		Renderer2D::init();
-		AssetsManager::Init(m_Renderer);
-
 		float time = 0.0f;
 		while (m_Running)
 		{

@@ -1,6 +1,6 @@
 #include "cdpch.hpp"
-#include <Cardia/Renderer/Texture.hpp>
-#include <Cardia/Project/AssetsManager.hpp>
+#include "Cardia/Renderer/Texture.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "cdpch.hpp"
 
 #include "Cardia/Renderer/MeshRenderer.hpp"

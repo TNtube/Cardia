@@ -66,6 +66,10 @@ namespace Cardia
 					.WriteBuffer(0, &bufferInfo)
 					.Build());
 		}
+
+		uint32_t whiteColor = 0xffffffff;
+		constexpr VkExtent2D size {1, 1};
+		m_WhiteTexture = std::make_unique<Texture2D>(m_Device, *this, size, &whiteColor);
 	}
 
 	Renderer::~Renderer()

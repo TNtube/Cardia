@@ -1,5 +1,5 @@
 #include <Cardia/Serialization/SceneSerializer.hpp>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 #include <utility>
 #include "cdpch.hpp"
 #include "Cardia/ECS/Scene.hpp"

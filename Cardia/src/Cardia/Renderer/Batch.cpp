@@ -2,7 +2,7 @@
 #include "Cardia/Renderer/Batch.hpp"
 
 #include <numeric>
-#include <Cardia/Project/AssetsManager.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 
 
 namespace Cardia
@@ -18,8 +18,6 @@ namespace Cardia
 		const auto shaderPath = "resources/shaders/" + specification.shader;
 		m_Shader = AssetsManager::Load<Shader>(shaderPath);
 
-		uint32_t whiteColor = 0xffffffff;
-		whiteTexture = Texture2D::create(1, 1, &whiteColor);
 		startBash();
 	}
 

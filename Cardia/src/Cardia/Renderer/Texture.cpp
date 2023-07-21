@@ -46,9 +46,27 @@ namespace Cardia
 		const VkExtent2D& size,
 		VkFormat format,
 		VkImageUsageFlags usageFlags,
-		VkImageAspectFlags aspectFlags) : m_Device(device), m_Renderer(renderer)
+		VkImageAspectFlags aspectFlags) : m_Size(size), m_Device(device), m_Renderer(renderer)
 	{
 		CreateImage(size.width, size.height, format, usageFlags, aspectFlags);
+	}
+
+	Texture2D::Texture2D(
+		Device& device,
+		Renderer& renderer,
+		const VkExtent2D& size,
+		const void* data) : m_Size(size), m_Device(device), m_Renderer(renderer)
+	{
+		CreateImage(size.width, size.height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+
+		const auto imageSize = size.width * size.height * 4;
+		Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		buffer.UploadData(imageSize, data);
+
+		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		device.CopyBufferToImage(buffer.GetBuffer(), m_TextureImage, size.width, size.height, 1);
+		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	
 	}
 
 
@@ -69,17 +87,6 @@ namespace Cardia
 			1, 1,
 			&m_TextureDescriptorSet->GetDescriptor(),
 			0, nullptr);
-	}
-
-	// Old Way
-	std::unique_ptr<Texture2D> Texture2D::create(const std::string &path)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<Texture2D> Texture2D::create(int width, int height, void* data)
-	{
-		return nullptr;
 	}
 
 	void Texture2D::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags)

@@ -14,7 +14,7 @@
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Cardia/Project/Project.hpp"
-#include "Cardia/Project/AssetsManager.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 #include "Panels/ConsolePanel.hpp"
 
 #include "Cardia/ImGui/imgui_impl_vulkan.h"

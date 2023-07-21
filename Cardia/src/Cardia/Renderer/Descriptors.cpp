@@ -105,7 +105,6 @@ namespace Cardia
 		}
 
 		DescriptorSetLayout layout{m_Device, layoutInfo.Bindings};
-		Log::coreTrace("Descriptor Set Layout created at {0}", fmt::ptr(layout.GetDescriptorSetLayout()));
 		m_LayoutCache.insert({layoutInfo, std::move(layout)});
 		return m_LayoutCache.at(layoutInfo);
 	}

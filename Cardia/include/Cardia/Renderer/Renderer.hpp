@@ -58,6 +58,7 @@ namespace Cardia
 		PipelineLayout& GetPipelineLayout() const { return *m_PipelineLayout; }
 		const FrameData& GetCurrentFrame() const { return m_Frames[m_CurrentFrameNumber % SwapChain::MAX_FRAMES_IN_FLIGHT]; }
 		uint32_t GetCurrentImageIndex() const { return m_CurrentImageIndex; }
+		Texture2D& GetWhiteTexture() const { return *m_WhiteTexture; }
 
 	private:
 		void CreateCommandBuffers();
@@ -71,6 +72,7 @@ namespace Cardia
 		std::unique_ptr<SwapChain> m_SwapChain;
 		std::unique_ptr<DescriptorAllocator> m_DescriptorAllocator;
 		std::unique_ptr<DescriptorLayoutCache> m_DescriptorLayoutCache;
+		std::unique_ptr<Texture2D> m_WhiteTexture;
 
 		uint32_t m_CurrentImageIndex {};
 		uint32_t m_CurrentFrameNumber {};

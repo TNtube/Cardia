@@ -18,8 +18,8 @@ namespace Cardia::Panel
 
 	private:
 		std::filesystem::path m_CurrentPath;
-		std::unique_ptr<Texture2D> m_FileIcon;
-		std::unique_ptr<Texture2D> m_FolderIcon;
+		std::shared_ptr<Texture2D> m_FileIcon;
+		std::shared_ptr<Texture2D> m_FolderIcon;
 
 		static int m_LastWindowId;
 	};

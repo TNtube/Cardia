@@ -22,8 +22,7 @@ namespace Cardia
 		Texture2D& operator=(const Texture2D& other) = delete;
 
 		Texture2D(Texture2D&& other) noexcept
-			: m_Width{other.m_Width},
-			  m_Height{other.m_Height},
+			: m_Size{other.m_Size},
 			  m_Device{other.m_Device},
 			  m_Renderer{other.m_Renderer},
 			  m_TextureImage{other.m_TextureImage},
@@ -53,10 +52,13 @@ namespace Cardia
 			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
 			VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
 			VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+
+		Texture2D(Device& device, Renderer& renderer, const VkExtent2D& size, const void* data);
+
 		virtual ~Texture2D();
 
-		uint32_t GetHeight() const { return m_Height; }
-		uint32_t GetWidth() const { return m_Width; }
+		uint32_t GetHeight() const { return m_Size.height; }
+		uint32_t GetWidth() const { return m_Size.width; }
 
 		VkSampler GetSampler() const { return m_TextureSampler; }
 		VkImageView GetView() const { return m_TextureImageView; }
@@ -64,17 +66,13 @@ namespace Cardia
 		
 		void Bind(VkCommandBuffer commandBuffer) const;
 
-		static std::unique_ptr<Texture2D> create(const std::string& path);
-		static std::unique_ptr<Texture2D> create(int width, int height, void* data);
-
 	private:
 		void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
 		void TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 		void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
 		void CreateTextureSampler();
 
-		uint32_t m_Width {};
-		uint32_t m_Height {};
+		VkExtent2D m_Size {};
 		
 		Device& m_Device;
 		Renderer& m_Renderer;

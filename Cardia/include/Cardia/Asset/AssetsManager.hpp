@@ -112,14 +112,6 @@ namespace Cardia
 	template<>
 	inline std::shared_ptr<Shader> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
-		std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		TypeID id {typeid(Shader), path.string()};
-
-		// if (!m_Assets.contains(id)) {
-		// 	AssetRefCounter res(Shader::create({absPath.string() + ".vert.spirv", absPath.string() + ".frag.spirv"}));
-		// 	m_Assets.insert_or_assign(id, res);
-		// }
-
 		return nullptr;
 	}
 
