@@ -95,6 +95,7 @@ namespace Cardia
 		bool m_HoverViewport = false;
 
 		EditorState m_EditorState = EditorState::Edit;
+		bool m_EditorStateUpdated = false;
 
 		std::random_device rd;
 		std::mt19937 random{rd()};

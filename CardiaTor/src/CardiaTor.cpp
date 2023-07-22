@@ -43,10 +43,6 @@ namespace Cardia
 		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/play.png");
 		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/pause.png");
 
-		// FramebufferSpecification spec{ window.getWidth(), window.getHeight() };
-		// spec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
-		// m_Framebuffer = Framebuffer::create(spec);
-
 		ImGuiIO &io = ImGui::GetIO();
 		io.IniFilename = "resources/editorconfig.ini";
 
@@ -58,10 +54,22 @@ namespace Cardia
 
 	void CardiaTor::OnUpdate()
 	{
-		// m_Framebuffer->Bind();
-		// RenderAPI::get().setClearColor({0.2f, 0.2f, 0.2f, 1});
-		// RenderAPI::get().clear();
-		// m_Framebuffer->ClearAttachment(1, -1);
+
+		if (m_EditorStateUpdated)
+		{
+			switch (m_EditorState)
+			{
+			case EditorState::Play:
+				m_LastEditorScene = Scene::Copy(*m_CurrentScene);
+				m_CurrentScene->OnRuntimeStart();
+				break;
+			case EditorState::Edit:
+				m_CurrentScene->OnRuntimeStop();
+				ReloadScene();
+				break;
+			}
+			m_EditorStateUpdated = false;
+		}
 
 
 		if (m_EditorState == EditorState::Edit)
@@ -87,8 +95,6 @@ namespace Cardia
 				// m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
 			}
 		}
-
-		// m_Framebuffer->Unbind();
 	}
 
 	void CardiaTor::OnRender()
@@ -466,15 +472,13 @@ namespace Cardia
 			{
 				case EditorState::Edit:
 					m_EditorState = EditorState::Play;
-					m_LastEditorScene = Scene::Copy(*m_CurrentScene);
-					m_CurrentScene->OnRuntimeStart();
 					break;
 				case EditorState::Play:
-					m_CurrentScene->OnRuntimeStop();
 					m_EditorState = EditorState::Edit;
-					ReloadScene();
 					break;
 			}
+
+			m_EditorStateUpdated = true;
 		}
 
 		ImGui::PopStyleVar(3);
