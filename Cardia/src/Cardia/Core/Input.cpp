@@ -8,7 +8,7 @@ namespace Cardia
 {
 	inline GLFWwindow* getNativeWin()
 	{
-		return static_cast<GLFWwindow*>(Application::get().GetWindow().getNativeWin());
+		return static_cast<GLFWwindow*>(Application::get().GetWindow().GetNativeWindow());
 	}
 
 	bool Input::isKeyPressed(int keyCode) {

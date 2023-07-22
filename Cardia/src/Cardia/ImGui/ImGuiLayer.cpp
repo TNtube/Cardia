@@ -16,7 +16,7 @@ namespace Cardia
 		CreatePool();
 		
 		const Application& app = Application::get();
-		const auto window = static_cast<GLFWwindow*>(app.GetWindow().getNativeWin());
+		const auto window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 		const auto& device = m_Renderer.GetDevice();
 		
 		// Setup Dear ImGui context
@@ -96,9 +96,9 @@ namespace Cardia
 	void ImGuiLayer::End() const
 	{
 		const Application& app = Application::get();
-		auto[w, h] = app.GetWindow().getSize();
+		const auto winSize = app.GetWindow().GetSize();
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
+		io.DisplaySize = ImVec2(static_cast<float>(winSize.x), static_cast<float>(winSize.y));
 
 		// Rendering
 		ImGui::Render();

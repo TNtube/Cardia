@@ -116,6 +116,9 @@ namespace Cardia
 			throw std::runtime_error("failed to record command buffer!");
 		}
 		const auto result = m_SwapChain->SubmitCommandBuffers(frame, &m_CurrentImageIndex);
+
+		m_Window.UpdateFullscreenMode();
+
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.WasResized())
 		{
 			m_Window.ResetResizedFlag();

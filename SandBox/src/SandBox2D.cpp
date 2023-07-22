@@ -67,7 +67,7 @@ void SandBox2D::OnImGuiDraw()
 	static bool isFullscreenPrev = false;
 	static Cardia::Window &window = GetWindow();
 	// vsync
-	static bool isVsync = window.isVSync();
+	static bool isVsync = window.IsVSync();
 	// dear imgui theme
 	static int selectedTheme = THEME_DARK;
 
@@ -106,12 +106,12 @@ void SandBox2D::OnImGuiDraw()
 			ImGui::Checkbox("Fullscreen?", &isFullscreen);
 			if (isFullscreen != isFullscreenPrev)
 			{
-				window.setFullscreen(isFullscreen);
+				window.SetFullscreenFlag(isFullscreen);
 				isFullscreenPrev = isFullscreen;
 			}
 
 			ImGui::Checkbox("VSync?", &isVsync);
-			window.setVSync(isVsync);
+			window.SetVSync(isVsync);
 			ImGui::TreePop();
 		}
 	}

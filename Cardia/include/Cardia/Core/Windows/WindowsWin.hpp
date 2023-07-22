@@ -10,12 +10,14 @@ namespace Cardia
 {
 	struct WinData
 	{
-		std::string title;
-		int width, height;
-		bool vSync;
-		bool resized;
+		std::string Title;
+		int Width, Height;
+		bool VSync;
+		bool Resized;
+		bool ShouldFullscreen;
+		bool IsFullscreen;
 
-		std::function<void(Event&)> eventCallback;
+		std::function<void(Event&)> EventCallback;
 	};
 
 	class WindowsWin : public Window
@@ -24,27 +26,30 @@ namespace Cardia
 		WindowsWin(const WinProperties& properties);
 		virtual ~WindowsWin() override;
 
-		void onUpdate() override;
-		inline int getWidth() const override { return m_Data.width; }
-		inline int getHeight() const override { return m_Data.height; }
-		inline std::pair<int, int> getSize() const override { return {getWidth(), getHeight()}; }
-		inline VkExtent2D GetExtent() const override { return VkExtent2D {static_cast<unsigned>(m_Data.width), static_cast<unsigned>(m_Data.height)}; }
+		void OnUpdate() override;
+		inline int GetWidth() const override { return m_Data.Width; }
+		inline int GetHeight() const override { return m_Data.Height; }
+		inline glm::ivec2 GetSize() const override { return {m_Data.Width, m_Data.Height}; }
+		inline VkExtent2D GetExtent() const override { return VkExtent2D {static_cast<unsigned>(m_Data.Width), static_cast<unsigned>(m_Data.Height)}; }
 
-		inline bool WasResized() const override { return m_Data.resized; }
-		inline void ResetResizedFlag() override { m_Data.resized = false; }
+		inline bool WasResized() const override { return m_Data.Resized; }
+		inline void ResetResizedFlag() override { m_Data.Resized = false; }
 
 
-		inline void setEventCallback(const std::function<void(Event&)>& callback) override { m_Data.eventCallback = callback; }
-		void setFullscreen(bool state) override;
-		bool isFullscreen() const override;
-		void setVSync(bool state) override;
-		bool isVSync() const override;
+		inline void SetEventCallback(const std::function<void(Event&)>& callback) override { m_Data.EventCallback = callback; }
 
-		inline virtual void* getNativeWin() const override { return m_Window; }
+		void SetFullscreenFlag(bool state) override;
+		void UpdateFullscreenMode() override;
+		bool IsFullscreen() const override;
+
+		void SetVSync(bool state) override;
+		bool IsVSync() const override;
+
+		inline virtual void* GetNativeWindow() const override { return m_Window; }
 
 	private:
-		void init(const WinProperties& properties);
-		void quit();
+		void Init(const WinProperties& properties);
+		void Quit();
 		
 		static bool s_isGlfwInit; // Can only initialize glfw once.
 		GLFWwindow* m_Window;

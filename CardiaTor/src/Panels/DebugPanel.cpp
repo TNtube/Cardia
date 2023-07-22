@@ -28,10 +28,9 @@ namespace Cardia::Panel
 		static bool isWireframeMode = false;
 		// fullscreen
 		static bool isFullscreen = false;
-		static bool isFullscreenPrev = false;
 		static Window &window = Application::get().GetWindow();
 		// vsync
-		static bool isVsync = window.isVSync();
+		static bool isVsync = window.IsVSync();
 		// dear imgui theme
 		static int selectedTheme = THEME_DARK;
 
@@ -83,18 +82,20 @@ namespace Cardia::Panel
 			isOpen = ImGui::TreeNodeEx("Options", ImGuiTreeNodeFlags_DefaultOpen);
 			if (isOpen)
 			{
-				ImGui::Checkbox("Wireframe rendering?", &isWireframeMode);
-				// RenderAPI::get().setWireFrame(isWireframeMode);
-
-				ImGui::Checkbox("Fullscreen?", &isFullscreen);
-				if (isFullscreen != isFullscreenPrev)
+				if (ImGui::Checkbox("Wireframe rendering?", &isWireframeMode))
 				{
-					window.setFullscreen(isFullscreen);
-					isFullscreenPrev = isFullscreen;
+					// RenderAPI::get().setWireFrame(isWireframeMode);
+				}
+				
+				if (ImGui::Checkbox("Fullscreen?", &isFullscreen))
+				{
+					window.SetFullscreenFlag(isFullscreen);
 				}
 
-				ImGui::Checkbox("VSync?", &isVsync);
-				window.setVSync(isVsync);
+				if (ImGui::Checkbox("VSync?", &isVsync))
+				{
+					window.SetVSync(isVsync);
+				}
 				ImGui::TreePop();
 			}
 		}

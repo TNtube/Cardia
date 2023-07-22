@@ -14,7 +14,7 @@ namespace Cardia
 	{
 		cdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
-		m_Window->setEventCallback([this](Event& e)
+		m_Window->SetEventCallback([this](Event& e)
 		{
 			EventDispatcher dispatcher(e);
 			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
@@ -38,7 +38,7 @@ namespace Cardia
 		{
 			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
 			time += Time::m_DeltaTime.seconds();
-			m_Window->onUpdate();
+			m_Window->OnUpdate();
 
 			OnUpdate();
 

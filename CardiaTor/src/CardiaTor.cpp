@@ -72,18 +72,16 @@ namespace Cardia
 			ScriptEngine::Instance().OnRuntimeUpdate();
 		}
 
-		auto[mx, my] = ImGui::GetMousePos();
-		mx -= m_ViewportBounds.x;
-		my -= m_ViewportBounds.y;
+		auto[mouseX, mouseY] = ImGui::GetMousePos();
+		mouseX -= m_ViewportBounds.x;
+		mouseY -= m_ViewportBounds.y;
 
-		glm::vec2 viewportSize = glm::vec2(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
-		my = viewportSize.y - my;
-		int mouseX = (int)mx;
-		int mouseY = (int)my;
+		const glm::vec2 viewportSize = glm::vec2(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
+		mouseY = viewportSize.y - mouseY;
 
 		if (m_CurrentScene)
 		{
-			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+			if (mouseX >= 0 && mouseY >= 0 && mouseX < viewportSize.x && mouseY < viewportSize.y)
 			{
 				// int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
 				// m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_CurrentScene.get());
