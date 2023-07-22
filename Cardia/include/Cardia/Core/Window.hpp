@@ -33,11 +33,11 @@ namespace Cardia
 		virtual int GetHeight() const = 0;
 		virtual glm::ivec2 GetSize() const = 0;
 		virtual VkExtent2D GetExtent() const = 0;
-		virtual bool WasResized() const = 0;
-		virtual void ResetResizedFlag() = 0;
+		virtual bool ShouldInvalidateSwapchain() const = 0;
+		virtual void SwapchainInvalidated() = 0;
 
 		virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
-		virtual void SetFullscreenFlag(bool state) = 0;
+		virtual void SetFullscreen(bool state) = 0;
 		virtual bool IsFullscreen() const = 0;
 		virtual void UpdateFullscreenMode() = 0;
 		virtual void SetVSync(bool state) = 0;

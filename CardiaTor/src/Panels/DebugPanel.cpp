@@ -89,7 +89,7 @@ namespace Cardia::Panel
 				
 				if (ImGui::Checkbox("Fullscreen?", &isFullscreen))
 				{
-					window.SetFullscreenFlag(isFullscreen);
+					window.SetFullscreen(isFullscreen);
 				}
 
 				if (ImGui::Checkbox("VSync?", &isVsync))

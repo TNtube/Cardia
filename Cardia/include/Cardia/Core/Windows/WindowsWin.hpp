@@ -12,10 +12,10 @@ namespace Cardia
 	{
 		std::string Title;
 		int Width, Height;
-		bool VSync;
-		bool Resized;
-		bool ShouldFullscreen;
-		bool IsFullscreen;
+		bool VSync = false;
+		bool ShouldInvalidateSwapchain = false;
+		bool ShouldUpdateFullscreenMode = false;
+		bool IsFullscreen = false;
 
 		std::function<void(Event&)> EventCallback;
 	};
@@ -32,13 +32,13 @@ namespace Cardia
 		inline glm::ivec2 GetSize() const override { return {m_Data.Width, m_Data.Height}; }
 		inline VkExtent2D GetExtent() const override { return VkExtent2D {static_cast<unsigned>(m_Data.Width), static_cast<unsigned>(m_Data.Height)}; }
 
-		inline bool WasResized() const override { return m_Data.Resized; }
-		inline void ResetResizedFlag() override { m_Data.Resized = false; }
+		inline bool ShouldInvalidateSwapchain() const override { return m_Data.ShouldInvalidateSwapchain; }
+		inline void SwapchainInvalidated() override { m_Data.ShouldInvalidateSwapchain = false; }
 
 
 		inline void SetEventCallback(const std::function<void(Event&)>& callback) override { m_Data.EventCallback = callback; }
 
-		void SetFullscreenFlag(bool state) override;
+		void SetFullscreen(bool state) override;
 		void UpdateFullscreenMode() override;
 		bool IsFullscreen() const override;
 

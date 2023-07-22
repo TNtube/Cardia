@@ -74,7 +74,7 @@ namespace Cardia
 				const auto data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 				data->Width = w;
 				data->Height = h;
-				data->Resized = true;
+				data->ShouldInvalidateSwapchain = true;
 				WindowResizeEvent event(w, h);
 				data->EventCallback(event);
 			});
@@ -184,15 +184,16 @@ namespace Cardia
 		return { x, y };
 	}
 
-	void WindowsWin::SetFullscreenFlag(bool state)
+	// This method is not immediate, it will only update the fullscreen mode on the next frame
+	void WindowsWin::SetFullscreen(bool state)
 	{
-		m_Data.ShouldFullscreen = true;
+		m_Data.ShouldUpdateFullscreenMode = true;
 		m_Data.IsFullscreen = state;
 	}
 
 	void WindowsWin::UpdateFullscreenMode()
 	{
-		if (m_Data.ShouldFullscreen)
+		if (m_Data.ShouldUpdateFullscreenMode)
 		{
 			static auto winPos = WinInitPos(m_Window);
 			static auto winSize = GetSize();
@@ -213,8 +214,8 @@ namespace Cardia
 				glfwSetWindowMonitor(m_Window, nullptr, winPos.x, winPos.y, winSize.x, winSize.y, 0);
 			}
 
-			m_Data.Resized = true;
-			m_Data.ShouldFullscreen = false;
+			m_Data.ShouldInvalidateSwapchain = true;
+			m_Data.ShouldUpdateFullscreenMode = false;
 		}
 	}
 
@@ -227,9 +228,9 @@ namespace Cardia
 	{
 		glfwSwapInterval(state);
 		m_Data.VSync = state;
+		m_Data.ShouldInvalidateSwapchain = true;
 	}
 
-	
 	bool WindowsWin::IsVSync() const
 	{
 		return m_Data.VSync;

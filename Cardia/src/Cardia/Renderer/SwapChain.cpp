@@ -13,15 +13,10 @@
 
 namespace Cardia
 {
-	SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent)
-			: m_Device{deviceRef}, m_WindowExtent{extent} {
+	SwapChain::SwapChain(Device &deviceRef, SwapChainInfo info)
+			: m_Device{deviceRef}, m_SwapChainInfo{std::move(info)} {
 		Init();
-	}
-
-	SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
-			: m_Device{deviceRef}, m_WindowExtent{extent}, m_PreviousSwapChain{std::move(previous)} {
-		Init();
-		m_PreviousSwapChain = nullptr;
+		m_SwapChainInfo.Previous = nullptr;
 	}
 
 	void SwapChain::Init() {
@@ -154,7 +149,7 @@ namespace Cardia
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		createInfo.oldSwapchain = m_PreviousSwapChain == nullptr ? VK_NULL_HANDLE : m_PreviousSwapChain->m_SwapChain;
+		createInfo.oldSwapchain = m_SwapChainInfo.Previous == nullptr ? VK_NULL_HANDLE : m_SwapChainInfo.Previous->m_SwapChain;
 
 		if (vkCreateSwapchainKHR(m_Device.GetDevice(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create swap chain!");
@@ -307,8 +302,7 @@ namespace Cardia
 		}
 	}
 
-	VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(
-			const std::vector<VkSurfaceFormatKHR> &availableFormats) {
+	VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
 		for (const auto &availableFormat : availableFormats) {
 			if (availableFormat.format == VK_FORMAT_R8G8B8A8_UNORM &&
 					availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -319,12 +313,14 @@ namespace Cardia
 		return availableFormats[0];
 	}
 
-	VkPresentModeKHR SwapChain::ChooseSwapPresentMode(
-			const std::vector<VkPresentModeKHR> &availablePresentModes) {
-		for (const auto &availablePresentMode : availablePresentModes) {
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-				std::cout << "Present mode: Mailbox" << std::endl;
-				return availablePresentMode;
+	VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) {
+		if (!m_SwapChainInfo.IsVsync)
+		{
+			for (const auto &availablePresentMode : availablePresentModes) {
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+					std::cout << "Present mode: Mailbox" << std::endl;
+					return availablePresentMode;
+				}
 			}
 		}
 
@@ -343,7 +339,7 @@ namespace Cardia
 		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 			return capabilities.currentExtent;
 			
-		VkExtent2D actualExtent = m_WindowExtent;
+		VkExtent2D actualExtent = m_SwapChainInfo.WindowExtent;
 		actualExtent.width = std::max(
 				capabilities.minImageExtent.width,
 				std::min(capabilities.maxImageExtent.width, actualExtent.width));

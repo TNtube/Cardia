@@ -119,10 +119,10 @@ namespace Cardia
 
 		m_Window.UpdateFullscreenMode();
 
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.WasResized())
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.ShouldInvalidateSwapchain())
 		{
-			m_Window.ResetResizedFlag();
 			RecreateSwapChain();
+			m_Window.SwapchainInvalidated();
 			return true;
 		}
 		if (result != VK_SUCCESS)
@@ -187,14 +187,13 @@ namespace Cardia
 			glfwWaitEvents();
 		}
 		vkDeviceWaitIdle(m_Device.GetDevice());
-		
-		if (m_SwapChain == nullptr)
-		{
-			m_SwapChain = std::make_unique<SwapChain>(m_Device, extent);
-		} else
-		{
-			m_SwapChain = std::make_unique<SwapChain>(m_Device, extent, std::move(m_SwapChain));
-		}
+
+		SwapChain::SwapChainInfo info {};
+		info.WindowExtent = extent;
+		info.IsVsync = m_Window.IsVSync();
+		info.Previous = std::move(m_SwapChain);
+
+		m_SwapChain = std::make_unique<SwapChain>(m_Device, info);
 	}
 
 	void Renderer::CreateCommandBuffers()

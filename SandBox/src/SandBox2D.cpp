@@ -106,7 +106,7 @@ void SandBox2D::OnImGuiDraw()
 			ImGui::Checkbox("Fullscreen?", &isFullscreen);
 			if (isFullscreen != isFullscreenPrev)
 			{
-				window.SetFullscreenFlag(isFullscreen);
+				window.SetFullscreen(isFullscreen);
 				isFullscreenPrev = isFullscreen;
 			}
 

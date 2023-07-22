@@ -15,8 +15,14 @@ namespace Cardia
 	public:
 		static constexpr uint8_t MAX_FRAMES_IN_FLIGHT = 2;
 
-		SwapChain(Device &deviceRef, VkExtent2D windowExtent);
-		SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous);
+		struct SwapChainInfo
+		{
+			VkExtent2D WindowExtent;
+			bool IsVsync;
+			std::shared_ptr<SwapChain> Previous = nullptr;
+		};
+
+		SwapChain(Device &deviceRef, SwapChainInfo info);
 		virtual ~SwapChain();
 
 		SwapChain(const SwapChain &) = delete;
@@ -51,7 +57,7 @@ namespace Cardia
 		// Helper functions
 		static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
 				const std::vector<VkSurfaceFormatKHR> &availableFormats);
-		static VkPresentModeKHR ChooseSwapPresentMode(
+		VkPresentModeKHR ChooseSwapPresentMode(
 				const std::vector<VkPresentModeKHR> &availablePresentModes);
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
 
@@ -68,9 +74,8 @@ namespace Cardia
 		std::vector<VkImageView> m_SwapChainImageViews;
 
 		Device &m_Device;
-		VkExtent2D m_WindowExtent {};
+		SwapChainInfo m_SwapChainInfo;
 
 		VkSwapchainKHR m_SwapChain {};
-		std::shared_ptr<SwapChain> m_PreviousSwapChain;
 	};
 }
