@@ -82,10 +82,11 @@ namespace Cardia::Panel
 			isOpen = ImGui::TreeNodeEx("Options", ImGuiTreeNodeFlags_DefaultOpen);
 			if (isOpen)
 			{
-				if (ImGui::Checkbox("Wireframe rendering?", &isWireframeMode))
-				{
-					// RenderAPI::get().setWireFrame(isWireframeMode);
-				}
+				// TODO: Fix wireframe mode when pipeline will be rewritten
+				// if (ImGui::Checkbox("Wireframe rendering?", &isWireframeMode))
+				// {
+				// 	RenderAPI::get().setWireFrame(isWireframeMode);
+				// }
 				
 				if (ImGui::Checkbox("Fullscreen?", &isFullscreen))
 				{
