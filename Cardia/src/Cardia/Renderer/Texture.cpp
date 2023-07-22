@@ -22,7 +22,7 @@ namespace Cardia
 		unsigned char white[] = {255, 255, 255, 255};
 		if (!pixels)
 		{
-			Log::coreError(stbi_failure_reason());
+			Log::CoreError(stbi_failure_reason());
 			texWidth = 1;
 			texHeight = 1;
 			pixels = white;

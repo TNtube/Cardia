@@ -280,7 +280,7 @@ namespace Cardia
 
 					if (ImGui::MenuItem("Exit"))
 					{
-						Application::get().close();
+						Application::Get().Close();
 					}
 					ImGui::EndMenu();
 				}
@@ -322,10 +322,10 @@ namespace Cardia
 		if ( result == NFD_OKAY ) {
 			auto project = Project::Load(outPath);
 			if (project) {
-				Log::info("OpeningProject : {0}", project->GetConfig().Name);
+				Log::Info("OpeningProject : {0}", project->GetConfig().Name);
 				InvalidateProject();
 			} else {
-				Log::warn("Failed To LoadImpl Project : {0}", outPath);
+				Log::Warn("Failed To LoadImpl Project : {0}", outPath);
 			}
 		}
 	}
@@ -377,7 +377,7 @@ namespace Cardia
 		Serialization::SceneSerializer serializer(*newScene);
 		if (!serializer.Deserialize(m_Renderer, scenePath))
 		{
-			Log::info("Unable to load {0}", scenePath.string());
+			Log::Info("Unable to load {0}", scenePath.string());
 		}
 		else
 		{
@@ -506,10 +506,10 @@ namespace Cardia
 		{
 
 			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.GetCamera().getProjectionMatrix();
-			glm::mat4 cameraView = m_EditorCamera.GetCamera().getViewMatrix();
-			auto& transformComponent = m_SelectedEntity.getComponent<Component::Transform>();
-			glm::mat4 transform = transformComponent.getTransform();
+			const glm::mat4& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
+			glm::mat4 cameraView = m_EditorCamera.GetCamera().GetViewMatrix();
+			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
+			glm::mat4 transform = transformComponent.GetTransform();
 
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
@@ -533,8 +533,8 @@ namespace Cardia
 			} else {
 				if (isUsing) {
 					isUsing = false;
-					Log::info("{}, {}, {}", position.x, position.y, position.z);
-					auto& uuid = m_SelectedEntity.getComponent<Component::ID>();
+					Log::Info("{}, {}, {}", position.x, position.y, position.z);
+					auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
 					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.uuid, position));
 					position = transformComponent.position;
 				}
@@ -558,8 +558,8 @@ namespace Cardia
 		// shortcuts
 		dispatcher.dispatch<KeyDownEvent>([this](const KeyDownEvent& e)
 		{
-			auto ctrl = Input::isKeyPressed(Key::LeftCtrl) || Input::isKeyPressed(Key::RightCtrl);
-			auto shift = Input::isKeyPressed(Key::LeftShift) || Input::isKeyPressed(Key::RightShift);
+			auto ctrl = Input::IsKeyPressed(Key::LeftCtrl) || Input::IsKeyPressed(Key::RightCtrl);
+			auto shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 			if (ctrl)
 			{
 				switch (e.getKeyCode())
@@ -567,7 +567,7 @@ namespace Cardia
 				case Key::O: OpenProject();
 					break;
 				case Key::S:
-					Log::info("Saving...");
+					Log::Info("Saving...");
 					SaveScene();
 					break;
 				case Key::W:
@@ -618,7 +618,7 @@ namespace Cardia
 	{
 		if (m_UnusedCommand.empty()) return;
 		auto command = std::move(m_UnusedCommand.top());
-		Log::info("Undo...");
+		Log::Info("Undo...");
 		command->Undo(this);
 
 		m_UnusedCommand.pop();
@@ -629,7 +629,7 @@ namespace Cardia
 	{
 		if (m_UsedCommand.empty()) return;
 		auto command = std::move(m_UsedCommand.top());
-		Log::info("Redo...");
+		Log::Info("Redo...");
 		command->Redo(this);
 
 		m_UsedCommand.pop();

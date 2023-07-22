@@ -30,7 +30,7 @@ namespace Cardia
 		glm::mat4 viewProjectionMatrix {};
 
 		// std::unique_ptr<VertexArray> vertexArray;
-		std::unique_ptr<StorageBuffer> lightStorageBuffer;
+		// std::unique_ptr<StorageBuffer> lightStorageBuffer;
 		std::vector<LightData> lightDataBuffer;
 
 	};
@@ -46,21 +46,21 @@ namespace Cardia
 		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert.spirv", "resources/shaders/basic.frag.spirv"});
 		s_Data->lightDataBuffer.clear();
 		// s_Data->vertexArray = VertexArray::create();
-
-		std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices/* * sizeof(Vertex)*/);
-
-		vbo->setLayout({
-			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float3, "a_Normal"},
-			{ShaderDataType::Float4, "a_Color"},
-			{ShaderDataType::Float2, "a_TexPos"},
-			{ShaderDataType::Float, "a_TilingFactor"},
-			{ShaderDataType::Float, "a_EntityID"}
-		});
-
-		// s_Data->vertexArray->setVertexBuffer(std::move(vbo));
-
-		std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
+		//
+		// std::unique_ptr<VertexBuffer> vbo = VertexBuffer::create(maxVertices/* * sizeof(Vertex)*/);
+		//
+		// vbo->setLayout({
+		// 	{ShaderDataType::Float3, "a_Position"},
+		// 	{ShaderDataType::Float3, "a_Normal"},
+		// 	{ShaderDataType::Float4, "a_Color"},
+		// 	{ShaderDataType::Float2, "a_TexPos"},
+		// 	{ShaderDataType::Float, "a_TilingFactor"},
+		// 	{ShaderDataType::Float, "a_EntityID"}
+		// });
+		//
+		// // s_Data->vertexArray->setVertexBuffer(std::move(vbo));
+		//
+		// std::unique_ptr<IndexBuffer> ibo = IndexBuffer::create(maxIndices);
 		// s_Data->vertexArray->setIndexBuffer(std::move(ibo));
 	}
 
@@ -75,9 +75,9 @@ namespace Cardia
 		s_Data->batches.clear();
 		s_Data->lightDataBuffer.clear();
 		s_Data->cameraPosition = glm::vec3(transform[3]);
-		s_Data->basicShader->setMat4("u_ViewProjection", camera.getProjectionMatrix() * glm::inverse(transform));
+		s_Data->basicShader->setMat4("u_ViewProjection", camera.GetProjectionMatrix() * glm::inverse(transform));
 		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
-		s_Data->viewProjectionMatrix = camera.getProjectionMatrix() * glm::inverse(transform);
+		s_Data->viewProjectionMatrix = camera.GetProjectionMatrix() * glm::inverse(transform);
 		s_Stats->drawCalls = 0;
 		s_Stats->triangleCount = 0;
 	}
@@ -85,14 +85,14 @@ namespace Cardia
 	void Renderer2D::endScene()
 	{
 		return;
-		s_Data->lightStorageBuffer = StorageBuffer::create(s_Data->lightDataBuffer.size() * sizeof(LightData));
-		s_Data->lightStorageBuffer->setData(s_Data->lightDataBuffer.data(), s_Data->lightDataBuffer.size() * sizeof(LightData));
-
-		std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
-		{
-			return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
-		});
-		s_Data->lightStorageBuffer->bind(0);
+		// s_Data->lightStorageBuffer = StorageBuffer::create(s_Data->lightDataBuffer.size() * sizeof(LightData));
+		// s_Data->lightStorageBuffer->setData(s_Data->lightDataBuffer.data(), s_Data->lightDataBuffer.size() * sizeof(LightData));
+		//
+		// std::ranges::sort(s_Data->batches, [](const Batch& a, const Batch& b)
+		// {
+		// 	return static_cast<float>(a.specification.layer) + static_cast<float>(a.specification.alpha) / 2.0f < static_cast<float>(b.specification.layer) + static_cast<float>(b.specification.alpha) / 2.0f;
+		// });
+		// s_Data->lightStorageBuffer->bind(0);
 		std::string lastLayer;
 		for (auto& batch : s_Data->batches)
 		{

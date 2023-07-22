@@ -23,51 +23,51 @@ namespace Cardia
 	{
 		// Core Log
 		template<typename... Args>
-		constexpr void coreTrace(Args&&... args)
+		constexpr void CoreTrace(Args&&... args)
 		{
 			Logger::GetEditorLogger();
 			Logger::GetCoreLogger()->trace(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void coreInfo(Args&&... args)
+		constexpr void CoreInfo(Args&&... args)
 		{
 			Logger::GetCoreLogger()->info(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void coreWarn(Args&&... args)
+		constexpr void CoreWarn(Args&&... args)
 		{
 			Logger::GetCoreLogger()->warn(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void coreError(Args&&... args)
+		constexpr void CoreError(Args&&... args)
 		{
 			Logger::GetCoreLogger()->error(std::forward<Args>(args)...);
 		}
 
 		// SandBox Log Macros
 		template<typename... Args>
-		constexpr void trace(Args&&... args)
+		constexpr void Trace(Args&&... args)
 		{
 			Logger::GetEditorLogger()->trace(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void info(Args&&... args)
+		constexpr void Info(Args&&... args)
 		{
 			Logger::GetEditorLogger()->info(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void warn(Args&&... args)
+		constexpr void Warn(Args&&... args)
 		{
 			Logger::GetEditorLogger()->warn(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		constexpr void error(Args&&... args)
+		constexpr void Error(Args&&... args)
 		{
 			Logger::GetEditorLogger()->error(std::forward<Args>(args)...);
 		}

@@ -105,7 +105,7 @@ namespace Cardia
 	template<typename T>
 	inline std::shared_ptr<T> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
-		cdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()).c_str());
+		CdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()).c_str());
 		return std::shared_ptr<T>();
 	}
 

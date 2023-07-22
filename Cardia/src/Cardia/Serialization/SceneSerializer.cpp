@@ -265,7 +265,7 @@ namespace Cardia::Serialization
 
 		Json::Value node;
 
-		node["path"] = component.getPath();
+		node["path"] = component.GetPath();
 
 		for (auto& item : component.scriptClass.Attributes()) {
 			node["attributes"].append(ToJson(item));
@@ -338,7 +338,7 @@ namespace Cardia::Serialization
 		const Json::CharReaderBuilder builder;
 		if (!file.is_open() || !Json::parseFromStream(builder, file, &root, &err))
 		{
-			Log::coreError("Could not load Scene {0} : {1}", path.string(), err);
+			Log::CoreError("Could not load Scene {0} : {1}", path.string(), err);
 			return false;
 		}
 
@@ -353,19 +353,19 @@ namespace Cardia::Serialization
 			UUID id;
 			Entity entity;
 			try {
-				id = UUID::fromString(uuid);
+				id = UUID::FromString(uuid);
 				entity = m_Scene.CreateEntityFromId(id);
 			}
 			catch (const std::invalid_argument& e) {
-				Log::warn("Entity with invalid UUID found");
+				Log::Warn("Entity with invalid UUID found");
 				entity = m_Scene.CreateEntity();
 			}
 
 
-			auto& name = entity.getComponent<Component::Name>();
+			auto& name = entity.GetComponent<Component::Name>();
 			name.name = node[Component::Name::ClassName()].asString();
 
-			auto& component = entity.getComponent<Component::Transform>();
+			auto& component = entity.GetComponent<Component::Transform>();
 			component.position = node[Component::Transform::ClassName()]["position"].as<glm::vec3>();
 			component.rotation = node[Component::Transform::ClassName()]["rotation"].as<glm::vec3>();
 			component.scale = node[Component::Transform::ClassName()]["scale"].as<glm::vec3>();
@@ -374,7 +374,7 @@ namespace Cardia::Serialization
 			auto currComponent = Component::SpriteRenderer::ClassName();
 			if (node.isMember(currComponent))
 			{
-				auto& spriteRenderer = entity.addComponent<Component::SpriteRenderer>();
+				auto& spriteRenderer = entity.AddComponent<Component::SpriteRenderer>();
 				spriteRenderer.color = node[currComponent]["color"].as<glm::vec4>();
 
 				spriteRenderer.texture =
@@ -393,7 +393,7 @@ namespace Cardia::Serialization
 
 			currComponent = Component::MeshRendererC::ClassName();
 			if (node.isMember(currComponent)) {
-				auto& meshRenderer = entity.addComponent<Component::MeshRendererC>();
+				auto& meshRenderer = entity.AddComponent<Component::MeshRendererC>();
 
 				auto mesh = AssetsManager::Load<Mesh>(node[currComponent]["path"].asString());
 
@@ -422,7 +422,7 @@ namespace Cardia::Serialization
 			currComponent = Component::Camera::ClassName();
 			if (node.isMember(currComponent))
 			{
-				auto& camera = entity.addComponent<Component::Camera>();
+				auto& camera = entity.AddComponent<Component::Camera>();
 
 				auto pFov = node[currComponent]["perspectiveFov"].asFloat();
 				auto pNear = node[currComponent]["perspectiveNear"].asFloat();
@@ -443,7 +443,7 @@ namespace Cardia::Serialization
 			currComponent = Component::Light::ClassName();
 			if (node.isMember(currComponent))
 			{
-				auto& light = entity.addComponent<Component::Light>();
+				auto& light = entity.AddComponent<Component::Light>();
 				light.lightType = node[currComponent]["type"].asInt();
 				light.color = node[currComponent]["color"].as<glm::vec3>();
 
@@ -456,8 +456,8 @@ namespace Cardia::Serialization
 			currComponent = Component::Script::ClassName();
 			if (node.isMember(currComponent))
 			{
-				auto& behavior = entity.addComponent<Component::Script>();
-				behavior.setPath(node[currComponent]["path"].asString());
+				auto& behavior = entity.AddComponent<Component::Script>();
+				behavior.SetPath(node[currComponent]["path"].asString());
 
 				auto& attrsNode = node[currComponent]["attributes"];
 				auto& attrs = behavior.scriptClass.Attributes();

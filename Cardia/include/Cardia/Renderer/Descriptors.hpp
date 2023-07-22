@@ -56,7 +56,7 @@ namespace Cardia {
 
 			bool operator==(const DescriptorLayoutInfo& other) const;
 
-			size_t hash() const;
+			size_t Hash() const;
 		};
 
 		friend class DescriptorSetLayout;
@@ -68,7 +68,7 @@ namespace Cardia {
 
 			std::size_t operator()(const DescriptorLayoutInfo& k) const
 			{
-				return k.hash();
+				return k.Hash();
 			}
 		};
 

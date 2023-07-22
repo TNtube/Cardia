@@ -31,7 +31,7 @@ namespace Cardia::Serialization
 		void operator() (std::underlying_type_t<entt::entity>) {}
 		template<typename T>
 		void operator()(entt::entity entity, const T& component) {
-			cdCoreAssert(false, "Component serialization should be implemented");
+			CdCoreAssert(false, "Component serialization should be implemented");
 		}
 
 		void operator()(entt::entity entity, const Component::ID& component);

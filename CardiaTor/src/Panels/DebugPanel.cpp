@@ -23,12 +23,12 @@ namespace Cardia::Panel
 		};
 		// fps
 		static float elapsedTime = 0.0f;
-		static auto fps = static_cast<int>(1000 / Time::deltaTime().milliseconds());
+		static auto fps = static_cast<int>(1000 / Time::GetDeltaTime().AsMilliseconds());
 		// wireframe
 		static bool isWireframeMode = false;
 		// fullscreen
 		static bool isFullscreen = false;
-		static Window &window = Application::get().GetWindow();
+		static Window &window = Application::Get().GetWindow();
 		// vsync
 		static bool isVsync = window.IsVSync();
 		// dear imgui theme
@@ -57,10 +57,10 @@ namespace Cardia::Panel
 				ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 				if (elapsedTime >= 0.5f)
 				{
-					fps = static_cast<int>(1000 / Time::deltaTime().milliseconds());
+					fps = static_cast<int>(1000 / Time::GetDeltaTime().AsMilliseconds());
 					elapsedTime = 0.0f;
 				}
-				elapsedTime += Time::deltaTime().seconds();
+				elapsedTime += Time::GetDeltaTime().AsSeconds();
 
 
 				// ImGui::LabelText(

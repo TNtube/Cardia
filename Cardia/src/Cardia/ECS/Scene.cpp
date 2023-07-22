@@ -35,17 +35,17 @@ namespace Cardia
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = {m_Registry.create(), this};
-		entity.addComponent<Component::Transform>();
-		entity.addComponent<Component::ID>();
-		entity.addComponent<Component::Name>(name.empty() ? "Default Entity" : name);
+		entity.AddComponent<Component::Transform>();
+		entity.AddComponent<Component::ID>();
+		entity.AddComponent<Component::Name>(name.empty() ? "Default Entity" : name);
 		return entity;
 	}
 
 	Entity Scene::CreateEntityFromId(UUID uuid) {
 		Entity entity = {m_Registry.create(), this};
-		entity.addComponent<Component::Transform>();
-		entity.addComponent<Component::ID>(uuid);
-		entity.addComponent<Component::Name>("Default Entity");
+		entity.AddComponent<Component::Transform>();
+		entity.AddComponent<Component::ID>(uuid);
+		entity.AddComponent<Component::Name>("Default Entity");
 		return entity;
 	}
 
@@ -68,14 +68,14 @@ namespace Cardia
 				if (cam.primary)
 				{
 					mainCamera = &cam.camera;
-					mainCameraTransform = transform.getTransform();
+					mainCameraTransform = transform.GetTransform();
 				}
 			}
 		}
 
 		if (!mainCamera)
 		{
-			Log::error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
+			Log::Error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
 			return;
 		}
 		OnRender(commandBuffer, *mainCamera, mainCameraTransform);
@@ -97,7 +97,7 @@ namespace Cardia
 				&frame.UboDescriptorSet->GetDescriptor(),
 				0, nullptr);
 			UboData data {};
-			data.ViewProjection = camera.getProjectionMatrix() * glm::inverse(cameraTransform);
+			data.ViewProjection = camera.GetProjectionMatrix() * glm::inverse(cameraTransform);
 			frame.UboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)
@@ -105,8 +105,8 @@ namespace Cardia
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
 			PushConstantData constants {};
-			constants.Model = transform.getTransform();
-			constants.TransposedInvertedModel = glm::transpose(glm::inverse(transform.getTransform()));
+			constants.Model = transform.GetTransform();
+			constants.TransposedInvertedModel = glm::transpose(glm::inverse(transform.GetTransform()));
 			vkCmdPushConstants(
 				commandBuffer,
 				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
@@ -129,7 +129,7 @@ namespace Cardia
 		}
 	}
 
-	void Scene::clear()
+	void Scene::Clear()
 	{
 		m_Registry.clear();
 	}

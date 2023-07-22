@@ -23,11 +23,11 @@ namespace Cardia
 	enum class EventCategory
 	{
 		Null = 0,
-		EventCatApplication		= bit(0),
-		EventCatInput			= bit(1),
-		EventCatKeyboard		= bit(2),
-		EventCatMouse			= bit(3),
-		EventCatMouseButton		= bit(4)
+		EventCatApplication		= Bit(0),
+		EventCatInput			= Bit(1),
+		EventCatKeyboard		= Bit(2),
+		EventCatMouse			= Bit(3),
+		EventCatMouseButton		= Bit(4)
 	};
 
 	inline EventCategory operator|(EventCategory a, EventCategory b)
@@ -36,11 +36,11 @@ namespace Cardia
 	}
 
 	// Creating bunch of define to easily implement subclasses of the Event class
-#define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return type; } \
-								virtual EventType getEventType() const override { return getStaticType(); } \
-								virtual const char* getName() const override { return #type; }
+#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return type; } \
+								virtual EventType GetEventType() const override { return GetStaticType(); } \
+								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return enum_as_integer(category); }
+#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return enum_as_integer(category); }
 	
 
 	class Event
@@ -50,19 +50,19 @@ namespace Cardia
 		friend class EventDispatcher;
 	public:
 		virtual ~Event() = default;
-		virtual EventType getEventType() const = 0;
-		virtual const char* getName() const = 0;
-		virtual int getCategoryFlags() const = 0; 
+		virtual EventType GetEventType() const = 0;
+		virtual const char* GetName() const = 0;
+		virtual int GetCategoryFlags() const = 0; 
 		
-		virtual std::string toString() const { return getName(); }		// for debugging purpose
+		virtual std::string ToString() const { return GetName(); }		// for debugging purpose
 
 		inline bool isInCategory(EventCategory category) const
 		{
-			return getCategoryFlags() & enum_as_integer(category);
+			return GetCategoryFlags() & enum_as_integer(category);
 		}
 
-		inline bool isHandled() const { return m_Handled; }
-		inline void stopPropagation() { m_Handled = false; }
+		inline bool IsHandled() const { return m_Handled; }
+		inline void StopPropagation() { m_Handled = false; }
 
 	private:
 		bool m_Handled = false;
@@ -77,7 +77,7 @@ namespace Cardia
 		template<typename T>
 		bool dispatch(std::function<void(T&)> func)
 		{
-			if (m_Event.getEventType() == T::getStaticType())
+			if (m_Event.GetEventType() == T::GetStaticType())
 			{
 				func(static_cast<T&>(m_Event));
 				return true;
@@ -91,7 +91,7 @@ namespace Cardia
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
 		// Used to auto format Event to be used by spdlog
-		return os << e.toString();
+		return os << e.ToString();
 	}
 
 
@@ -105,7 +105,7 @@ namespace Cardia
 
 		~WindowResizeEvent() override = default;
 
-		std::string toString() const override							// for debugging purpose
+		std::string ToString() const override							// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "WindowResizeEvent: (" << m_Width << ", " << m_Height << ")";
@@ -151,7 +151,7 @@ namespace Cardia
 		WindowMoveEvent(int x, int y)
 			: m_PosX(x), m_PosY(y) {}
 
-		std::string toString() const override							// for debugging purpose
+		std::string ToString() const override							// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "WindowMoveEvent: (" << m_PosX << ", " << m_PosY << ")";
@@ -219,7 +219,7 @@ namespace Cardia
 
 		inline int getRepeatCount() const { return m_RepeatCount; }
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "KeyDownEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
@@ -238,7 +238,7 @@ namespace Cardia
 		explicit KeyUpEvent(int keyCode)
 			: KeyEvent(keyCode) {}
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "KeyUpEvent: " << m_KeyCode;
@@ -257,7 +257,7 @@ namespace Cardia
 			: KeyEvent(keyCode) {}
 
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "KeyTypedEvent: " << m_KeyCode;
@@ -280,7 +280,7 @@ namespace Cardia
 		inline float getY() const { return m_MouseY; }
 		inline std::pair<float, float> getPos() const { return { m_MouseX, m_MouseY }; }
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "MouseMotionEvent: (" << m_MouseX << ", " << m_MouseY << ")";
@@ -300,7 +300,7 @@ namespace Cardia
 		MouseScrolledEvent(float x, float y)
 			: m_OffSetX(x), m_OffSetY(y) {}
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "MouseScrolledEvent: (" << m_OffSetX << ", " << m_OffSetY << ")";
@@ -339,7 +339,7 @@ namespace Cardia
 		explicit MouseButtonDownEvent(int button)
 			: MouseButtonEvent(button) {}
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "MouseButtonDownEvent: " << m_Button;
@@ -355,7 +355,7 @@ namespace Cardia
 		explicit MouseButtonUpEvent(int button)
 			: MouseButtonEvent(button) {}
 
-		std::string toString() const override						// for debugging purpose
+		std::string ToString() const override						// for debugging purpose
 		{
 			std::stringstream ss;
 			ss << "MouseButtonUpEvent: " << m_Button;

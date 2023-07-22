@@ -15,10 +15,10 @@ namespace Cardia {
 
 		virtual ~Camera() = default;
 
-		virtual const glm::mat4& getProjectionMatrix() { return m_ProjectionMatrix; }
-		virtual const glm::mat4& getViewMatrix() { return m_ViewMatrix; }
+		virtual const glm::mat4& GetProjectionMatrix() { return m_ProjectionMatrix; }
+		virtual const glm::mat4& GetViewMatrix() { return m_ViewMatrix; }
 		
-		virtual const glm::mat4& getViewProjectionMatrix()
+		virtual const glm::mat4& GetViewProjectionMatrix()
 		{
 			m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 			return m_ViewProjectionMatrix;

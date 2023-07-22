@@ -20,7 +20,7 @@ namespace Cardia
 	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
 	{
 		if (ScriptEngine::IsSubClass(cls, py::detail::get_type_handle(typeid(T), false))) {
-			out["output"] = py::cast(entity.getComponent<T>(), py::return_value_policy::reference);
+			out["output"] = py::cast(entity.GetComponent<T>(), py::return_value_policy::reference);
 			return true;
 		}
 		return false;
@@ -88,7 +88,7 @@ namespace Cardia
 			.def_readwrite("position", &Component::Transform::position, py::return_value_policy::reference)
 			.def_readwrite("rotation", &Component::Transform::rotation, py::return_value_policy::reference)
 			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)
-			.def("reset", &Component::Transform::reset, py::return_value_policy::reference);
+			.def("reset", &Component::Transform::Reset, py::return_value_policy::reference);
 
 		py::class_<Component::Light>(m, "Light")
 			.def(py::init<>())
@@ -97,26 +97,26 @@ namespace Cardia
 			.def_readwrite("range", &Component::Light::range, py::return_value_policy::reference)
 			.def_readwrite("angle", &Component::Light::angle, py::return_value_policy::reference)
 			.def_readwrite("smoothness", &Component::Light::smoothness, py::return_value_policy::reference)
-			.def("reset", &Component::Light::reset, py::return_value_policy::reference);
+			.def("reset", &Component::Light::Reset, py::return_value_policy::reference);
 
 		// API Calls
 
-		m.def("is_key_pressed", &Input::isKeyPressed, py::return_value_policy::reference);
-		m.def("is_mouse_button_pressed", &Input::isMouseButtonPressed, py::return_value_policy::reference);
-		m.def("get_mouse_position", &Input::getMousePos, py::return_value_policy::reference);
-		m.def("get_mouse_x", &Input::getMouseX, py::return_value_policy::reference);
-		m.def("get_mouse_y", &Input::getMouseY, py::return_value_policy::reference);
+		m.def("is_key_pressed", &Input::IsKeyPressed, py::return_value_policy::reference);
+		m.def("is_mouse_button_pressed", &Input::IsMouseButtonPressed, py::return_value_policy::reference);
+		m.def("get_mouse_position", &Input::GetMousePos, py::return_value_policy::reference);
+		m.def("get_mouse_x", &Input::GetMouseX, py::return_value_policy::reference);
+		m.def("get_mouse_y", &Input::GetMouseY, py::return_value_policy::reference);
 
 		m.def("get_native_transform", [](std::string& id) -> Component::Transform& {
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
-			return entity.getComponent<Component::Transform>();
+			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
+			return entity.GetComponent<Component::Transform>();
 		}, py::return_value_policy::reference);
 
 		m.def("set_native_transform", [](std::string& id, Component::Transform transform){
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
-			auto& t = entity.getComponent<Component::Transform>();
+			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
+			auto& t = entity.GetComponent<Component::Transform>();
 			t.position = transform.position;
 			t.rotation = transform.rotation;
 			t.scale = transform.scale;
@@ -124,7 +124,7 @@ namespace Cardia
 
 		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.GetEntityByUUID(UUID::fromString(id));
+			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
 			if (GetComponent<Component::Transform>(entity, cls, out)) {
 				return;
 			}
@@ -138,17 +138,17 @@ namespace Cardia
 		});
 
 		m.def("get_delta_time_seconds", []() {
-			return Time::deltaTime().seconds();
+			return Time::GetDeltaTime().AsSeconds();
 		});
 
 		m.def("get_delta_time_milliseconds", []() {
-			return Time::deltaTime().milliseconds();
+			return Time::GetDeltaTime().AsMilliseconds();
 		});
 
 		auto log = m.def_submodule("log");
 
-		log.def("trace", &Log::trace<std::string>);
-		log.def("warn", &Log::warn<std::string>);
-		log.def("error", &Log::error<std::string>);
+		log.def("trace", &Log::Trace<std::string>);
+		log.def("warn", &Log::Warn<std::string>);
+		log.def("error", &Log::Error<std::string>);
 	}
 }

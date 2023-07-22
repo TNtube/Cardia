@@ -12,18 +12,18 @@
 
 #if defined(__cpp_consteval) && !defined(NDEBUG) // Trick because CLion can't find std::source_location
 	template <typename T>
-	constexpr void cdAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
+	constexpr void CdAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
 	{
 		if (!x)
-			Cardia::Log::coreError("{0} : ({1}:{2}) Assertion failed: {3}",
+			Cardia::Log::CoreError("{0} : ({1}:{2}) Assertion failed: {3}",
 				location.file_name(), location.line(), location.column(), message);
 		assert(x);
 	}
 	template <typename T>
-	constexpr void cdCoreAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
+	constexpr void CdCoreAssert(T x, const std::string& message, const std::source_location location = std::source_location::current())
 	{
 		if (!x)
-			Cardia::Log::coreError("{0} : ({1}:{2}) Assertion failed: {3}",
+			Cardia::Log::CoreError("{0} : ({1}:{2}) Assertion failed: {3}",
 				location.file_name(), location.line(), location.column(), message);
 		assert(x);
 	}
@@ -35,7 +35,7 @@
 #endif
 
 template <typename T>
-constexpr T bit(T x)
+constexpr T Bit(T x)
 {
 	return 1 << x;
 }

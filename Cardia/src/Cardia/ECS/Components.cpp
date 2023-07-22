@@ -4,10 +4,10 @@
 
 namespace Cardia::Component
 {
-	void Script::reloadFile()
+	void Script::ReloadFile()
 	{
 		if (m_Path.empty()) return;
-		Log::info("Loading path {0}", m_Path);
+		Log::Info("Loading path {0}", m_Path);
 		const std::ifstream t(m_Path);
 		std::stringstream buffer;
 		buffer << t.rdbuf();

@@ -36,7 +36,7 @@ namespace Cardia::Serialization
 		const Json::CharReaderBuilder builder;
 		if (!file.is_open() || !Json::parseFromStream(builder, file, &root, &err))
 		{
-			Log::coreError("Could not load m_Project {0} : {1}", path.string(), err);
+			Log::CoreError("Could not load m_Project {0} : {1}", path.string(), err);
 			return false;
 		}
 

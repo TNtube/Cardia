@@ -45,8 +45,8 @@ namespace Cardia::Panel
 			return;
 		}
 		// Name Component
-		auto& name = m_SelectedEntity.getComponent<Component::Name>();
-		auto& uuid = m_SelectedEntity.getComponent<Component::ID>();
+		auto& name = m_SelectedEntity.GetComponent<Component::Name>();
+		auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
 
 		char buffer[128] {0};
 		constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
@@ -215,7 +215,7 @@ namespace Cardia::Panel
 		});
 
 		DrawInspectorComponent<Component::Script>("Script", [&](Component::Script& scriptComponent) {
-			std::filesystem::path filepath = scriptComponent.getPath();
+			std::filesystem::path filepath = scriptComponent.GetPath();
 			auto path = filepath.filename().string();
 
 			char* buffer = &path[0];
@@ -228,11 +228,11 @@ namespace Cardia::Panel
 					const std::filesystem::path behaviorPath = static_cast<const char*>(payload->Data);
 					if (behaviorPath.extension() == ".py")
 					{
-						scriptComponent.setPath(behaviorPath.string());
+						scriptComponent.SetPath(behaviorPath.string());
 					}
 					else
 					{
-						Log::warn("Could not load file {0}", behaviorPath.string());
+						Log::Warn("Could not load file {0}", behaviorPath.string());
 					}
 				}
 				ImGui::EndDragDropTarget();
@@ -309,33 +309,33 @@ namespace Cardia::Panel
 		// Add component button
 		if (ImGui::BeginPopup("Add Component"))
 		{
-			if (!m_SelectedEntity.hasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
+			if (!m_SelectedEntity.HasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
 			{
-				m_SelectedEntity.addComponent<Component::Camera>();
+				m_SelectedEntity.AddComponent<Component::Camera>();
 				ImGui::EndPopup();
 			}
 
-			if (!m_SelectedEntity.hasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
+			if (!m_SelectedEntity.HasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
 			{
-				m_SelectedEntity.addComponent<Component::SpriteRenderer>();
+				m_SelectedEntity.AddComponent<Component::SpriteRenderer>();
 				ImGui::EndPopup();
 			}
 
-			if (!m_SelectedEntity.hasComponent<Component::MeshRendererC>() && ImGui::MenuItem("Mesh Renderer"))
+			if (!m_SelectedEntity.HasComponent<Component::MeshRendererC>() && ImGui::MenuItem("Mesh Renderer"))
 			{
-				m_SelectedEntity.addComponent<Component::MeshRendererC>();
+				m_SelectedEntity.AddComponent<Component::MeshRendererC>();
 				ImGui::EndPopup();
 			}
 
-			if (!m_SelectedEntity.hasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
+			if (!m_SelectedEntity.HasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
 			{
-				m_SelectedEntity.addComponent<Component::Script>();
+				m_SelectedEntity.AddComponent<Component::Script>();
 				ImGui::EndPopup();
 			}
 
-			if (!m_SelectedEntity.hasComponent<Component::Light>() && ImGui::MenuItem("Light"))
+			if (!m_SelectedEntity.HasComponent<Component::Light>() && ImGui::MenuItem("Light"))
 			{
-				m_SelectedEntity.addComponent<Component::Light>();
+				m_SelectedEntity.AddComponent<Component::Light>();
 				ImGui::EndPopup();
 			}
 		}
@@ -346,12 +346,12 @@ namespace Cardia::Panel
 	template<typename T>
 	void InspectorPanel::DrawInspectorComponent(const char* name, std::function<void(T&)> func)
 	{
-		if (!m_SelectedEntity.hasComponent<T>())
+		if (!m_SelectedEntity.HasComponent<T>())
 			return;
 
 		constexpr auto componentFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		auto& component = m_SelectedEntity.getComponent<T>();
+		auto& component = m_SelectedEntity.GetComponent<T>();
 		if(!ImGui::TreeNodeEx(static_cast<void*>(&component), componentFlags, "%s", name))
 			return;
 
@@ -359,12 +359,12 @@ namespace Cardia::Panel
 		if (ImGui::BeginPopupContextItem()) {
 			if (ImGui::MenuItem("Reset Component"))
 			{
-				component.reset();
+				component.Reset();
 				ImGui::EndPopup();
 			}
 			if (!std::is_same_v<T, Component::Transform> && ImGui::MenuItem("Remove Component"))
 			{
-				m_SelectedEntity.removeComponent<T>();
+				m_SelectedEntity.RemoveComponent<T>();
 				ImGui::EndPopup();
 			}
 			ImGui::EndPopup();
@@ -432,10 +432,10 @@ namespace Cardia::Panel
 				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
 				auto id = field.cast<std::string>();
 				try {
-					auto entity = m_CurrentScene->GetEntityByUUID(UUID::fromString(id));
+					auto entity = m_CurrentScene->GetEntityByUUID(UUID::FromString(id));
 
 					if (entity) {
-						auto instanceName = entity.getComponent<Component::Name>().name;
+						auto instanceName = entity.GetComponent<Component::Name>().name;
 						instanceName.copy(buff, bufferSize);
 					}
 				} catch (std::exception& e) {
@@ -452,7 +452,7 @@ namespace Cardia::Panel
 				}
 				const char* str = static_cast<const char*>(payload->Data);
 				field = py::cast(str);
-				auto script = ScriptEngine::Instance().GetInstance(UUID::fromString(str));
+				auto script = ScriptEngine::Instance().GetInstance(UUID::FromString(str));
 				if (script && behaviorInstance)
 				{
 					behaviorInstance->SetAttr(fieldName, *script);

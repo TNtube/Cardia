@@ -23,11 +23,11 @@ namespace Cardia
 		virtual void OnRender() = 0;
 		virtual void OnImGuiDraw() = 0;
 		virtual Scene* GetCurrentScene() = 0;
-		bool onWinClose(WindowCloseEvent& e);
+		bool OnWinClose(WindowCloseEvent& e);
 
-		inline static Application& get() { return *s_Instance; }
+		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() const { return *m_Window; }
-		inline void close() { m_Running = false; }
+		inline void Close() { m_Running = false; }
 
 	private:
 		std::unique_ptr<Window> m_Window = Window::Create();

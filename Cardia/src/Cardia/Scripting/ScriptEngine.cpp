@@ -11,7 +11,7 @@ namespace Cardia
 
 	ScriptEngine::ScriptEngine() : m_CurrentContext(nullptr)
 	{
-		cdCoreAssert(!s_Instance, "Only one m_Instance of ScriptEngine is allowed");
+		CdCoreAssert(!s_Instance, "Only one m_Instance of ScriptEngine is allowed");
 		s_Instance = this;
 		py::initialize_interpreter();
 		m_PythonBuiltins = py::module::import("builtins");
@@ -36,7 +36,7 @@ namespace Cardia
 				m_BehaviorInstances.insert({uuid.uuid, instance});
 			}
 			catch (const std::exception& e) {
-				Log::error("Instantiating : {0}", e.what());
+				Log::Error("Instantiating : {0}", e.what());
 			}
 		}
 		for (const auto entity : view)
@@ -49,7 +49,7 @@ namespace Cardia
 					if (item.type == ScriptFieldType::PyBehavior) {
 						try {
 							auto refBehavior = ScriptEngine::Instance().GetInstance(
-								UUID::fromString(py::handle(item.instance).cast<std::string>()));
+								UUID::FromString(py::handle(item.instance).cast<std::string>()));
 							if (refBehavior)
 							{
 								py::setattr(behavior, item.name.c_str(), py::handle(*refBehavior));
@@ -64,7 +64,7 @@ namespace Cardia
 				behavior.GetAttrOrMethod("on_create")();
 			}
 			catch (const std::exception& e) {
-				Log::error("On Create : {0}", e.what());
+				Log::Error("On Create : {0}", e.what());
 			}
 		}
 	}
@@ -91,7 +91,7 @@ namespace Cardia
 				}
 			}
 			catch (const std::exception& e) {
-				Log::error("On Update : {0}", e.what());
+				Log::Error("On Update : {0}", e.what());
 			}
 		}
 	}
@@ -114,7 +114,7 @@ namespace Cardia
 
 		if (!py::hasattr(importedFile, fileName.c_str()) && !IsSubClass(importedFile.attr(fileName.c_str()), m_CardiaPythonAPI.attr("Behavior")))
 		{
-			Log::coreError("Cannot find {0} class child of Behavior", fileName);
+			Log::CoreError("Cannot find {0} class child of Behavior", fileName);
 		}
 
 		return ScriptClass(importedFile.attr(fileName.c_str()));

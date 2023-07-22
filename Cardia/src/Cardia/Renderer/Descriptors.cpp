@@ -126,7 +126,7 @@ namespace Cardia
 		return true;
 	}
 
-	size_t DescriptorLayoutCache::DescriptorLayoutInfo::hash() const
+	size_t DescriptorLayoutCache::DescriptorLayoutInfo::Hash() const
 	{
 
 		size_t result = std::hash<size_t>()(Bindings.size());

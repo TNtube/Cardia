@@ -36,7 +36,7 @@ namespace Cardia
 
 		if (!s_isGlfwInit)
 		{
-			cdAssert(glfwInit(), "Can't initialize glfw3.");
+			CdAssert(glfwInit(), "Can't initialize glfw3.");
 			s_isGlfwInit = true;
 		}
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -110,7 +110,7 @@ namespace Cardia
 						break;
 					}
 				default:
-					Log::coreError("Unknown glfw key callback action");
+					Log::CoreError("Unknown glfw key callback action");
 				}
 			});
 
@@ -140,7 +140,7 @@ namespace Cardia
 					break;
 				}
 				default:
-					Log::coreError("Unknown glfw mouse callback action");
+					Log::CoreError("Unknown glfw mouse callback action");
 			}
 		});
 

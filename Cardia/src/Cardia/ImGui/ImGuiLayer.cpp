@@ -15,7 +15,7 @@ namespace Cardia
 	{
 		CreatePool();
 		
-		const Application& app = Application::get();
+		const Application& app = Application::Get();
 		const auto window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 		const auto& device = m_Renderer.GetDevice();
 		
@@ -47,7 +47,7 @@ namespace Cardia
 		{
 			if (err == VK_SUCCESS)
 				return;
-			Log::coreError("Vulkan Error : VkResult = {0}", err);
+			Log::CoreError("Vulkan Error : VkResult = {0}", err);
 		};
 		ImGui_ImplVulkan_Init(&init_info, m_Renderer.GetSwapChain().GetRenderPass().GetRenderPass());
 
@@ -95,7 +95,7 @@ namespace Cardia
 
 	void ImGuiLayer::End() const
 	{
-		const Application& app = Application::get();
+		const Application& app = Application::Get();
 		const auto winSize = app.GetWindow().GetSize();
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(static_cast<float>(winSize.x), static_cast<float>(winSize.y));

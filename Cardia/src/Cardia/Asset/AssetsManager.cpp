@@ -10,7 +10,7 @@ namespace Cardia
 
 	void AssetsManager::Init(Renderer& renderer)
 	{
-		cdCoreAssert(!s_Instance, "AssetsManager already exists");
+		CdCoreAssert(!s_Instance, "AssetsManager already exists");
 		s_Instance = std::make_unique<AssetsManager>(renderer);
 	}
 
@@ -31,7 +31,7 @@ namespace Cardia
 
 	void AssetsManager::CollectionRoutine(DeltaTime& dt)
 	{
-		m_ElapsedTime += std::chrono::duration<float>(dt.seconds());
+		m_ElapsedTime += std::chrono::duration<float>(dt.AsSeconds());
 		if (m_ElapsedTime > GC_COLLECTION_DURATION) {
 			m_ElapsedTime = std::chrono::duration<float>(0);
 			CollectGarbage(false);

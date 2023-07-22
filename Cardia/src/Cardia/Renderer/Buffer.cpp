@@ -101,39 +101,4 @@ namespace Cardia
 		vkDestroyBuffer(device, m_Buffer, nullptr);
 		vkFreeMemory(device, m_BufferMemory, nullptr);
 	}
-
-	std::unique_ptr<VertexBuffer> VertexBuffer::create(uint32_t size)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<IndexBuffer> IndexBuffer::create(uint32_t *indices, uint32_t count)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<IndexBuffer> IndexBuffer::create(uint32_t count)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<StorageBuffer> StorageBuffer::create(uint32_t size)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<StorageBuffer> StorageBuffer::create(void *data, uint32_t size)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<UniformBuffer> UniformBuffer::create(uint32_t size)
-	{
-		return nullptr;
-	}
-
-	std::unique_ptr<UniformBuffer> UniformBuffer::create(void *data, uint32_t size)
-	{
-		return nullptr;
-	}
 }

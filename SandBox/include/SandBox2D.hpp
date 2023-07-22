@@ -36,8 +36,8 @@ private:
 	float time = 0.0f;
 
 	float m_Zoom = 10.0f;
-	float m_AspectRatio = static_cast<float>(get().GetWindow().GetWidth())
-		/ static_cast<float>(get().GetWindow().GetHeight());
+	float m_AspectRatio = static_cast<float>(Get().GetWindow().GetWidth())
+		/ static_cast<float>(Get().GetWindow().GetHeight());
 
 
 	std::random_device rd;

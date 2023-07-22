@@ -19,13 +19,13 @@ namespace Cardia
 
 		static const std::filesystem::path& GetProjectDirectory()
 		{
-			cdCoreAssert(s_ActiveProject, "Should not be null");
+			CdCoreAssert(s_ActiveProject, "Should not be null");
 			return s_ActiveProject->m_ProjectDirectory;
 		}
 
 		static std::filesystem::path GetAssetDirectory()
 		{
-			cdCoreAssert(s_ActiveProject, "Should not be null");
+			CdCoreAssert(s_ActiveProject, "Should not be null");
 			return std::filesystem::canonical(GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory);
 		}
 

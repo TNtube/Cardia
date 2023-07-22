@@ -12,12 +12,12 @@ namespace Cardia
 
 	Application::Application()
 	{
-		cdCoreAssert(!s_Instance, "Application already exists");
+		CdCoreAssert(!s_Instance, "Application already exists");
 		s_Instance = this;
 		m_Window->SetEventCallback([this](Event& e)
 		{
 			EventDispatcher dispatcher(e);
-			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::onWinClose));
+			dispatcher.dispatch<WindowCloseEvent>(CD_BIND_EVENT_FN(Application::OnWinClose));
 			OnEvent(e);
 		});
 		
@@ -37,7 +37,7 @@ namespace Cardia
 		while (m_Running)
 		{
 			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
-			time += Time::m_DeltaTime.seconds();
+			time += Time::m_DeltaTime.AsSeconds();
 			m_Window->OnUpdate();
 
 			OnUpdate();
@@ -48,7 +48,7 @@ namespace Cardia
 		}
 	}
 
-	bool Application::onWinClose(WindowCloseEvent& e)
+	bool Application::OnWinClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
 		return true;

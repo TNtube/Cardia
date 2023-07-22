@@ -6,32 +6,32 @@
 
 namespace Cardia
 {
-	inline GLFWwindow* getNativeWin()
+	static GLFWwindow* GetNativeWin()
 	{
-		return static_cast<GLFWwindow*>(Application::get().GetWindow().GetNativeWindow());
+		return static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 	}
 
-	bool Input::isKeyPressed(int keyCode) {
-		auto state = glfwGetKey(getNativeWin(), keyCode);
+	bool Input::IsKeyPressed(int keyCode) {
+		auto state = glfwGetKey(GetNativeWin(), keyCode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool Input::isMouseButtonPressed(int button) {
-		return glfwGetMouseButton(getNativeWin(), button) == GLFW_PRESS;
+	bool Input::IsMouseButtonPressed(int button) {
+		return glfwGetMouseButton(GetNativeWin(), button) == GLFW_PRESS;
 	}
 
-	glm::vec2 Input::getMousePos() {
+	glm::vec2 Input::GetMousePos() {
 		double x, y;
-		glfwGetCursorPos(getNativeWin(), &x, &y);
+		glfwGetCursorPos(GetNativeWin(), &x, &y);
 
 		return { static_cast<float>(x), static_cast<float>(y) };
 	}
 
-	float Input::getMouseX() {
-		return getMousePos().x;
+	float Input::GetMouseX() {
+		return GetMousePos().x;
 	}
 
-	float Input::getMouseY() {
-		return getMousePos().y;
+	float Input::GetMouseY() {
+		return GetMousePos().y;
 	}
 }

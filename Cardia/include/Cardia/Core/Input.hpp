@@ -9,10 +9,10 @@ namespace Cardia
 	class Input
 	{
 	public:
-		static bool isKeyPressed(int keyCode);
-		static bool isMouseButtonPressed(int button);
-		static glm::vec2 getMousePos();
-		static float getMouseX();
-		static float getMouseY();
+		static bool IsKeyPressed(int keyCode);
+		static bool IsMouseButtonPressed(int button);
+		static glm::vec2 GetMousePos();
+		static float GetMouseX();
+		static float GetMouseY();
 	};
 }

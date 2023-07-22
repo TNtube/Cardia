@@ -13,18 +13,18 @@ namespace Cardia
 		
 		struct Vertex
 		{
-			glm::vec3 position;
-			glm::vec3 color;
-			glm::vec3 normal;
-			glm::vec2 textureCoord;
+			glm::vec3 Position;
+			glm::vec3 Color;
+			glm::vec3 Normal;
+			glm::vec2 TextureCoord;
 
 			/*
 			glm::vec3 position;
 			glm::vec3 normal;
 			glm::vec4 color;
 			glm::vec2 textureCoord;
-			float tilingFactor;
-			float entityID;
+			float tilingFactor; // no
+			float entityID; // no
 			*/
 
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();

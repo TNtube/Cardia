@@ -15,24 +15,24 @@ SandBox2D::SandBox2D()
 
 void SandBox2D::OnUpdate()
 {
-	if (Cardia::Input::isKeyPressed(Cardia::Key::Left)) {
+	if (Cardia::Input::IsKeyPressed(Cardia::Key::Left)) {
 		vx = -1;
 		vy = 0;
 	}
-	else if (Cardia::Input::isKeyPressed(Cardia::Key::Right)) {
+	else if (Cardia::Input::IsKeyPressed(Cardia::Key::Right)) {
 		vx = 1;
 		vy = 0;
 	}
-	if (Cardia::Input::isKeyPressed(Cardia::Key::Down)) {
+	if (Cardia::Input::IsKeyPressed(Cardia::Key::Down)) {
 		vx = 0;
 		vy = -1;
 	}
-	if (Cardia::Input::isKeyPressed(Cardia::Key::Up)) {
+	if (Cardia::Input::IsKeyPressed(Cardia::Key::Up)) {
 		vx = 0;
 		vy = 1;
 	}
 
-	time += Cardia::Time::deltaTime();
+	time += Cardia::Time::GetDeltaTime();
 	if (time > 0.2f) {
 		time = 0.0f;
 		glm::vec3 head = snakePos.front();
@@ -59,7 +59,7 @@ void SandBox2D::OnImGuiDraw()
 	};
 	// fps
 	static float elapsedTime = 0.0f;
-	static auto fps = static_cast<int>(1000 / Cardia::Time::deltaTime().milliseconds());
+	static auto fps = static_cast<int>(1000 / Cardia::Time::GetDeltaTime().AsMilliseconds());
 	// wireframe
 	static bool isWireframeMode = false;
 	// fullscreen
@@ -83,10 +83,10 @@ void SandBox2D::OnImGuiDraw()
 			ImGui::LabelText(std::to_string(fps).c_str(), "FPS");
 			if (elapsedTime >= 0.5f)
 			{
-				fps = static_cast<int>(1000 / Cardia::Time::deltaTime().milliseconds());
+				fps = static_cast<int>(1000 / Cardia::Time::GetDeltaTime().AsMilliseconds());
 				elapsedTime = 0.0f;
 			}
-			elapsedTime += Cardia::Time::deltaTime();
+			elapsedTime += Cardia::Time::GetDeltaTime();
 
 
 			ImGui::LabelText(std::to_string(Cardia::Renderer2D::getStats().drawCalls).c_str(),

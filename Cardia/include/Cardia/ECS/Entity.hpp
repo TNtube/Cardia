@@ -22,27 +22,27 @@ namespace Cardia
 		Entity(const Entity&) = default;
 
 		template<typename T, typename... Args>
-		T& addComponent(Args&&... args)
+		T& AddComponent(Args&&... args)
 		{
-			cdCoreAssert(!hasComponent<T>(), "Entity already has component");
+			CdCoreAssert(!HasComponent<T>(), "Entity already has component");
 			T& component = m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
 			return component;
 		}
 
 		template<typename T>
-		void removeComponent() const
+		void RemoveComponent() const
 		{
 			m_Scene->m_Registry.remove<T>(m_Entity);
 		}
 
 		template<typename T>
-		T& getComponent()
+		T& GetComponent()
 		{
 			return m_Scene->m_Registry.get<T>(m_Entity);
 		}
 
 		template<typename T>
-		bool hasComponent() const
+		bool HasComponent() const
 		{
 			return m_Scene->m_Registry.all_of<T>(m_Entity);
 		}

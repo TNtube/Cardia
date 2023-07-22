@@ -9,7 +9,7 @@ namespace Cardia
 
 	void UpdateTransformPositionCommand::Redo(Application* ctx)
 	{
-		auto& transform = ctx->GetCurrentScene()->GetEntityByUUID(m_UUID).getComponent<Component::Transform>();
+		auto& transform = ctx->GetCurrentScene()->GetEntityByUUID(m_UUID).GetComponent<Component::Transform>();
 		auto temp = transform.position;
 		transform.position = m_OldPosition;
 
@@ -18,7 +18,7 @@ namespace Cardia
 
 	void UpdateTransformPositionCommand::Undo(Application* ctx)
 	{
-		auto& transform = ctx->GetCurrentScene()->GetEntityByUUID(m_UUID).getComponent<Component::Transform>();
+		auto& transform = ctx->GetCurrentScene()->GetEntityByUUID(m_UUID).GetComponent<Component::Transform>();
 		auto temp = transform.position;
 		transform.position = m_OldPosition;
 

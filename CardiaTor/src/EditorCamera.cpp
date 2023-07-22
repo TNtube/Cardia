@@ -13,61 +13,61 @@ namespace Cardia
 
 	void EditorCamera::OnUpdate()
 	{
-		const glm::vec2& mouse{ Input::getMouseX(), Input::getMouseY() };
+		const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
 		glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.01f;
 		m_InitialMousePosition = mouse;
 
-		if (Input::isMouseButtonPressed(Mouse::Middle))
+		if (Input::IsMouseButtonPressed(Mouse::Middle))
 			mousePan(delta);
-		else if (Input::isMouseButtonPressed(Mouse::Right))
+		else if (Input::IsMouseButtonPressed(Mouse::Right))
 		{
 			mouseRotate(delta);
-			if (Input::isKeyPressed(Key::A)) {
+			if (Input::IsKeyPressed(Key::A)) {
 				m_Transform.position +=
 					-m_Transform.Right()
 					* m_MovementSpeed
-					* Time::deltaTime().seconds();
+					* Time::GetDeltaTime().AsSeconds();
 			}
-			if (Input::isKeyPressed(Key::D)) {
+			if (Input::IsKeyPressed(Key::D)) {
 				m_Transform.position +=
 					m_Transform.Right()
 					* m_MovementSpeed
-					* Time::deltaTime().seconds();
+					* Time::GetDeltaTime().AsSeconds();
 			}
-			if (Input::isKeyPressed(Key::W)) {
+			if (Input::IsKeyPressed(Key::W)) {
 				m_Transform.position +=
 					-m_Transform.Forward()
 					* m_MovementSpeed
-					* Time::deltaTime().seconds();
+					* Time::GetDeltaTime().AsSeconds();
 			}
-			if (Input::isKeyPressed(Key::S)) {
+			if (Input::IsKeyPressed(Key::S)) {
 				m_Transform.position +=
 					m_Transform.Forward()
 					* m_MovementSpeed *
-					Time::deltaTime().seconds();
+					Time::GetDeltaTime().AsSeconds();
 			}
-			if (Input::isKeyPressed(Key::Q)) {
+			if (Input::IsKeyPressed(Key::Q)) {
 				m_Transform.position +=
 					-m_Transform.Up()
 					* m_MovementSpeed *
-					Time::deltaTime().seconds();
+					Time::GetDeltaTime().AsSeconds();
 			}
-			if (Input::isKeyPressed(Key::E)) {
+			if (Input::IsKeyPressed(Key::E)) {
 				m_Transform.position +=
 					m_Transform.Up()
 					* m_MovementSpeed *
-					Time::deltaTime().seconds();
+					Time::GetDeltaTime().AsSeconds();
 			}
 
-			if (Input::isKeyPressed(Key::LeftShift)) {
-				m_MovementSpeed = glm::mix(m_MovementSpeed, m_MaxMovementSpeed, Time::deltaTime().seconds());
+			if (Input::IsKeyPressed(Key::LeftShift)) {
+				m_MovementSpeed = glm::mix(m_MovementSpeed, m_MaxMovementSpeed, Time::GetDeltaTime().AsSeconds());
 			}
 			else if (m_MovementSpeed - m_BaseMovementSpeed >= 0.01f) {
-				m_MovementSpeed = glm::mix(m_MovementSpeed, m_BaseMovementSpeed, Time::deltaTime().seconds() * 2);
+				m_MovementSpeed = glm::mix(m_MovementSpeed, m_BaseMovementSpeed, Time::GetDeltaTime().AsSeconds() * 2);
 			}
 		}
 
-		m_Camera.UpdateView(m_Transform.getTransform());
+		m_Camera.UpdateView(m_Transform.GetTransform());
 	}
 
 	void EditorCamera::OnEvent(Event &e)
@@ -79,7 +79,7 @@ namespace Cardia
 				m_Transform.Forward()
 				* delta
 				* m_MovementSpeed
-				* Time::deltaTime().seconds();
+				* Time::GetDeltaTime().AsSeconds();
 			return false;
 		});
 	}
@@ -90,12 +90,12 @@ namespace Cardia
 			-m_Transform.Right()
 			* delta.x
 			* m_MovementSpeed
-			* Time::deltaTime().seconds();
+			* Time::GetDeltaTime().AsSeconds();
 		m_Transform.position +=
 			m_Transform.Up()
 			* delta.y
 			* m_MovementSpeed
-			* Time::deltaTime().seconds();
+			* Time::GetDeltaTime().AsSeconds();
 	}
 
 	void EditorCamera::mouseRotate(const glm::vec2 &delta)

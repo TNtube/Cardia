@@ -38,7 +38,7 @@ namespace Cardia
 		inline entt::registry& GetRegistry() { return m_Registry; }
 		const std::filesystem::path& GetPath() const { return m_Path; }
 		std::filesystem::path& GetPath() { return m_Path; }
-		void clear();
+		void Clear();
 
 	private:
 		Renderer& m_Renderer;
