@@ -48,3 +48,26 @@ library. The ECS is exposed to python, allowing for easy creation of new compone
 
 Cardia uses Vulkan for rendering, mainly for it being a modern API, and for its
 precise control over the rendering pipeline.
+
+## How to build
+
+As a build system, Cardia uses [XMake](https://xmake.io/#/), which is a
+cross-platform build system written in Lua. It is very simple to use, and
+supports a lot of platforms and compilers. It is also very fast, and can
+generate project files for IDEs such as Visual Studio, XCode, CLion, etc.
+
+First, you need to install XMake. You can find instructions on how to do so
+[here](https://xmake.io/#/getting_started?id=installation).
+
+Then, you can simply clone the repository and build the project:
+```bash
+xmake -y
+xmake run CardiaTor
+```
+
+## How to contribute
+
+If you want to contribute to Cardia, you can do so by opening a pull request.
+If you want to add a new feature, please open an issue first so we can discuss it.
+If you want to report a bug, please open an issue with a minimal example
+showing the bug.
