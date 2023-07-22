@@ -1,5 +1,9 @@
 # Cardia Engine
 
+<img src=".github/image/cardia-logo.png" alt="logo" width="128" height="128">
+
+[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
+
 Cardia is a C++20 game engine that uses python as its scripting language.
 
 The initial aim was primarily educational, to learn game engine programming,
