@@ -24,6 +24,10 @@ namespace Cardia
 		explicit Vector4(T scalar)
 			: x(scalar), y(scalar), z(scalar), w(w) {}
 
+		static constexpr size_t length() { return 4; }
+
+		T& operator[](size_t index);
+
 		Vector4 operator-() const;
 
 		Vector4& operator+=(const Vector4& other);

@@ -1,9 +1,29 @@
 ﻿#pragma once
 #include <json/value.h>
 #include "Cardia/Core/Concepts.hpp"
+#include "Cardia/Core/Core.hpp"
 
 namespace Cardia
 {
+
+	template<arithmetic T>
+	T& Vector4<T>::operator[](size_t index)
+	{
+		CdCoreAssert(index < this->length());
+		switch(index)
+		{
+			default:
+			case 0:
+				return x;
+			case 1:
+				return y;
+			case 2:
+				return z;
+			case 3:
+				return w;
+			}
+	}
+
 	template<arithmetic T>
 	Vector4<T>& Vector4<T>::operator+=(const Vector4& other)
 	{

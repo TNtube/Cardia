@@ -5,6 +5,22 @@
 namespace Cardia
 {
 	template<arithmetic T>
+	T& Vector3<T>::operator[](size_t index)
+	{
+		CdCoreAssert(index < this->length());
+		switch(index)
+		{
+		default:
+		case 0:
+			return x;
+		case 1:
+			return y;
+		case 2:
+			return z;
+		}
+	}
+
+	template<arithmetic T>
 	Vector3<T>& Vector3<T>::operator+=(const Vector3& other)
 	{
 		x += other.x;

@@ -22,6 +22,11 @@ namespace Cardia
 
 		explicit Vector3(T scalar)
 			: x(scalar), y(scalar), z(scalar) {}
+
+		static constexpr size_t length() { return 3; }
+
+		T& operator[](size_t index);
+
 		Vector3 operator-() const;
 
 		Vector3& operator+=(const Vector3& other);
