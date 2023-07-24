@@ -45,7 +45,7 @@ target("Cardia")
     set_pcxxheader("Cardia/include/cdpch.hpp")
 
     add_files("Cardia/**.cpp")
-    add_headerfiles("Cardia/**.hpp", "Cardia/**.h")
+    add_headerfiles("Cardia/**.hpp", "Cardia/**.h", "Cardia/**.inl")
     add_includedirs("Cardia/include/", {public = true})
     add_includedirs("Cardia/vendor/", {public = true})
 

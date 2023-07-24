@@ -22,164 +22,44 @@ namespace Cardia
 		explicit Vector2(T scalar)
 			: x(scalar), y(scalar) {}
 
-		Vector2& operator+=(const Vector2& other)
-		{
-			x += other.x;
-			y += other.y;
-			return *this;
-		}
+		Vector2 operator-() const;
 
-		Vector2 operator+(const Vector2& other) const
-		{
-			Vector2 temp(*this);
-			temp += other;
-			return temp;
-		}
+		Vector2& operator+=(const Vector2& other);
+		Vector2 operator+(const Vector2& other) const;
+		Vector2& operator-=(const Vector2& other);
+		Vector2 operator-(const Vector2& other) const;
+		Vector2& operator*=(const Vector2& other);
+		Vector2 operator*(const Vector2& other) const;
+		Vector2& operator/=(const Vector2& other);
+		Vector2 operator/(const Vector2& other) const;
 
 		template<typename U>
-		Vector2& operator+=(U scalar) requires std::convertible_to<U, T>
-		{
-			x += static_cast<T>(scalar);
-			y += static_cast<T>(scalar);
-			return *this;
-		}
-
+		Vector2& operator+=(U scalar) requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator+(U scalar) const requires std::convertible_to<U, T>
-		{
-			Vector2 temp(*this);
-			temp += static_cast<T>(scalar);
-			return temp;
-		}
-
-		Vector2 operator-() const
-		{
-			return Vector2(-x, -y);
-		}
-
-		Vector2& operator-=(const Vector2& other)
-		{
-			x -= other.x;
-			y -= other.y;
-			return *this;
-		}
-
-		Vector2 operator-(const Vector2& other) const
-		{
-			Vector2 temp(*this);
-			temp -= other;
-			return temp;
-		}
-
+		Vector2 operator+(U scalar) const requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2& operator-=(U scalar) requires std::convertible_to<U, T>
-		{
-			x -= static_cast<T>(scalar);
-			y -= static_cast<T>(scalar);
-			return *this;
-		}
-
+		Vector2& operator-=(U scalar) requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator-(U scalar) const requires std::convertible_to<U, T>
-		{
-			Vector2 temp(*this);
-			temp -= static_cast<T>(scalar);
-			return temp;
-		}
-
-		Vector2& operator*=(const Vector2& other)
-		{
-			x *= other.x;
-			y *= other.y;
-			return *this;
-		}
-
-		Vector2 operator*(const Vector2& other) const
-		{
-			Vector2 temp(*this);
-			temp *= other;
-			return temp;
-		}
-
+		Vector2 operator-(U scalar) const requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2& operator*=(U scalar) requires std::convertible_to<U, T>
-		{
-			x *= static_cast<T>(scalar);
-			y *= static_cast<T>(scalar);
-			return *this;
-		}
-
+		Vector2& operator*=(U scalar) requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator*(U scalar) const requires std::convertible_to<U, T>
-		{
-			Vector2 temp(*this);
-			temp *= static_cast<T>(scalar);
-			return temp;
-		}
-
-		Vector2& operator/=(const Vector2& other)
-		{
-			x /= other.x;
-			y /= other.y;
-			return *this;
-		}
-
-		Vector2 operator/(const Vector2& other) const
-		{
-			Vector2 temp(*this);
-			temp /= other;
-			return temp;
-		}
-
+		Vector2 operator*(U scalar) const requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2& operator/=(U scalar) requires std::convertible_to<U, T>
-		{
-			x /= static_cast<T>(scalar);
-			y /= static_cast<T>(scalar);
-			return *this;
-		}
-
+		Vector2& operator/=(U scalar) requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator/(U scalar) const requires std::convertible_to<U, T>
-		{
-			Vector2 temp(*this);
-			temp /= static_cast<T>(scalar);
-			return temp;
-		}
+		Vector2 operator/(U scalar) const requires std::convertible_to<U, T>;
 
-		T Dot(const Vector2& other)
-		{
-			Vector2 temp(*this * other);
-			return temp.x + temp.y;
-		}
+		T Dot(const Vector2& other);
+		T Lerp(const Vector2& other, float t);
 
-		T Lerp(const Vector2& other, float t)
-		{
-			return *this + (other - *this) * t;
-		}
-
-		Json::Value Serialize() const
-		{
-			Json::Value root;
-			root["x"] = x;
-			root["y"] = y;
-			return root;
-		}
-
-		static bool Deserialize(const Json::Value& root, Vector2& other)
-		{
-			if (!root.isMember("x") || !root.isMember("y"))
-				return false;
-
-			other.x = root["x"].asFloat();
-			other.y = root["y"].asFloat();
-
-			return true;
-		}
+		Json::Value Serialize() const;
+		static bool Deserialize(const Json::Value& root, Vector2& other);
 	};
 
-	
 	using Vector2f = Vector2<float>;
 	using Vector2i = Vector2<int32_t>;
 	using Vector2u = Vector2<uint32_t>;
 }
+
+#include "Vector2.inl"
