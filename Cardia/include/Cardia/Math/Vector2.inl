@@ -154,7 +154,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	T Vector2<T>::Lerp(const Vector2& other, float t)
+	Vector2<T> Vector2<T>::Lerp(const Vector2& other, float t)
 	{
 		return *this + (other - *this) * t;
 	}

@@ -51,7 +51,7 @@ namespace Cardia
 		Vector2 operator/(U scalar) const requires std::convertible_to<U, T>;
 
 		T Dot(const Vector2& other);
-		T Lerp(const Vector2& other, float t);
+		Vector2 Lerp(const Vector2& other, float t);
 
 		Json::Value Serialize() const;
 		static bool Deserialize(const Json::Value& root, Vector2& other);
