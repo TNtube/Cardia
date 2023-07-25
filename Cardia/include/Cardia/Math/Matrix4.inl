@@ -103,8 +103,6 @@ namespace Cardia
 	{
 		Matrix4 result(1);
 
-		glm::mat4(1.0f);
-
 		result[0][0] = static_cast<T>(2) / (right - left);
 		result[1][1] = static_cast<T>(2) / (top - bottom);
 		result[2][2] = static_cast<T>(1) / (zFar - zNear);
