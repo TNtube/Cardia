@@ -5,9 +5,9 @@
 namespace Cardia
 {
 	template<arithmetic T>
-	T& Vector2<T>::operator[](size_t index)
+	constexpr T& Vector2<T>::operator[](size_t index) noexcept
 	{
-		CdCoreAssert(index < this->length());
+		CdCoreAssert(index < this->size());
 		switch(index)
 		{
 		default:
@@ -19,7 +19,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T>& Vector2<T>::operator+=(const Vector2& other)
+	constexpr Vector2<T>& Vector2<T>::operator+=(const Vector2& other) noexcept
 	{
 		x += other.x;
 		y += other.y;
@@ -27,7 +27,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T> Vector2<T>::operator+(const Vector2& other) const
+	constexpr Vector2<T> Vector2<T>::operator+(const Vector2& other) const noexcept
 	{
 		Vector2 temp(*this);
 		temp += other;
@@ -36,7 +36,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T>& Vector2<T>::operator+=(U scalar) requires std::convertible_to<U, T>
+	constexpr Vector2<T>& Vector2<T>::operator+=(U scalar) noexcept requires std::convertible_to<U, T>
 	{
 		x += static_cast<T>(scalar);
 		y += static_cast<T>(scalar);
@@ -45,7 +45,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T> Vector2<T>::operator+(U scalar) const requires std::convertible_to<U, T>
+	constexpr Vector2<T> Vector2<T>::operator+(U scalar) const noexcept requires std::convertible_to<U, T>
 	{
 		Vector2 temp(*this);
 		temp += static_cast<T>(scalar);
@@ -53,13 +53,13 @@ namespace Cardia
 	}
 
 	template <arithmetic T>
-	Vector2<T> Vector2<T>::operator-() const
+	constexpr Vector2<T> Vector2<T>::operator-() const noexcept
 	{
 		return Vector2(-x, -y);
 	}
 
 	template<arithmetic T>
-	Vector2<T>& Vector2<T>::operator-=(const Vector2<T>& other)
+	constexpr Vector2<T>& Vector2<T>::operator-=(const Vector2<T>& other) noexcept
 	{
 		x -= other.x;
 		y -= other.y;
@@ -67,7 +67,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T> Vector2<T>::operator-(const Vector2<T>& other) const
+	constexpr Vector2<T> Vector2<T>::operator-(const Vector2<T>& other) const noexcept
 	{
 		Vector2 temp(*this);
 		temp -= other;
@@ -76,7 +76,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T>& Vector2<T>::operator-=(U scalar) requires std::convertible_to<U, T>
+	constexpr Vector2<T>& Vector2<T>::operator-=(U scalar) noexcept requires std::convertible_to<U, T>
 	{
 		x -= static_cast<T>(scalar);
 		y -= static_cast<T>(scalar);
@@ -85,7 +85,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T> Vector2<T>::operator-(U scalar) const requires std::convertible_to<U, T>
+	constexpr Vector2<T> Vector2<T>::operator-(U scalar) const noexcept requires std::convertible_to<U, T>
 	{
 		Vector2 temp(*this);
 		temp -= static_cast<T>(scalar);
@@ -93,7 +93,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T>& Vector2<T>::operator*=(const Vector2<T>& other)
+	constexpr Vector2<T>& Vector2<T>::operator*=(const Vector2<T>& other) noexcept
 	{
 		x *= other.x;
 		y *= other.y;
@@ -101,7 +101,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T> Vector2<T>::operator*(const Vector2<T>& other) const
+	constexpr Vector2<T> Vector2<T>::operator*(const Vector2<T>& other) const noexcept
 	{
 		Vector2 temp(*this);
 		temp *= other;
@@ -110,7 +110,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T>& Vector2<T>::operator*=(U scalar) requires std::convertible_to<U, T>
+	constexpr Vector2<T>& Vector2<T>::operator*=(U scalar) noexcept requires std::convertible_to<U, T>
 	{
 		x *= static_cast<T>(scalar);
 		y *= static_cast<T>(scalar);
@@ -119,7 +119,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T> Vector2<T>::operator*(U scalar) const requires std::convertible_to<U, T>
+	constexpr Vector2<T> Vector2<T>::operator*(U scalar) const noexcept requires std::convertible_to<U, T>
 	{
 		Vector2 temp(*this);
 		temp *= static_cast<T>(scalar);
@@ -127,7 +127,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T>& Vector2<T>::operator/=(const Vector2<T>& other)
+	constexpr Vector2<T>& Vector2<T>::operator/=(const Vector2<T>& other) noexcept
 	{
 		x /= other.x;
 		y /= other.y;
@@ -135,7 +135,7 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	Vector2<T> Vector2<T>::operator/(const Vector2<T>& other) const
+	constexpr Vector2<T> Vector2<T>::operator/(const Vector2<T>& other) const noexcept
 	{
 		Vector2 temp(*this);
 		temp /= other;
@@ -144,7 +144,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T>& Vector2<T>::operator/=(U scalar) requires std::convertible_to<U, T>
+	constexpr Vector2<T>& Vector2<T>::operator/=(U scalar) noexcept requires std::convertible_to<U, T>
 	{
 		x /= static_cast<T>(scalar);
 		y /= static_cast<T>(scalar);
@@ -153,7 +153,7 @@ namespace Cardia
 
 	template<arithmetic T>
 	template<typename U>
-	Vector2<T> Vector2<T>::operator/(U scalar) const requires std::convertible_to<U, T>
+	constexpr Vector2<T> Vector2<T>::operator/(U scalar) const noexcept requires std::convertible_to<U, T>
 	{
 		Vector2 temp(*this);
 		temp /= static_cast<T>(scalar);
@@ -161,16 +161,32 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	T Vector2<T>::Dot(const Vector2& other)
+	constexpr T Vector2<T>::Dot(const Vector2& other) noexcept
 	{
 		Vector2 temp(*this * other);
 		return temp.x + temp.y;
 	}
 
 	template<arithmetic T>
-	Vector2<T> Vector2<T>::Lerp(const Vector2& other, float t)
+	constexpr Vector2<T> Vector2<T>::Lerp(const Vector2& other, float t) noexcept
 	{
 		return *this + (other - *this) * t;
+	}
+
+	template<arithmetic T>
+	constexpr Vector2<T> Vector2<T>::Normalize() noexcept
+	{
+		Vector2 temp(*this);
+
+		T len = static_cast<T>(std::sqrt(x * x + y * y));
+
+		if constexpr (len > 0)
+		{
+			temp.x /= len;
+			temp.y /= len;
+		}
+
+		return temp;
 	}
 
 	template<arithmetic T>

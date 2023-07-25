@@ -16,46 +16,47 @@ namespace Cardia
 
 		Vector2() = default;
 
-		Vector2(T x, T y)
+		constexpr Vector2(T x, T y) noexcept
 			: x(x), y(y) {}
 
-		explicit Vector2(T scalar)
+		explicit constexpr Vector2(T scalar) noexcept
 			: x(scalar), y(scalar) {}
 
-		static constexpr size_t length() { return 2; }
+		static constexpr size_t size() noexcept { return 2; }
 
-		T& operator[](size_t index);
+		constexpr T& operator[](size_t index) noexcept;
 
-		Vector2 operator-() const;
+		constexpr Vector2 operator-() const noexcept;
 
-		Vector2& operator+=(const Vector2& other);
-		Vector2 operator+(const Vector2& other) const;
-		Vector2& operator-=(const Vector2& other);
-		Vector2 operator-(const Vector2& other) const;
-		Vector2& operator*=(const Vector2& other);
-		Vector2 operator*(const Vector2& other) const;
-		Vector2& operator/=(const Vector2& other);
-		Vector2 operator/(const Vector2& other) const;
+		constexpr Vector2& operator+=(const Vector2& other) noexcept;
+		constexpr Vector2 operator+(const Vector2& other) const noexcept;
+		constexpr Vector2& operator-=(const Vector2& other) noexcept;
+		constexpr Vector2 operator-(const Vector2& other) const noexcept;
+		constexpr Vector2& operator*=(const Vector2& other) noexcept;
+		constexpr Vector2 operator*(const Vector2& other) const noexcept;
+		constexpr Vector2& operator/=(const Vector2& other) noexcept;
+		constexpr Vector2 operator/(const Vector2& other) const noexcept;
 
 		template<typename U>
-		Vector2& operator+=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector2& operator+=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator+(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector2 operator+(U scalar) const noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2& operator-=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector2& operator-=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator-(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector2 operator-(U scalar) const noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2& operator*=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector2& operator*=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator*(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector2 operator*(U scalar) const noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2& operator/=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector2& operator/=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector2 operator/(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector2 operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
-		T Dot(const Vector2& other);
-		Vector2 Lerp(const Vector2& other, float t);
+		constexpr T Dot(const Vector2& other) noexcept;
+		constexpr Vector2 Lerp(const Vector2& other, float t) noexcept;
+		constexpr Vector2 Normalize() noexcept;
 
 		Json::Value Serialize() const;
 		static bool Deserialize(const Json::Value& root, Vector2& other);

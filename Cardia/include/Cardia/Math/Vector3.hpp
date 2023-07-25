@@ -13,51 +13,52 @@ namespace Cardia
 	{
 		union { T x, r; };
 		union { T y, g; };
-		union { T z, b; };
+		union { T z, a; };
 
 		Vector3() = default;
 
-		Vector3(T x, T y, T z)
+		constexpr Vector3(T x, T y, T z) noexcept
 			: x(x), y(y), z(z) {}
 
-		explicit Vector3(T scalar)
+		explicit constexpr Vector3(T scalar) noexcept
 			: x(scalar), y(scalar), z(scalar) {}
 
-		static constexpr size_t length() { return 3; }
+		static constexpr size_t size() noexcept { return 3; }
 
-		T& operator[](size_t index);
+		constexpr T& operator[](size_t index) noexcept;
 
-		Vector3 operator-() const;
+		constexpr Vector3 operator-() const noexcept;
 
-		Vector3& operator+=(const Vector3& other);
-		Vector3 operator+(const Vector3& other) const;
-		Vector3& operator-=(const Vector3& other);
-		Vector3 operator-(const Vector3& other) const;
-		Vector3& operator*=(const Vector3& other);
-		Vector3 operator*(const Vector3& other) const;
-		Vector3& operator/=(const Vector3& other);
-		Vector3 operator/(const Vector3& other) const;
+		constexpr Vector3& operator+=(const Vector3& other) noexcept;
+		constexpr Vector3 operator+(const Vector3& other) const noexcept;
+		constexpr Vector3& operator-=(const Vector3& other) noexcept;
+		constexpr Vector3 operator-(const Vector3& other) const noexcept;
+		constexpr Vector3& operator*=(const Vector3& other) noexcept;
+		constexpr Vector3 operator*(const Vector3& other) const noexcept;
+		constexpr Vector3& operator/=(const Vector3& other) noexcept;
+		constexpr Vector3 operator/(const Vector3& other) const noexcept;
 
 		template<typename U>
-		Vector3& operator+=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector3& operator+=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3 operator+(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector3 operator+(U scalar) const noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3& operator-=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector3& operator-=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3 operator-(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector3 operator-(U scalar) const noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3& operator*=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector3& operator*=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3 operator*(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector3 operator*(U scalar) const noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3& operator/=(U scalar) requires std::convertible_to<U, T>;
+		constexpr Vector3& operator/=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
-		Vector3 operator/(U scalar) const requires std::convertible_to<U, T>;
+		constexpr Vector3 operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
-		T Dot(const Vector3& other);
-		Vector3 Lerp(const Vector3& other, float t);
-		Vector3 Cross(const Vector3& other);
+		constexpr T Dot(const Vector3& other) noexcept;
+		constexpr Vector3 Lerp(const Vector3& other, float t) noexcept;
+		constexpr Vector3 Cross(const Vector3& other) noexcept;
+		constexpr Vector3 Normalize() noexcept;
 
 		Json::Value Serialize() const;
 		static bool Deserialize(const Json::Value& root, Vector3& other);
