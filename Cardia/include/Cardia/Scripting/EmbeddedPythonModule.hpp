@@ -41,7 +41,7 @@ namespace Cardia
 			.def_readwrite("g", &Vector2f::g, py::return_value_policy::reference)
 			.def("length", &Vector2f::Length,py::return_value_policy::reference)
 			.def("size", &Vector2f::Size,py::return_value_policy::reference)
-			.def_static("lerp", &Vector2f::Lerp, py::return_value_policy::reference);
+			.def("lerp", &Vector2f::Lerp, py::return_value_policy::reference);
 
 		py::class_<Vector3f>(m, "vec3")
 			.def(py::init<float>())
@@ -54,7 +54,7 @@ namespace Cardia
 			.def_readwrite("b", &Vector3f::b, py::return_value_policy::reference)
 			.def("length", &Vector3f::Length,py::return_value_policy::reference)
 			.def("size", &Vector3f::Size,py::return_value_policy::reference)
-			.def_static("lerp", &Vector3f::Lerp, py::return_value_policy::reference);
+			.def("lerp", &Vector3f::Lerp, py::return_value_policy::reference);
 
 		py::class_<Vector4f>(m, "vec4")
 			.def(py::init<float>())
@@ -69,7 +69,7 @@ namespace Cardia
 			.def_readwrite("a", &Vector4f::a, py::return_value_policy::reference)
 			.def("length", &Vector4f::Length,py::return_value_policy::reference)
 			.def("size", &Vector4f::Size,py::return_value_policy::reference)
-			.def_static("lerp", &Vector4f::Lerp, py::return_value_policy::reference);
+			.def("lerp", &Vector4f::Lerp, py::return_value_policy::reference);
 
 
 		// Components
