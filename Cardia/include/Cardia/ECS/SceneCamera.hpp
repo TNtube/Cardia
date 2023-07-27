@@ -22,7 +22,6 @@ namespace Cardia
 		glm::vec3 GetPerspective() const;
 		void SetOrthographic(float size, float nearClip, float farClip);
 		glm::vec3 GetOrthographic() const;
-		void UpdateView(const glm::mat4& transform);
 
 		inline ProjectionType GetProjectionType() const { return m_ProjectionType; }
 		inline void SetProjectionType(ProjectionType type) { m_ProjectionType = type; RecomputeProjection(); }

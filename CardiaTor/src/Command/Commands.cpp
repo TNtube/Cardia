@@ -4,7 +4,7 @@
 namespace Cardia
 {
 
-	UpdateTransformPositionCommand::UpdateTransformPositionCommand(const UUID& uuid, glm::vec3 oldPosition)
+	UpdateTransformPositionCommand::UpdateTransformPositionCommand(const UUID& uuid, Vector3f oldPosition)
 		: m_UUID(uuid), m_OldPosition(oldPosition) {}
 
 	void UpdateTransformPositionCommand::Redo(Application* ctx)

@@ -6,19 +6,20 @@
 #include "Pipeline.hpp"
 #include "RenderPass.hpp"
 #include "SwapChain.hpp"
+#include "Cardia/Math/Matrix4.hpp"
 
 
 namespace Cardia
 {
 	struct UboData
 	{
-		glm::mat4 ViewProjection;
+		Matrix4f ViewProjection;
 	};
 	
 	struct PushConstantData
 	{
-		glm::mat4 Model;
-		glm::mat4 TransposedInvertedModel;
+		Matrix4f Model;
+		Matrix4f TransposedInvertedModel;
 	};
 
 	struct FrameData final

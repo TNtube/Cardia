@@ -24,8 +24,9 @@ namespace Cardia
 		explicit constexpr Vector4(T scalar) noexcept
 			: x(scalar), y(scalar), z(scalar), w(scalar) {}
 
-		static constexpr size_t size() noexcept { return 4; }
+		static constexpr size_t Size() noexcept { return 4; }
 
+		constexpr T operator[](size_t index) const noexcept;
 		constexpr T& operator[](size_t index) noexcept;
 
 		constexpr Vector4 operator-() const noexcept;
@@ -56,6 +57,7 @@ namespace Cardia
 		template<typename U>
 		constexpr Vector4 operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
+		constexpr T Length() noexcept;
 		constexpr T Dot(const Vector4& other) noexcept;
 		constexpr Vector4 Lerp(const Vector4& other, float t) noexcept;
 		constexpr Vector4 Normalize() noexcept;

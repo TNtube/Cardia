@@ -7,13 +7,15 @@
 
 namespace Cardia
 {
+	template <arithmetic T>
+	struct Vector4;
 
 	template<arithmetic T>
 	struct Vector3
 	{
 		union { T x, r; };
 		union { T y, g; };
-		union { T z, a; };
+		union { T z, b; };
 
 		Vector3() = default;
 
@@ -22,10 +24,14 @@ namespace Cardia
 
 		explicit constexpr Vector3(T scalar) noexcept
 			: x(scalar), y(scalar), z(scalar) {}
+		
+		explicit constexpr Vector3(const Vector4<T>& other) noexcept;
+		constexpr Vector3& operator=(const Vector4<T>& other) noexcept;
 
-		static constexpr size_t size() noexcept { return 3; }
+		static constexpr size_t Size() noexcept { return 3; }
 
 		constexpr T& operator[](size_t index) noexcept;
+		constexpr T operator[](size_t index) const noexcept;
 
 		constexpr Vector3 operator-() const noexcept;
 
@@ -55,6 +61,7 @@ namespace Cardia
 		template<typename U>
 		constexpr Vector3 operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
+		constexpr T Length() noexcept;
 		constexpr T Dot(const Vector3& other) noexcept;
 		constexpr Vector3 Lerp(const Vector3& other, float t) noexcept;
 		constexpr Vector3 Cross(const Vector3& other) noexcept;

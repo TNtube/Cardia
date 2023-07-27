@@ -6,35 +6,11 @@
 #include <Cardia/Project/Project.hpp>
 #include <Cardia/Asset/AssetsManager.hpp>
 
+#include "Cardia/Math/Vector2.hpp"
+
 
 namespace Json {
 	using namespace Cardia;
-	template <> glm::vec2 Value::as<glm::vec2>() const {
-		glm::vec3 out;
-		auto& node = *this;
-		out.x = node["x"].asFloat();
-		out.y = node["y"].asFloat();
-		return out;
-	}
-
-	template <> glm::vec3 Value::as<glm::vec3>() const {
-		glm::vec3 out;
-		auto& node = *this;
-		out.x = node["x"].asFloat();
-		out.y = node["y"].asFloat();
-		out.z = node["z"].asFloat();
-		return out;
-	}
-
-	template <> glm::vec4 Value::as<glm::vec4>() const {
-		glm::vec4 out;
-		auto& node = *this;
-		out.x = node["x"].asFloat();
-		out.y = node["y"].asFloat();
-		out.z = node["z"].asFloat();
-		out.w = node["w"].asFloat();
-		return out;
-	}
 
 	template <> Cardia::ScriptField Value::as<ScriptField>() const {
 		auto& node = *this;
@@ -69,13 +45,19 @@ namespace Json {
 				out.instance = py::cast(node["value"].asString());
 				break;
 			case ScriptFieldType::Vector2:
-				out.instance = py::cast(node["value"].as<glm::vec2>());
+				Vector2f vec2;
+				Vector2f::Deserialize(node["value"], vec2);
+				out.instance = py::cast(vec2);
 				break;
 			case ScriptFieldType::Vector3:
-				out.instance = py::cast(node["value"].as<glm::vec3>());
+				Vector3f vec3;
+				Vector3f::Deserialize(node["value"], vec3);
+				out.instance = py::cast(vec3);
 				break;
 			case ScriptFieldType::Vector4:
-				out.instance = py::cast(node["value"].as<glm::vec4>());
+				Vector4f vec4;
+				Vector4f::Deserialize(node["value"], vec4);
+				out.instance = py::cast(vec4);
 				break;
 			case ScriptFieldType::Unserializable:break;
 		}
@@ -86,31 +68,6 @@ namespace Json {
 
 namespace Cardia::Serialization
 {
-
-	Json::Value ToJson(const glm::vec2& value) {
-		Json::Value out;
-		out["x"] = value.x;
-		out["y"] = value.y;
-		return out;
-	}
-
-	Json::Value ToJson(const glm::vec3& value) {
-		Json::Value out;
-		out["x"] = value.x;
-		out["y"] = value.y;
-		out["z"] = value.z;
-		return out;
-	}
-
-	Json::Value ToJson(const glm::vec4& value) {
-		Json::Value out;
-		out["x"] = value.x;
-		out["y"] = value.y;
-		out["z"] = value.z;
-		out["w"] = value.w;
-		return out;
-	}
-
 	Json::Value ToJson(const ScriptField& field) {
 		Json::Value out;
 		out["type"] = static_cast<int>(field.type);
@@ -151,13 +108,13 @@ namespace Cardia::Serialization
 				out["value"] = py::handle(field.instance).cast<std::string>();
 				break;
 			case ScriptFieldType::Vector2:
-				out["value"] = ToJson(py::handle(field.instance).cast<glm::vec2>());
+				out["value"] = py::handle(field.instance).cast<Vector2f>().Serialize();
 				break;
 			case ScriptFieldType::Vector3:
-				out["value"] = ToJson(py::handle(field.instance).cast<glm::vec3>());
+				out["value"] = py::handle(field.instance).cast<Vector3f>().Serialize();
 				break;
 			case ScriptFieldType::Vector4:
-				out["value"] = ToJson(py::handle(field.instance).cast<glm::vec4>());
+				out["value"] = py::handle(field.instance).cast<Vector4f>().Serialize();
 				break;
 			case ScriptFieldType::Unserializable:break;
 		}
@@ -175,9 +132,9 @@ namespace Cardia::Serialization
 	void SceneArchiveOutput::operator()(entt::entity entity, const Component::Transform& component)
 	{
 		Json::Value node;
-		node["position"] = ToJson(component.position);
-		node["rotation"] = ToJson(component.rotation);
-		node["scale"] = ToJson(component.scale);
+		node["position"] = component.position.Serialize();
+		node["rotation"] = component.rotation.Serialize();
+		node["scale"] = component.scale.Serialize();
 
 		auto idx = static_cast<uint32_t>(entity);
 		m_Root[idx][Component::Transform::ClassName()] = node;
@@ -215,7 +172,7 @@ namespace Cardia::Serialization
 
 		Json::Value node;
 
-		node["color"] = ToJson(component.color);
+		node["color"] = component.color.Serialize();
 		node["texture"] = AssetsManager::GetPathFromAsset(component.texture).string();
 		node["tillingFactor"] = component.tillingFactor;
 		node["zIndex"] = component.zIndex;
@@ -250,7 +207,7 @@ namespace Cardia::Serialization
 		Json::Value node;
 
 		node["type"] = component.lightType;
-		node["color"] = ToJson(component.color);
+		node["color"] = component.color.Serialize();
 
 		node["range"] = component.range;
 		node["angle"] = component.angle;
@@ -366,16 +323,16 @@ namespace Cardia::Serialization
 			name.name = node[Component::Name::ClassName()].asString();
 
 			auto& component = entity.GetComponent<Component::Transform>();
-			component.position = node[Component::Transform::ClassName()]["position"].as<glm::vec3>();
-			component.rotation = node[Component::Transform::ClassName()]["rotation"].as<glm::vec3>();
-			component.scale = node[Component::Transform::ClassName()]["scale"].as<glm::vec3>();
+			Vector3f::Deserialize(node[Component::Transform::ClassName()]["position"], component.position);
+			Vector3f::Deserialize(node[Component::Transform::ClassName()]["rotation"], component.rotation);
+			Vector3f::Deserialize(node[Component::Transform::ClassName()]["scale"], component.scale);
 
 
 			auto currComponent = Component::SpriteRenderer::ClassName();
 			if (node.isMember(currComponent))
 			{
 				auto& spriteRenderer = entity.AddComponent<Component::SpriteRenderer>();
-				spriteRenderer.color = node[currComponent]["color"].as<glm::vec4>();
+				Vector4f::Deserialize(node[currComponent]["color"], spriteRenderer.color);
 
 				spriteRenderer.texture =
 					std::make_shared<Texture2D>(
@@ -445,7 +402,7 @@ namespace Cardia::Serialization
 			{
 				auto& light = entity.AddComponent<Component::Light>();
 				light.lightType = node[currComponent]["type"].asInt();
-				light.color = node[currComponent]["color"].as<glm::vec3>();
+				Vector3f::Deserialize(node[currComponent]["color"], light.color);
 
 				light.range = node[currComponent]["range"].asFloat();
 				light.angle = node[currComponent]["angle"].asFloat();

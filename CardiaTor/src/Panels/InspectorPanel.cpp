@@ -62,9 +62,11 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
 			EditorUI::DragFloat3("Position", transform.position);
 
-			auto rotation = glm::degrees(transform.rotation);
-			EditorUI::DragFloat3("Rotation", rotation);
-			transform.rotation = glm::radians(rotation);
+			auto rotation = Vector3f(glm::degrees(transform.rotation.x), glm::degrees(transform.rotation.y), glm::degrees(transform.rotation.z));
+			if (EditorUI::DragFloat3("Rotation", rotation))
+			{
+				transform.rotation = Vector3f(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+			}
 
 			EditorUI::DragFloat3("Scale", transform.scale, 1);
 		});
@@ -72,7 +74,7 @@ namespace Cardia::Panel
 		// SpriteRenderer Component
 
 		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [appContext](Component::SpriteRenderer& sprite) {
-			EditorUI::ColorEdit4("Color", glm::value_ptr(sprite.color));
+			EditorUI::ColorEdit4("Color", &sprite.color.x);
 
 			auto& white = appContext->GetRenderer().GetWhiteTexture();
 			const VkDescriptorSet texID = sprite.texture ? sprite.texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
@@ -204,7 +206,7 @@ namespace Cardia::Panel
 
 			light.lightType = item_current;
 
-			EditorUI::ColorEdit3("Color", glm::value_ptr(light.color));
+			EditorUI::ColorEdit3("Color", &light.color.x);
 
 			if (item_current == 0) return;
 			EditorUI::DragFloat("Range", &light.range, 0.01f, 0.0f);
@@ -462,7 +464,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector2:
 			{
-				auto castedField = value.cast<glm::vec2>();
+				auto castedField = value.cast<Vector2f>();
 				if (!EditorUI::DragFloat2(fieldName, castedField, 0.1f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
@@ -470,7 +472,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector3:
 			{
-				auto castedField = value.cast<glm::vec3>();
+				auto castedField = value.cast<Vector3f>();
 				if (!EditorUI::DragFloat3(fieldName, castedField, 0.1f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
@@ -479,7 +481,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector4:
 			{
-				auto castedField = value.cast<glm::vec4>();
+				auto castedField = value.cast<Vector4f>();
 				if (!EditorUI::DragFloat4(fieldName, castedField, 0.1f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));

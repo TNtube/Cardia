@@ -504,16 +504,16 @@ namespace Cardia
 		{
 
 			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
-			glm::mat4 cameraView = m_EditorCamera.GetCamera().GetViewMatrix();
+			const Matrix4f& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
+			Matrix4f cameraView = m_EditorCamera.GetCamera().GetViewMatrix();
 			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
-			glm::mat4 transform = transformComponent.GetTransform();
+			Matrix4f transform = transformComponent.GetTransform();
 
-			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
+			ImGuizmo::Manipulate(cameraView.Data(), cameraProjection.Data(),
+					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, transform.Data(),
 					     nullptr, nullptr);
 
-			static glm::vec3 position;
+			static Vector3f position;
 			static bool isUsing = false;
 			if (ImGuizmo::IsUsing())
 			{
@@ -521,13 +521,15 @@ namespace Cardia
 					position = transformComponent.position;
 				}
 				isUsing = true;
-				glm::vec3 translation, scale, skew;
-				glm::quat rotation;
-				glm::vec4 perspective;
-				glm::decompose(transform, scale, rotation, translation, skew, perspective);
-				transformComponent.rotation = glm::eulerAngles(rotation);
-				transformComponent.position = translation;
-				transformComponent.scale = scale;
+				// TODO: decompose matrix
+				// glm::vec3 translation, scale, skew;
+				// glm::quat rotation;
+				// glm::vec4 perspective;
+				// glm::decompose(transform, scale, rotation, translation, skew, perspective);
+				// const auto eulerRot = glm::eulerAngles(rotation);
+				// transformComponent.position = Vector3f(translation.x, translation.y, translation.z);
+				// transformComponent.rotation = Vector3f(eulerRot.x, eulerRot.y, eulerRot.z);
+				// transformComponent.scale = Vector3f(scale.x, scale.y, scale.z);
 			} else {
 				if (isUsing) {
 					isUsing = false;

@@ -1,13 +1,41 @@
 ﻿#pragma once
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <json/value.h>
+
+#include "Vector3.hpp"
 #include "Cardia/Core/Concepts.hpp"
 
 namespace Cardia
 {
 	template<arithmetic T>
+	constexpr Vector2<T>::Vector2(const Vector3<T>& other) noexcept
+		: x(other.x), y(other.y) {}
+	
+	template<arithmetic T>
+	constexpr Vector2<T>& Vector2<T>::operator=(const Vector3<T>& other) noexcept
+	{
+		x = other.x;
+		y = other.y;
+		return *this;
+	}
+	
+	template<arithmetic T>
+	constexpr Vector2<T>::Vector2(const Vector4<T>& other) noexcept
+		: x(other.x), y(other.y) {}
+	
+	template<arithmetic T>
+	constexpr Vector2<T>& Vector2<T>::operator=(const Vector4<T>& other) noexcept
+	{
+		x = other.x;
+		y = other.y;
+		return *this;
+	}
+
+	template<arithmetic T>
 	constexpr T& Vector2<T>::operator[](size_t index) noexcept
 	{
-		CdCoreAssert(index < this->size());
+		CdCoreAssert(index < this->Size());
 		switch(index)
 		{
 		default:
@@ -158,6 +186,12 @@ namespace Cardia
 		Vector2 temp(*this);
 		temp /= static_cast<T>(scalar);
 		return temp;
+	}
+
+	template<arithmetic T>
+	constexpr T Vector2<T>::Length() noexcept
+	{
+		return sqrt(this->Dot(*this));
 	}
 
 	template<arithmetic T>

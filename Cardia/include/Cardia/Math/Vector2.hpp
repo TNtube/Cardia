@@ -7,6 +7,10 @@
 
 namespace Cardia
 {
+	template <arithmetic T>
+	struct Vector4;
+	template <arithmetic T>
+	struct Vector3;
 
 	template<arithmetic T>
 	struct Vector2
@@ -22,7 +26,12 @@ namespace Cardia
 		explicit constexpr Vector2(T scalar) noexcept
 			: x(scalar), y(scalar) {}
 
-		static constexpr size_t size() noexcept { return 2; }
+		explicit constexpr Vector2(const Vector3<T>& other) noexcept;
+		constexpr Vector2& operator=(const Vector3<T>& other) noexcept;
+		explicit constexpr Vector2(const Vector4<T>& other) noexcept;
+		constexpr Vector2& operator=(const Vector4<T>& other) noexcept;
+
+		static constexpr size_t Size() noexcept { return 2; }
 
 		constexpr T& operator[](size_t index) noexcept;
 
@@ -54,6 +63,7 @@ namespace Cardia
 		template<typename U>
 		constexpr Vector2 operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
+		constexpr T Length() noexcept;
 		constexpr T Dot(const Vector2& other) noexcept;
 		constexpr Vector2 Lerp(const Vector2& other, float t) noexcept;
 		constexpr Vector2 Normalize() noexcept;

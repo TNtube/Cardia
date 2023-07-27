@@ -8,7 +8,7 @@ namespace Cardia
 	EditorCamera::EditorCamera(float fov, float nearClip, float farClip)
 	{
 		m_Camera.SetPerspective(fov, nearClip, farClip);
-		m_Transform.position = {0, 5, 10};
+		m_Transform.position = {0, 0, 10};
 	}
 
 	void EditorCamera::OnUpdate()
@@ -66,8 +66,6 @@ namespace Cardia
 				m_MovementSpeed = glm::mix(m_MovementSpeed, m_BaseMovementSpeed, Time::GetDeltaTime().AsSeconds() * 2);
 			}
 		}
-
-		m_Camera.UpdateView(m_Transform.GetTransform());
 	}
 
 	void EditorCamera::OnEvent(Event &e)
@@ -100,7 +98,7 @@ namespace Cardia
 
 	void EditorCamera::mouseRotate(const glm::vec2 &delta)
 	{
-		m_Transform.rotation += glm::vec3(-delta.y, -delta.x, 0) * rotationSpeed();
+		m_Transform.rotation += Vector3f(-delta.y, -delta.x, 0) * rotationSpeed();
 	}
 
 

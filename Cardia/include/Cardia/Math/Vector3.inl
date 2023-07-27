@@ -5,9 +5,38 @@
 namespace Cardia
 {
 	template<arithmetic T>
+	constexpr Vector3<T>::Vector3(const Vector4<T>& other) noexcept
+		: x(other.x), y(other.y), z(other.z) {}
+	
+	template<arithmetic T>
+	constexpr Vector3<T>& Vector3<T>::operator=(const Vector4<T>& other) noexcept
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		return *this;
+	}
+	
+	template<arithmetic T>
 	constexpr T& Vector3<T>::operator[](size_t index) noexcept
 	{
-		CdCoreAssert(index < this->size());
+		CdCoreAssert(index < this->Size());
+		switch(index)
+		{
+		default:
+		case 0:
+			return x;
+		case 1:
+			return y;
+		case 2:
+			return z;
+		}
+	}
+	
+	template<arithmetic T>
+	constexpr T Vector3<T>::operator[](size_t index) const noexcept
+	{
+		CdCoreAssert(index < this->Size());
 		switch(index)
 		{
 		default:
@@ -175,6 +204,12 @@ namespace Cardia
 	{
 		Vector3 temp(*this * other);
 		return temp.x + temp.y + temp.z;
+	}
+	
+	template<arithmetic T>
+	constexpr T Vector3<T>::Length() noexcept
+	{
+		return sqrt(this->Dot(*this));
 	}
 
 	template<arithmetic T>

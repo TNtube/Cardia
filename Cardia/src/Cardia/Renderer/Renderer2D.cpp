@@ -72,14 +72,14 @@ namespace Cardia
 	void Renderer2D::beginScene(Camera& camera, const glm::mat4& transform)
 	{
 		return;
-		s_Data->batches.clear();
-		s_Data->lightDataBuffer.clear();
-		s_Data->cameraPosition = glm::vec3(transform[3]);
-		s_Data->basicShader->setMat4("u_ViewProjection", camera.GetProjectionMatrix() * glm::inverse(transform));
-		s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
-		s_Data->viewProjectionMatrix = camera.GetProjectionMatrix() * glm::inverse(transform);
-		s_Stats->drawCalls = 0;
-		s_Stats->triangleCount = 0;
+		// s_Data->batches.clear();
+		// s_Data->lightDataBuffer.clear();
+		// s_Data->cameraPosition = glm::vec3(transform[3]);
+		// s_Data->basicShader->setMat4("u_ViewProjection", camera.GetProjectionMatrix() * glm::inverse(transform));
+		// s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
+		// s_Data->viewProjectionMatrix = camera.GetProjectionMatrix() * glm::inverse(transform);
+		// s_Stats->drawCalls = 0;
+		// s_Stats->triangleCount = 0;
 	}
 
 	void Renderer2D::endScene()
@@ -208,10 +208,10 @@ namespace Cardia
 	{
 		auto& light = s_Data->lightDataBuffer.emplace_back();
 
-		light.positionAndType = glm::vec4(transform.position, static_cast<uint32_t>(lightComponent.lightType));
-
-		const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
-		light.directionAndRange = glm::vec4(forward, lightComponent.range);
-		light.colorAndCutOff = glm::vec4(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
+		// light.positionAndType = glm::vec4(transform.position, static_cast<uint32_t>(lightComponent.lightType));
+		//
+		// const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
+		// light.directionAndRange = glm::vec4(forward, lightComponent.range);
+		// light.colorAndCutOff = glm::vec4(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
 	}
 }
