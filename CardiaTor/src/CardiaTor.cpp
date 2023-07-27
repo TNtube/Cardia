@@ -505,7 +505,7 @@ namespace Cardia
 
 			// Editor camera
 			const Matrix4f& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
-			Matrix4f cameraView = m_EditorCamera.GetCamera().GetViewMatrix();
+			Matrix4f cameraView = m_EditorCamera.GetTransformMatrix().Inverse();
 			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
 			Matrix4f transform = transformComponent.GetTransform();
 

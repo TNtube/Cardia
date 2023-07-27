@@ -29,9 +29,9 @@
 	}
 #else
 	template <typename T>
-	constexpr void CdAssert(T x, const char* message) {}
+	constexpr void CdAssert(T x, const std::string& message = "invalid") {}
 	template <typename T>
-	constexpr void CdCoreAssert(T x, const char* message) {};
+	constexpr void CdCoreAssert(T x, const std::string& message = "invalid") {};
 #endif
 
 template <typename T>

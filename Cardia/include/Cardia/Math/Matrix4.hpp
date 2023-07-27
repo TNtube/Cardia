@@ -42,7 +42,7 @@ namespace Cardia
 		constexpr T* Data() const noexcept { return const_cast<T*>(&values[0].x); }
 
 		static constexpr Matrix4 Identity() noexcept;
-		static constexpr Matrix4 Perspective(Radian<T> fovY, T aspectRatio, T zNear, T zFar) noexcept;
+		static constexpr Matrix4 Perspective(Degree<T> fovY, T aspectRatio, T zNear, T zFar) noexcept;
 		static constexpr Matrix4 Orthographic(T left, T right, T bottom, T top, T zNear, T zFar) noexcept;
 	};
 	

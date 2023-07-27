@@ -46,7 +46,7 @@ namespace Cardia
 			m_ProjectionMatrix = Matrix4f::Orthographic(left, right, down, up, m_OrthoNear, m_OrthoFar);
 		}
 		else if (m_ProjectionType == ProjectionType::Perspective) {
-			m_ProjectionMatrix = Matrix4f::Perspective(Radianf::FromDegree(Degreef(m_PersFOV)), m_AspectRatio, m_PersNear, m_PersFar);
+			m_ProjectionMatrix = Matrix4f::Perspective(Degree(m_PersFOV), m_AspectRatio, m_PersNear, m_PersFar);
 		}
 
 	}
