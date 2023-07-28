@@ -1,7 +1,5 @@
 #include "CardiaTor.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <nfd.h>
@@ -82,7 +80,7 @@ namespace Cardia
 		mouseX -= m_ViewportBounds.x;
 		mouseY -= m_ViewportBounds.y;
 
-		const glm::vec2 viewportSize = glm::vec2(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
+		const Vector2f viewportSize = Vector2f(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
 		mouseY = viewportSize.y - mouseY;
 
 		if (m_CurrentScene)
@@ -418,7 +416,7 @@ namespace Cardia
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 		const auto [width, height] = ImGui::GetContentRegionAvail();
-		if (m_SceneSize != glm::vec2(width, height))
+		if (m_SceneSize != Vector2f(width, height))
 		{
 			m_SceneSize = {width, height};
 			// CreateOffscreenFrameData({static_cast<uint32_t>(width), static_cast<uint32_t>(height)});

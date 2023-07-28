@@ -1,6 +1,5 @@
 #pragma once
 #include <imgui.h>
-#include <glm/glm.hpp>
 
 #include "Cardia/Math/Vector2.hpp"
 #include "Cardia/Math/Vector3.hpp"

@@ -7,7 +7,6 @@
 #include "Cardia/Core/Core.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 #include "Cardia/DataStructure/Mesh.hpp"
-#include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
@@ -107,12 +106,6 @@ namespace Cardia
 	{
 		CdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()).c_str());
 		return std::shared_ptr<T>();
-	}
-
-	template<>
-	inline std::shared_ptr<Shader> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		return nullptr;
 	}
 
 	template<>

@@ -6,6 +6,8 @@
 #include <assimp/postprocess.h>
 #include <Cardia/Core/Log.hpp>
 
+#include "Cardia/Math/Vector4.hpp"
+
 
 namespace Cardia
 {
@@ -34,7 +36,7 @@ namespace Cardia
 			vertices.reserve(ai_mesh->mNumVertices);
 			for(unsigned i = 0; i < ai_mesh->mNumVertices; i++) {
 				SubMesh::Vertex vertex{};
-				vertex.Color = glm::vec4(1);
+				vertex.Color = Vector4f(1.0f);
 
 				vertex.Position.x = ai_mesh->mVertices[i].x;
 				vertex.Position.y = ai_mesh->mVertices[i].y;
@@ -54,7 +56,7 @@ namespace Cardia
 					vertex.TextureCoord.y = 1.0f - ai_mesh->mTextureCoords[0][i].y;
 				}
 				else
-					vertex.TextureCoord = glm::vec2(0.0f, 0.0f);
+					vertex.TextureCoord = Vector2f(0.0f, 0.0f);
 				vertices.emplace_back(vertex);
 			}
 

@@ -87,10 +87,10 @@ namespace Cardia
 		Entity m_HoveredEntity;
 		Entity m_SelectedEntity;
 
-		glm::vec2 m_SceneSize {};
+		Vector2f m_SceneSize {};
 
-		EditorCamera m_EditorCamera {45.f, 0.1f, 10000.0f};
-		glm::vec4 m_ViewportBounds{};
+		EditorCamera m_EditorCamera {Radianf::FromDegree(45.f), 0.1f, 10000.0f};
+		Vector4f m_ViewportBounds{};
 
 		bool m_HoverViewport = false;
 

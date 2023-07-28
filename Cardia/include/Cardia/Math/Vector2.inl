@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 #include <json/value.h>
 
 #include "Vector3.hpp"
@@ -84,6 +82,18 @@ namespace Cardia
 	constexpr Vector2<T> Vector2<T>::operator-() const noexcept
 	{
 		return Vector2(-x, -y);
+	}
+
+	template <arithmetic T>
+	constexpr bool Vector2<T>::operator==(const Vector2& other) const noexcept
+	{
+		return x == other.x && y == other.y;
+	}
+
+	template <arithmetic T>
+	constexpr bool Vector2<T>::operator!=(const Vector2& other) const noexcept
+	{
+		return !(*this == other);
 	}
 
 	template<arithmetic T>

@@ -65,7 +65,7 @@ namespace Cardia
 		constexpr T Dot(const Vector3& other) noexcept;
 		constexpr Vector3 Lerp(const Vector3& other, float t) noexcept;
 		constexpr Vector3 Cross(const Vector3& other) noexcept;
-		constexpr Vector3 Normalize() noexcept;
+		constexpr Vector3 Normalize() const noexcept;
 
 		Json::Value Serialize() const;
 		static bool Deserialize(const Json::Value& root, Vector3& other);

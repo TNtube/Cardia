@@ -1,14 +1,9 @@
 #include "cdpch.hpp"
 
 #include "Cardia/Renderer/Renderer2D.hpp"
-#include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Renderer/Batch.hpp"
 
-#include <glm/ext/matrix_transform.hpp>
 #include <memory>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <glm/gtx/quaternion.hpp>
 
 namespace Cardia
 {
@@ -17,17 +12,16 @@ namespace Cardia
 
 	struct LightData
 	{
-		glm::vec4 positionAndType {};
-		glm::vec4 directionAndRange {};
-		glm::vec4 colorAndCutOff {};
+		Vector4f positionAndType {};
+		Vector4f directionAndRange {};
+		Vector4f colorAndCutOff {};
 	};
 
 	struct Renderer2DData
 	{
 		std::vector<Batch> batches;
-		glm::vec3 cameraPosition {};
-		std::unique_ptr<Shader> basicShader;
-		glm::mat4 viewProjectionMatrix {};
+		Vector3f cameraPosition {};
+		Matrix4f viewProjectionMatrix {};
 
 		// std::unique_ptr<VertexArray> vertexArray;
 		// std::unique_ptr<StorageBuffer> lightStorageBuffer;
@@ -43,7 +37,6 @@ namespace Cardia
 		s_Data = std::make_unique<Renderer2DData>();
 		s_Stats = std::make_unique<Renderer2D::Stats>();
 		s_Data->batches.clear();
-		s_Data->basicShader = Shader::create({"resources/shaders/basic.vert.spirv", "resources/shaders/basic.frag.spirv"});
 		s_Data->lightDataBuffer.clear();
 		// s_Data->vertexArray = VertexArray::create();
 		//
@@ -69,12 +62,12 @@ namespace Cardia
 		s_Data.reset();
 	}
 
-	void Renderer2D::beginScene(Camera& camera, const glm::mat4& transform)
+	void Renderer2D::beginScene(Camera& camera, const Matrix4f& transform)
 	{
 		return;
 		// s_Data->batches.clear();
 		// s_Data->lightDataBuffer.clear();
-		// s_Data->cameraPosition = glm::vec3(transform[3]);
+		// s_Data->cameraPosition = Vector3f(transform[3]);
 		// s_Data->basicShader->setMat4("u_ViewProjection", camera.GetProjectionMatrix() * glm::inverse(transform));
 		// s_Data->basicShader->setFloat3("u_ViewPosition", s_Data->cameraPosition);
 		// s_Data->viewProjectionMatrix = camera.GetProjectionMatrix() * glm::inverse(transform);
@@ -111,69 +104,67 @@ namespace Cardia
 		return *s_Stats;
 	}
 
-	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4 &color)
+	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Vector4f &color)
 	{
 		drawRect(position, size, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color)
+	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Vector4f &color)
 	{
 		drawRect(position, size, rotation, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Texture2D* texture, float tilingFactor)
 	{
-		drawRect(position, size, texture, glm::vec4(1.0f), tilingFactor);
+		drawRect(position, size, texture, Vector4f(1.0f), tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Texture2D *texture, float tilingFactor)
 	{
-		drawRect(position, size, rotation, texture, glm::vec4(1.0f), tilingFactor);
+		drawRect(position, size, rotation, texture, Vector4f(1.0f), tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const Texture2D* texture, const glm::vec4 &color, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Texture2D* texture, const Vector4f &color, float tilingFactor)
 	{
-		const glm::mat4 transform =
-			glm::translate(glm::mat4(1.0f), position)
-			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		const Matrix4f transform = Matrix4f::Identity().Translate(position)
+			* Matrix4f::Identity().Scale({ size.x, size.y, 1.0f });
 		drawRect(transform, texture, color, tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Texture2D *texture, const glm::vec4 &color, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Texture2D *texture, const Vector4f &color, float tilingFactor)
 	{
-		const glm::mat4 transform =
-			glm::translate(glm::mat4(1.0f), position)
-			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), {0.0f, 0.0f, 1.0f})
-			* glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
+		const Matrix4f transform = Matrix4f::Identity().Translate(position)
+			* Matrix4f::Identity().Rotate(Radianf::FromDegree(rotation), { 0.0f, 0.0f, 1.0f })
+			* Matrix4f::Identity().Scale({ size.x, size.y, 1.0f });
 		drawRect(transform, texture, color, tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const glm::mat4 &transform, const glm::vec4 &color)
+	void Renderer2D::drawRect(const Matrix4f &transform, const Vector4f &color)
 	{
 		drawRect(transform, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const glm::mat4 &transform, const Texture2D *texture, const glm::vec4 &color, float tilingFactor, int32_t zIndex, float entityID)
+	void Renderer2D::drawRect(const Matrix4f &transform, const Texture2D *texture, const Vector4f &color, float tilingFactor, int32_t zIndex, float entityID)
 	{
-		constexpr glm::vec2 texCoords[] {
+		constexpr Vector2f texCoords[] {
 			{ 0.0f, 0.0f },
 			{ 1.0f, 0.0f },
 			{ 1.0f, 1.0f },
 			{ 0.0f, 1.0f }
 		};
 
-		constexpr glm::vec4 rectPositions[]
+		constexpr Vector4f rectPositions[]
 		{
 			{ -0.5f, -0.5f, 0.0f, 1.0f },
 			{  0.5f, -0.5f, 0.0f, 1.0f },
 			{  0.5f,  0.5f, 0.0f, 1.0f },
 			{ -0.5f,  0.5f, 0.0f, 1.0f },
 		};
-		constexpr glm::vec4 normal { 0.0f, 0.0f, 1.0f, 0.0f };
+		constexpr Vector4f normal { 0.0f, 0.0f, 1.0f, 0.0f };
 
 		SubMesh mesh;
-		const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
-		for (int i = 0; i < sizeof(rectPositions) / sizeof(glm::vec4); ++i)
+		// const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
+		for (int i = 0; i < sizeof(rectPositions) / sizeof(Vector4f); ++i)
 		{
 			// auto vertex = Vertex();
 			// vertex.position = transform * rectPositions[i];
@@ -208,10 +199,10 @@ namespace Cardia
 	{
 		auto& light = s_Data->lightDataBuffer.emplace_back();
 
-		// light.positionAndType = glm::vec4(transform.position, static_cast<uint32_t>(lightComponent.lightType));
+		// light.positionAndType = Vector4f(transform.position, static_cast<uint32_t>(lightComponent.lightType));
 		//
-		// const auto forward = glm::rotate({transform.rotation}, glm::vec3(0, -1, 0));
-		// light.directionAndRange = glm::vec4(forward, lightComponent.range);
-		// light.colorAndCutOff = glm::vec4(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
+		// const auto forward = glm::rotate({transform.rotation}, Vector3f(0, -1, 0));
+		// light.directionAndRange = Vector4f(forward, lightComponent.range);
+		// light.colorAndCutOff = Vector4f(lightComponent.color, 1.0f - std::fmod(lightComponent.angle, 360.0f) / 360);
 	}
 }

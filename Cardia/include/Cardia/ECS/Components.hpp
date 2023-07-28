@@ -6,9 +6,6 @@
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include "Cardia/Renderer/MeshRenderer.hpp"
 
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
 #include <utility>
 
 #include "Cardia/Math/Matrix4.hpp"

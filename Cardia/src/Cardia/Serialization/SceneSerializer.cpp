@@ -187,15 +187,11 @@ namespace Cardia::Serialization
 		Json::Value node;
 
 		node["type"] = static_cast<int>(component.camera.GetProjectionType());
-		auto pers = component.camera.GetPerspective();
-		node["perspectiveFov"] = pers.x;
-		node["perspectiveNear"] = pers.y;
-		node["perspectiveFar"] = pers.z;
+		const auto pers = component.camera.GetPerspective();
+		node["perspective"] = pers.Serialize();
 
-		auto ortho = component.camera.GetOrthographic();
-		node["orthoSize"] = ortho.x;
-		node["orthoNear"] = ortho.y;
-		node["orthoFar"] = ortho.z;
+		const auto ortho = component.camera.GetOrthographic();
+		node["orthographic"] = ortho.Serialize();
 
 		auto idx = static_cast<uint32_t>(entity);
 		m_Root[idx][Component::Camera::ClassName()] = node;
@@ -381,19 +377,16 @@ namespace Cardia::Serialization
 			{
 				auto& camera = entity.AddComponent<Component::Camera>();
 
-				auto pFov = node[currComponent]["perspectiveFov"].asFloat();
-				auto pNear = node[currComponent]["perspectiveNear"].asFloat();
-				auto pFar = node[currComponent]["perspectiveFar"].asFloat();
-				camera.camera.SetPerspective(pFov, pNear, pFar);
+				PerspectiveData pers;
+				PerspectiveData::Deserialize(node[currComponent]["perspective"], pers);
+				camera.camera.SetPerspective(pers);
 
-
-				auto oSize = node[currComponent]["orthoSize"].asFloat();
-				auto oNear = node[currComponent]["orthoNear"].asFloat();
-				auto oFar = node[currComponent]["orthoFar"].asFloat();
-				camera.camera.SetOrthographic(oSize, oNear, oFar);
+				OrthographicData ortho;
+				OrthographicData::Deserialize(node[currComponent]["orthographic"], ortho);
+				camera.camera.SetOrthographic(ortho);
 
 				camera.camera.SetProjectionType(
-					static_cast<SceneCamera::ProjectionType>(node["camera"]["type"].asInt()));
+					static_cast<SceneCamera::ProjectionType>(node[currComponent]["type"].asInt()));
 			}
 
 

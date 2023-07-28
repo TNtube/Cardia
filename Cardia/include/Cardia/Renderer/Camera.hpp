@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "Cardia/Core/Core.hpp"
 #include "Cardia/Math/Matrix4.hpp"
 

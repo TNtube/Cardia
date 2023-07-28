@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <glm/glm.hpp>
 #include <memory>
 #include "SubMesh.hpp"
 #include "Cardia/Renderer/Texture.hpp"

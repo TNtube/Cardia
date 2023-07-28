@@ -35,7 +35,7 @@ void SandBox2D::OnUpdate()
 	time += Cardia::Time::GetDeltaTime();
 	if (time > 0.2f) {
 		time = 0.0f;
-		glm::vec3 head = snakePos.front();
+		Cardia::Vector3f head = snakePos.front();
 		if(head == applePos) {
 			std::uniform_int_distribution<int> dist{-7, 6};
 			applePos = {dist(random), dist(random), 0.0f};

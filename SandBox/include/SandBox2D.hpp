@@ -21,16 +21,16 @@ private:
 	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
 	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
 
-	glm::vec2 m_SceneSize {};
+	Cardia::Vector2f m_SceneSize {};
 
-	glm::vec4 bgColor {0.3f, 0.2f, 0.8f, 1.0f};
-	glm::vec4 snakeCol {0.3f, 0.8f, 0.2f, 0.1f};
+	Cardia::Vector4f bgColor {0.3f, 0.2f, 0.8f, 1.0f};
+	Cardia::Vector4f snakeCol {0.3f, 0.8f, 0.2f, 0.1f};
 
-	std::deque<glm::vec3> snakePos {{0.0f, 0.0f, 0.0f},
+	std::deque<Cardia::Vector3f> snakePos {{0.0f, 0.0f, 0.0f},
 					{1.0f, 0.0f, 0.0f},
 					{1.0f, 0.0f, 0.0f}};
 
-	glm::vec3 applePos {0.0f};
+	Cardia::Vector3f applePos {0.0f};
 
 	float vx = 1, vy = 0;
 	float time = 0.0f;

@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <imgui.h>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "CardiaTor.hpp"
 #include "Cardia/ECS/Components.hpp"
@@ -62,10 +61,18 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
 			EditorUI::DragFloat3("Position", transform.position);
 
-			auto rotation = Vector3f(glm::degrees(transform.rotation.x), glm::degrees(transform.rotation.y), glm::degrees(transform.rotation.z));
+			
+
+			auto rotation = Vector3f(
+				Radianf::FromDegree(transform.rotation.x).Value(),
+				Radianf::FromDegree(transform.rotation.y).Value(),
+				Radianf::FromDegree(transform.rotation.z).Value());
 			if (EditorUI::DragFloat3("Rotation", rotation))
 			{
-				transform.rotation = Vector3f(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+				transform.rotation = Vector3f(
+					Degreef::FromRadian(rotation.x).Value(),
+					Degreef::FromRadian(rotation.y).Value(),
+					Degreef::FromRadian(rotation.z).Value());;
 			}
 
 			EditorUI::DragFloat3("Scale", transform.scale, 1);
@@ -166,34 +173,34 @@ namespace Cardia::Panel
 			EditorUI::Checkbox("Primary", &isPrimary);
 
 			if (cam.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
-				auto perspective = cam.GetPerspective();
+				int actions = 0;
 
-				float pFov = glm::degrees(perspective.x);
-				bool edited = EditorUI::DragFloat("Fov", &pFov, 0.05f);
+				const auto perspective = cam.GetPerspective();
 
-				float pNear = perspective.y;
-				edited = edited || EditorUI::DragFloat("Near", &pNear, 0.05f);
+				float pFov = perspective.VerticalFOV.ToDegree().Value();
+				actions += EditorUI::DragFloat("Fov", &pFov, 0.05f);
 
-				float pFar = perspective.z;
-				edited = edited || EditorUI::DragFloat("Far", &pFar, 0.05f);
+				float pNear = perspective.NearClip;
+				actions += EditorUI::DragFloat("Near", &pNear, 0.05f);
 
-				if (edited)
-					cam.SetPerspective(glm::radians(pFov), pNear, pFar);
+				float pFar = perspective.FarClip;
+				actions += EditorUI::DragFloat("Far", &pFar, 0.05f);
+
+				if (actions > 0)
+					cam.SetPerspective({Radianf::FromDegree(pFov), pNear, pFar});
 			}
 			else if (cam.GetProjectionType() == SceneCamera::ProjectionType::Orthographic) {
 				auto orthographic = cam.GetOrthographic();
 
-				float oSize = orthographic.x;
-				bool edited = EditorUI::DragFloat("Size", &oSize, 0.05f);
+				int actions = 0;
+				actions += EditorUI::DragFloat("Size", &orthographic.Size, 0.05f);
 
-				float oNear = orthographic.y;
-				edited = edited || EditorUI::DragFloat("Near", &oNear, 0.05f);
+				actions += EditorUI::DragFloat("Near", &orthographic.NearClip, 0.05f);
 
-				float oFar = orthographic.z;
-				edited = edited || EditorUI::DragFloat("Far", &oFar, 0.05f);
+				actions += EditorUI::DragFloat("Far", &orthographic.FarClip, 0.05f);
 
-				if (edited)
-					cam.SetOrthographic(oSize, oNear, oFar);
+				if (actions > 0)
+					cam.SetOrthographic(orthographic);
 			}
 		});
 

@@ -37,6 +37,9 @@ namespace Cardia
 
 		constexpr Vector2 operator-() const noexcept;
 
+		constexpr bool operator==(const Vector2& other) const noexcept;
+		constexpr bool operator!=(const Vector2& other) const noexcept;
+
 		constexpr Vector2& operator+=(const Vector2& other) noexcept;
 		constexpr Vector2 operator+(const Vector2& other) const noexcept;
 		constexpr Vector2& operator-=(const Vector2& other) noexcept;

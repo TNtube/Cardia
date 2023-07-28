@@ -3,7 +3,6 @@
 #include <pybind11/pybind11.h>
 #include <Cardia/ECS/Entity.hpp>
 #include <pybind11/embed.h>
-#include <glm/vec2.hpp>
 
 #include "Cardia/Core/KeyCodes.hpp"
 #include "Cardia/Core/Input.hpp"

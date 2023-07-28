@@ -1,8 +1,6 @@
 ﻿#pragma once
-#include <glm/vec3.hpp>
 
 #include "Cardia/DataStructure/Mesh.hpp"
-#include "Shader.hpp"
 #include "Texture.hpp"
 
 namespace Cardia
@@ -31,18 +29,17 @@ namespace Cardia
 	class Batch
 	{
 	public:
-		Batch(const glm::vec3& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
+		Batch(const Vector3f& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
 		bool addMesh(SubMesh* mesh);
 		BatchSpecification specification;
 	private:
-		glm::vec3 camPos {};
+		Vector3f camPos {};
 
 		// VertexArray* vertexArray;
 		// VertexBuffer* vertexBuffer = nullptr;
 		// IndexBuffer* indexBuffer = nullptr;
-		std::shared_ptr<Shader> m_Shader;
 
 		// std::vector<Vertex> vertexBufferData;
 		uint32_t indexCount = 0;

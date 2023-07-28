@@ -19,7 +19,8 @@ namespace Cardia
 		constexpr T& Value() noexcept { return m_Value; }
 
 		constexpr Degree<T> ToDegree() const noexcept;
-		static constexpr Radian FromDegree(const Degree<T>& degree) noexcept;
+		static constexpr Radian FromDegree(Degree<T> degree) noexcept;
+		static constexpr Radian FromDegree(T degree) noexcept;
 
 	private:
 		T m_Value {};
@@ -37,7 +38,8 @@ namespace Cardia
 		constexpr T Value() const noexcept { return m_Value; }
 
 		constexpr Radian<T> ToRadian() const noexcept;
-		static constexpr Degree FromRadian(const Radian<T>& radian) noexcept;
+		static constexpr Degree FromRadian(Radian<T> radian) noexcept;
+		static constexpr Degree FromRadian(T radian) noexcept;
 
 	private:
 		T m_Value {};

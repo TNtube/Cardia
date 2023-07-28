@@ -2,13 +2,9 @@
 
 #include <memory>
 #include <string>
-#include <filesystem>
-#include <glm/vec2.hpp>
-#include <vulkan/vulkan.h>
 
 #include "Device.hpp"
 #include "Descriptors.hpp"
-#include "Pipeline.hpp"
 
 
 namespace Cardia

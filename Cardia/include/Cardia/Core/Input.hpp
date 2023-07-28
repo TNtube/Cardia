@@ -1,7 +1,6 @@
 #pragma once
-#include <glm/glm.hpp>
 
-#include "Cardia/Application.hpp"
+#include "Cardia/Math/Vector2.hpp"
 
 
 namespace Cardia
@@ -11,7 +10,7 @@ namespace Cardia
 	public:
 		static bool IsKeyPressed(int keyCode);
 		static bool IsMouseButtonPressed(int button);
-		static glm::vec2 GetMousePos();
+		static Vector2f GetMousePos();
 		static float GetMouseX();
 		static float GetMouseY();
 	};

@@ -228,13 +228,13 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	constexpr Vector3<T> Vector3<T>::Normalize() noexcept
+	constexpr Vector3<T> Vector3<T>::Normalize() const noexcept
 	{
 		Vector3 temp(*this);
 
 		T len = static_cast<T>(std::sqrt(x * x + y * y + z * z));
 
-		if constexpr (len > 0)
+		if (len > 0)
 		{
 			temp.x /= len;
 			temp.y /= len;

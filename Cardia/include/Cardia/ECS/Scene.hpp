@@ -3,7 +3,6 @@
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/UUID.hpp"
-#include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 
 #include <entt/entt.hpp>

@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <glm/gtc/quaternion.hpp>
-
 #include "Matrix4.hpp"
 #include "Cardia/Core/Concepts.hpp"
 #include "Vector3.hpp"

@@ -106,12 +106,16 @@
 	{
 		"Camera" : 
 		{
-			"orthoFar" : 1.0,
-			"orthoNear" : -1.0,
-			"orthoSize" : 10.0,
-			"perspectiveFar" : 1000.0,
-			"perspectiveFov" : 1.0471975803375244,
-			"perspectiveNear" : 0.0099999997764825821,
+			"orthographic": {
+				"Far": 1.0,
+				"Near": -1.0,
+				"Size": 10.0
+			},
+			"perspective": {
+				"Far": 1000.0,
+				"Fov": 1.0471975803375244,
+				"Near": 0.0099999997764825821
+			},
 			"type" : 0
 		},
 		"ID" : "c666fa63-8617-4983-a62a-422fc9bef6ac",

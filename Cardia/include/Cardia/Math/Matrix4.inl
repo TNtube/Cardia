@@ -76,7 +76,7 @@ namespace Cardia
 		T const s = sin(a);
 
 		Vector3<T> axis(vec.Normalize());
-		Vector3<T> temp((static_cast<T>(1) - c) * axis);
+		Vector3<T> temp(axis * (static_cast<T>(1) - c));
 
 		Matrix4 rotate;
 		rotate[0][0] = c + temp[0] * axis[0];
@@ -207,7 +207,7 @@ namespace Cardia
 	}
 
 	template <floating_point T>
-	constexpr Matrix4<T> Matrix4<T>::Perspective(Degree<T> fovY, T aspectRatio, T zNear, T zFar) noexcept
+	constexpr Matrix4<T> Matrix4<T>::Perspective(Radian<T> fovY, T aspectRatio, T zNear, T zFar) noexcept
 	{
 		assert(abs(aspectRatio - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
 
