@@ -28,6 +28,9 @@ namespace Cardia
 		explicit constexpr Vector3(const Vector4<T>& other) noexcept;
 		constexpr Vector3& operator=(const Vector4<T>& other) noexcept;
 
+		constexpr bool operator==(const Vector3& other) const noexcept;
+		constexpr bool operator!=(const Vector3& other) const noexcept;
+
 		static constexpr size_t Size() noexcept { return 3; }
 
 		constexpr T& operator[](size_t index) noexcept;

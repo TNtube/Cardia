@@ -9,7 +9,7 @@ SandBox2D::SandBox2D()
 	// m_TextureSquare = Cardia::Texture2D::create("resources/square.jpg");
 	// m_TextureBox = Cardia::Texture2D::create("resources/container.jpg");
 
-	std::uniform_int_distribution<int> dist{-7, 6};
+	std::uniform_int_distribution<float> dist{-7, 6};
 	applePos = {dist(random), dist(random), 0.0f};
 }
 
@@ -37,7 +37,7 @@ void SandBox2D::OnUpdate()
 		time = 0.0f;
 		Cardia::Vector3f head = snakePos.front();
 		if(head == applePos) {
-			std::uniform_int_distribution<int> dist{-7, 6};
+			std::uniform_int_distribution<float> dist{-7, 6};
 			applePos = {dist(random), dist(random), 0.0f};
 		}
 		else

@@ -16,7 +16,19 @@ namespace Cardia
 		z = other.z;
 		return *this;
 	}
-	
+
+	template <arithmetic T>
+	constexpr bool Vector3<T>::operator==(const Vector3& other) const noexcept
+	{
+		return x == other.x && y == other.y && z == other.z;
+	}
+
+	template <arithmetic T>
+	constexpr bool Vector3<T>::operator!=(const Vector3& other) const noexcept
+	{
+		return !(*this == other);
+	}
+
 	template<arithmetic T>
 	constexpr T& Vector3<T>::operator[](size_t index) noexcept
 	{
