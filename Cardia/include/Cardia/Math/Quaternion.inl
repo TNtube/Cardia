@@ -49,6 +49,151 @@ namespace Cardia
 	}
 
 	template <floating_point T>
+	constexpr bool Quaternion<T>::operator==(const Quaternion& other) const noexcept
+	{
+		return IsAlmostEqual(m_Real, other.m_Real) && m_Imaginary == other.m_Imaginary;
+	}
+
+	template <floating_point T>
+	constexpr bool Quaternion<T>::operator!=(const Quaternion& other) const noexcept
+	{
+		return !(*this == other);
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T>& Quaternion<T>::operator+=(const Quaternion& other) noexcept
+	{
+		m_Real += other.m_Real;
+		m_Imaginary += other.m_Imaginary;
+		return *this;
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::operator+(const Quaternion& other) const noexcept
+	{
+		Quaternion temp(*this);
+		temp += other;
+		return temp;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T>& Quaternion<T>::operator+=(U scalar) noexcept requires std::convertible_to<U, T>
+	{
+		m_Real += static_cast<T>(scalar);
+		m_Imaginary += static_cast<T>(scalar);
+		return *this;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T> Quaternion<T>::operator+(U scalar) const noexcept requires std::convertible_to<U, T>
+	{
+		Quaternion temp(*this);
+		temp += static_cast<T>(scalar);
+		return temp;
+	}
+
+	template <floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::operator-() const noexcept
+	{
+		return Quaternion(-m_Real, -m_Imaginary);
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T>& Quaternion<T>::operator-=(const Quaternion& other) noexcept
+	{
+		m_Real -= other.m_Real;
+		m_Imaginary -= other.m_Imaginary;
+		return *this;
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::operator-(const Quaternion& other) const noexcept
+	{
+		Quaternion temp(*this);
+		temp -= other;
+		return temp;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T>& Quaternion<T>::operator-=(U scalar) noexcept requires std::convertible_to<U, T>
+	{
+		m_Real -= static_cast<T>(scalar);
+		m_Imaginary -= static_cast<T>(scalar);
+		return *this;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T> Quaternion<T>::operator-(U scalar) const noexcept requires std::convertible_to<U, T>
+	{
+		Quaternion temp(*this);
+		temp -= static_cast<T>(scalar);
+		return temp;
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& other) noexcept
+	{
+		Quaternion p(*this);
+		Quaternion q(other);
+
+		T real = p.m_Real * q.m_Real - p.m_Imaginary.Dot(q.m_Imaginary);
+		Vector3<T> imaginary = q.m_Imaginary * p.m_Real + p.m_Imaginary * q.m_Real + p.m_Imaginary.Cross(q.m_Imaginary);
+
+		m_Real = real;
+		m_Imaginary = imaginary;
+
+		return *this;
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::operator*(const Quaternion& other) const noexcept
+	{
+		Quaternion temp(*this);
+		temp *= other;
+		return temp;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T>& Quaternion<T>::operator*=(U scalar) noexcept requires std::convertible_to<U, T>
+	{
+		m_Real *= static_cast<T>(scalar);
+		m_Imaginary *= static_cast<T>(scalar);
+		return *this;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T> Quaternion<T>::operator*(U scalar) const noexcept requires std::convertible_to<U, T>
+	{
+		Quaternion temp(*this);
+		temp *= static_cast<T>(scalar);
+		return temp;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T>& Quaternion<T>::operator/=(U scalar) noexcept requires std::convertible_to<U, T>
+	{
+		m_Real /= static_cast<T>(scalar);
+		m_Imaginary /= static_cast<T>(scalar);
+		return *this;
+	}
+
+	template<floating_point T>
+	template<typename U>
+	constexpr Quaternion<T> Quaternion<T>::operator/(U scalar) const noexcept requires std::convertible_to<U, T>
+	{
+		Quaternion temp(*this);
+		temp /= static_cast<T>(scalar);
+		return temp;
+	}
+
+	template <floating_point T>
 	constexpr T Quaternion<T>::Length() const noexcept
 	{
 		return sqrt(this->Dot(*this));
@@ -61,10 +206,26 @@ namespace Cardia
 	}
 
 	template <floating_point T>
-	constexpr Quaternion<T> Quaternion<T>::Normalize() noexcept
+	constexpr Quaternion<T> Quaternion<T>::Conjugate() const noexcept
+	{
+		return Quaternion(m_Real, -m_Imaginary);
+	}
+
+	template <floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::Inverse() const noexcept
+	{
+		T dot = this->Dot(*this);
+		if (dot <= static_cast<T>(0)) // Problem
+			return Quaternion(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
+
+		return Conjugate() / dot;
+	}
+
+	template <floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::Normalize() const noexcept
 	{
 		T len = Length();
-		if constexpr (len <= static_cast<T>(0)) // Problem
+		if (len <= static_cast<T>(0)) // Problem
 			return Quaternion(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
 		T oneOverLen = static_cast<T>(1) / len;
 

@@ -18,6 +18,46 @@ namespace Cardia
 		constexpr T Value() const noexcept { return m_Value; }
 		constexpr T& Value() noexcept { return m_Value; }
 
+		constexpr bool operator==(const Radian& other) const noexcept;
+		constexpr bool operator!=(const Radian& other) const noexcept;
+
+		constexpr Radian operator-() const noexcept;
+
+		constexpr Radian& operator+=(const Radian& other) noexcept;
+		constexpr Radian operator+(const Radian& other) const noexcept;
+		constexpr Radian& operator-=(const Radian& other) noexcept;
+		constexpr Radian operator-(const Radian& other) const noexcept;
+		constexpr Radian& operator*=(const Radian& other) noexcept;
+		constexpr Radian operator*(const Radian& other) const noexcept;
+		constexpr Radian& operator/=(const Radian& other) noexcept;
+		constexpr Radian operator/(const Radian& other) const noexcept;
+
+		constexpr Radian& operator+=(const Degree<T>& other) noexcept;
+		constexpr Radian operator+(const Degree<T>& other) const noexcept;
+		constexpr Radian& operator-=(const Degree<T>& other) noexcept;
+		constexpr Radian operator-(const Degree<T>& other) const noexcept;
+		constexpr Radian& operator*=(const Degree<T>& other) noexcept;
+		constexpr Radian operator*(const Degree<T>& other) const noexcept;
+		constexpr Radian& operator/=(const Degree<T>& other) noexcept;
+		constexpr Radian operator/(const Degree<T>& other) const noexcept;
+
+		template<typename U>
+		constexpr Radian& operator+=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian operator+(U scalar) const noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian& operator-=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian operator-(U scalar) const noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian& operator*=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian operator*(U scalar) const noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian& operator/=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Radian operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
+
 		constexpr Degree<T> ToDegree() const noexcept;
 		static constexpr Radian FromDegree(Degree<T> degree) noexcept;
 		static constexpr Radian FromDegree(T degree) noexcept;
@@ -36,6 +76,46 @@ namespace Cardia
 
 		constexpr T& Value() noexcept { return m_Value; }
 		constexpr T Value() const noexcept { return m_Value; }
+
+		constexpr bool operator==(const Degree& other) const noexcept;
+		constexpr bool operator!=(const Degree& other) const noexcept;
+
+		constexpr Degree operator-() const noexcept;
+
+		constexpr Degree& operator+=(const Degree& other) noexcept;
+		constexpr Degree operator+(const Degree& other) const noexcept;
+		constexpr Degree& operator-=(const Degree& other) noexcept;
+		constexpr Degree operator-(const Degree& other) const noexcept;
+		constexpr Degree& operator*=(const Degree& other) noexcept;
+		constexpr Degree operator*(const Degree& other) const noexcept;
+		constexpr Degree& operator/=(const Degree& other) noexcept;
+		constexpr Degree operator/(const Degree& other) const noexcept;
+
+		constexpr Degree& operator+=(const Radian<T>& other) noexcept;
+		constexpr Degree operator+(const Radian<T>& other) const noexcept;
+		constexpr Degree& operator-=(const Radian<T>& other) noexcept;
+		constexpr Degree operator-(const Radian<T>& other) const noexcept;
+		constexpr Degree& operator*=(const Radian<T>& other) noexcept;
+		constexpr Degree operator*(const Radian<T>& other) const noexcept;
+		constexpr Degree& operator/=(const Radian<T>& other) noexcept;
+		constexpr Degree operator/(const Radian<T>& other) const noexcept;
+
+		template<typename U>
+		constexpr Degree& operator+=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree operator+(U scalar) const noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree& operator-=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree operator-(U scalar) const noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree& operator*=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree operator*(U scalar) const noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree& operator/=(U scalar) noexcept requires std::convertible_to<U, T>;
+		template<typename U>
+		constexpr Degree operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
 		constexpr Radian<T> ToRadian() const noexcept;
 		static constexpr Degree FromRadian(Radian<T> radian) noexcept;

@@ -19,6 +19,7 @@ add_requires("nativefiledialog 1.1.6")
 add_requires("jsoncpp 1.9.5")
 add_requires("assimp v5.2.5")
 add_requires("vulkan-loader")
+add_requires("catch2 v3.4.0")
 
 add_requires("imguizmo 1.89+WIP")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.89-docking", configs = {glfw= true}}) -- config sub imgui module
@@ -70,9 +71,6 @@ target("Cardia")
         os.setenv("PYTHONHOME", pythonDir)
     end)]]
 
-    if is_mode("debug") then
-        add_defines("CD_DEBUG")
-    end
 
 target("SandBox")
     set_kind("binary")
@@ -91,9 +89,6 @@ target("SandBox")
     add_packages("entt")
     add_deps("Cardia")
 
-    if is_mode("debug") then
-        add_defines("CD_DEBUG")
-    end
 
 target("CardiaTor")
     set_kind("binary")
@@ -113,6 +108,17 @@ target("CardiaTor")
     add_packages("nativefiledialog")
     add_deps("Cardia")
 
-    if is_mode("debug") then
-        add_defines("CD_DEBUG")
-    end
+
+target("Tests")
+    set_kind("binary")
+    set_runtimes("MT")
+
+    set_targetdir("build/" .. outputdir .. "/Tests/bin")
+    set_objectdir("build/" .. outputdir .. "/Tests/obj")
+
+    add_headerfiles("Tests/**.hpp")
+    add_files("Tests/**.cpp")
+    add_includedirs("Tests/Cardia/include/", {public = true})
+
+    add_packages("catch2")
+    add_deps("Cardia")

@@ -64,10 +64,10 @@ namespace Cardia
 		template<typename U>
 		constexpr Vector3 operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
 
-		constexpr T Length() noexcept;
-		constexpr T Dot(const Vector3& other) noexcept;
-		constexpr Vector3 Lerp(const Vector3& other, float t) noexcept;
-		constexpr Vector3 Cross(const Vector3& other) noexcept;
+		constexpr T Length() const noexcept;
+		constexpr T Dot(const Vector3& other) const noexcept;
+		constexpr Vector3 Lerp(const Vector3& other, float t) const noexcept;
+		constexpr Vector3 Cross(const Vector3& other) const noexcept;
 		constexpr Vector3 Normalize() const noexcept;
 
 		Json::Value Serialize() const;

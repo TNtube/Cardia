@@ -24,6 +24,9 @@ namespace Cardia
 		explicit constexpr Vector4(T scalar) noexcept
 			: x(scalar), y(scalar), z(scalar), w(scalar) {}
 
+		constexpr bool operator==(const Vector4& other) const noexcept;
+		constexpr bool operator!=(const Vector4& other) const noexcept;
+
 		static constexpr size_t Size() noexcept { return 4; }
 
 		constexpr T operator[](size_t index) const noexcept;

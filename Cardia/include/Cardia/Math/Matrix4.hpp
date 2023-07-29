@@ -19,6 +19,9 @@ namespace Cardia
 			: values{ col1, col2, col3, col4 } {}
 		explicit constexpr Matrix4(T diagonal) noexcept;
 
+		constexpr bool operator==(const Matrix4& other) const noexcept;
+		constexpr bool operator!=(const Matrix4& other) const noexcept;
+
 		static constexpr size_t Size() noexcept { return 4; }
 		constexpr Vector4<T> operator[](size_t index) const noexcept;
 		constexpr Vector4<T>& operator[](size_t index) noexcept;

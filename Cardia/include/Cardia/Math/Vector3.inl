@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <json/value.h>
 #include "Cardia/Core/Concepts.hpp"
+#include "Cardia/Core/Core.hpp"
 
 namespace Cardia
 {
@@ -20,7 +21,7 @@ namespace Cardia
 	template <arithmetic T>
 	constexpr bool Vector3<T>::operator==(const Vector3& other) const noexcept
 	{
-		return x == other.x && y == other.y && z == other.z;
+		return IsAlmostEqual(x, other.x) && IsAlmostEqual(y, other.y) && IsAlmostEqual(z, other.z);
 	}
 
 	template <arithmetic T>
@@ -212,26 +213,26 @@ namespace Cardia
 	}
 
 	template<arithmetic T>
-	constexpr T Vector3<T>::Dot(const Vector3& other) noexcept
+	constexpr T Vector3<T>::Dot(const Vector3& other) const noexcept
 	{
 		Vector3 temp(*this * other);
 		return temp.x + temp.y + temp.z;
 	}
 	
 	template<arithmetic T>
-	constexpr T Vector3<T>::Length() noexcept
+	constexpr T Vector3<T>::Length() const noexcept
 	{
 		return sqrt(this->Dot(*this));
 	}
 
 	template<arithmetic T>
-	constexpr Vector3<T> Vector3<T>::Lerp(const Vector3& other, float t) noexcept
+	constexpr Vector3<T> Vector3<T>::Lerp(const Vector3& other, float t) const noexcept
 	{
 		return *this + (other - *this) * t;
 	}
 
 	template<arithmetic T>
-	constexpr Vector3<T> Vector3<T>::Cross(const Vector3& other) noexcept
+	constexpr Vector3<T> Vector3<T>::Cross(const Vector3& other) const noexcept
 	{
 		return Vector3(
 			y * other.z - other.y * z,

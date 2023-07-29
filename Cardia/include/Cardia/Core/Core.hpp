@@ -8,7 +8,12 @@
 #include <cassert>
 #include "Log.hpp"
 #include <uuid.h>
+#include "Concepts.hpp"
 
+
+namespace Cardia
+{
+#define CD_BIND_EVENT_FN(x) [this](auto && PH1) { return (x)(PH1); }
 
 #if defined(__cpp_consteval) && !defined(NDEBUG) // Trick because CLion can't find std::source_location
 	template <typename T>
@@ -34,17 +39,21 @@
 	constexpr void CdCoreAssert(T x, const std::string& message = "invalid") {};
 #endif
 
-template <typename T>
-constexpr T Bit(T x)
-{
-	return 1 << x;
+	template <typename T>
+	constexpr T Bit(T x)
+	{
+		return 1 << x;
+	}
+
+	template <typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
+	constexpr auto enum_as_integer(const Enumeration value) -> std::underlying_type_t<Enumeration>
+	{
+		return static_cast<std::underlying_type_t<Enumeration>>(value);
+	}
+
+	template<floating_point T>
+	constexpr bool IsAlmostEqual(T l, T r)
+	{
+		return r == std::nextafter(l, r);
+	}
 }
-
-template <typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
-constexpr auto enum_as_integer(const Enumeration value) -> std::underlying_type_t<Enumeration>
-{
-	return static_cast<std::underlying_type_t<Enumeration>>(value);
-}
-
-
-#define CD_BIND_EVENT_FN(x) [this](auto && PH1) { return (x)(PH1); }

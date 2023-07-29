@@ -5,6 +5,20 @@
 
 namespace Cardia
 {
+	template <arithmetic T>
+	constexpr bool Vector4<T>::operator==(const Vector4& other) const noexcept
+	{
+		return IsAlmostEqual(x, other.x)
+		&& IsAlmostEqual(y, other.y)
+		&& IsAlmostEqual(z, other.z)
+		&& IsAlmostEqual(w, other.w);
+	}
+
+	template <arithmetic T>
+	constexpr bool Vector4<T>::operator!=(const Vector4& other) const noexcept
+	{
+		return !(*this == other);
+	}
 
 	template<arithmetic T>
 	constexpr T Vector4<T>::operator[](size_t index) const noexcept

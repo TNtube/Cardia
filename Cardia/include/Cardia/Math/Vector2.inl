@@ -87,7 +87,7 @@ namespace Cardia
 	template <arithmetic T>
 	constexpr bool Vector2<T>::operator==(const Vector2& other) const noexcept
 	{
-		return x == other.x && y == other.y;
+		return IsAlmostEqual(x, other.x) && IsAlmostEqual(y, other.y);
 	}
 
 	template <arithmetic T>

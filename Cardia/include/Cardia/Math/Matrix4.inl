@@ -14,6 +14,18 @@ namespace Cardia
 		} {}
 
 	template <floating_point T>
+	constexpr bool Matrix4<T>::operator==(const Matrix4& other) const noexcept
+	{
+		return values[0] == other[0] && values[1] == other[1] && values[2] == other[2] && values[3] == other[3];
+	}
+
+	template <floating_point T>
+	constexpr bool Matrix4<T>::operator!=(const Matrix4& other) const noexcept
+	{
+		return !(*this == other);
+	}
+
+	template <floating_point T>
 	constexpr Vector4<T>& Matrix4<T>::operator[](size_t index) noexcept
 	{
 		CdCoreAssert(index < this->Size());
