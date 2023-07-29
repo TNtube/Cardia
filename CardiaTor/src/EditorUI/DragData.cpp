@@ -3,6 +3,10 @@
 #include "Cardia/Core/Log.hpp"
 #include <imgui_internal.h>
 
+#include "Cardia/Math/Vector2.hpp"
+#include "Cardia/Math/Vector3.hpp"
+#include "Cardia/Math/Vector4.hpp"
+
 
 namespace Cardia::EditorUI
 {
@@ -132,7 +136,7 @@ namespace Cardia::EditorUI
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
-		const auto item_width = (ImGui::GetContentRegionAvail().x / static_cast<float>(vector.length())) - buttonSize.x;
+		const auto item_width = (ImGui::GetContentRegionAvail().x / static_cast<float>(vector.Size())) - buttonSize.x;
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
@@ -153,7 +157,7 @@ namespace Cardia::EditorUI
 			res = true;
 		}
 
-		if constexpr (std::is_assignable_v<glm::vec2, T>) {
+		if constexpr (std::is_assignable_v<Vector2f, T>) {
 			ImGui::SameLine();
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
@@ -176,7 +180,7 @@ namespace Cardia::EditorUI
 			}
 		}
 
-		if constexpr (std::is_assignable_v<glm::vec3, T>) {
+		if constexpr (std::is_assignable_v<Vector3f, T>) {
 			ImGui::SameLine();
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
@@ -199,7 +203,7 @@ namespace Cardia::EditorUI
 			}
 		}
 
-		if constexpr (std::is_assignable_v<glm::vec4, T>) {
+		if constexpr (std::is_assignable_v<Vector4f, T>) {
 
 			ImGui::SameLine();
 
@@ -227,17 +231,17 @@ namespace Cardia::EditorUI
 		return res;
 	}
 
-	bool DragFloat2(const std::string &label, glm::vec2 &vector, float reset)
+	bool DragFloat2(const std::string &label, Vector2f &vector, float reset)
 	{
 		return InternalDragFloat4(label, vector, reset);
 	}
 
-	bool DragFloat3(const std::string &label, glm::vec3 &vector, float reset)
+	bool DragFloat3(const std::string &label, Vector3f &vector, float reset)
 	{
 		return InternalDragFloat4(label, vector, reset);
 	}
 
-	bool DragFloat4(const std::string &label, glm::vec4 &vector, float reset)
+	bool DragFloat4(const std::string &label, Vector4f &vector, float reset)
 	{
 		return InternalDragFloat4(label, vector, reset);
 	}

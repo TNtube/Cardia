@@ -5,16 +5,16 @@
 
 namespace Cardia
 {
-	EditorCamera::EditorCamera(float fov, float nearClip, float farClip)
+	EditorCamera::EditorCamera(Radianf fov, float nearClip, float farClip)
 	{
-		m_Camera.SetPerspective(fov, nearClip, farClip);
-		m_Transform.position = {0, 5, 10};
+		m_Camera.SetPerspective({fov, nearClip, farClip});
+		m_Transform.position = {0, 0, 10};
 	}
 
 	void EditorCamera::OnUpdate()
 	{
-		const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
-		glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.01f;
+		const Vector2f& mouse{ Input::GetMouseX(), Input::GetMouseY() };
+		Vector2f delta = (mouse - m_InitialMousePosition) * 0.01f;
 		m_InitialMousePosition = mouse;
 
 		if (Input::IsMouseButtonPressed(Mouse::Middle))
@@ -60,14 +60,12 @@ namespace Cardia
 			}
 
 			if (Input::IsKeyPressed(Key::LeftShift)) {
-				m_MovementSpeed = glm::mix(m_MovementSpeed, m_MaxMovementSpeed, Time::GetDeltaTime().AsSeconds());
+				m_MovementSpeed = std::lerp(m_MovementSpeed, m_MaxMovementSpeed, Time::GetDeltaTime().AsSeconds());
 			}
 			else if (m_MovementSpeed - m_BaseMovementSpeed >= 0.01f) {
-				m_MovementSpeed = glm::mix(m_MovementSpeed, m_BaseMovementSpeed, Time::GetDeltaTime().AsSeconds() * 2);
+				m_MovementSpeed = std::lerp(m_MovementSpeed, m_BaseMovementSpeed, Time::GetDeltaTime().AsSeconds() * 2);
 			}
 		}
-
-		m_Camera.UpdateView(m_Transform.GetTransform());
 	}
 
 	void EditorCamera::OnEvent(Event &e)
@@ -84,7 +82,7 @@ namespace Cardia
 		});
 	}
 
-	void EditorCamera::mousePan(const glm::vec2 &delta)
+	void EditorCamera::mousePan(const Vector2f& delta)
 	{
 		m_Transform.position +=
 			-m_Transform.Right()
@@ -98,9 +96,9 @@ namespace Cardia
 			* Time::GetDeltaTime().AsSeconds();
 	}
 
-	void EditorCamera::mouseRotate(const glm::vec2 &delta)
+	void EditorCamera::mouseRotate(const Vector2f &delta)
 	{
-		m_Transform.rotation += glm::vec3(-delta.y, -delta.x, 0) * rotationSpeed();
+		m_Transform.rotation += Vector3f(-delta.y, -delta.x, 0) * rotationSpeed();
 	}
 
 

@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <imgui.h>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "CardiaTor.hpp"
 #include "Cardia/ECS/Components.hpp"
@@ -62,9 +61,19 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
 			EditorUI::DragFloat3("Position", transform.position);
 
-			auto rotation = glm::degrees(transform.rotation);
-			EditorUI::DragFloat3("Rotation", rotation);
-			transform.rotation = glm::radians(rotation);
+			
+
+			auto rotation = Vector3f(
+				Radianf::FromDegree(transform.rotation.x).Value(),
+				Radianf::FromDegree(transform.rotation.y).Value(),
+				Radianf::FromDegree(transform.rotation.z).Value());
+			if (EditorUI::DragFloat3("Rotation", rotation))
+			{
+				transform.rotation = Vector3f(
+					Degreef::FromRadian(rotation.x).Value(),
+					Degreef::FromRadian(rotation.y).Value(),
+					Degreef::FromRadian(rotation.z).Value());;
+			}
 
 			EditorUI::DragFloat3("Scale", transform.scale, 1);
 		});
@@ -72,7 +81,7 @@ namespace Cardia::Panel
 		// SpriteRenderer Component
 
 		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [appContext](Component::SpriteRenderer& sprite) {
-			EditorUI::ColorEdit4("Color", glm::value_ptr(sprite.color));
+			EditorUI::ColorEdit4("Color", &sprite.color.x);
 
 			auto& white = appContext->GetRenderer().GetWhiteTexture();
 			const VkDescriptorSet texID = sprite.texture ? sprite.texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
@@ -164,34 +173,34 @@ namespace Cardia::Panel
 			EditorUI::Checkbox("Primary", &isPrimary);
 
 			if (cam.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
-				auto perspective = cam.GetPerspective();
+				int actions = 0;
 
-				float pFov = glm::degrees(perspective.x);
-				bool edited = EditorUI::DragFloat("Fov", &pFov, 0.05f);
+				const auto perspective = cam.GetPerspective();
 
-				float pNear = perspective.y;
-				edited = edited || EditorUI::DragFloat("Near", &pNear, 0.05f);
+				float pFov = perspective.VerticalFOV.ToDegree().Value();
+				actions += EditorUI::DragFloat("Fov", &pFov, 0.05f);
 
-				float pFar = perspective.z;
-				edited = edited || EditorUI::DragFloat("Far", &pFar, 0.05f);
+				float pNear = perspective.NearClip;
+				actions += EditorUI::DragFloat("Near", &pNear, 0.05f);
 
-				if (edited)
-					cam.SetPerspective(glm::radians(pFov), pNear, pFar);
+				float pFar = perspective.FarClip;
+				actions += EditorUI::DragFloat("Far", &pFar, 0.05f);
+
+				if (actions > 0)
+					cam.SetPerspective({Radianf::FromDegree(pFov), pNear, pFar});
 			}
 			else if (cam.GetProjectionType() == SceneCamera::ProjectionType::Orthographic) {
 				auto orthographic = cam.GetOrthographic();
 
-				float oSize = orthographic.x;
-				bool edited = EditorUI::DragFloat("Size", &oSize, 0.05f);
+				int actions = 0;
+				actions += EditorUI::DragFloat("Size", &orthographic.Size, 0.05f);
 
-				float oNear = orthographic.y;
-				edited = edited || EditorUI::DragFloat("Near", &oNear, 0.05f);
+				actions += EditorUI::DragFloat("Near", &orthographic.NearClip, 0.05f);
 
-				float oFar = orthographic.z;
-				edited = edited || EditorUI::DragFloat("Far", &oFar, 0.05f);
+				actions += EditorUI::DragFloat("Far", &orthographic.FarClip, 0.05f);
 
-				if (edited)
-					cam.SetOrthographic(oSize, oNear, oFar);
+				if (actions > 0)
+					cam.SetOrthographic(orthographic);
 			}
 		});
 
@@ -204,7 +213,7 @@ namespace Cardia::Panel
 
 			light.lightType = item_current;
 
-			EditorUI::ColorEdit3("Color", glm::value_ptr(light.color));
+			EditorUI::ColorEdit3("Color", &light.color.x);
 
 			if (item_current == 0) return;
 			EditorUI::DragFloat("Range", &light.range, 0.01f, 0.0f);
@@ -462,7 +471,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector2:
 			{
-				auto castedField = value.cast<glm::vec2>();
+				auto castedField = value.cast<Vector2f>();
 				if (!EditorUI::DragFloat2(fieldName, castedField, 0.1f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
@@ -470,7 +479,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector3:
 			{
-				auto castedField = value.cast<glm::vec3>();
+				auto castedField = value.cast<Vector3f>();
 				if (!EditorUI::DragFloat3(fieldName, castedField, 0.1f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
@@ -479,7 +488,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::Vector4:
 			{
-				auto castedField = value.cast<glm::vec4>();
+				auto castedField = value.cast<Vector4f>();
 				if (!EditorUI::DragFloat4(fieldName, castedField, 0.1f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));

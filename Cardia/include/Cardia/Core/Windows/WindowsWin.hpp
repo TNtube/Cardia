@@ -29,7 +29,7 @@ namespace Cardia
 		void OnUpdate() override;
 		inline int GetWidth() const override { return m_Data.Width; }
 		inline int GetHeight() const override { return m_Data.Height; }
-		inline glm::ivec2 GetSize() const override { return {m_Data.Width, m_Data.Height}; }
+		inline Vector2i GetSize() const override { return {m_Data.Width, m_Data.Height}; }
 		inline VkExtent2D GetExtent() const override { return VkExtent2D {static_cast<unsigned>(m_Data.Width), static_cast<unsigned>(m_Data.Height)}; }
 
 		inline bool ShouldInvalidateSwapchain() const override { return m_Data.ShouldInvalidateSwapchain; }

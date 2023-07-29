@@ -3,6 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Cardia/Application.hpp"
+
 
 namespace Cardia
 {
@@ -20,7 +22,7 @@ namespace Cardia
 		return glfwGetMouseButton(GetNativeWin(), button) == GLFW_PRESS;
 	}
 
-	glm::vec2 Input::GetMousePos() {
+	Vector2f Input::GetMousePos() {
 		double x, y;
 		glfwGetCursorPos(GetNativeWin(), &x, &y);
 

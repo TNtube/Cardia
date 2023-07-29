@@ -1,67 +1,99 @@
 #include "cdpch.hpp"
 #include "Cardia/ECS/SceneCamera.hpp"
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 namespace Cardia
 {
+	Json::Value PerspectiveData::Serialize() const
+	{
+		Json::Value root;
+
+		root["FOV"] = VerticalFOV.Value();
+		root["Near"] = NearClip;
+		root["Far"] = FarClip;
+
+		return root;
+	}
+
+	bool PerspectiveData::Deserialize(const Json::Value& root, PerspectiveData& other)
+	{
+		if (!root.isMember("Fov") ||
+			!root.isMember("Near") ||
+			!root.isMember("Far"))
+			return false;
+
+		other.VerticalFOV = Radianf(root["Fov"].asFloat());
+		other.NearClip = root["Near"].asFloat();
+		other.FarClip = root["Far"].asFloat();
+
+		return true;
+	}
+
+	Json::Value OrthographicData::Serialize() const
+	{
+		Json::Value root;
+
+		root["Size"] = Size;
+		root["Near"] = NearClip;
+		root["Far"] = FarClip;
+
+		return root;
+	}
+
+	bool OrthographicData::Deserialize(const Json::Value& root, OrthographicData& other)
+	{
+		if (!root.isMember("Size") ||
+			!root.isMember("Near") ||
+			!root.isMember("Far"))
+			return false;
+
+		other.Size = root["Size"].asFloat();
+		other.NearClip = root["Near"].asFloat();
+		other.FarClip = root["Far"].asFloat();
+
+		return true;
+	}
+
 	SceneCamera::SceneCamera()
 	{
 		RecomputeProjection();
 	}
 	
-	void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
+	void SceneCamera::SetPerspective(const PerspectiveData data)
 	{
 		m_ProjectionType = ProjectionType::Perspective;
-		m_PersFOV = verticalFOV;
-		m_PersNear = nearClip;
-		m_PersFar = farClip;
+		m_PerspectiveData = data;
 		RecomputeProjection();
 	}
 
-	void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
+	void SceneCamera::SetOrthographic(OrthographicData data)
 	{
 		m_ProjectionType = ProjectionType::Orthographic;
-		m_OrthoSize = size;
-		m_OrthoNear = nearClip;
-		m_OrthoFar = farClip;
+		m_OrthographicData = data;
 		RecomputeProjection();
 	}
 
-	glm::vec3 SceneCamera::GetPerspective() const
+	PerspectiveData SceneCamera::GetPerspective() const
 	{
-		return {m_PersFOV, m_PersNear, m_PersFar};
+		return m_PerspectiveData;
 	}
 
-	glm::vec3 SceneCamera::GetOrthographic() const
+	OrthographicData SceneCamera::GetOrthographic() const
 	{
-		return {m_OrthoSize, m_OrthoNear, m_OrthoFar};
+		return m_OrthographicData;
 	}
 
 	void SceneCamera::RecomputeProjection()
 	{
 		if(m_ProjectionType == ProjectionType::Orthographic) {
-			const float left = m_AspectRatio * m_OrthoSize * -0.5f;
-			const float right = m_AspectRatio * m_OrthoSize * 0.5f;
-			const float down = m_OrthoSize * -0.5f;
-			const float up = m_OrthoSize * 0.5f;
-			m_ProjectionMatrix = glm::ortho(left, right, down, up, m_OrthoNear, m_OrthoFar);
+			const float left = m_AspectRatio * m_OrthographicData.Size * -0.5f;
+			const float right = m_AspectRatio * m_OrthographicData.Size * 0.5f;
+			const float down = m_OrthographicData.Size * -0.5f;
+			const float up = m_OrthographicData.Size * 0.5f;
+			m_ProjectionMatrix = Matrix4f::Orthographic(left, right, down, up, m_OrthographicData.NearClip, m_OrthographicData.FarClip);
 		}
 		else if (m_ProjectionType == ProjectionType::Perspective) {
-			m_ProjectionMatrix = glm::perspective(m_PersFOV, m_AspectRatio, m_PersNear, m_PersFar);
+			m_ProjectionMatrix = Matrix4f::Perspective(m_PerspectiveData.VerticalFOV, m_AspectRatio, m_PerspectiveData.NearClip, m_PerspectiveData.FarClip);
 		}
 
-	}
-
-	void SceneCamera::UpdateView(const glm::mat4& transform)
-	{
-		glm::vec3 scale;
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::decompose(transform, scale, rotation, translation, skew,perspective);
-		m_ViewMatrix = glm::inverse(glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(rotation));
 	}
 }

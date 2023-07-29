@@ -1,8 +1,11 @@
 #pragma once
 
 #include <vector>
-#include <glm/glm.hpp>
+
 #include <vulkan/vulkan.hpp>
+
+#include "Cardia/Math/Vector2.hpp"
+#include "Cardia/Math/Vector3.hpp"
 
 
 namespace Cardia
@@ -13,10 +16,10 @@ namespace Cardia
 		
 		struct Vertex
 		{
-			glm::vec3 Position;
-			glm::vec3 Color;
-			glm::vec3 Normal;
-			glm::vec2 TextureCoord;
+			Vector3f Position;
+			Vector3f Color;
+			Vector3f Normal;
+			Vector2f TextureCoord;
 
 			/*
 			glm::vec3 position;

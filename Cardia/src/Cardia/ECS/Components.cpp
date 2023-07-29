@@ -16,9 +16,9 @@ namespace Cardia::Component
 		scriptClass.RegisterAttributes();
 	}
 
-	glm::vec3 Transform::Forward() const
+	Vector3f Transform::Forward() const
 	{
-		glm::vec3 forward;
+		Vector3f forward;
 
 		forward.x = cos(rotation.x) * sin(rotation.y);
 		forward.y = -sin(rotation.x);
@@ -27,14 +27,14 @@ namespace Cardia::Component
 		return forward;
 	}
 
-	glm::vec3 Transform::Up() const
+	Vector3f Transform::Up() const
 	{
-		return glm::cross(Forward(), Right());
+		return Forward().Cross(Right());
 	}
 
-	glm::vec3 Transform::Right() const
+	Vector3f Transform::Right() const
 	{
-		glm::vec3 right;
+		Vector3f right;
 		right.x =  cos(rotation.y);
 		right.y =  0;
 		right.z = -sin(rotation.y);

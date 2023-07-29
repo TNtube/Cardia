@@ -2,11 +2,26 @@
 
 #include "Cardia/Renderer/Camera.hpp"
 
-#include <glm/glm.hpp>
-
 
 namespace Cardia
 {
+	struct PerspectiveData
+	{
+		Radianf VerticalFOV {};
+		float NearClip {}, FarClip {};
+
+		Json::Value Serialize() const;
+		static bool Deserialize(const Json::Value& root, PerspectiveData& other);
+	};
+
+	struct OrthographicData
+	{
+		float Size {}, NearClip {}, FarClip {};
+
+		Json::Value Serialize() const;
+		static bool Deserialize(const Json::Value& root, OrthographicData& other);
+	};
+
 	class SceneCamera : public Camera
 	{
 	public:
@@ -17,12 +32,10 @@ namespace Cardia
 
 		SceneCamera();
 
-		~SceneCamera() override = default;
-		void SetPerspective(float verticalFOV, float nearClip, float farClip);
-		glm::vec3 GetPerspective() const;
-		void SetOrthographic(float size, float nearClip, float farClip);
-		glm::vec3 GetOrthographic() const;
-		void UpdateView(const glm::mat4& transform);
+		void SetPerspective(PerspectiveData data);
+		PerspectiveData GetPerspective() const;
+		void SetOrthographic(OrthographicData data);
+		OrthographicData GetOrthographic() const;
 
 		inline ProjectionType GetProjectionType() const { return m_ProjectionType; }
 		inline void SetProjectionType(ProjectionType type) { m_ProjectionType = type; RecomputeProjection(); }
@@ -34,11 +47,8 @@ namespace Cardia
 
 		ProjectionType m_ProjectionType = ProjectionType::Orthographic;
 
-		float m_PersFOV = glm::radians(60.0f);
-		float m_PersNear = 0.01f, m_PersFar = 1000.0f;
-
-		float m_OrthoSize = 10.0f;
-		float m_OrthoNear = -1.0f, m_OrthoFar = 1.0f;
+		PerspectiveData m_PerspectiveData {Radianf::FromDegree(60.0f), 0.01f, 1000.0f};
+		OrthographicData m_OrthographicData {10.0f, -1.0f, 1.0f};
 
 		float m_AspectRatio = 0.0f;
 	};

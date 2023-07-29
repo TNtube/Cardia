@@ -177,7 +177,7 @@ namespace Cardia
 		glfwPollEvents();
 	}
 
-	static glm::ivec2 WinInitPos(GLFWwindow* win)
+	static Vector2i WinInitPos(GLFWwindow* win)
 	{
 		int x, y;
 		glfwGetWindowPos(win, &x, &y);

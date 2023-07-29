@@ -14,9 +14,9 @@ namespace Cardia
 			case ScriptFieldType::List: 		return py::list();
 			case ScriptFieldType::Dict: 		return py::dict();
 			case ScriptFieldType::PyBehavior: 	return py::str();
-			case ScriptFieldType::Vector2:		return py::cast(glm::vec2());
-			case ScriptFieldType::Vector3: 		return py::cast(glm::vec3());
-			case ScriptFieldType::Vector4: 		return py::cast(glm::vec4());
+			case ScriptFieldType::Vector2:		return py::cast(Vector2f());
+			case ScriptFieldType::Vector3: 		return py::cast(Vector3f());
+			case ScriptFieldType::Vector4: 		return py::cast(Vector4f());
 			default:				return py::none();
 		}
 	}

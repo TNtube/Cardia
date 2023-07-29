@@ -3,12 +3,12 @@
 #include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/UUID.hpp"
-#include "Cardia/Renderer/Shader.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 
 #include <entt/entt.hpp>
 #include <filesystem>
 
+#include "Cardia/Math/Matrix4.hpp"
 #include "Cardia/Renderer/Buffer.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
@@ -31,7 +31,7 @@ namespace Cardia
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 		void OnRuntimeRender(VkCommandBuffer commandBuffer);
-		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const glm::mat4& cameraTransform);
+		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform);
 		void OnViewportResize(float width, float height);
 		Entity GetEntityByUUID(const UUID& uuid);
 		inline const char* GetName() const { return m_Name.c_str(); }

@@ -14,12 +14,12 @@ set_optimize("fastest")
 add_requires("spdlog v1.9.0")
 add_requires("glfw 3.3.8")
 add_requires("imgui v1.89-docking", {configs = {glfw= true}})
-add_requires("glm 0.9.9+8")
 add_requires("entt v3.10.0")
 add_requires("nativefiledialog 1.1.6")
 add_requires("jsoncpp 1.9.5")
 add_requires("assimp v5.2.5")
 add_requires("vulkan-loader")
+add_requires("catch2 v3.4.0")
 
 add_requires("imguizmo 1.89+WIP")
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.89-docking", configs = {glfw= true}}) -- config sub imgui module
@@ -45,7 +45,7 @@ target("Cardia")
     set_pcxxheader("Cardia/include/cdpch.hpp")
 
     add_files("Cardia/**.cpp")
-    add_headerfiles("Cardia/**.hpp", "Cardia/**.h")
+    add_headerfiles("Cardia/**.hpp", "Cardia/**.h", "Cardia/**.inl")
     add_includedirs("Cardia/include/", {public = true})
     add_includedirs("Cardia/vendor/", {public = true})
 
@@ -54,14 +54,11 @@ target("Cardia")
     add_packages("assimp")
     add_packages("vulkan-loader", { public = true })
     add_packages("imgui", { public = true })
-    add_packages("glm", { public = true })
     add_packages("entt", { public = true })
     add_packages("jsoncpp", { public = true })
     add_packages("python", { public = true })
     add_packages("pybind11", { public = true })
 
-    add_defines("GLM_FORCE_RADIANS")
-    add_defines("GLM_FORCE_DEPTH_ZERO_TO_ONE")
 
 --[[    after_build(function(target)
         os.execv("python", {"-m", "pip", "install", target:scriptdir().."/cardia.py/dist/cardia.py-0.0.1-py3-none-any.whl", "--force-reinstall"})
@@ -74,9 +71,6 @@ target("Cardia")
         os.setenv("PYTHONHOME", pythonDir)
     end)]]
 
-    if is_mode("debug") then
-        add_defines("CD_DEBUG")
-    end
 
 target("SandBox")
     set_kind("binary")
@@ -92,13 +86,9 @@ target("SandBox")
 
     add_packages("spdlog")
     add_packages("imgui")
-    add_packages("glm")
     add_packages("entt")
     add_deps("Cardia")
 
-    if is_mode("debug") then
-        add_defines("CD_DEBUG")
-    end
 
 target("CardiaTor")
     set_kind("binary")
@@ -118,6 +108,17 @@ target("CardiaTor")
     add_packages("nativefiledialog")
     add_deps("Cardia")
 
-    if is_mode("debug") then
-        add_defines("CD_DEBUG")
-    end
+
+target("Tests")
+    set_kind("binary")
+    set_runtimes("MT")
+
+    set_targetdir("build/" .. outputdir .. "/Tests/bin")
+    set_objectdir("build/" .. outputdir .. "/Tests/obj")
+
+    add_headerfiles("Tests/**.hpp")
+    add_files("Tests/**.cpp")
+    add_includedirs("Tests/Cardia/include/", {public = true})
+
+    add_packages("catch2")
+    add_deps("Cardia")

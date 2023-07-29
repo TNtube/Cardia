@@ -2,6 +2,8 @@
 #include "Cardia/Scripting/ScriptInstance.hpp"
 
 #include <utility>
+
+#include "Cardia/Math/Vector2.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 namespace Cardia
@@ -46,9 +48,9 @@ namespace Cardia
 		auto pyStr   = py::str().get_type();
 		auto pyList  = py::list().get_type();
 		auto pyDict  = py::dict().get_type();
-		auto pyVec2  = py::cast(glm::vec2()).get_type();
-		auto pyVec3  = py::cast(glm::vec3()).get_type();
-		auto pyVec4  = py::cast(glm::vec4()).get_type();
+		auto pyVec2  = py::cast(Vector2f()).get_type();
+		auto pyVec3  = py::cast(Vector3f()).get_type();
+		auto pyVec4  = py::cast(Vector4f()).get_type();
 
 		if (handle.get_type().is(genericAlias))
 		{

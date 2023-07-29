@@ -1,23 +1,19 @@
 #include "CardiaTor.hpp"
 
-#include <Cardia.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <nfd.h>
-#include <ranges>
+
+#include <Cardia.hpp>
 #include <Cardia/Serialization/SceneSerializer.hpp>
+#include <Cardia/Project/Project.hpp>
+#include <Cardia/Asset/AssetsManager.hpp>
 
 #include "Panels/SceneHierarchyPanel.hpp"
 #include "Panels/DebugPanel.hpp"
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
-#include "Cardia/Project/Project.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
 #include "Panels/ConsolePanel.hpp"
-
-#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 
 namespace Cardia
@@ -84,7 +80,7 @@ namespace Cardia
 		mouseX -= m_ViewportBounds.x;
 		mouseY -= m_ViewportBounds.y;
 
-		const glm::vec2 viewportSize = glm::vec2(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
+		const Vector2f viewportSize = Vector2f(m_ViewportBounds.z - m_ViewportBounds.x, m_ViewportBounds.w - m_ViewportBounds.y);
 		mouseY = viewportSize.y - mouseY;
 
 		if (m_CurrentScene)
@@ -420,7 +416,7 @@ namespace Cardia
 			viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 		const auto [width, height] = ImGui::GetContentRegionAvail();
-		if (m_SceneSize != glm::vec2(width, height))
+		if (m_SceneSize != Vector2f(width, height))
 		{
 			m_SceneSize = {width, height};
 			// CreateOffscreenFrameData({static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
@@ -506,16 +502,16 @@ namespace Cardia
 		{
 
 			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
-			glm::mat4 cameraView = m_EditorCamera.GetCamera().GetViewMatrix();
+			const Matrix4f& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
+			Matrix4f cameraView = m_EditorCamera.GetTransformMatrix().Inverse();
 			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
-			glm::mat4 transform = transformComponent.GetTransform();
+			Matrix4f transform = transformComponent.GetTransform();
 
-			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform),
+			ImGuizmo::Manipulate(cameraView.Data(), cameraProjection.Data(),
+					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, transform.Data(),
 					     nullptr, nullptr);
 
-			static glm::vec3 position;
+			static Vector3f position;
 			static bool isUsing = false;
 			if (ImGuizmo::IsUsing())
 			{
@@ -523,13 +519,15 @@ namespace Cardia
 					position = transformComponent.position;
 				}
 				isUsing = true;
-				glm::vec3 translation, scale, skew;
-				glm::quat rotation;
-				glm::vec4 perspective;
-				glm::decompose(transform, scale, rotation, translation, skew, perspective);
-				transformComponent.rotation = glm::eulerAngles(rotation);
-				transformComponent.position = translation;
-				transformComponent.scale = scale;
+				// TODO: decompose matrix
+				// glm::vec3 translation, scale, skew;
+				// glm::quat rotation;
+				// glm::vec4 perspective;
+				// glm::decompose(transform, scale, rotation, translation, skew, perspective);
+				// const auto eulerRot = glm::eulerAngles(rotation);
+				// transformComponent.position = Vector3f(translation.x, translation.y, translation.z);
+				// transformComponent.rotation = Vector3f(eulerRot.x, eulerRot.y, eulerRot.z);
+				// transformComponent.scale = Vector3f(scale.x, scale.y, scale.z);
 			} else {
 				if (isUsing) {
 					isUsing = false;

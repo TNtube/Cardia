@@ -57,7 +57,7 @@ namespace Cardia
 	void Scene::OnRuntimeRender(VkCommandBuffer commandBuffer)
 	{
 		SceneCamera* mainCamera = nullptr;
-		glm::mat4 mainCameraTransform;
+		Matrix4f mainCameraTransform;
 
 		{
 			const auto viewCamera = m_Registry.view<Component::Transform, Component::Camera>();
@@ -81,7 +81,7 @@ namespace Cardia
 		OnRender(commandBuffer, *mainCamera, mainCameraTransform);
 	}
 
-	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const glm::mat4& cameraTransform)
+	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform)
 	{
 		m_Renderer.GetPipeline().Bind(commandBuffer);
 		auto& frame = m_Renderer.GetCurrentFrame();
@@ -97,7 +97,7 @@ namespace Cardia
 				&frame.UboDescriptorSet->GetDescriptor(),
 				0, nullptr);
 			UboData data {};
-			data.ViewProjection = camera.GetProjectionMatrix() * glm::inverse(cameraTransform);
+			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.Inverse();
 			frame.UboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)
@@ -106,7 +106,7 @@ namespace Cardia
 			// m_UBO->bind(0);
 			PushConstantData constants {};
 			constants.Model = transform.GetTransform();
-			constants.TransposedInvertedModel = glm::transpose(glm::inverse(transform.GetTransform()));
+			constants.TransposedInvertedModel = transform.GetTransform().Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
 				m_Renderer.GetPipelineLayout().GetPipelineLayout(),

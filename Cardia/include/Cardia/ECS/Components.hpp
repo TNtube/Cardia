@@ -6,10 +6,11 @@
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include "Cardia/Renderer/MeshRenderer.hpp"
 
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
 #include <utility>
+
+#include "Cardia/Math/Matrix4.hpp"
+#include "Cardia/Math/Quaternion.hpp"
+#include "Cardia/Math/Vector3.hpp"
 
 
 namespace Cardia::Component
@@ -51,25 +52,26 @@ namespace Cardia::Component
 	{
 		Transform() = default;
 		Transform(const Transform&) = default;
-		Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) : position(pos), rotation(rot), scale(sca) {}
+		Transform(Vector3f pos, Vector3f rot, Vector3f sca) : position(pos), rotation(rot), scale(sca) {}
 
-		glm::vec3 position { 0.0f };
-		glm::vec3 rotation { 0.0f };
-		glm::vec3 scale { 1.0f };
-		inline glm::mat4 GetTransform() const {
-			return glm::translate(glm::mat4(1.0f), position)
-				 * glm::toMat4(glm::quat(rotation))
-				 * glm::scale(glm::mat4(1.0f), scale);
+		Vector3f position { 0.0f };
+		Vector3f rotation { 0.0f };
+		Vector3f scale { 1.0f };
+		Matrix4f identity = Matrix4f::Identity(); 
+		inline Matrix4f GetTransform() const {
+			return identity.Translate(position)
+				 * Quaternion(rotation).ToMatrix()
+				 * identity.Scale(scale);
 		}
 
-		glm::vec3 Forward() const;
-		glm::vec3 Up() const;
-		glm::vec3 Right() const;
+		Vector3f Forward() const;
+		Vector3f Up() const;
+		Vector3f Right() const;
 
 		inline void Reset() {
-			position = glm::vec3(0);
-			rotation = glm::vec3(0);
-			scale = glm::vec3(1);
+			position = Vector3f(0);
+			rotation = Vector3f(0);
+			scale = Vector3f(1);
 		}
 
 		static constexpr std::string ClassName() { return "Transform"; }
@@ -79,10 +81,10 @@ namespace Cardia::Component
 	{
 		SpriteRenderer() = default;
 		SpriteRenderer(const SpriteRenderer&) = default;
-		explicit SpriteRenderer(const glm::vec4 color)
+		explicit SpriteRenderer(const Vector4f& color)
 			: color(color) {}
 
-		glm::vec4 color { 1.0f };
+		Vector4f color { 1.0f };
 		std::shared_ptr<Texture2D> texture = nullptr;
 		float tillingFactor = 1.0f;
 		int32_t zIndex = 0;
@@ -90,7 +92,7 @@ namespace Cardia::Component
 		inline void Reset() {
 			texture = nullptr;
 			tillingFactor = 1.0f;
-			color = glm::vec4(1.0f);
+			color = Vector4f(1.0f);
 		}
 
 		static constexpr std::string ClassName() { return "SpriteRenderer"; }
@@ -130,13 +132,13 @@ namespace Cardia::Component
 		Light() = default;
 		Light(const Light&) = default;
 		int32_t lightType {};
-		glm::vec3 color {};
+		Vector3f color {};
 		float range = 2;
 		float angle = 35;
 		float smoothness = 1;
 
 		inline void Reset() {
-			color = glm::vec3(0);
+			color = Vector3f(0);
 			range = 2;
 			angle = 35;
 			smoothness = 1;

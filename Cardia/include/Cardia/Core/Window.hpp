@@ -1,11 +1,10 @@
 #pragma once
 
-#include <glm/vec2.hpp>
-
 #include "cdpch.hpp"
 #include "vulkan/vulkan.h"
 #include "Cardia/Core/Core.hpp"
 #include "Event.hpp"
+#include "Cardia/Math/Vector2.hpp"
 
 
 namespace Cardia
@@ -31,7 +30,7 @@ namespace Cardia
 		
 		virtual int GetWidth() const = 0;
 		virtual int GetHeight() const = 0;
-		virtual glm::ivec2 GetSize() const = 0;
+		virtual Vector2i GetSize() const = 0;
 		virtual VkExtent2D GetExtent() const = 0;
 		virtual bool ShouldInvalidateSwapchain() const = 0;
 		virtual void SwapchainInvalidated() = 0;
