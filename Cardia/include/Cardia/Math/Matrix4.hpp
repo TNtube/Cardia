@@ -23,12 +23,12 @@ namespace Cardia
 		constexpr bool operator!=(const Matrix4& other) const noexcept;
 
 		static constexpr size_t Size() noexcept { return 4; }
+
 		constexpr Vector4<T> operator[](size_t index) const noexcept;
 		constexpr Vector4<T>& operator[](size_t index) noexcept;
 
 		constexpr Matrix4 operator*(const Matrix4& other) const noexcept;
 		constexpr Matrix4 operator*(T scalar) const noexcept;
-
 
 		constexpr Matrix4 Translate(const Vector3<T>& vec) const noexcept;
 		constexpr Matrix4 Rotate(Radian<T> angle, const Vector3<T>& vec) const noexcept;

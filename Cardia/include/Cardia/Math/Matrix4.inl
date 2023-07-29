@@ -223,7 +223,7 @@ namespace Cardia
 	{
 		assert(abs(aspectRatio - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
 
-		T const tanHalfFovY = tan(fovY.Value() / static_cast<T>(2));
+		const T tanHalfFovY = tan(fovY.Value() / static_cast<T>(2));
 
 		Matrix4 result(static_cast<T>(0));
 
