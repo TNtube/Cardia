@@ -14,18 +14,20 @@ namespace Cardia
 		return root;
 	}
 
-	bool PerspectiveData::Deserialize(const Json::Value& root, PerspectiveData& other)
+	std::optional<PerspectiveData> PerspectiveData::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("Fov") ||
 			!root.isMember("Near") ||
 			!root.isMember("Far"))
-			return false;
+			return std::nullopt;
 
-		other.VerticalFOV = Radianf(root["Fov"].asFloat());
-		other.NearClip = root["Near"].asFloat();
-		other.FarClip = root["Far"].asFloat();
+		PerspectiveData temp;
 
-		return true;
+		temp.VerticalFOV = Radianf(root["Fov"].asFloat());
+		temp.NearClip = root["Near"].asFloat();
+		temp.FarClip = root["Far"].asFloat();
+
+		return temp;
 	}
 
 	Json::Value OrthographicData::Serialize() const
@@ -39,18 +41,20 @@ namespace Cardia
 		return root;
 	}
 
-	bool OrthographicData::Deserialize(const Json::Value& root, OrthographicData& other)
+	std::optional<OrthographicData> OrthographicData::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("Size") ||
 			!root.isMember("Near") ||
 			!root.isMember("Far"))
-			return false;
+			return std::nullopt;
 
-		other.Size = root["Size"].asFloat();
-		other.NearClip = root["Near"].asFloat();
-		other.FarClip = root["Far"].asFloat();
+		OrthographicData temp;
 
-		return true;
+		temp.Size = root["Size"].asFloat();
+		temp.NearClip = root["Near"].asFloat();
+		temp.FarClip = root["Far"].asFloat();
+
+		return temp;
 	}
 
 	SceneCamera::SceneCamera()

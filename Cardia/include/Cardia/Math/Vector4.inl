@@ -262,17 +262,20 @@ namespace Cardia
 		return std::move(root);
 	}
 
+
 	template<arithmetic T>
-	bool Vector4<T>::Deserialize(const Json::Value& root, Vector4& other)
+	std::optional<Vector4<T>> Vector4<T>::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("x") || !root.isMember("y") || !root.isMember("z") || !root.isMember("w"))
-			return false;
+			return std::nullopt;
 
-		other.x = root["x"].asFloat();
-		other.y = root["y"].asFloat();
-		other.z = root["z"].asFloat();
-		other.w = root["w"].asFloat();
+		Vector4 temp;
 
-		return true;
+		temp.x = root["x"].asFloat();
+		temp.y = root["y"].asFloat();
+		temp.z = root["z"].asFloat();
+		temp.w = root["w"].asFloat();
+
+		return temp;
 	}
 }

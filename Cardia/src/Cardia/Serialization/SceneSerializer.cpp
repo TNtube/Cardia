@@ -45,18 +45,15 @@ namespace Json {
 				out.instance = py::cast(node["value"].asString());
 				break;
 			case ScriptFieldType::Vector2:
-				Vector2f vec2;
-				Vector2f::Deserialize(node["value"], vec2);
+				auto vec2 = *Vector2f::Deserialize(node["value"]);
 				out.instance = py::cast(vec2);
 				break;
 			case ScriptFieldType::Vector3:
-				Vector3f vec3;
-				Vector3f::Deserialize(node["value"], vec3);
+				auto vec3 = *Vector3f::Deserialize(node["value"]);
 				out.instance = py::cast(vec3);
 				break;
 			case ScriptFieldType::Vector4:
-				Vector4f vec4;
-				Vector4f::Deserialize(node["value"], vec4);
+				auto vec4 = *Vector4f::Deserialize(node["value"]);
 				out.instance = py::cast(vec4);
 				break;
 			case ScriptFieldType::Unserializable:break;
@@ -319,16 +316,16 @@ namespace Cardia::Serialization
 			name.name = node[Component::Name::ClassName()].asString();
 
 			auto& component = entity.GetComponent<Component::Transform>();
-			Vector3f::Deserialize(node[Component::Transform::ClassName()]["position"], component.position);
-			Vector3f::Deserialize(node[Component::Transform::ClassName()]["rotation"], component.rotation);
-			Vector3f::Deserialize(node[Component::Transform::ClassName()]["scale"], component.scale);
+			component.position = *Vector3f::Deserialize(node[Component::Transform::ClassName()]["position"]);
+			component.rotation = *Vector3f::Deserialize(node[Component::Transform::ClassName()]["rotation"]);
+			component.scale = *Vector3f::Deserialize(node[Component::Transform::ClassName()]["scale"]);
 
 
 			auto currComponent = Component::SpriteRenderer::ClassName();
 			if (node.isMember(currComponent))
 			{
 				auto& spriteRenderer = entity.AddComponent<Component::SpriteRenderer>();
-				Vector4f::Deserialize(node[currComponent]["color"], spriteRenderer.color);
+				spriteRenderer.color = *Vector4f::Deserialize(node[currComponent]["color"]);
 
 				spriteRenderer.texture =
 					std::make_shared<Texture2D>(
@@ -377,13 +374,8 @@ namespace Cardia::Serialization
 			{
 				auto& camera = entity.AddComponent<Component::Camera>();
 
-				PerspectiveData pers;
-				PerspectiveData::Deserialize(node[currComponent]["perspective"], pers);
-				camera.camera.SetPerspective(pers);
-
-				OrthographicData ortho;
-				OrthographicData::Deserialize(node[currComponent]["orthographic"], ortho);
-				camera.camera.SetOrthographic(ortho);
+				camera.camera.SetPerspective(*PerspectiveData::Deserialize(node[currComponent]["perspective"]));
+				camera.camera.SetOrthographic(*OrthographicData::Deserialize(node[currComponent]["orthographic"]));
 
 				camera.camera.SetProjectionType(
 					static_cast<SceneCamera::ProjectionType>(node[currComponent]["type"].asInt()));
@@ -395,7 +387,7 @@ namespace Cardia::Serialization
 			{
 				auto& light = entity.AddComponent<Component::Light>();
 				light.lightType = node[currComponent]["type"].asInt();
-				Vector3f::Deserialize(node[currComponent]["color"], light.color);
+				light.color = *Vector3f::Deserialize(node[currComponent]["color"]);
 
 				light.range = node[currComponent]["range"].asFloat();
 				light.angle = node[currComponent]["angle"].asFloat();

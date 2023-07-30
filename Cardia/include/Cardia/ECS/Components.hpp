@@ -32,7 +32,7 @@ namespace Cardia::Component
 
 		std::string name;
 
-		static constexpr std::string ClassName() { return "Name"; };
+		static constexpr std::string ClassName() { return "Name"; }
 	};
 
 	struct ID
@@ -45,7 +45,7 @@ namespace Cardia::Component
 
 		UUID uuid;
 
-		static constexpr std::string ClassName() { return "ID"; };
+		static constexpr std::string ClassName() { return "ID"; }
 	};
 
 	struct Transform
