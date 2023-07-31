@@ -259,7 +259,7 @@ namespace Cardia
 		root["y"] = y;
 		root["z"] = z;
 		root["w"] = w;
-		return std::move(root);
+		return root;
 	}
 
 

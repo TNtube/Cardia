@@ -42,6 +42,9 @@ namespace Cardia
 
 		inline void SetViewportSize(float width, float height) { m_AspectRatio = width / height; RecomputeProjection(); }
 
+		Json::Value Serialize() const;
+		static std::optional<SceneCamera> Deserialize(const Json::Value& root);
+
 	private:
 		void RecomputeProjection();
 

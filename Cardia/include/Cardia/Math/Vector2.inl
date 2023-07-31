@@ -239,7 +239,7 @@ namespace Cardia
 		Json::Value root;
 		root["x"] = x;
 		root["y"] = y;
-		return std::move(root);
+		return root;
 	}
 
 	template<arithmetic T>

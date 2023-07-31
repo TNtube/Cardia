@@ -1,195 +1,136 @@
-[
-	{
-		"ID" : "66e1a599-8640-4b20-86dd-7859ad6a971f",
-		"MeshRendererC" : 
+{
+	"Entities" : 
+	[
 		{
-			"materials" : null,
-			"path" : ".\\suzanne.obj"
-		},
-		"Name" : "Suzanne",
-		"Script" : 
-		{
-			"attributes" : 
-			[
+			"Camera" : 
+			{
+				"CameraData" : 
 				{
-					"name" : "velocity",
-					"type" : 0,
-					"value" : 3
-				},
-				{
-					"name" : "text",
-					"type" : 2,
-					"value" : ""
-				},
-				{
-					"name" : "color",
-					"type" : 7,
-					"value" : 
+					"AspectRatio" : 0.0,
+					"Orthographic" : 
 					{
-						"x" : 0.0,
-						"y" : 0.0,
-						"z" : 0.0
+						"Far" : 1.0,
+						"Near" : -1.0,
+						"Size" : 10.0
+					},
+					"Perspective" : 
+					{
+						"Far" : 1000.0,
+						"Fov" : 1.0471975803375244,
+						"Near" : 0.0099999997764825821
+					},
+					"ProjectionType" : 0
+				},
+				"Primary" : true
+			},
+			"ID" : "373b1032-09f3-42e7-be5d-dad61dc99908",
+			"Label" : 
+			{
+				"Color" : 
+				{
+					"w" : 1.0,
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				},
+				"Name" : "Camera"
+			},
+			"Transform" : 
+			{
+				"Position" : 
+				{
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 10.0
+				},
+				"Rotation" : 
+				{
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
+				},
+				"Scale" : 
+				{
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				}
+			}
+		},
+		{
+			"ID" : "298363a4-53b1-42aa-a76a-851119353f63",
+			"Label" : 
+			{
+				"Color" : 
+				{
+					"w" : 1.0,
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				},
+				"Name" : "Suzanne"
+			},
+			"MeshRenderer" : 
+			{
+				"Mesh" : ".\\suzanne.obj"
+			},
+			"Script" : 
+			{
+				"Attributes" : 
+				[
+					{
+						"name" : "velocity",
+						"type" : 0,
+						"value" : 8
+					},
+					{
+						"name" : "text",
+						"type" : 2,
+						"value" : "dzdzd"
+					},
+					{
+						"name" : "color",
+						"type" : 7,
+						"value" : 
+						{
+							"x" : -3.4000000953674316,
+							"y" : -10.199999809265137,
+							"z" : -4.4000000953674316
+						}
+					},
+					{
+						"name" : "greeting",
+						"type" : 5,
+						"value" : ""
+					},
+					{
+						"name" : "lst",
+						"type" : 3
 					}
+				],
+				"Path" : ".\\Moving.py"
+			},
+			"Transform" : 
+			{
+				"Position" : 
+				{
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
 				},
+				"Rotation" : 
 				{
-					"name" : "greeting",
-					"type" : 5,
-					"value" : ""
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
 				},
+				"Scale" : 
 				{
-					"name" : "lst",
-					"type" : 3
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
 				}
-			],
-			"path" : "Moving.py"
-		},
-		"Transform" : 
-		{
-			"position" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0,
-				"z" : 0.0
-			},
-			"rotation" : 
-			{
-				"x" : -0.4380776584148407,
-				"y" : 0.0,
-				"z" : 1.5625023763732315e-07
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
 			}
 		}
-	},
-	{
-		"ID" : "a1cad162-e4e2-4082-992e-b97eb2d2acc4",
-		"Light" : 
-		{
-			"angle" : 49.5,
-			"color" : 
-			{
-				"x" : 0.0,
-				"y" : 1.0,
-				"z" : 0.27848100662231445
-			},
-			"range" : 20.649999618530273,
-			"smoothness" : 1.5,
-			"type" : 2
-		},
-		"Name" : "Light",
-		"Transform" : 
-		{
-			"position" : 
-			{
-				"x" : -0.60000002384185791,
-				"y" : 6.0,
-				"z" : 0.5
-			},
-			"rotation" : 
-			{
-				"x" : 0.14137168228626251,
-				"y" : 0.0,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			}
-		}
-	},
-	{
-		"Camera" : 
-		{
-			"orthographic": {
-				"Far": 1.0,
-				"Near": -1.0,
-				"Size": 10.0
-			},
-			"perspective": {
-				"Far": 1000.0,
-				"Fov": 1.0471975803375244,
-				"Near": 0.0099999997764825821
-			},
-			"type" : 0
-		},
-		"ID" : "c666fa63-8617-4983-a62a-422fc9bef6ac",
-		"Name" : "Camera",
-		"Script" : 
-		{
-			"attributes" : 
-			[
-				{
-					"name" : "message",
-					"type" : 2,
-					"value" : "frdfes"
-				}
-			],
-			"path" : ".\\Greeting.py"
-		},
-		"Transform" : 
-		{
-			"position" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0,
-				"z" : 3.5
-			},
-			"rotation" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			}
-		}
-	},
-	{
-		"ID" : "eae66961-5084-4234-8df7-9d1cabd6dbf0",
-		"Light" : 
-		{
-			"angle" : 35.0,
-			"color" : 
-			{
-				"x" : 0.96202516555786133,
-				"y" : 0.0,
-				"z" : 1.0
-			},
-			"range" : 2.0,
-			"smoothness" : 1.0,
-			"type" : 0
-		},
-		"Name" : "Light2",
-		"Transform" : 
-		{
-			"position" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0,
-				"z" : 0.0
-			},
-			"rotation" : 
-			{
-				"x" : -0.33859387040138245,
-				"y" : 0.0,
-				"z" : 0.0
-			},
-			"scale" : 
-			{
-				"x" : 1.0,
-				"y" : 1.0,
-				"z" : 1.0
-			}
-		}
-	}
-]
+	]
+}

@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <json/value.h>
 
-#include "Cardia/Application.hpp"
-
 namespace Cardia
 {
 	template<typename T>

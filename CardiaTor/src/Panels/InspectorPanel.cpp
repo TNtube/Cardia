@@ -44,47 +44,47 @@ namespace Cardia::Panel
 			return;
 		}
 		// Name Component
-		auto& name = m_SelectedEntity.GetComponent<Component::Name>();
+		auto& name = m_SelectedEntity.GetComponent<Component::Label>();
 		auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
 
 		char buffer[128] {0};
 		constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-		name.name.copy(buffer, bufferSize);
+		name.Name.copy(buffer, bufferSize);
 
 		if(EditorUI::InputText("Name", buffer, bufferSize))
 		{
-			name.name = std::string(buffer);
+			name.Name = std::string(buffer);
 		}
 
 		// Transform Component
 
 		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
-			EditorUI::DragFloat3("Position", transform.position);
+			EditorUI::DragFloat3("Position", transform.Position);
 
 			
 
 			auto rotation = Vector3f(
-				Radianf::FromDegree(transform.rotation.x).Value(),
-				Radianf::FromDegree(transform.rotation.y).Value(),
-				Radianf::FromDegree(transform.rotation.z).Value());
+				Radianf::FromDegree(transform.Rotation.x).Value(),
+				Radianf::FromDegree(transform.Rotation.y).Value(),
+				Radianf::FromDegree(transform.Rotation.z).Value());
 			if (EditorUI::DragFloat3("Rotation", rotation))
 			{
-				transform.rotation = Vector3f(
+				transform.Rotation = Vector3f(
 					Degreef::FromRadian(rotation.x).Value(),
 					Degreef::FromRadian(rotation.y).Value(),
 					Degreef::FromRadian(rotation.z).Value());;
 			}
 
-			EditorUI::DragFloat3("Scale", transform.scale, 1);
+			EditorUI::DragFloat3("Scale", transform.Scale, 1);
 		});
 
 		// SpriteRenderer Component
 
 		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [appContext](Component::SpriteRenderer& sprite) {
-			EditorUI::ColorEdit4("Color", &sprite.color.x);
+			EditorUI::ColorEdit4("Color", &sprite.Color.x);
 
 			auto& white = appContext->GetRenderer().GetWhiteTexture();
-			const VkDescriptorSet texID = sprite.texture ? sprite.texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
+			const VkDescriptorSet texID = sprite.Texture ? sprite.Texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
 
 			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
@@ -94,14 +94,14 @@ namespace Cardia::Panel
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
 					if (auto tex = AssetsManager::Load<Texture2D>(cStrPath))
 					{
-						sprite.texture = std::move(tex);
+						sprite.Texture = std::move(tex);
 					}
 				}
 				ImGui::EndDragDropTarget();
 			}
 			ImGui::SameLine();
 			ImGui::Text("Texture");
-			EditorUI::DragInt("zIndex", &sprite.zIndex, 0.05f);
+			EditorUI::DragInt("zIndex", &sprite.ZIndex, 0.05f);
 		});
 
 
@@ -110,7 +110,7 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext](Component::MeshRendererC& meshRendererC) {
 			char buffer[128] {0};
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-			AssetsManager::GetPathFromAsset(meshRendererC.meshRenderer->GetMesh()).string().copy(buffer, bufferSize);
+			AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string().copy(buffer, bufferSize);
 
 			EditorUI::InputText("Mesh path", buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
@@ -120,15 +120,15 @@ namespace Cardia::Panel
 					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
 					auto mesh = AssetsManager::Load<Mesh>(path);
 					
-					meshRendererC.meshRenderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
+					meshRendererC.Renderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
 				}
 				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::Text("Materials");
 
-			if (!meshRendererC.meshRenderer->GetMesh()) return;
-			auto& materials = meshRendererC.meshRenderer->GetMesh()->GetMaterials();
+			if (!meshRendererC.Renderer->GetMesh()) return;
+			auto& materials = meshRendererC.Renderer->GetMesh()->GetMaterials();
 			for (auto& material : materials) {
 				auto& white = appContext->GetRenderer().GetWhiteTexture();
 				const VkDescriptorSet texID = material ? material->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
@@ -161,14 +161,14 @@ namespace Cardia::Panel
 		// Camera Component
 
 		DrawInspectorComponent<Component::Camera>("Camera", [](Component::Camera& camera) {
-			SceneCamera& cam = camera.camera;
+			SceneCamera& cam = camera.CameraData;
 
 			int type = static_cast<int>(cam.GetProjectionType());
 			const char *cameraTypes[] = {"Perspective", "Orthographic"};
 			if (EditorUI::Combo("Camera Type", &type, cameraTypes, sizeof(cameraTypes) / sizeof(char *)))
 				cam.SetProjectionType(static_cast<SceneCamera::ProjectionType>(type));
 
-			auto& isPrimary = camera.primary;
+			auto& isPrimary = camera.Primary;
 
 			EditorUI::Checkbox("Primary", &isPrimary);
 
@@ -207,20 +207,20 @@ namespace Cardia::Panel
 		// Light Component
 
 		DrawInspectorComponent<Component::Light>("Light", [](Component::Light& light) {
-			int item_current = light.lightType;
+			int item_current = light.LightType;
 			const char* items[] = { "Directional Light", "Point Light", "Spot Light" };
 			EditorUI::Combo("Light Type", &item_current, items, IM_ARRAYSIZE(items));
 
-			light.lightType = item_current;
+			light.LightType = item_current;
 
-			EditorUI::ColorEdit3("Color", &light.color.x);
+			EditorUI::ColorEdit3("Color", &light.Color.x);
 
 			if (item_current == 0) return;
-			EditorUI::DragFloat("Range", &light.range, 0.01f, 0.0f);
+			EditorUI::DragFloat("Range", &light.Range, 0.01f, 0.0f);
 
 			if (item_current == 1) return;
-			EditorUI::DragFloat("Angle", &light.angle, 0.5f, 0.0f);
-			EditorUI::DragFloat("Smoothness", &light.smoothness, 0.5f);
+			EditorUI::DragFloat("Angle", &light.Angle, 0.5f, 0.0f);
+			EditorUI::DragFloat("Smoothness", &light.Smoothness, 0.5f);
 		});
 
 		DrawInspectorComponent<Component::Script>("Script", [&](Component::Script& scriptComponent) {
@@ -247,12 +247,12 @@ namespace Cardia::Panel
 				ImGui::EndDragDropTarget();
 			}
 
-			auto& attributes = scriptComponent.scriptClass.Attributes();
+			auto& attributes = scriptComponent.Class.Attributes();
 
 			for (auto& attribute: attributes)
 			{
 				auto fieldName = attribute.name;
-				auto instance = ScriptEngine::Instance().GetInstance(uuid.uuid);
+				auto instance = ScriptEngine::Instance().GetInstance(uuid.Uuid);
 				auto type = attribute.type;
 				DrawField(instance, type, fieldName.c_str(), attribute.instance.object());
 				switch (type) {
@@ -444,7 +444,7 @@ namespace Cardia::Panel
 					auto entity = m_CurrentScene->GetEntityByUUID(UUID::FromString(id));
 
 					if (entity) {
-						auto instanceName = entity.GetComponent<Component::Name>().name;
+						auto instanceName = entity.GetComponent<Component::Label>().Name;
 						instanceName.copy(buff, bufferSize);
 					}
 				} catch (std::exception& e) {
@@ -455,7 +455,7 @@ namespace Cardia::Panel
 					return false;
 
 				const ImGuiPayload* payload;
-				if (!(payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))){
+				if (!((payload = ImGui::AcceptDragDropPayload("ENTITY_UUID")))){
 					ImGui::EndDragDropTarget();
 					return false;
 				}
@@ -472,29 +472,32 @@ namespace Cardia::Panel
 			case ScriptFieldType::Vector2:
 			{
 				auto castedField = value.cast<Vector2f>();
-				if (!EditorUI::DragFloat2(fieldName, castedField, 0.1f))
+				if (!EditorUI::DragFloat2(fieldName, castedField, 0.0f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
 				py::setattr(field, "y", py::cast(castedField.y));
+				return true;
 			}
 			case ScriptFieldType::Vector3:
 			{
 				auto castedField = value.cast<Vector3f>();
-				if (!EditorUI::DragFloat3(fieldName, castedField, 0.1f))
+				if (!EditorUI::DragFloat3(fieldName, castedField, 0.0f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
 				py::setattr(field, "y", py::cast(castedField.y));
 				py::setattr(field, "z", py::cast(castedField.z));
+				return true;
 			}
 			case ScriptFieldType::Vector4:
 			{
 				auto castedField = value.cast<Vector4f>();
-				if (!EditorUI::DragFloat4(fieldName, castedField, 0.1f))
+				if (!EditorUI::DragFloat4(fieldName, castedField, 0.0f))
 					return false;
 				py::setattr(field, "x", py::cast(castedField.x));
 				py::setattr(field, "y", py::cast(castedField.y));
 				py::setattr(field, "z", py::cast(castedField.z));
 				py::setattr(field, "w", py::cast(castedField.w));
+				return true;
 			}
 			default:
 				return false;

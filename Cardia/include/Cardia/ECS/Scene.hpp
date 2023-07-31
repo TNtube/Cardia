@@ -21,6 +21,10 @@ namespace Cardia
 	public:
 		Scene(Renderer& renderer, std::string name = "Default Scene");
 		Scene(Renderer& renderer, std::filesystem::path path);
+		Scene(const Scene& other);
+		Scene& operator=(const Scene& other);
+		Scene(Scene&& other) noexcept;
+		Scene& operator=(Scene&& other) noexcept;
 		virtual ~Scene();
 		Entity CreateEntity(const std::string& name = "");
 		Entity CreateEntityFromId(UUID uuid);
@@ -40,7 +44,11 @@ namespace Cardia
 		std::filesystem::path& GetPath() { return m_Path; }
 		void Clear();
 
+		Json::Value Serialize() const;
+		static std::optional<Scene> Deserialize(const Json::Value& root);
+
 	private:
+		void CopyRegistry(const Scene& other);
 		Renderer& m_Renderer;
 		std::filesystem::path m_Path;
 		std::string m_Name;

@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <Cardia/Core/Core.hpp>
+#include <json/value.h>
 
 namespace Cardia
 {
@@ -34,6 +35,9 @@ namespace Cardia
 		static std::shared_ptr<Project> New();
 		static std::shared_ptr<Project> Load(const std::filesystem::path& path);
 		static bool SaveActive(const std::filesystem::path& path);
+
+		Json::Value Serialize() const;
+		static std::optional<Project> Deserialize(const Json::Value& root);
 	private:
 
 		ProjectConfig m_Config;

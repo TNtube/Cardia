@@ -264,7 +264,7 @@ namespace Cardia
 		root["x"] = x;
 		root["y"] = y;
 		root["z"] = z;
-		return std::move(root);
+		return root;
 	}
 
 	template<arithmetic T>
