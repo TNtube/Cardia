@@ -130,9 +130,9 @@ namespace Cardia::Panel
 		{
 			auto& camera = appContext->GetEditorCamera();
 			auto& transform = camera.GetTransformComponent();
-			EditorUI::DragFloat3("Position", transform.position);
-			EditorUI::DragFloat3("Rotation", transform.rotation);
-			EditorUI::DragFloat3("Scale", transform.scale);
+			EditorUI::DragFloat3("Position", transform.Position);
+			EditorUI::DragFloat3("Rotation", transform.Rotation);
+			EditorUI::DragFloat3("Scale", transform.Scale);
 		}
 
 		ImGui::End();

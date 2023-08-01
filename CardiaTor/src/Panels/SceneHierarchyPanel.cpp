@@ -34,19 +34,19 @@ namespace Cardia :: Panel
 			return;
 		}
 
-		const auto view = m_CurrentScene->GetRegistry().view<Component::Name, Component::ID>();
+		const auto view = m_CurrentScene->GetRegistry().view<Component::Label, Component::ID>();
 
 		for (auto entity : view)
 		{
-			auto name = view.get<Component::Name>(entity);
+			auto name = view.get<Component::Label>(entity);
 			auto uuid = view.get<Component::ID>(entity);
 			auto node_flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity))), node_flags, "%s", name.name.c_str())) {
+			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity))), node_flags, "%s", name.Name.c_str())) {
 				if (ImGui::BeginDragDropSource())
 				{
-					std::string itemUuid = uuid.uuid;
+					std::string itemUuid = uuid.Uuid.ToString();
 					ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (strlen(itemUuid.c_str()) + 1) * sizeof(char));
 					ImGui::EndDragDropSource();
 				}

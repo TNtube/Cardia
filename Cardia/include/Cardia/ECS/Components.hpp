@@ -23,45 +23,43 @@ namespace Cardia::Component
 		};
 	}
 
-	struct Name
+	struct Label
 	{
-		Name() = default;
-		Name(const Name&) = default;
-		explicit Name(std::string name)
-			: name(std::move(name)) {}
+		Label() = default;
+		explicit Label(std::string Label)
+			: Name(std::move(Label)) {}
 
-		std::string name;
+		std::string Name;
+		Vector4f Color { 1.0f };
 
-		static constexpr std::string ClassName() { return "Name"; };
+		Json::Value Serialize() const;
+		static std::optional<Label> Deserialize(const Json::Value& root);
 	};
 
 	struct ID
 	{
-		ID() : uuid(UUID()) {};
-		ID(const ID&) = default;
-
+		ID() : Uuid(UUID()) {}
 		explicit ID(UUID uuid)
-			: uuid(uuid) {}
+			: Uuid(uuid) {}
 
-		UUID uuid;
+		UUID Uuid;
 
-		static constexpr std::string ClassName() { return "ID"; };
+		Json::Value Serialize() const;
+		static std::optional<ID> Deserialize(const Json::Value& root);
 	};
 
 	struct Transform
 	{
 		Transform() = default;
-		Transform(const Transform&) = default;
-		Transform(Vector3f pos, Vector3f rot, Vector3f sca) : position(pos), rotation(rot), scale(sca) {}
+		Transform(Vector3f pos, Vector3f rot, Vector3f sca) : Position(pos), Rotation(rot), Scale(sca) {}
 
-		Vector3f position { 0.0f };
-		Vector3f rotation { 0.0f };
-		Vector3f scale { 1.0f };
-		Matrix4f identity = Matrix4f::Identity(); 
+		Vector3f Position { 0.0f };
+		Vector3f Rotation { 0.0f };
+		Vector3f Scale { 1.0f };
 		inline Matrix4f GetTransform() const {
-			return identity.Translate(position)
-				 * Quaternion(rotation).ToMatrix()
-				 * identity.Scale(scale);
+			return Matrix4f::Identity().Translate(Position)
+				 * Quaternion(Rotation).ToMatrix()
+				 * Matrix4f::Identity().Scale(Scale);
 		}
 
 		Vector3f Forward() const;
@@ -69,102 +67,102 @@ namespace Cardia::Component
 		Vector3f Right() const;
 
 		inline void Reset() {
-			position = Vector3f(0);
-			rotation = Vector3f(0);
-			scale = Vector3f(1);
+			Position = Vector3f(0);
+			Rotation = Vector3f(0);
+			Scale = Vector3f(1);
 		}
 
-		static constexpr std::string ClassName() { return "Transform"; }
+		Json::Value Serialize() const;
+		static std::optional<Transform> Deserialize(const Json::Value& root);
 	};
 
 	struct SpriteRenderer
 	{
 		SpriteRenderer() = default;
-		SpriteRenderer(const SpriteRenderer&) = default;
 		explicit SpriteRenderer(const Vector4f& color)
-			: color(color) {}
+			: Color(color) {}
 
-		Vector4f color { 1.0f };
-		std::shared_ptr<Texture2D> texture = nullptr;
-		float tillingFactor = 1.0f;
-		int32_t zIndex = 0;
+		Vector4f Color { 1.0f };
+		std::shared_ptr<Texture2D> Texture = nullptr;
+		float TillingFactor = 1.0f;
+		int32_t ZIndex = 0;
 
 		inline void Reset() {
-			texture = nullptr;
-			tillingFactor = 1.0f;
-			color = Vector4f(1.0f);
+			Texture = nullptr;
+			TillingFactor = 1.0f;
+			Color = Vector4f(1.0f);
 		}
 
-		static constexpr std::string ClassName() { return "SpriteRenderer"; }
+		Json::Value Serialize() const;
+		static std::optional<SpriteRenderer> Deserialize(const Json::Value& root);
 	};
 
 	struct MeshRendererC
 	{
-		MeshRendererC() : meshRenderer(std::make_shared<MeshRenderer>()) {}
-		MeshRendererC(const MeshRendererC&) = default;
+		MeshRendererC() : Renderer(std::make_shared<MeshRenderer>()) {}
 
-
-		std::shared_ptr<MeshRenderer> meshRenderer = nullptr;
+		std::shared_ptr<MeshRenderer> Renderer = nullptr;
 
 		inline void Reset() {
-			meshRenderer = nullptr;
+			Renderer = nullptr;
 		}
 
-		static constexpr std::string ClassName() { return "MeshRendererC"; }
+		Json::Value Serialize() const;
+		static std::optional<MeshRendererC> Deserialize(const Json::Value& root);
 	};
 
 	struct Camera
 	{
-		SceneCamera camera;
-		bool primary = true;
+		SceneCamera CameraData;
+		bool Primary = true;
 		Camera() = default;
-		Camera(const Camera&) = default;
 
 		inline void Reset() {
-			camera = SceneCamera();
+			CameraData = SceneCamera();
 		}
 
-		static constexpr std::string ClassName() { return "Camera"; }
+		Json::Value Serialize() const;
+		static std::optional<Camera> Deserialize(const Json::Value& root);
 	};
 
 	struct Light
 	{
 		Light() = default;
-		Light(const Light&) = default;
-		int32_t lightType {};
-		Vector3f color {};
-		float range = 2;
-		float angle = 35;
-		float smoothness = 1;
+		int32_t LightType {};
+		Vector3f Color {};
+		float Range = 2;
+		float Angle = 35;
+		float Smoothness = 1;
 
 		inline void Reset() {
-			color = Vector3f(0);
-			range = 2;
-			angle = 35;
-			smoothness = 1;
+			Color = Vector3f(0);
+			Range = 2;
+			Angle = 35;
+			Smoothness = 1;
 		}
 
-		static constexpr std::string ClassName() { return "Light"; }
+		Json::Value Serialize() const;
+		static std::optional<Light> Deserialize(const Json::Value& root);
 	};
 
 	struct Script
 	{
 		Script() = default;
-		Script(const Script&) { ReloadFile(); }
 		explicit Script(std::string scriptPath) : m_Path(std::move(scriptPath)) {
 			ReloadFile();
 		}
 		inline std::string GetPath() const {return m_Path; }
 		inline void SetPath(const std::string& newPath) { m_Path = newPath; ReloadFile(); }
-		ScriptClass scriptClass;
+		ScriptClass Class;
 
 		inline void Reset()
 		{
 			m_Path.clear();
-			scriptClass = ScriptClass();
+			Class = ScriptClass();
 		}
 
-		static constexpr std::string ClassName() { return "Script"; }
+		Json::Value Serialize() const;
+		static std::optional<Script> Deserialize(const Json::Value& root);
 
 	private:
 		void ReloadFile();
@@ -181,7 +179,9 @@ namespace Cardia {
 
 	};
 
-	using AllComponents = ComponentGroup<Component::Transform, Component::MeshRendererC, Component::Name,
-										 Component::SpriteRenderer, Component::Camera, Component::Script,
-										 Component::Light, Component::ID>;
+	using AllComponents = ComponentGroup<
+		Component::Label, Component::ID, Component::Transform,
+		Component::SpriteRenderer, Component::MeshRendererC, Component::Camera,
+		Component::Light, Component::Script
+	>;
 }

@@ -76,18 +76,18 @@ namespace Cardia
 		py::class_<Component::Transform>(m, "Transform")
 			.def(py::init<>())
 			.def(py::init<Vector3f, Vector3f, Vector3f>())
-			.def_readwrite("position", &Component::Transform::position, py::return_value_policy::reference)
-			.def_readwrite("rotation", &Component::Transform::rotation, py::return_value_policy::reference)
-			.def_readwrite("scale", &Component::Transform::scale, py::return_value_policy::reference)
+			.def_readwrite("position", &Component::Transform::Position, py::return_value_policy::reference)
+			.def_readwrite("rotation", &Component::Transform::Rotation, py::return_value_policy::reference)
+			.def_readwrite("scale", &Component::Transform::Scale, py::return_value_policy::reference)
 			.def("reset", &Component::Transform::Reset, py::return_value_policy::reference);
 
 		py::class_<Component::Light>(m, "Light")
 			.def(py::init<>())
-			.def_readwrite("type", &Component::Light::lightType, py::return_value_policy::reference)
-			.def_readwrite("color", &Component::Light::color, py::return_value_policy::reference)
-			.def_readwrite("range", &Component::Light::range, py::return_value_policy::reference)
-			.def_readwrite("angle", &Component::Light::angle, py::return_value_policy::reference)
-			.def_readwrite("smoothness", &Component::Light::smoothness, py::return_value_policy::reference)
+			.def_readwrite("type", &Component::Light::LightType, py::return_value_policy::reference)
+			.def_readwrite("color", &Component::Light::Color, py::return_value_policy::reference)
+			.def_readwrite("range", &Component::Light::Range, py::return_value_policy::reference)
+			.def_readwrite("angle", &Component::Light::Angle, py::return_value_policy::reference)
+			.def_readwrite("smoothness", &Component::Light::Smoothness, py::return_value_policy::reference)
 			.def("reset", &Component::Light::Reset, py::return_value_policy::reference);
 
 		// API Calls
@@ -108,9 +108,9 @@ namespace Cardia
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
 			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
 			auto& t = entity.GetComponent<Component::Transform>();
-			t.position = transform.position;
-			t.rotation = transform.rotation;
-			t.scale = transform.scale;
+			t.Position = transform.Position;
+			t.Rotation = transform.Rotation;
+			t.Scale = transform.Scale;
 		}, py::return_value_policy::reference);
 
 		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {

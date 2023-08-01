@@ -11,7 +11,7 @@ namespace Cardia
 		float NearClip {}, FarClip {};
 
 		Json::Value Serialize() const;
-		static bool Deserialize(const Json::Value& root, PerspectiveData& other);
+		static std::optional<PerspectiveData> Deserialize(const Json::Value& root);
 	};
 
 	struct OrthographicData
@@ -19,7 +19,7 @@ namespace Cardia
 		float Size {}, NearClip {}, FarClip {};
 
 		Json::Value Serialize() const;
-		static bool Deserialize(const Json::Value& root, OrthographicData& other);
+		static std::optional<OrthographicData> Deserialize(const Json::Value& root);
 	};
 
 	class SceneCamera : public Camera
@@ -41,6 +41,9 @@ namespace Cardia
 		inline void SetProjectionType(ProjectionType type) { m_ProjectionType = type; RecomputeProjection(); }
 
 		inline void SetViewportSize(float width, float height) { m_AspectRatio = width / height; RecomputeProjection(); }
+
+		Json::Value Serialize() const;
+		static std::optional<SceneCamera> Deserialize(const Json::Value& root);
 
 	private:
 		void RecomputeProjection();

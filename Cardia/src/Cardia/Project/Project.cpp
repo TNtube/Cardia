@@ -1,6 +1,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Project/Project.hpp"
-#include "Cardia/Serialization/ProjectSerializer.hpp"
+
+#include "Cardia/Serialization/Serializer.hpp"
 
 namespace Cardia
 {
@@ -15,13 +16,12 @@ namespace Cardia
 
 	std::shared_ptr<Project> Project::Load(const std::filesystem::path &path)
 	{
-		auto proj = std::make_shared<Project>();
 
-		Serialization::ProjectSerializer serializer(*proj);
-
-		if (serializer.Deserialize(path)) {
-			proj->m_ProjectDirectory = std::filesystem::canonical(path.parent_path());
-			s_ActiveProject = proj;
+		if (const auto project = Serializer<Project>::Deserialize(path))
+		{
+			const auto projPtr = std::make_shared<Project>(*project);
+			projPtr->m_ProjectDirectory = canonical(path.parent_path());
+			s_ActiveProject = projPtr;
 			return s_ActiveProject;
 		}
 
@@ -30,11 +30,44 @@ namespace Cardia
 
 	bool Project::SaveActive(const std::filesystem::path &path)
 	{
-		Serialization::ProjectSerializer serializer(*s_ActiveProject);
-		if (serializer.Serialize(path)) {
-			s_ActiveProject->m_ProjectDirectory = std::filesystem::canonical(path.parent_path());
-			return true;
-		}
-		return false;
+
+		Serializer serializer(*s_ActiveProject);
+		serializer.Serialize(path);
+		s_ActiveProject->m_ProjectDirectory = canonical(path.parent_path());
+		return true;
+	}
+
+	Json::Value Project::Serialize() const
+	{
+		Json::Value root;
+		auto& project = root["Project"];
+		project["Name"] = m_Config.Name;
+		project["StartScene"] = m_Config.StartScene.string();
+		project["AssetsDirectory"] = m_Config.AssetDirectory.string();
+
+		return root;
+	}
+
+	std::optional<Project> Project::Deserialize(const Json::Value& root)
+	{
+		if (!root.isMember("Project"))
+			return std::nullopt;
+
+		const auto& project = root["Project"];
+
+		if (!project.isMember("Name")
+			|| !project.isMember("StartScene")
+			|| !project.isMember("AssetsDirectory"))
+			return std::nullopt;
+
+		ProjectConfig config;
+		config.Name = project["Name"].asString();
+		config.StartScene = project["StartScene"].asString();
+		config.AssetDirectory = project["AssetsDirectory"].asString();
+
+		Project out;
+		out.m_Config = config;
+
+		return out;
 	}
 }

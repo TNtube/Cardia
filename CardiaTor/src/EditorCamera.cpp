@@ -8,7 +8,7 @@ namespace Cardia
 	EditorCamera::EditorCamera(Radianf fov, float nearClip, float farClip)
 	{
 		m_Camera.SetPerspective({fov, nearClip, farClip});
-		m_Transform.position = {0, 0, 10};
+		m_Transform.Position = {0, 0, 10};
 	}
 
 	void EditorCamera::OnUpdate()
@@ -23,37 +23,37 @@ namespace Cardia
 		{
 			mouseRotate(delta);
 			if (Input::IsKeyPressed(Key::A)) {
-				m_Transform.position +=
+				m_Transform.Position +=
 					-m_Transform.Right()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds();
 			}
 			if (Input::IsKeyPressed(Key::D)) {
-				m_Transform.position +=
+				m_Transform.Position +=
 					m_Transform.Right()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds();
 			}
 			if (Input::IsKeyPressed(Key::W)) {
-				m_Transform.position +=
+				m_Transform.Position +=
 					-m_Transform.Forward()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds();
 			}
 			if (Input::IsKeyPressed(Key::S)) {
-				m_Transform.position +=
+				m_Transform.Position +=
 					m_Transform.Forward()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds();
 			}
 			if (Input::IsKeyPressed(Key::Q)) {
-				m_Transform.position +=
+				m_Transform.Position +=
 					-m_Transform.Up()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds();
 			}
 			if (Input::IsKeyPressed(Key::E)) {
-				m_Transform.position +=
+				m_Transform.Position +=
 					m_Transform.Up()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds();
@@ -73,7 +73,7 @@ namespace Cardia
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& event) -> bool {
 			float delta = event.getOffSetY();
-			m_Transform.position +=
+			m_Transform.Position +=
 				m_Transform.Forward()
 				* delta
 				* m_MovementSpeed
@@ -84,12 +84,12 @@ namespace Cardia
 
 	void EditorCamera::mousePan(const Vector2f& delta)
 	{
-		m_Transform.position +=
+		m_Transform.Position +=
 			-m_Transform.Right()
 			* delta.x
 			* m_MovementSpeed
 			* Time::GetDeltaTime().AsSeconds();
-		m_Transform.position +=
+		m_Transform.Position +=
 			m_Transform.Up()
 			* delta.y
 			* m_MovementSpeed
@@ -98,7 +98,7 @@ namespace Cardia
 
 	void EditorCamera::mouseRotate(const Vector2f &delta)
 	{
-		m_Transform.rotation += Vector3f(-delta.y, -delta.x, 0) * rotationSpeed();
+		m_Transform.Rotation += Vector3f(-delta.y, -delta.x, 0) * rotationSpeed();
 	}
 
 

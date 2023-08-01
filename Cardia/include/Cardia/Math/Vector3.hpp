@@ -71,7 +71,7 @@ namespace Cardia
 		constexpr Vector3 Normalize() const noexcept;
 
 		Json::Value Serialize() const;
-		static bool Deserialize(const Json::Value& root, Vector3& other);
+		static std::optional<Vector3> Deserialize(const Json::Value& root);
 	};
 
 	using Vector3f = Vector3<float>;

@@ -27,13 +27,13 @@ namespace Cardia
 	{
 		m_CurrentContext = context;
 
-		const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID, Component::Name>();
+		const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID, Component::Label>();
 		for (const auto entity : view)
 		{
-			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Name>(entity);
+			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
 			try {
-				auto instance = script.scriptClass.Instantiate(uuid.uuid, name.name);
-				m_BehaviorInstances.insert({uuid.uuid, instance});
+				auto instance = script.Class.Instantiate(uuid.Uuid, name.Name);
+				m_BehaviorInstances.insert({uuid.Uuid, instance});
 			}
 			catch (const std::exception& e) {
 				Log::Error("Instantiating : {0}", e.what());
@@ -41,10 +41,10 @@ namespace Cardia
 		}
 		for (const auto entity : view)
 		{
-			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Name>(entity);
+			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
 			try {
-				auto behavior = m_BehaviorInstances.at(uuid.uuid);
-				for (const auto& item: script.scriptClass.Attributes())
+				auto behavior = m_BehaviorInstances.at(uuid.Uuid);
+				for (const auto& item: script.Class.Attributes())
 				{
 					if (item.type == ScriptFieldType::PyBehavior) {
 						try {

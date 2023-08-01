@@ -7,25 +7,27 @@ namespace Cardia
 	{
 		Json::Value root;
 
-		root["FOV"] = VerticalFOV.Value();
+		root["Fov"] = VerticalFOV.Value();
 		root["Near"] = NearClip;
 		root["Far"] = FarClip;
 
 		return root;
 	}
 
-	bool PerspectiveData::Deserialize(const Json::Value& root, PerspectiveData& other)
+	std::optional<PerspectiveData> PerspectiveData::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("Fov") ||
 			!root.isMember("Near") ||
 			!root.isMember("Far"))
-			return false;
+			return std::nullopt;
 
-		other.VerticalFOV = Radianf(root["Fov"].asFloat());
-		other.NearClip = root["Near"].asFloat();
-		other.FarClip = root["Far"].asFloat();
+		PerspectiveData temp;
 
-		return true;
+		temp.VerticalFOV = Radianf(root["Fov"].asFloat());
+		temp.NearClip = root["Near"].asFloat();
+		temp.FarClip = root["Far"].asFloat();
+
+		return temp;
 	}
 
 	Json::Value OrthographicData::Serialize() const
@@ -39,18 +41,20 @@ namespace Cardia
 		return root;
 	}
 
-	bool OrthographicData::Deserialize(const Json::Value& root, OrthographicData& other)
+	std::optional<OrthographicData> OrthographicData::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("Size") ||
 			!root.isMember("Near") ||
 			!root.isMember("Far"))
-			return false;
+			return std::nullopt;
 
-		other.Size = root["Size"].asFloat();
-		other.NearClip = root["Near"].asFloat();
-		other.FarClip = root["Far"].asFloat();
+		OrthographicData temp;
 
-		return true;
+		temp.Size = root["Size"].asFloat();
+		temp.NearClip = root["Near"].asFloat();
+		temp.FarClip = root["Far"].asFloat();
+
+		return temp;
 	}
 
 	SceneCamera::SceneCamera()
@@ -80,6 +84,50 @@ namespace Cardia
 	OrthographicData SceneCamera::GetOrthographic() const
 	{
 		return m_OrthographicData;
+	}
+
+	Json::Value SceneCamera::Serialize() const
+	{
+		Json::Value root;
+
+		root["ProjectionType"] = static_cast<int>(m_ProjectionType);
+		root["Perspective"] = m_PerspectiveData.Serialize();
+		root["Orthographic"] = m_OrthographicData.Serialize();
+		root["AspectRatio"] = m_AspectRatio;
+
+		return root;
+	}
+
+	std::optional<SceneCamera> SceneCamera::Deserialize(const Json::Value& root)
+	{
+		if (!root.isMember("ProjectionType"))
+			return std::nullopt;
+		if (!root.isMember("Perspective"))
+			return std::nullopt;
+		if (!root.isMember("Orthographic"))
+			return std::nullopt;
+		if (!root.isMember("AspectRatio"))
+			return std::nullopt;
+
+		SceneCamera temp;
+
+		temp.m_ProjectionType = static_cast<ProjectionType>(root["ProjectionType"].asInt());
+
+		const auto persData = PerspectiveData::Deserialize(root["Perspective"]);
+		if (!persData.has_value())
+			return std::nullopt;
+
+		temp.m_PerspectiveData = persData.value();
+
+		const auto orthoData = OrthographicData::Deserialize(root["Orthographic"]);
+		if (!orthoData.has_value())
+			return std::nullopt;
+
+		temp.m_OrthographicData = orthoData.value();
+
+		temp.RecomputeProjection();
+
+		return temp;
 	}
 
 	void SceneCamera::RecomputeProjection()

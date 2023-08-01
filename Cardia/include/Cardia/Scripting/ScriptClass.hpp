@@ -2,6 +2,7 @@
 #include "ScriptInstance.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include <map>
+#include <json/json_features.h>
 
 namespace Cardia
 {
@@ -16,6 +17,9 @@ namespace Cardia
 		inline bool operator==(const ScriptField& other) const {
 			return name == other.name && type == other.type && valueType == other.valueType && keyType == other.keyType;
 		}
+
+		Json::Value Serialize() const;
+		static std::optional<ScriptField> Deserialize(const Json::Value& root);
 	};
 
 	py::object DefaultObjectFromScriptFieldType(ScriptFieldType type);
@@ -53,7 +57,7 @@ namespace std {
 	template<>
 	struct hash<Cardia::ScriptClass>
 	{
-		std::size_t operator()(const Cardia::ScriptClass& scriptClass) const
+		std::size_t operator()(const Cardia::ScriptClass& scriptClass) const noexcept
 		{
 			static auto h = std::hash<PyObject*>{};
 			return h(py::handle(scriptClass).ptr());

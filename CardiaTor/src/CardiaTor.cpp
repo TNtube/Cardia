@@ -5,10 +5,10 @@
 #include <nfd.h>
 
 #include <Cardia.hpp>
-#include <Cardia/Serialization/SceneSerializer.hpp>
 #include <Cardia/Project/Project.hpp>
 #include <Cardia/Asset/AssetsManager.hpp>
 
+#include "Cardia/Serialization/Serializer.hpp"
 #include "Panels/SceneHierarchyPanel.hpp"
 #include "Panels/DebugPanel.hpp"
 #include "Panels/FileHierarchyPanel.hpp"
@@ -316,8 +316,7 @@ namespace Cardia
 		const nfdresult_t result = NFD_OpenDialog( "cdproj", "", &outPath );
 
 		if ( result == NFD_OKAY ) {
-			auto project = Project::Load(outPath);
-			if (project) {
+			if (const auto project = Project::Load(outPath)) {
 				Log::Info("OpeningProject : {0}", project->GetConfig().Name);
 				InvalidateProject();
 			} else {
@@ -333,7 +332,9 @@ namespace Cardia
 			panel->OnUpdateWorkspace();
 		}
 		ScriptEngine::InvalidateProject();
-		OpenScene(AssetsManager::GetAssetAbsolutePath(Project::GetActive()->GetConfig().StartScene));
+		const auto activeProject = Project::GetActive();
+		const auto& config = activeProject->GetConfig();
+		OpenScene(AssetsManager::GetAssetAbsolutePath(config.StartScene));
 	}
 
 	void CardiaTor::InvalidateScene()
@@ -363,21 +364,18 @@ namespace Cardia
 			}
 		}
 
-		Serialization::SceneSerializer serializer(*m_CurrentScene);
+		Serializer serializer(*m_CurrentScene);
 		serializer.Serialize(path);
 	}
 
 	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
 	{
-		auto newScene = std::make_unique<Scene>(m_Renderer, scenePath);
-		Serialization::SceneSerializer serializer(*newScene);
-		if (!serializer.Deserialize(m_Renderer, scenePath))
+		if (const auto scene = Serializer<Scene>::Deserialize(scenePath))
 		{
-			Log::Info("Unable to load {0}", scenePath.string());
-		}
-		else
+			m_CurrentScene = std::make_unique<Scene>(*scene);
+		} else
 		{
-			m_CurrentScene = std::move(newScene);
+			Log::CoreWarn("Unable to load {0}", scenePath.string());
 		}
 		InvalidateScene();
 	}
@@ -516,7 +514,7 @@ namespace Cardia
 			if (ImGuizmo::IsUsing())
 			{
 				if (!isUsing) {
-					position = transformComponent.position;
+					position = transformComponent.Position;
 				}
 				isUsing = true;
 				// TODO: decompose matrix
@@ -533,8 +531,8 @@ namespace Cardia
 					isUsing = false;
 					Log::Info("{}, {}, {}", position.x, position.y, position.z);
 					auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
-					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.uuid, position));
-					position = transformComponent.position;
+					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.Uuid, position));
+					position = transformComponent.Position;
 				}
 			}
 		}

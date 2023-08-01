@@ -73,6 +73,9 @@ namespace Cardia
 		static void CollectGarbage(bool forceCollection = true);
 
 		static AssetsManager& Instance() { return *s_Instance; }
+
+		// absolutely temporary
+		Renderer& GetRenderer() const { return m_Renderer; }
 	private:
 
 		static std::filesystem::path GetAbsolutePath(const std::filesystem::path& relative, LoadType loadType);
