@@ -23,6 +23,17 @@ namespace Cardia::Component
 		};
 	}
 
+	struct Relationship
+	{
+		Relationship() = default;
+
+		std::size_t ChildCount = 0;
+		entt::entity Parent;
+		entt::entity FirstChild;
+		entt::entity PreviousSibling;
+		entt::entity NextSibling;
+	};
+
 	struct Label
 	{
 		Label() = default;

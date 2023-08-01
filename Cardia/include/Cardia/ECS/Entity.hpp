@@ -12,14 +12,13 @@ namespace Cardia
 	class Entity
 	{
 	public:
-		Entity(entt::entity entity, Scene* scene)
+		Entity(entt::entity entity, Scene* scene, entt::entity parent = entt::null)
 			: m_Entity(entity), m_Scene(scene)
 		{
-
+			PopulateEntity(parent);
 		}
 
 		Entity() = default;
-		Entity(const Entity&) = default;
 
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
@@ -28,6 +27,9 @@ namespace Cardia
 			T& component = m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
 			return component;
 		}
+
+		Entity GetParent() const;
+		entt::entity Handle() const { return m_Entity; }
 
 		template<typename T>
 		void RemoveComponent() const
@@ -52,12 +54,10 @@ namespace Cardia
 			return m_Entity == entity;
 		}
 
-		inline explicit operator bool() const
-		{
-			return m_Entity != entt::null;
-		}
+		bool IsValid() const { return m_Entity != entt::null; }
 
 	private:
+		void PopulateEntity(entt::entity parent);
 		friend class Scene;
 		entt::entity m_Entity = entt::null;
 		Scene* m_Scene = nullptr;

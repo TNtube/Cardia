@@ -40,7 +40,7 @@ namespace Cardia :: Panel
 		{
 			auto label = view.get<Component::Label>(entity);
 			auto uuid = view.get<Component::ID>(entity);
-			auto node_flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0);
+			auto node_flags = m_SelectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0;
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
@@ -50,7 +50,7 @@ namespace Cardia :: Panel
 				if (ImGui::BeginDragDropSource())
 				{
 					std::string itemUuid = uuid.Uuid.ToString();
-					ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (strlen(itemUuid.c_str()) + 1) * sizeof(char));
+					ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (itemUuid.size() + 1) * sizeof(char));
 					ImGui::EndDragDropSource();
 				}
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Middle)) {

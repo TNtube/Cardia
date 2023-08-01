@@ -1,16 +1,13 @@
 #pragma once
 
-#include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include "Cardia/Renderer/Texture.hpp"
+#include "Cardia/Math/Matrix4.hpp"
 
 #include <entt/entt.hpp>
 #include <filesystem>
 
-#include "Cardia/Math/Matrix4.hpp"
-#include "Cardia/Renderer/Buffer.hpp"
-#include "Cardia/Renderer/Renderer.hpp"
 
 
 namespace Cardia
@@ -26,8 +23,9 @@ namespace Cardia
 		Scene(Scene&& other) noexcept;
 		Scene& operator=(Scene&& other) noexcept;
 		virtual ~Scene();
-		Entity CreateEntity(const std::string& name = "");
-		Entity CreateEntityFromId(UUID uuid);
+
+		Entity CreateEntity(const std::string& name = "", entt::entity parent = entt::null);
+		Entity CreateEntityFromId(UUID uuid, entt::entity parent = entt::null);
 
 		void DestroyEntity(entt::entity entity);
 

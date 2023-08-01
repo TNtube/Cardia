@@ -15,11 +15,7 @@ namespace Cardia
 
 
 	Scene::Scene(Renderer& renderer, std::string name)
-		: m_Renderer(renderer), m_Name(std::move(name))
-	{
-		std::string shaderName = "basic";
-		const auto shaderPath = "resources/shaders/" + shaderName;
-	}
+		: m_Renderer(renderer), m_Name(std::move(name)) {}
 
 	Scene::Scene(Renderer& renderer, std::filesystem::path path) : Scene(renderer, path.filename().string())
 	{
@@ -53,22 +49,19 @@ namespace Cardia
 	{
 		// TODO : Move this to assets manager
 		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
-	};
+	}
 
-	Entity Scene::CreateEntity(const std::string& name)
+	Entity Scene::CreateEntity(const std::string& name, entt::entity parent)
 	{
-		Entity entity = {m_Registry.create(), this};
-		entity.AddComponent<Component::Transform>();
-		entity.AddComponent<Component::ID>();
-		entity.AddComponent<Component::Label>(name.empty() ? "Default Entity" : name);
+		Entity entity = {m_Registry.create(), this, parent};
+		entity.GetComponent<Component::Label>().Name = name;
 		return entity;
 	}
 
-	Entity Scene::CreateEntityFromId(UUID uuid) {
-		Entity entity = {m_Registry.create(), this};
-		entity.AddComponent<Component::Transform>();
-		entity.AddComponent<Component::ID>(uuid);
-		entity.AddComponent<Component::Label>("Default Entity");
+	Entity Scene::CreateEntityFromId(UUID uuid, entt::entity parent)
+	{
+		Entity entity = {m_Registry.create(), this, parent};
+		entity.GetComponent<UUID>() = uuid;
 		return entity;
 	}
 
