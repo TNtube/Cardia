@@ -9,7 +9,7 @@ namespace Cardia::EditorUI
 {
 	bool DragInt(const char* label, int* data, float speed = 1.0f, int v_min = INT_MIN, int v_max = INT_MAX);
 	bool DragFloat(const char* label, float* data, float speed = 1.0f, float v_min = FLT_MIN, float v_max = FLT_MAX);
-	bool InputText(const char* label, char* buffer, std::size_t size, ImGuiInputTextFlags flags = 0);
+	bool InputText(const char* label, char* buffer, std::size_t size, const Vector4f& color = Vector4f(0), ImGuiInputTextFlags flags = 0);
 
 	bool ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
 	bool ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags = 0);

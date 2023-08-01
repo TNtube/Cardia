@@ -32,6 +32,11 @@ namespace Cardia::Component
 		std::string Name;
 		Vector4f Color { 1.0f };
 
+		inline void Reset() {
+			Name = "Default";
+			Color = Vector4f(1.0f);
+		}
+
 		Json::Value Serialize() const;
 		static std::optional<Label> Deserialize(const Json::Value& root);
 	};

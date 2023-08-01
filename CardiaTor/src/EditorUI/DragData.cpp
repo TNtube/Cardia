@@ -52,7 +52,7 @@ namespace Cardia::EditorUI
 		return res;
 	}
 
-	bool InputText(const char *label, char *buffer, std::size_t size, ImGuiInputTextFlags flags)
+	bool InputText(const char *label, char *buffer, std::size_t size, const Vector4f& color, ImGuiInputTextFlags flags)
 	{
 		ImGui::PushID(label);
 		ImGui::Columns(2);
@@ -63,7 +63,9 @@ namespace Cardia::EditorUI
 		ImGui::NextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
+		ImGui::PushStyleColor(ImGuiCol_Text, {color.x, color.y, color.z, color.w});
 		bool res = ImGui::InputText("##txt", buffer, size, flags);
+		ImGui::PopStyleColor();
 
 		ImGui::Columns(1);
 

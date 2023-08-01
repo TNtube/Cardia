@@ -38,12 +38,15 @@ namespace Cardia :: Panel
 
 		for (auto entity : view)
 		{
-			auto name = view.get<Component::Label>(entity);
+			auto label = view.get<Component::Label>(entity);
 			auto uuid = view.get<Component::ID>(entity);
 			auto node_flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
 			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity))), node_flags, "%s", name.Name.c_str())) {
+
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{label.Color.x, label.Color.y, label.Color.z, label.Color.w});
+			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint32_t>(entity)), node_flags, "%s", label.Name.c_str())) {
+				ImGui::PopStyleColor();
 				if (ImGui::BeginDragDropSource())
 				{
 					std::string itemUuid = uuid.Uuid.ToString();
@@ -64,6 +67,8 @@ namespace Cardia :: Panel
 					ImGui::EndPopup();
 				}
 				ImGui::TreePop();
+			} else {
+				ImGui::PopStyleColor();
 			}
 		}
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {

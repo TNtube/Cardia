@@ -43,25 +43,28 @@ namespace Cardia::Panel
 			ImGui::End();
 			return;
 		}
-		// Name Component
-		auto& name = m_SelectedEntity.GetComponent<Component::Label>();
-		auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
 
-		char buffer[128] {0};
-		constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-		name.Name.copy(buffer, bufferSize);
+		const auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
 
-		if(EditorUI::InputText("Name", buffer, bufferSize))
+		// Label Component
+		DrawInspectorComponent<Component::Label>("Label", [this](Component::Label& label)
 		{
-			name.Name = std::string(buffer);
-		}
+			char buffer[128] {0};
+			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
+			label.Name.copy(buffer, bufferSize);
+
+			if(EditorUI::InputText("Name", buffer, bufferSize, label.Color))
+			{
+				label.Name = std::string(buffer);
+			}
+
+			EditorUI::ColorEdit4("Color", &label.Color.x);
+		});
 
 		// Transform Component
 
 		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
 			EditorUI::DragFloat3("Position", transform.Position);
-
-			
 
 			auto rotation = Vector3f(
 				Radianf::FromDegree(transform.Rotation.x).Value(),
@@ -112,7 +115,7 @@ namespace Cardia::Panel
 			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
 			AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string().copy(buffer, bufferSize);
 
-			EditorUI::InputText("Mesh path", buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
+			EditorUI::InputText("Mesh path", buffer, bufferSize, Vector4f(0), ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
@@ -228,7 +231,7 @@ namespace Cardia::Panel
 			auto path = filepath.filename().string();
 
 			char* buffer = &path[0];
-			EditorUI::InputText("Script Name", buffer, path.size(), ImGuiInputTextFlags_ReadOnly);
+			EditorUI::InputText("Script Name", buffer, path.size(), Vector4f(0), ImGuiInputTextFlags_ReadOnly);
 
 			if (ImGui::BeginDragDropTarget())
 			{
@@ -450,7 +453,7 @@ namespace Cardia::Panel
 				} catch (std::exception& e) {
 
 				}
-				EditorUI::InputText(fieldName, buff, bufferSize, ImGuiInputTextFlags_ReadOnly);
+				EditorUI::InputText(fieldName, buff, bufferSize, Vector4f(0), ImGuiInputTextFlags_ReadOnly);
 				if (!ImGui::BeginDragDropTarget())
 					return false;
 
