@@ -53,15 +53,15 @@ namespace Cardia
 
 	Entity Scene::CreateEntity(const std::string& name, entt::entity parent)
 	{
-		Entity entity = {m_Registry.create(), this, parent};
-		entity.GetComponent<Component::Label>().Name = name;
+		Entity entity = {m_Registry.create(), this};
+		PopulateDefaultEntity(entity, name, UUID(), parent);
 		return entity;
 	}
 
 	Entity Scene::CreateEntityFromId(UUID uuid, entt::entity parent)
 	{
-		Entity entity = {m_Registry.create(), this, parent};
-		entity.GetComponent<UUID>() = uuid;
+		Entity entity = {m_Registry.create(), this};
+		PopulateDefaultEntity(entity, "Entity", uuid, parent);
 		return entity;
 	}
 
@@ -193,7 +193,7 @@ namespace Cardia
 	}
 
 
-	template <typename Cpn>
+	template <Serializable Cpn>
 	static void SerializeOneComponent(const entt::registry& src, Json::Value& root, entt::entity entity)
 	{
 		if (src.all_of<Cpn>(entity))
@@ -202,7 +202,7 @@ namespace Cardia
 		}
 	}
 
-	template <typename... Cpn>
+	template <Serializable... Cpn>
 	static void SerializeAllComponents(ComponentGroup<Cpn...>, const entt::registry& src, Json::Value& root, entt::entity entity)
 	{
 		(SerializeOneComponent<Cpn>(src, root, entity), ...);
@@ -216,7 +216,7 @@ namespace Cardia
 		for(const auto entity: m_Registry.view<entt::entity>())
 		{
 			Json::Value currentEntityNode(Json::objectValue);
-			SerializeAllComponents(AllComponents{}, m_Registry, currentEntityNode, entity);
+			SerializeAllComponents(SerializableComponents{}, m_Registry, currentEntityNode, entity);
 			entitiesNode.append(currentEntityNode);
 		}
 
@@ -224,7 +224,7 @@ namespace Cardia
 
 	}
 
-	template <typename Cpn>
+	template <Serializable Cpn>
 	static void DeserializeAndAssignOneComponent(const Json::Value& root, entt::registry& dst, entt::entity entity)
 	{
 		std::optional<Cpn> cpn = Cpn::Deserialize(root);
@@ -250,10 +250,39 @@ namespace Cardia
 		for (auto& entityNode : root["Entities"])
 		{
 			const auto entity = scene.m_Registry.create();
-			DeserializeAndAssignAllComponents(AllComponents{}, entityNode, scene.m_Registry, entity);
+			DeserializeAndAssignAllComponents(SerializableComponents{}, entityNode, scene.m_Registry, entity);
 		}
 
 		return scene;
+	}
+
+	void Scene::PopulateDefaultEntity(Entity& entity, std::string name, UUID uuid, const entt::entity parent)
+	{
+		if (!m_Registry.valid(entity.Handle()))
+			return;
+		entity.AddComponent<Component::Transform>();
+		entity.AddComponent<Component::ID>(uuid);
+		entity.AddComponent<Component::Label>(name);
+		auto& relationship = entity.AddComponent<Component::Relationship>();
+		relationship.Parent = parent;
+
+		if (parent != entt::null)
+		{
+			auto& parentRelationship = m_Registry.get<Component::Relationship>(parent);
+			auto current = parentRelationship.FirstChild;
+
+			if (current == entt::null)
+				parentRelationship.FirstChild = entity.Handle();
+			else {
+				while (m_Registry.get<Component::Relationship>(current).NextSibling != entt::null)
+				{
+					current = m_Registry.get<Component::Relationship>(current).NextSibling;
+				}
+				m_Registry.get<Component::Relationship>(current).NextSibling = entity.Handle();
+				relationship.PreviousSibling = current;
+				parentRelationship.ChildCount++;
+			}
+		}
 	}
 
 	template <typename... Cpn>

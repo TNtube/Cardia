@@ -12,10 +12,9 @@ namespace Cardia
 	class Entity
 	{
 	public:
-		Entity(entt::entity entity, Scene* scene, entt::entity parent = entt::null)
+		Entity(entt::entity entity, Scene* scene)
 			: m_Entity(entity), m_Scene(scene)
 		{
-			PopulateEntity(parent);
 		}
 
 		Entity() = default;
@@ -57,7 +56,6 @@ namespace Cardia
 		bool IsValid() const { return m_Entity != entt::null; }
 
 	private:
-		void PopulateEntity(entt::entity parent);
 		friend class Scene;
 		entt::entity m_Entity = entt::null;
 		Scene* m_Scene = nullptr;

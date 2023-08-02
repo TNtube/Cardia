@@ -10,6 +10,7 @@
 #include "Cardia/ECS/Components.hpp"
 #include "ScriptEngine.hpp"
 #include "Cardia/Math/Vector2.hpp"
+#include "Cardia/Core/Time.hpp"
 
 
 namespace Cardia

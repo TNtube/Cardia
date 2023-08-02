@@ -38,7 +38,7 @@ namespace Cardia::Panel
 			return;
 		}
 
-		if(!m_SelectedEntity)
+		if(!m_SelectedEntity.IsValid())
 		{
 			ImGui::End();
 			return;
@@ -446,7 +446,7 @@ namespace Cardia::Panel
 				try {
 					auto entity = m_CurrentScene->GetEntityByUUID(UUID::FromString(id));
 
-					if (entity) {
+					if (entity.IsValid()) {
 						auto instanceName = entity.GetComponent<Component::Label>().Name;
 						instanceName.copy(buff, bufferSize);
 					}

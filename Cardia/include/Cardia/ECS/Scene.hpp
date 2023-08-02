@@ -24,7 +24,7 @@ namespace Cardia
 		Scene& operator=(Scene&& other) noexcept;
 		virtual ~Scene();
 
-		Entity CreateEntity(const std::string& name = "", entt::entity parent = entt::null);
+		Entity CreateEntity(const std::string& name = "Entity", entt::entity parent = entt::null);
 		Entity CreateEntityFromId(UUID uuid, entt::entity parent = entt::null);
 
 		void DestroyEntity(entt::entity entity);
@@ -46,6 +46,7 @@ namespace Cardia
 		static std::optional<Scene> Deserialize(const Json::Value& root);
 
 	private:
+		void PopulateDefaultEntity(Entity& entity, std::string name = "Entity", UUID uuid = UUID(), entt::entity parent = entt::null);
 		void CopyRegistry(const Scene& other);
 		Renderer& m_Renderer;
 		std::filesystem::path m_Path;

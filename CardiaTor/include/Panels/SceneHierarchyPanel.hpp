@@ -18,6 +18,7 @@ namespace Cardia :: Panel
 		void OnSceneLoad(Scene* scene) override;
 
 	private:
+		void DrawEntityNode(Entity entity, const Component::Relationship& relationship, CardiaTor* appCtx);
 		void SetSelectedEntityFromItself(Entity entity, CardiaTor* appCtx);
 
 	private:

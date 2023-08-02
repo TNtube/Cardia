@@ -28,10 +28,13 @@ namespace Cardia::Component
 		Relationship() = default;
 
 		std::size_t ChildCount = 0;
-		entt::entity Parent;
-		entt::entity FirstChild;
-		entt::entity PreviousSibling;
-		entt::entity NextSibling;
+		entt::entity Parent = entt::null;
+		entt::entity FirstChild = entt::null;
+		entt::entity PreviousSibling = entt::null;
+		entt::entity NextSibling = entt::null;
+		
+		Json::Value Serialize() const;
+		static std::optional<Relationship> Deserialize(const Json::Value& root);
 	};
 
 	struct Label
@@ -196,6 +199,12 @@ namespace Cardia {
 	};
 
 	using AllComponents = ComponentGroup<
+		Component::Relationship, Component::Label, Component::ID,
+		Component::Transform, Component::SpriteRenderer, Component::MeshRendererC,
+		Component::Camera, Component::Light, Component::Script
+	>;
+
+	using SerializableComponents = ComponentGroup<
 		Component::Label, Component::ID, Component::Transform,
 		Component::SpriteRenderer, Component::MeshRendererC, Component::Camera,
 		Component::Light, Component::Script

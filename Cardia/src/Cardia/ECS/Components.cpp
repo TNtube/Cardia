@@ -6,6 +6,20 @@
 
 namespace Cardia::Component
 {
+	Json::Value Relationship::Serialize() const
+	{
+		Json::Value root;
+		auto& relationship = root["Relationship"];
+
+		relationship["ChildCount"] = ChildCount;
+		// TODO : Serialize relationship using UUID ?
+		// how to access the registry from here ?
+		// relationship["Parent"] = Parent;
+	}
+
+	std::optional<Relationship> Relationship::Deserialize(const Json::Value& root)
+	{
+	}
 
 	Json::Value Label::Serialize() const
 	{

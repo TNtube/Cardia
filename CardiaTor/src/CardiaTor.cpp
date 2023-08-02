@@ -496,7 +496,7 @@ namespace Cardia
 //
 //		drawLists->PopClipRect();
 
-		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
+		if (m_SelectedEntity.IsValid() && m_EditorState == EditorState::Edit)
 		{
 
 			// Editor camera
@@ -585,7 +585,7 @@ namespace Cardia
 		{
 			if (e.getButton() == Mouse::Left)
 			{
-				if (m_SelectedEntity && ImGuizmo::IsOver()) return;
+				if (m_SelectedEntity.IsValid() && ImGuizmo::IsOver()) return;
 				if (!m_HoverViewport) return;
 
 				m_SelectedEntity = m_HoveredEntity;

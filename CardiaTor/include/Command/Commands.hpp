@@ -2,6 +2,7 @@
 
 #include "Cardia/ECS/Entity.hpp"
 #include "Cardia/ECS/Components.hpp"
+#include "Cardia/Application.hpp"
 
 namespace Cardia
 {
