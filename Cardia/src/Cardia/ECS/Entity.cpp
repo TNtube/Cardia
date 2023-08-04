@@ -1,7 +1,7 @@
 ﻿#include "cdpch.hpp"
 
 #include "Cardia/ECS/Entity.hpp"
-#include "Cardia/ECS/Components.hpp"
+#include "Cardia/ECS/Component/Relationship.hpp"
 
 namespace Cardia
 {

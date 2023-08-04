@@ -46,7 +46,7 @@ namespace Cardia :: Panel
 		for (auto entity : view)
 		{
 			auto& relationship = view.get<Component::Relationship>(entity);
-			if (relationship.Parent == entt::null) {
+			if (!m_CurrentScene->IsEntityValid(relationship.Parent)) {
 				DrawEntityNode({entity, m_CurrentScene}, relationship, appContext);
 			}
 		}
@@ -73,7 +73,7 @@ namespace Cardia :: Panel
 		auto node_flags = m_SelectedEntity == entity.Handle() ? ImGuiTreeNodeFlags_Selected : 0;
 		node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		if (relationship.FirstChild == entt::null) {
+		if (!m_CurrentScene->IsEntityValid(relationship.FirstChild)) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf;
 		}
 
@@ -96,26 +96,26 @@ namespace Cardia :: Panel
 				}
 				if (ImGui::MenuItem("Delete Entity"))
 				{
-					m_CurrentScene->DestroyEntity(entity.Handle());
+					m_CurrentScene->DestroyEntity(entity);
 					SetSelectedEntityFromItself(Entity(), appCtx);
 				}
 				ImGui::EndPopup();
 			}
-			
+
 			if (ImGui::BeginDragDropSource())
 			{
 				const std::string itemUuid = uuid.Uuid.ToString();
 				ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (itemUuid.size() + 1) * sizeof(char));
 				ImGui::EndDragDropSource();
 			}
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Middle)) {
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 				SetSelectedEntityFromItself(entity, appCtx);
 			}
-			auto current = relationship.FirstChild;
-			while (current != entt::null) {
-				auto& childRelationship = m_CurrentScene->GetRegistry().get<Component::Relationship>(current);
-				DrawEntityNode({current, m_CurrentScene}, childRelationship, appCtx);
-				current = childRelationship.NextSibling;
+			auto current = Entity(relationship.FirstChild, m_CurrentScene);
+			while (current.IsValid()) {
+				auto& childRelationship = current.GetComponent<Component::Relationship>();
+				DrawEntityNode(current, childRelationship, appCtx);
+				current = Entity(childRelationship.NextSibling, m_CurrentScene);
 			}
 			ImGui::TreePop();
 		} else {

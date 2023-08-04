@@ -27,7 +27,7 @@ namespace Cardia
 		Entity CreateEntity(const std::string& name = "Entity", entt::entity parent = entt::null);
 		Entity CreateEntityFromId(UUID uuid, entt::entity parent = entt::null);
 
-		void DestroyEntity(entt::entity entity);
+		void DestroyEntity(Entity entity);
 
 		static std::unique_ptr<Scene> Copy(Scene& src);
 		void OnRuntimeStart();
@@ -36,6 +36,7 @@ namespace Cardia
 		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform);
 		void OnViewportResize(float width, float height);
 		Entity GetEntityByUUID(const UUID& uuid);
+		bool IsEntityValid(entt::entity entity) const;
 		inline const char* GetName() const { return m_Name.c_str(); }
 		inline entt::registry& GetRegistry() { return m_Registry; }
 		const std::filesystem::path& GetPath() const { return m_Path; }

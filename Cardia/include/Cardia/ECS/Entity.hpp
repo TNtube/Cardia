@@ -43,6 +43,12 @@ namespace Cardia
 		}
 
 		template<typename T>
+		T& GetComponent() const
+		{
+			return m_Scene->m_Registry.get<T>(m_Entity);
+		}
+
+		template<typename T>
 		bool HasComponent() const
 		{
 			return m_Scene->m_Registry.all_of<T>(m_Entity);
@@ -53,7 +59,7 @@ namespace Cardia
 			return m_Entity == entity;
 		}
 
-		bool IsValid() const { return m_Entity != entt::null; }
+		bool IsValid() const { return  m_Scene && m_Scene->GetRegistry().valid(m_Entity); }
 
 	private:
 		friend class Scene;
