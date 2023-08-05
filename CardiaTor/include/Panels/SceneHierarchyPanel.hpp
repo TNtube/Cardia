@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Cardia.hpp>
-#include <entt/entt.hpp>
 
 #include "IPanel.hpp"
 
@@ -18,7 +17,7 @@ namespace Cardia :: Panel
 		void OnSceneLoad(Scene* scene) override;
 
 	private:
-		void DrawEntityNode(Entity entity, const Component::Relationship& relationship, CardiaTor* appCtx);
+		void DrawEntityNode(Entity entity, CardiaTor* appCtx);
 		void SetSelectedEntityFromItself(Entity entity, CardiaTor* appCtx);
 
 	private:

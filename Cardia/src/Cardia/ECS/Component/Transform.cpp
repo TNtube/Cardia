@@ -4,6 +4,13 @@
 
 namespace Cardia::Component
 {
+	Matrix4f Transform::GetLocalTransform() const
+	{
+		return Matrix4f::Identity().Translate(Position)
+			 * Quaternion(Rotation).ToMatrix()
+			 * Matrix4f::Identity().Scale(Scale);
+	}
+
 	Vector3f Transform::Forward() const
 	{
 		Vector3f forward;

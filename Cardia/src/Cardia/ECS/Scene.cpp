@@ -92,7 +92,7 @@ namespace Cardia
 				if (cam.Primary)
 				{
 					mainCamera = &cam.CameraData;
-					mainCameraTransform = transform.GetTransform();
+					mainCameraTransform = transform.GetLocalTransform();
 				}
 			}
 		}
@@ -129,8 +129,8 @@ namespace Cardia
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
 			PushConstantData constants {};
-			constants.Model = transform.GetTransform();
-			constants.TransposedInvertedModel = transform.GetTransform().Inverse().Transpose();
+			constants.Model = transform.GetLocalTransform();
+			constants.TransposedInvertedModel = constants.Model.Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
 				m_Renderer.GetPipelineLayout().GetPipelineLayout(),

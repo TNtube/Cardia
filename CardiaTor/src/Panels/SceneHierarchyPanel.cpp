@@ -43,11 +43,11 @@ namespace Cardia :: Panel
 
 		const auto view = m_CurrentScene->GetRegistry().view<Component::Relationship>();
 
-		for (auto entity : view)
+		for (const auto enttEntity : view)
 		{
-			auto& relationship = view.get<Component::Relationship>(entity);
-			if (!m_CurrentScene->IsEntityValid(relationship.Parent)) {
-				DrawEntityNode({entity, m_CurrentScene}, relationship, appContext);
+			auto entity = Entity(enttEntity, m_CurrentScene);
+			if (!entity.GetParent().IsValid()) {
+				DrawEntityNode(entity, appContext);
 			}
 		}
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
@@ -68,12 +68,12 @@ namespace Cardia :: Panel
 		m_SelectedEntity = Entity();
 	}
 
-	void SceneHierarchyPanel::DrawEntityNode(Entity entity, const Component::Relationship& relationship, CardiaTor* appCtx)
+	void SceneHierarchyPanel::DrawEntityNode(Entity entity, CardiaTor* appCtx)
 	{
 		auto node_flags = m_SelectedEntity == entity.Handle() ? ImGuiTreeNodeFlags_Selected : 0;
 		node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		if (!m_CurrentScene->IsEntityValid(relationship.FirstChild)) {
+		if (!entity.GetChildren().begin()->IsValid()) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf;
 		}
 
@@ -111,12 +111,12 @@ namespace Cardia :: Panel
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 				SetSelectedEntityFromItself(entity, appCtx);
 			}
-			auto current = Entity(relationship.FirstChild, m_CurrentScene);
-			while (current.IsValid()) {
-				auto& childRelationship = current.GetComponent<Component::Relationship>();
-				DrawEntityNode(current, childRelationship, appCtx);
-				current = Entity(childRelationship.NextSibling, m_CurrentScene);
+
+			
+			for (auto child : entity.GetChildren()) {
+				DrawEntityNode(child, appCtx);
 			}
+
 			ImGui::TreePop();
 		} else {
 			ImGui::PopStyleColor();

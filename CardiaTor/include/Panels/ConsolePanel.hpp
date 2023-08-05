@@ -1,6 +1,7 @@
 #pragma once
 #include "IPanel.hpp"
 #include <imgui.h>
+#include <Cardia/Core/Log.hpp>
 
 namespace Cardia::Panel
 {

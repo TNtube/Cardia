@@ -9,13 +9,14 @@
 namespace Cardia
 {
 
+	struct ChildCollection;
+
 	class Entity
 	{
 	public:
 		Entity(entt::entity entity, Scene* scene)
 			: m_Entity(entity), m_Scene(scene)
-		{
-		}
+		{}
 
 		Entity() = default;
 
@@ -28,6 +29,7 @@ namespace Cardia
 		}
 
 		Entity GetParent() const;
+		ChildCollection GetChildren() const;
 		entt::entity Handle() const { return m_Entity; }
 
 		template<typename T>
@@ -63,7 +65,34 @@ namespace Cardia
 
 	private:
 		friend class Scene;
+		friend struct ChildCollection;
 		entt::entity m_Entity = entt::null;
 		Scene* m_Scene = nullptr;
+	};
+
+
+	struct ChildCollection
+	{
+		struct ChildIterator
+		{
+			explicit ChildIterator(const Entity firstChild) : m_Entity(firstChild) {}
+			Entity operator*() const { return m_Entity; }
+			Entity* operator->() { return &m_Entity; }
+			ChildIterator& operator++();
+			ChildIterator operator++(int);
+			bool operator==(const ChildIterator& other) const { return m_Entity.Handle() == other.m_Entity.Handle(); }
+			bool operator!=(const ChildIterator& other) const { return m_Entity.Handle() != other.m_Entity.Handle(); }
+
+		private:
+			Entity m_Entity;
+		};
+
+		explicit ChildCollection(const Entity parent) : m_Parent(parent) {}
+
+		ChildIterator begin() const;
+		ChildIterator end() const;
+
+	private:
+		Entity m_Parent;
 	};
 }

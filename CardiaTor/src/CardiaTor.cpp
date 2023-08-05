@@ -503,7 +503,7 @@ namespace Cardia
 			const Matrix4f& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
 			Matrix4f cameraView = m_EditorCamera.GetTransformMatrix().Inverse();
 			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
-			Matrix4f transform = transformComponent.GetTransform();
+			Matrix4f transform = transformComponent.GetLocalTransform();
 
 			ImGuizmo::Manipulate(cameraView.Data(), cameraProjection.Data(),
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, transform.Data(),
