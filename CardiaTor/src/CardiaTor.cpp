@@ -496,14 +496,14 @@ namespace Cardia
 //
 //		drawLists->PopClipRect();
 
-		if (m_SelectedEntity && m_EditorState == EditorState::Edit)
+		if (m_SelectedEntity.IsValid() && m_EditorState == EditorState::Edit)
 		{
 
 			// Editor camera
 			const Matrix4f& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
 			Matrix4f cameraView = m_EditorCamera.GetTransformMatrix().Inverse();
 			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
-			Matrix4f transform = transformComponent.GetTransform();
+			Matrix4f transform = transformComponent.GetLocalTransform();
 
 			ImGuizmo::Manipulate(cameraView.Data(), cameraProjection.Data(),
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, transform.Data(),
@@ -511,30 +511,30 @@ namespace Cardia
 
 			static Vector3f position;
 			static bool isUsing = false;
-			if (ImGuizmo::IsUsing())
-			{
-				if (!isUsing) {
-					position = transformComponent.Position;
-				}
-				isUsing = true;
-				// TODO: decompose matrix
-				// glm::vec3 translation, scale, skew;
-				// glm::quat rotation;
-				// glm::vec4 perspective;
-				// glm::decompose(transform, scale, rotation, translation, skew, perspective);
-				// const auto eulerRot = glm::eulerAngles(rotation);
-				// transformComponent.position = Vector3f(translation.x, translation.y, translation.z);
-				// transformComponent.rotation = Vector3f(eulerRot.x, eulerRot.y, eulerRot.z);
-				// transformComponent.scale = Vector3f(scale.x, scale.y, scale.z);
-			} else {
-				if (isUsing) {
-					isUsing = false;
-					Log::Info("{}, {}, {}", position.x, position.y, position.z);
-					auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
-					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.Uuid, position));
-					position = transformComponent.Position;
-				}
-			}
+			// if (ImGuizmo::IsUsing())
+			// {
+			// 	if (!isUsing) {
+			// 		position = transformComponent.m_Position;
+			// 	}
+			// 	isUsing = true;
+			// 	// TODO: decompose matrix
+			// 	// glm::vec3 translation, scale, skew;
+			// 	// glm::quat rotation;
+			// 	// glm::vec4 perspective;
+			// 	// glm::decompose(transform, scale, rotation, translation, skew, perspective);
+			// 	// const auto eulerRot = glm::eulerAngles(rotation);
+			// 	// transformComponent.position = Vector3f(translation.x, translation.y, translation.z);
+			// 	// transformComponent.rotation = Vector3f(eulerRot.x, eulerRot.y, eulerRot.z);
+			// 	// transformComponent.scale = Vector3f(scale.x, scale.y, scale.z);
+			// } else {
+			// 	if (isUsing) {
+			// 		isUsing = false;
+			// 		Log::Info("{}, {}, {}", position.x, position.y, position.z);
+			// 		auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
+			// 		AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.Uuid, position));
+			// 		position = transformComponent.m_Position;
+			// 	}
+			// }
 		}
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -585,7 +585,7 @@ namespace Cardia
 		{
 			if (e.getButton() == Mouse::Left)
 			{
-				if (m_SelectedEntity && ImGuizmo::IsOver()) return;
+				if (m_SelectedEntity.IsValid() && ImGuizmo::IsOver()) return;
 				if (!m_HoverViewport) return;
 
 				m_SelectedEntity = m_HoveredEntity;

@@ -10,6 +10,7 @@
 #include "Cardia/ECS/Components.hpp"
 #include "ScriptEngine.hpp"
 #include "Cardia/Math/Vector2.hpp"
+#include "Cardia/Core/Time.hpp"
 
 
 namespace Cardia
@@ -76,9 +77,18 @@ namespace Cardia
 		py::class_<Component::Transform>(m, "Transform")
 			.def(py::init<>())
 			.def(py::init<Vector3f, Vector3f, Vector3f>())
-			.def_readwrite("position", &Component::Transform::Position, py::return_value_policy::reference)
-			.def_readwrite("rotation", &Component::Transform::Rotation, py::return_value_policy::reference)
-			.def_readwrite("scale", &Component::Transform::Scale, py::return_value_policy::reference)
+			.def_property("position",
+				&Component::Transform::GetPosition,
+				&Component::Transform::SetPosition,
+				py::return_value_policy::reference)
+			.def_property("rotation",
+				&Component::Transform::GetRotation,
+				&Component::Transform::SetRotation,
+				py::return_value_policy::reference)
+			.def_property("scale",
+				&Component::Transform::GetScale,
+				&Component::Transform::SetScale,
+				py::return_value_policy::reference)
 			.def("reset", &Component::Transform::Reset, py::return_value_policy::reference);
 
 		py::class_<Component::Light>(m, "Light")
@@ -108,9 +118,10 @@ namespace Cardia
 			auto& scene = ScriptEngine::Instance().GetSceneContext();
 			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
 			auto& t = entity.GetComponent<Component::Transform>();
-			t.Position = transform.Position;
-			t.Rotation = transform.Rotation;
-			t.Scale = transform.Scale;
+			t.SetPosition(transform.GetPosition());
+			t.SetRotation(transform.GetRotation());
+			t.SetScale(transform.GetScale());
+			t.RecomputeWorld(entity);
 		}, py::return_value_policy::reference);
 
 		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {

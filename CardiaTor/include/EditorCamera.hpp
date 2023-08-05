@@ -19,7 +19,7 @@ namespace Cardia
 
 		inline void SetViewportSize(float width, float height) { m_Camera.SetViewportSize(width, height); }
 
-		Matrix4f GetTransformMatrix() const { return m_Transform.GetTransform(); }
+		Matrix4f GetTransformMatrix() const { return m_Transform.GetLocalTransform(); }
 
 		Component::Transform& GetTransformComponent() { return m_Transform; }
 

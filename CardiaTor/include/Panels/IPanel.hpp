@@ -1,19 +1,17 @@
 ﻿#pragma once
-#include <Cardia/Core/Time.hpp>
-#include <string>
-#include <Cardia/ECS/Entity.hpp>
-#include <filesystem>
 
 namespace Cardia
 {
 	class PanelManager;
 	class CardiaTor;
+	class Scene;
 	namespace Panel
 	{
 		class IPanel
 		{
 		public:
-			explicit IPanel(PanelManager* manager, int windowId) : m_PanelManager(manager), m_WindowId(windowId) {}
+			explicit IPanel(PanelManager* manager, int windowId) : m_WindowId(windowId),
+									       m_PanelManager(manager) {}
 			virtual ~IPanel() = default;
 			virtual void OnImGuiRender(CardiaTor* appContext) = 0;
 			virtual void OnUpdateWorkspace() {}

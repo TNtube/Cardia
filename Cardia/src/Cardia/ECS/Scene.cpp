@@ -15,11 +15,7 @@ namespace Cardia
 
 
 	Scene::Scene(Renderer& renderer, std::string name)
-		: m_Renderer(renderer), m_Name(std::move(name))
-	{
-		std::string shaderName = "basic";
-		const auto shaderPath = "resources/shaders/" + shaderName;
-	}
+		: m_Renderer(renderer), m_Name(std::move(name)) {}
 
 	Scene::Scene(Renderer& renderer, std::filesystem::path path) : Scene(renderer, path.filename().string())
 	{
@@ -53,28 +49,33 @@ namespace Cardia
 	{
 		// TODO : Move this to assets manager
 		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
-	};
+	}
 
-	Entity Scene::CreateEntity(const std::string& name)
+	Entity Scene::CreateEntity(const std::string& name, entt::entity parent)
 	{
 		Entity entity = {m_Registry.create(), this};
-		entity.AddComponent<Component::Transform>();
-		entity.AddComponent<Component::ID>();
-		entity.AddComponent<Component::Label>(name.empty() ? "Default Entity" : name);
+		PopulateDefaultEntity(entity, name, UUID(), parent);
 		return entity;
 	}
 
-	Entity Scene::CreateEntityFromId(UUID uuid) {
+	Entity Scene::CreateEntityFromId(UUID uuid, entt::entity parent)
+	{
 		Entity entity = {m_Registry.create(), this};
-		entity.AddComponent<Component::Transform>();
-		entity.AddComponent<Component::ID>(uuid);
-		entity.AddComponent<Component::Label>("Default Entity");
+		PopulateDefaultEntity(entity, "Entity", uuid, parent);
 		return entity;
 	}
 
-	void Scene::DestroyEntity(entt::entity entity)
+	void Scene::DestroyEntity(const Entity entity)
 	{
-		m_Registry.destroy(entity);
+		const auto& relationship = entity.GetComponent<Component::Relationship>();
+		auto current = Entity(relationship.FirstChild, this);
+		while (current.IsValid())
+		{
+			const auto next = current.GetComponent<Component::Relationship>().NextSibling;
+			DestroyEntity(current);
+			current = Entity(next, this);
+		}
+		m_Registry.destroy(entity.Handle());
 	}
 
 	void Scene::OnRuntimeRender(VkCommandBuffer commandBuffer)
@@ -91,7 +92,7 @@ namespace Cardia
 				if (cam.Primary)
 				{
 					mainCamera = &cam.CameraData;
-					mainCameraTransform = transform.GetTransform();
+					mainCameraTransform = transform.GetWorldTransform();
 				}
 			}
 		}
@@ -128,8 +129,8 @@ namespace Cardia
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
 			PushConstantData constants {};
-			constants.Model = transform.GetTransform();
-			constants.TransposedInvertedModel = transform.GetTransform().Inverse().Transpose();
+			constants.Model = transform.GetWorldTransform();
+			constants.TransposedInvertedModel = constants.Model.Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
 				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
@@ -164,16 +165,20 @@ namespace Cardia
 
 	Entity Scene::GetEntityByUUID(const UUID& uuid)
 	{
-		auto view = m_Registry.view<Component::ID>();
-		Entity result;
-		for (auto entity : view)
+		const auto view = m_Registry.view<Component::ID>();
+		for (const auto entity : view)
 		{
 			auto& idComponent = view.get<Component::ID>(entity);
 			if (idComponent.Uuid == uuid) {
-				result = Entity(entity, this);
+				return {entity, this};
 			}
 		}
-		return result;
+		return {entt::null, this};
+	}
+
+	bool Scene::IsEntityValid(entt::entity entity) const
+	{
+		return m_Registry.valid(entity);
 	}
 
 	void Scene::OnRuntimeStop()
@@ -200,7 +205,7 @@ namespace Cardia
 	}
 
 
-	template <typename Cpn>
+	template <Serializable Cpn>
 	static void SerializeOneComponent(const entt::registry& src, Json::Value& root, entt::entity entity)
 	{
 		if (src.all_of<Cpn>(entity))
@@ -209,7 +214,7 @@ namespace Cardia
 		}
 	}
 
-	template <typename... Cpn>
+	template <Serializable... Cpn>
 	static void SerializeAllComponents(ComponentGroup<Cpn...>, const entt::registry& src, Json::Value& root, entt::entity entity)
 	{
 		(SerializeOneComponent<Cpn>(src, root, entity), ...);
@@ -223,7 +228,23 @@ namespace Cardia
 		for(const auto entity: m_Registry.view<entt::entity>())
 		{
 			Json::Value currentEntityNode(Json::objectValue);
-			SerializeAllComponents(AllComponents{}, m_Registry, currentEntityNode, entity);
+			SerializeAllComponents(SerializableComponents{}, m_Registry, currentEntityNode, entity);
+
+			// Serialize Relationships here as they need scene context to be deserialized
+			const auto& relationship = m_Registry.get<Component::Relationship>(entity);
+			Json::Value toMerge(Json::objectValue);
+			auto& relationshipNode = toMerge["Relationship"];
+			relationshipNode["ChildCount"] = relationship.ChildCount;
+			if (m_Registry.valid(relationship.Parent))
+				relationshipNode["Parent"] = m_Registry.get<Component::ID>(relationship.Parent).Uuid.ToString();
+			if (m_Registry.valid(relationship.FirstChild))
+				relationshipNode["FirstChild"] = m_Registry.get<Component::ID>(relationship.FirstChild).Uuid.ToString();
+			if (m_Registry.valid(relationship.PreviousSibling))
+				relationshipNode["PreviousSibling"] = m_Registry.get<Component::ID>(relationship.PreviousSibling).Uuid.ToString();
+			if (m_Registry.valid(relationship.NextSibling))
+				relationshipNode["NextSibling"] = m_Registry.get<Component::ID>(relationship.NextSibling).Uuid.ToString();
+
+			MergeJson(currentEntityNode, toMerge);
 			entitiesNode.append(currentEntityNode);
 		}
 
@@ -231,7 +252,7 @@ namespace Cardia
 
 	}
 
-	template <typename Cpn>
+	template <Serializable Cpn>
 	static void DeserializeAndAssignOneComponent(const Json::Value& root, entt::registry& dst, entt::entity entity)
 	{
 		std::optional<Cpn> cpn = Cpn::Deserialize(root);
@@ -252,15 +273,80 @@ namespace Cardia
 		if (!root.isMember("Entities"))
 			return std::nullopt;
 
-		Scene scene(AssetsManager::Instance().GetRenderer(), std::string("Deserialized Scene"));
+		std::optional<Scene> scene({AssetsManager::Instance().GetRenderer(), std::string("Deserialized Scene")});
 
+		// Deserialize all serializable components
 		for (auto& entityNode : root["Entities"])
 		{
-			const auto entity = scene.m_Registry.create();
-			DeserializeAndAssignAllComponents(AllComponents{}, entityNode, scene.m_Registry, entity);
+			const auto entity = scene->m_Registry.create();
+			DeserializeAndAssignAllComponents(SerializableComponents{}, entityNode, scene->m_Registry, entity);
+		}
+
+		// Second pass to deserialize things that need scene context
+		for (auto& entityNode : root["Entities"])
+		{
+			std::optional<Component::ID> id;
+			if (!((id = Component::ID::Deserialize(entityNode))))
+				continue;
+
+			auto entity = scene->GetEntityByUUID(id->Uuid);
+
+			auto& relationship = entity.AddComponent<Component::Relationship>();
+
+			if (!entityNode.isMember("Relationship"))
+				continue;
+			
+			auto& relationshipNode = entityNode["Relationship"];
+			relationship.ChildCount = relationshipNode["ChildCount"].asInt();
+			if (relationshipNode.isMember("Parent"))
+				relationship.Parent = scene->GetEntityByUUID(UUID::FromString(relationshipNode["Parent"].asString())).Handle();
+			if (relationshipNode.isMember("FirstChild"))
+				relationship.FirstChild = scene->GetEntityByUUID(UUID::FromString(relationshipNode["FirstChild"].asString())).Handle();
+			if (relationshipNode.isMember("PreviousSibling"))
+				relationship.PreviousSibling = scene->GetEntityByUUID(UUID::FromString(relationshipNode["PreviousSibling"].asString())).Handle();
+			if (relationshipNode.isMember("NextSibling"))
+				relationship.NextSibling = scene->GetEntityByUUID(UUID::FromString(relationshipNode["NextSibling"].asString())).Handle();
+		}
+
+		// Finally, compute world transforms
+		const auto view = scene->m_Registry.view<Component::Transform>();
+		for (const auto entity : view)
+		{
+			auto& transform = scene->m_Registry.get<Component::Transform>(entity);
+			transform.RecomputeWorld({entity, &(*scene)});
 		}
 
 		return scene;
+	}
+
+	void Scene::PopulateDefaultEntity(Entity& entity, std::string name, UUID uuid, const entt::entity parent)
+	{
+		if (!m_Registry.valid(entity.Handle()))
+			return;
+		auto& transform = entity.AddComponent<Component::Transform>();
+		entity.AddComponent<Component::ID>(uuid);
+		entity.AddComponent<Component::Label>(name);
+		auto& relationship = entity.AddComponent<Component::Relationship>();
+		relationship.Parent = parent;
+
+		if (parent != entt::null)
+		{
+			auto& parentRelationship = m_Registry.get<Component::Relationship>(parent);
+			auto current = parentRelationship.FirstChild;
+
+			if (!m_Registry.valid(current))
+				parentRelationship.FirstChild = entity.Handle();
+			else {
+				while (m_Registry.valid(m_Registry.get<Component::Relationship>(current).NextSibling))
+				{
+					current = m_Registry.get<Component::Relationship>(current).NextSibling;
+				}
+				m_Registry.get<Component::Relationship>(current).NextSibling = entity.Handle();
+				relationship.PreviousSibling = current;
+			}
+			parentRelationship.ChildCount++;
+			transform.RecomputeWorld(entity);
+		}
 	}
 
 	template <typename... Cpn>

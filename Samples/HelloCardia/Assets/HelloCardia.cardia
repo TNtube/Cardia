@@ -2,7 +2,7 @@
 	"Entities" : 
 	[
 		{
-			"ID" : "298363a4-53b1-42aa-a76a-851119353f63",
+			"ID" : "699b08e2-f8f6-4876-931d-f6d09890a424",
 			"Label" : 
 			{
 				"Color" : 
@@ -12,11 +12,56 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Suzanne"
+				"Name" : "Entity"
+			},
+			"Relationship" : 
+			{
+				"ChildCount" : 1,
+				"FirstChild" : "f568b91c-caf4-428b-876f-ac6e7b89d83b"
+			},
+			"Transform" : 
+			{
+				"Position" : 
+				{
+					"x" : 2.7999999523162842,
+					"y" : 0.0,
+					"z" : 0.0
+				},
+				"Rotation" : 
+				{
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
+				},
+				"Scale" : 
+				{
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				}
+			}
+		},
+		{
+			"ID" : "f568b91c-caf4-428b-876f-ac6e7b89d83b",
+			"Label" : 
+			{
+				"Color" : 
+				{
+					"w" : 1.0,
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				},
+				"Name" : "Entity"
 			},
 			"MeshRenderer" : 
 			{
 				"Mesh" : ".\\suzanne.obj"
+			},
+			"Relationship" : 
+			{
+				"ChildCount" : 0,
+				"Parent" : "699b08e2-f8f6-4876-931d-f6d09890a424"
 			},
 			"Script" : 
 			{
@@ -25,21 +70,21 @@
 					{
 						"name" : "velocity",
 						"type" : 0,
-						"value" : 8
+						"value" : 0
 					},
 					{
 						"name" : "text",
 						"type" : 2,
-						"value" : "dzdzd"
+						"value" : ""
 					},
 					{
 						"name" : "color",
 						"type" : 7,
 						"value" : 
 						{
-							"x" : -3.4000000953674316,
-							"y" : -10.199999809265137,
-							"z" : -4.4000000953674316
+							"x" : 0.0,
+							"y" : 0.0,
+							"z" : 0.0
 						}
 					},
 					{
@@ -61,62 +106,6 @@
 					"x" : 0.0,
 					"y" : 0.0,
 					"z" : 0.0
-				},
-				"Rotation" : 
-				{
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 0.0
-				},
-				"Scale" : 
-				{
-					"x" : 1.0,
-					"y" : 1.0,
-					"z" : 1.0
-				}
-			}
-		},
-		{
-			"Camera" : 
-			{
-				"CameraData" : 
-				{
-					"AspectRatio" : 0.0,
-					"Orthographic" : 
-					{
-						"Far" : 1.0,
-						"Near" : -1.0,
-						"Size" : 10.0
-					},
-					"Perspective" : 
-					{
-						"Far" : 1000.0,
-						"Fov" : 1.0471975803375244,
-						"Near" : 0.0099999997764825821
-					},
-					"ProjectionType" : 0
-				},
-				"Primary" : true
-			},
-			"ID" : "373b1032-09f3-42e7-be5d-dad61dc99908",
-			"Label" : 
-			{
-				"Color" : 
-				{
-					"w" : 1.0,
-					"x" : 0.0,
-					"y" : 1.0,
-					"z" : 1.0
-				},
-				"Name" : "Camera"
-			},
-			"Transform" : 
-			{
-				"Position" : 
-				{
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 10.0
 				},
 				"Rotation" : 
 				{

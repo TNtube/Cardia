@@ -1,5 +1,9 @@
 #pragma once
 #include <typeindex>
+#include <algorithm>
+#include <memory>
+#include <vector>
+#include <unordered_map>
 #include <type_traits>
 #include "IPanel.hpp"
 

@@ -18,6 +18,13 @@ namespace Cardia :: Panel
 			ImGui::End();
 			return;
 		}
+		if (ImGui::BeginPopupContextWindow())
+		{
+			if (ImGui::MenuItem("Create Entity"))
+				m_CurrentScene->CreateEntity();
+
+			ImGui::EndPopup();
+		}
 
 		if (ImGui::IsWindowFocused()) {
 			m_PanelManager->SetFocused<SceneHierarchyPanel>(this);
@@ -34,54 +41,25 @@ namespace Cardia :: Panel
 			return;
 		}
 
-		const auto view = m_CurrentScene->GetRegistry().view<Component::Label, Component::ID>();
+		const auto view = m_CurrentScene->GetRegistry().view<Component::Relationship>();
 
-		for (auto entity : view)
+		for (const auto enttEntity : view)
 		{
-			auto label = view.get<Component::Label>(entity);
-			auto uuid = view.get<Component::ID>(entity);
-			auto node_flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0);
-			node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf;
-			//node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{label.Color.x, label.Color.y, label.Color.z, label.Color.w});
-			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uint32_t>(entity)), node_flags, "%s", label.Name.c_str())) {
-				ImGui::PopStyleColor();
-				if (ImGui::BeginDragDropSource())
-				{
-					std::string itemUuid = uuid.Uuid.ToString();
-					ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (strlen(itemUuid.c_str()) + 1) * sizeof(char));
-					ImGui::EndDragDropSource();
-				}
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Middle)) {
-					SetSelectedEntityFromItself(Entity(entity, m_CurrentScene), appContext);
-				}
-				if (ImGui::BeginPopupContextItem())
-				{
-					SetSelectedEntityFromItself(Entity(entity, m_CurrentScene), appContext);
-					if (ImGui::MenuItem("Delete Entity"))
-					{
-						m_CurrentScene->DestroyEntity(entity);
-						SetSelectedEntityFromItself(Entity(), appContext);
-					}
-					ImGui::EndPopup();
-				}
-				ImGui::TreePop();
-			} else {
-				ImGui::PopStyleColor();
+			auto entity = Entity(enttEntity, m_CurrentScene);
+			if (!entity.GetParent().IsValid()) {
+				DrawEntityNode(entity, appContext);
 			}
 		}
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
 			SetSelectedEntityFromItself(Entity(), appContext);
 		}
-		if (ImGui::BeginPopupContextWindow(nullptr, 1))
-		{
-			if (ImGui::MenuItem("Create Entity"))
-				m_CurrentScene->CreateEntity();
-
-			ImGui::EndPopup();
-		}
 		ImGui::End();
+	}
+
+	// Should be called only from outside
+	void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
+	{
+		m_SelectedEntity = entity;
 	}
 
 	void SceneHierarchyPanel::OnSceneLoad(Scene *scene)
@@ -90,10 +68,59 @@ namespace Cardia :: Panel
 		m_SelectedEntity = Entity();
 	}
 
-	// Should be called only from outside
-	void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
+	void SceneHierarchyPanel::DrawEntityNode(Entity entity, CardiaTor* appCtx)
 	{
-		m_SelectedEntity = entity;
+		auto node_flags = m_SelectedEntity == entity.Handle() ? ImGuiTreeNodeFlags_Selected : 0;
+		node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		if (!entity.GetChildren().begin()->IsValid()) {
+			node_flags |= ImGuiTreeNodeFlags_Leaf;
+		}
+
+		const auto& label = entity.GetComponent<Component::Label>();
+		const auto& uuid = entity.GetComponent<Component::ID>();
+
+		// Push label color
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{label.Color.x, label.Color.y, label.Color.z, label.Color.w});
+
+
+		// If node opened
+		if (ImGui::TreeNodeEx(uuid.Uuid.ToString().c_str(), node_flags, "%s", label.Name.c_str())) {
+			ImGui::PopStyleColor();
+			if (ImGui::BeginPopupContextItem())
+			{
+				if (ImGui::MenuItem("Add Child"))
+				{
+					const auto child = m_CurrentScene->CreateEntity("Entity", entity.Handle());
+					SetSelectedEntityFromItself(child, appCtx);
+				}
+				if (ImGui::MenuItem("Delete Entity"))
+				{
+					m_CurrentScene->DestroyEntity(entity);
+					SetSelectedEntityFromItself(Entity(), appCtx);
+				}
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::BeginDragDropSource())
+			{
+				const std::string itemUuid = uuid.Uuid.ToString();
+				ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (itemUuid.size() + 1) * sizeof(char));
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				SetSelectedEntityFromItself(entity, appCtx);
+			}
+
+			
+			for (auto child : entity.GetChildren()) {
+				DrawEntityNode(child, appCtx);
+			}
+
+			ImGui::TreePop();
+		} else {
+			ImGui::PopStyleColor();
+		}
 	}
 
 	void SceneHierarchyPanel::SetSelectedEntityFromItself(Entity entity, CardiaTor* appCtx)

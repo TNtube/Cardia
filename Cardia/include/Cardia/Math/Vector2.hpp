@@ -71,6 +71,8 @@ namespace Cardia
 		constexpr Vector2 Lerp(const Vector2& other, float t) noexcept;
 		constexpr Vector2 Normalize() noexcept;
 
+		static constexpr Vector2 Zero() noexcept;
+
 		Json::Value Serialize() const;
 		static std::optional<Vector2> Deserialize(const Json::Value& root);
 	};

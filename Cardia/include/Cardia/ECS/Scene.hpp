@@ -1,16 +1,13 @@
 #pragma once
 
-#include "Cardia/Core/Time.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include "Cardia/Renderer/Texture.hpp"
+#include "Cardia/Math/Matrix4.hpp"
 
 #include <entt/entt.hpp>
 #include <filesystem>
 
-#include "Cardia/Math/Matrix4.hpp"
-#include "Cardia/Renderer/Buffer.hpp"
-#include "Cardia/Renderer/Renderer.hpp"
 
 
 namespace Cardia
@@ -26,10 +23,11 @@ namespace Cardia
 		Scene(Scene&& other) noexcept;
 		Scene& operator=(Scene&& other) noexcept;
 		virtual ~Scene();
-		Entity CreateEntity(const std::string& name = "");
-		Entity CreateEntityFromId(UUID uuid);
 
-		void DestroyEntity(entt::entity entity);
+		Entity CreateEntity(const std::string& name = "Entity", entt::entity parent = entt::null);
+		Entity CreateEntityFromId(UUID uuid, entt::entity parent = entt::null);
+
+		void DestroyEntity(Entity entity);
 
 		static std::unique_ptr<Scene> Copy(Scene& src);
 		void OnRuntimeStart();
@@ -38,6 +36,7 @@ namespace Cardia
 		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform);
 		void OnViewportResize(float width, float height);
 		Entity GetEntityByUUID(const UUID& uuid);
+		bool IsEntityValid(entt::entity entity) const;
 		inline const char* GetName() const { return m_Name.c_str(); }
 		inline entt::registry& GetRegistry() { return m_Registry; }
 		const std::filesystem::path& GetPath() const { return m_Path; }
@@ -48,6 +47,7 @@ namespace Cardia
 		static std::optional<Scene> Deserialize(const Json::Value& root);
 
 	private:
+		void PopulateDefaultEntity(Entity& entity, std::string name = "Entity", UUID uuid = UUID(), entt::entity parent = entt::null);
 		void CopyRegistry(const Scene& other);
 		Renderer& m_Renderer;
 		std::filesystem::path m_Path;
