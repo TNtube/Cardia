@@ -1,23 +1,35 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/ECS/Component/Transform.hpp"
 
+#include "Cardia/ECS/Entity.hpp"
+#include "Cardia/Math/Quaternion.hpp"
+
 
 namespace Cardia::Component
 {
 	Matrix4f Transform::GetLocalTransform() const
 	{
-		return Matrix4f::Identity().Translate(Position)
-			 * Quaternion(Rotation).ToMatrix()
-			 * Matrix4f::Identity().Scale(Scale);
+		constexpr auto identity = Matrix4f::Identity();
+		return identity.Translate(m_Position)
+			 * Quaternion(m_Rotation).ToMatrix()
+			 * identity.Scale(m_Scale);
+	}
+
+	Matrix4f Transform::GetWorldTransform() const
+	{
+		constexpr auto identity = Matrix4f::Identity();
+		return identity.Translate(m_WorldPosition)
+			 * m_WorldRotation.ToMatrix()
+			 * identity.Scale(m_WorldScale);
 	}
 
 	Vector3f Transform::Forward() const
 	{
 		Vector3f forward;
 
-		forward.x = cos(Rotation.x) * sin(Rotation.y);
-		forward.y = -sin(Rotation.x);
-		forward.z = cos(Rotation.x) * cos(Rotation.y);
+		forward.x = cos(m_Rotation.x) * sin(m_Rotation.y);
+		forward.y = -sin(m_Rotation.x);
+		forward.z = cos(m_Rotation.x) * cos(m_Rotation.y);
 
 		return forward;
 	}
@@ -30,10 +42,40 @@ namespace Cardia::Component
 	Vector3f Transform::Right() const
 	{
 		Vector3f right;
-		right.x =  cos(Rotation.y);
+		right.x =  cos(m_Rotation.y);
 		right.y =  0;
-		right.z = -sin(Rotation.y);
+		right.z = -sin(m_Rotation.y);
 		return right;
+	}
+
+	void Transform::RecomputeWorld(Entity entity)
+	{
+		if (!m_Dirty)
+			return;
+
+		m_Dirty = false;
+
+		auto parent = entity.GetParent();
+
+		if (parent.IsValid())
+		{
+			const auto& parentTransform = parent.GetComponent<Transform>();
+			m_WorldPosition = parentTransform.m_WorldPosition + parentTransform.m_WorldRotation * (parentTransform.m_WorldScale * m_Position);
+			m_WorldRotation = parentTransform.m_WorldRotation * Quatf(m_Rotation);
+			m_WorldScale = parentTransform.m_WorldScale * m_Scale;
+		} else
+		{
+			m_WorldPosition = m_Position;
+			m_WorldRotation = Quaternion(m_Rotation);
+			m_WorldScale = m_Scale;
+		}
+
+		for (auto child : entity.GetChildren())
+		{
+			auto& childTransform = child.GetComponent<Transform>();
+			childTransform.m_Dirty = true;
+			childTransform.RecomputeWorld(child);
+		}
 	}
 
 	Json::Value Transform::Serialize() const
@@ -42,9 +84,9 @@ namespace Cardia::Component
 
 		auto& transform = root["Transform"];
 
-		transform["Position"] = Position.Serialize();
-		transform["Rotation"] = Rotation.Serialize();
-		transform["Scale"] = Scale.Serialize();
+		transform["Position"] = m_Position.Serialize();
+		transform["Rotation"] = m_Rotation.Serialize();
+		transform["Scale"] = m_Scale.Serialize();
 
 		return root;
 	}
@@ -64,17 +106,17 @@ namespace Cardia::Component
 		Transform temp;
 
 		if (const auto pos = Vector3f::Deserialize(transform["Position"]))
-			temp.Position = pos.value();
+			temp.m_Position = pos.value();
 		else
 			return std::nullopt;
 
 		if (const auto rot = Vector3f::Deserialize(transform["Rotation"]))
-			temp.Rotation = rot.value();
+			temp.m_Rotation = rot.value();
 		else
 			return std::nullopt;
 
 		if (const auto scale = Vector3f::Deserialize(transform["Scale"]))
-			temp.Scale = scale.value();
+			temp.m_Scale = scale.value();
 		else
 			return std::nullopt;
 

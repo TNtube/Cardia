@@ -233,6 +233,12 @@ namespace Cardia
 		return temp;
 	}
 
+	template <arithmetic T>
+	constexpr Vector2<T> Vector2<T>::Zero() noexcept
+	{
+		return Vector2(0);
+	}
+
 	template<arithmetic T>
 	Json::Value Vector2<T>::Serialize() const
 	{

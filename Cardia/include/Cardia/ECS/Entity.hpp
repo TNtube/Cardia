@@ -31,6 +31,7 @@ namespace Cardia
 		Entity GetParent() const;
 		ChildCollection GetChildren() const;
 		entt::entity Handle() const { return m_Entity; }
+		Scene* GetScene() const { return m_Scene; }
 
 		template<typename T>
 		void RemoveComponent() const

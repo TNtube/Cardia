@@ -63,22 +63,34 @@ namespace Cardia::Panel
 
 		// Transform Component
 
-		DrawInspectorComponent<Component::Transform>("Transform", [](Component::Transform& transform) {
-			EditorUI::DragFloat3("Position", transform.Position);
+		DrawInspectorComponent<Component::Transform>("Transform", [this](Component::Transform& transform) {
+			auto position = transform.GetPosition();
+			if (EditorUI::DragFloat3("Position", position))
+				transform.SetPosition(position);
+
+
 
 			auto rotation = Vector3f(
-				Radianf::FromDegree(transform.Rotation.x).Value(),
-				Radianf::FromDegree(transform.Rotation.y).Value(),
-				Radianf::FromDegree(transform.Rotation.z).Value());
+				Degreef::FromRadian(transform.GetRotation().x).Value(),
+				Degreef::FromRadian(transform.GetRotation().y).Value(),
+				Degreef::FromRadian(transform.GetRotation().z).Value());
+
 			if (EditorUI::DragFloat3("Rotation", rotation))
 			{
-				transform.Rotation = Vector3f(
-					Degreef::FromRadian(rotation.x).Value(),
-					Degreef::FromRadian(rotation.y).Value(),
-					Degreef::FromRadian(rotation.z).Value());;
+				transform.SetRotation(Vector3f(
+					Radianf::FromDegree(rotation.x).Value(),
+					Radianf::FromDegree(rotation.y).Value(),
+					Radianf::FromDegree(rotation.z).Value()));
 			}
 
-			EditorUI::DragFloat3("Scale", transform.Scale, 1);
+			auto scale = transform.GetScale();
+			if (EditorUI::DragFloat3("Scale", scale, 1))
+				transform.SetScale(scale);
+
+			if (transform.IsDirty())
+			{
+				transform.RecomputeWorld(m_SelectedEntity);
+			}
 		});
 
 		// SpriteRenderer Component

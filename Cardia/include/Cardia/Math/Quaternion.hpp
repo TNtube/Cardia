@@ -41,6 +41,8 @@ namespace Cardia
 		constexpr Quaternion& operator*=(const Quaternion& other) noexcept;
 		constexpr Quaternion operator*(const Quaternion& other) const noexcept;
 
+		constexpr Vector3<T> operator*(const Vector3<T>& other) const noexcept;
+
 		template<typename U>
 		constexpr Quaternion& operator+=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
@@ -70,6 +72,9 @@ namespace Cardia
 		Vector3<T> m_Imaginary;
 		
 	};
+
+	using Quatf = Quaternion<float>;
+	using Quatd = Quaternion<double>;
 }
 
 #include "Quaternion.inl"

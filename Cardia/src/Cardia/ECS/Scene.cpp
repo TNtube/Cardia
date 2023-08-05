@@ -92,7 +92,7 @@ namespace Cardia
 				if (cam.Primary)
 				{
 					mainCamera = &cam.CameraData;
-					mainCameraTransform = transform.GetLocalTransform();
+					mainCameraTransform = transform.GetWorldTransform();
 				}
 			}
 		}
@@ -129,7 +129,7 @@ namespace Cardia
 			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
 			// m_UBO->bind(0);
 			PushConstantData constants {};
-			constants.Model = transform.GetLocalTransform();
+			constants.Model = transform.GetWorldTransform();
 			constants.TransposedInvertedModel = constants.Model.Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
@@ -273,13 +273,13 @@ namespace Cardia
 		if (!root.isMember("Entities"))
 			return std::nullopt;
 
-		Scene scene(AssetsManager::Instance().GetRenderer(), std::string("Deserialized Scene"));
+		std::optional<Scene> scene({AssetsManager::Instance().GetRenderer(), std::string("Deserialized Scene")});
 
 		// Deserialize all serializable components
 		for (auto& entityNode : root["Entities"])
 		{
-			const auto entity = scene.m_Registry.create();
-			DeserializeAndAssignAllComponents(SerializableComponents{}, entityNode, scene.m_Registry, entity);
+			const auto entity = scene->m_Registry.create();
+			DeserializeAndAssignAllComponents(SerializableComponents{}, entityNode, scene->m_Registry, entity);
 		}
 
 		// Second pass to deserialize things that need scene context
@@ -289,7 +289,7 @@ namespace Cardia
 			if (!((id = Component::ID::Deserialize(entityNode))))
 				continue;
 
-			auto entity = scene.GetEntityByUUID(id->Uuid);
+			auto entity = scene->GetEntityByUUID(id->Uuid);
 
 			auto& relationship = entity.AddComponent<Component::Relationship>();
 
@@ -299,13 +299,21 @@ namespace Cardia
 			auto& relationshipNode = entityNode["Relationship"];
 			relationship.ChildCount = relationshipNode["ChildCount"].asInt();
 			if (relationshipNode.isMember("Parent"))
-				relationship.Parent = scene.GetEntityByUUID(UUID::FromString(relationshipNode["Parent"].asString())).Handle();
+				relationship.Parent = scene->GetEntityByUUID(UUID::FromString(relationshipNode["Parent"].asString())).Handle();
 			if (relationshipNode.isMember("FirstChild"))
-				relationship.FirstChild = scene.GetEntityByUUID(UUID::FromString(relationshipNode["FirstChild"].asString())).Handle();
+				relationship.FirstChild = scene->GetEntityByUUID(UUID::FromString(relationshipNode["FirstChild"].asString())).Handle();
 			if (relationshipNode.isMember("PreviousSibling"))
-				relationship.PreviousSibling = scene.GetEntityByUUID(UUID::FromString(relationshipNode["PreviousSibling"].asString())).Handle();
+				relationship.PreviousSibling = scene->GetEntityByUUID(UUID::FromString(relationshipNode["PreviousSibling"].asString())).Handle();
 			if (relationshipNode.isMember("NextSibling"))
-				relationship.NextSibling = scene.GetEntityByUUID(UUID::FromString(relationshipNode["NextSibling"].asString())).Handle();
+				relationship.NextSibling = scene->GetEntityByUUID(UUID::FromString(relationshipNode["NextSibling"].asString())).Handle();
+		}
+
+		// Finally, compute world transforms
+		const auto view = scene->m_Registry.view<Component::Transform>();
+		for (const auto entity : view)
+		{
+			auto& transform = scene->m_Registry.get<Component::Transform>(entity);
+			transform.RecomputeWorld({entity, &(*scene)});
 		}
 
 		return scene;
@@ -315,7 +323,7 @@ namespace Cardia
 	{
 		if (!m_Registry.valid(entity.Handle()))
 			return;
-		entity.AddComponent<Component::Transform>();
+		auto& transform = entity.AddComponent<Component::Transform>();
 		entity.AddComponent<Component::ID>(uuid);
 		entity.AddComponent<Component::Label>(name);
 		auto& relationship = entity.AddComponent<Component::Relationship>();
@@ -337,6 +345,7 @@ namespace Cardia
 				relationship.PreviousSibling = current;
 			}
 			parentRelationship.ChildCount++;
+			transform.RecomputeWorld(entity);
 		}
 	}
 

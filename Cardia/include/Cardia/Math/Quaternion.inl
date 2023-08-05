@@ -158,6 +158,13 @@ namespace Cardia
 	}
 
 	template<floating_point T>
+	constexpr Vector3<T> Quaternion<T>::operator*(const Vector3<T>& other) const noexcept
+	{
+		auto t = m_Imaginary.Cross(other) * static_cast<T>(2.0);
+		return other + t * m_Real + m_Imaginary.Cross(t);
+	}
+
+	template<floating_point T>
 	template<typename U>
 	constexpr Quaternion<T>& Quaternion<T>::operator*=(U scalar) noexcept requires std::convertible_to<U, T>
 	{

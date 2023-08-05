@@ -511,30 +511,30 @@ namespace Cardia
 
 			static Vector3f position;
 			static bool isUsing = false;
-			if (ImGuizmo::IsUsing())
-			{
-				if (!isUsing) {
-					position = transformComponent.Position;
-				}
-				isUsing = true;
-				// TODO: decompose matrix
-				// glm::vec3 translation, scale, skew;
-				// glm::quat rotation;
-				// glm::vec4 perspective;
-				// glm::decompose(transform, scale, rotation, translation, skew, perspective);
-				// const auto eulerRot = glm::eulerAngles(rotation);
-				// transformComponent.position = Vector3f(translation.x, translation.y, translation.z);
-				// transformComponent.rotation = Vector3f(eulerRot.x, eulerRot.y, eulerRot.z);
-				// transformComponent.scale = Vector3f(scale.x, scale.y, scale.z);
-			} else {
-				if (isUsing) {
-					isUsing = false;
-					Log::Info("{}, {}, {}", position.x, position.y, position.z);
-					auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
-					AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.Uuid, position));
-					position = transformComponent.Position;
-				}
-			}
+			// if (ImGuizmo::IsUsing())
+			// {
+			// 	if (!isUsing) {
+			// 		position = transformComponent.m_Position;
+			// 	}
+			// 	isUsing = true;
+			// 	// TODO: decompose matrix
+			// 	// glm::vec3 translation, scale, skew;
+			// 	// glm::quat rotation;
+			// 	// glm::vec4 perspective;
+			// 	// glm::decompose(transform, scale, rotation, translation, skew, perspective);
+			// 	// const auto eulerRot = glm::eulerAngles(rotation);
+			// 	// transformComponent.position = Vector3f(translation.x, translation.y, translation.z);
+			// 	// transformComponent.rotation = Vector3f(eulerRot.x, eulerRot.y, eulerRot.z);
+			// 	// transformComponent.scale = Vector3f(scale.x, scale.y, scale.z);
+			// } else {
+			// 	if (isUsing) {
+			// 		isUsing = false;
+			// 		Log::Info("{}, {}, {}", position.x, position.y, position.z);
+			// 		auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
+			// 		AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.Uuid, position));
+			// 		position = transformComponent.m_Position;
+			// 	}
+			// }
 		}
 		ImGui::End();
 		ImGui::PopStyleVar();
