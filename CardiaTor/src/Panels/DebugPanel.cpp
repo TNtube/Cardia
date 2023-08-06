@@ -8,6 +8,7 @@
 #include "Panels/PanelManager.hpp"
 #include "CardiaTor.hpp"
 #include "EditorUI/DragData.hpp"
+#include "EditorUI/Theme.hpp"
 
 
 namespace Cardia::Panel
@@ -19,7 +20,8 @@ namespace Cardia::Panel
 		{
 			THEME_DARK,
 			THEME_LIGHT,
-			THEME_CLASSIC
+			THEME_CLASSIC,
+			THEME_CARDIA,
 		};
 		// fps
 		static float elapsedTime = 0.0f;
@@ -110,6 +112,8 @@ namespace Cardia::Panel
 			ImGui::RadioButton("Light", &selectedTheme, THEME_LIGHT);
 			ImGui::SameLine();
 			ImGui::RadioButton("Classic", &selectedTheme, THEME_CLASSIC);
+			ImGui::SameLine();
+			ImGui::RadioButton("Cardia", &selectedTheme, THEME_CARDIA);
 			switch (selectedTheme)
 			{
 				case THEME_DARK:
@@ -120,6 +124,9 @@ namespace Cardia::Panel
 					break;
 				case THEME_CLASSIC:
 					ImGui::StyleColorsClassic();
+					break;
+				case THEME_CARDIA:
+					Theme::SetCardiaTheme();
 					break;
 				default:
 					break;

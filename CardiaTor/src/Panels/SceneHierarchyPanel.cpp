@@ -71,10 +71,10 @@ namespace Cardia :: Panel
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity, CardiaTor* appCtx)
 	{
 		auto node_flags = m_SelectedEntity == entity.Handle() ? ImGuiTreeNodeFlags_Selected : 0;
-		node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+		node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow;
 
 		if (!entity.GetChildren().begin()->IsValid()) {
-			node_flags |= ImGuiTreeNodeFlags_Leaf;
+			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_DefaultOpen;
 		}
 
 		const auto& label = entity.GetComponent<Component::Label>();
