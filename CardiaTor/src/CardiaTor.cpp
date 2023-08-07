@@ -400,9 +400,9 @@ namespace Cardia
 		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
 
 		// Setup ImGuizmo
+		ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
 		ImGuizmo::SetOrthographic(false);
 		ImGuizmo::SetDrawlist();
-
 		ImGuizmo::SetRect(m_ViewportBounds.x, m_ViewportBounds.y, m_SceneSize.x, m_SceneSize.y);
 
 		m_HoverViewport = ImGui::IsWindowHovered();
@@ -502,15 +502,15 @@ namespace Cardia
 			// Editor camera
 			const Matrix4f& cameraProjection = m_EditorCamera.GetCamera().GetProjectionMatrix();
 			Matrix4f cameraView = m_EditorCamera.GetTransformMatrix().Inverse();
-			auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
-			Matrix4f transform = transformComponent.GetLocalTransform();
+			const auto& transformComponent = m_SelectedEntity.GetComponent<Component::Transform>();
+			Matrix4f transform = transformComponent.GetWorldTransform();
 
 			ImGuizmo::Manipulate(cameraView.Data(), cameraProjection.Data(),
 					     ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, transform.Data(),
 					     nullptr, nullptr);
 
-			static Vector3f position;
-			static bool isUsing = false;
+			// static Vector3f position;
+			// static bool isUsing = false;
 			// if (ImGuizmo::IsUsing())
 			// {
 			// 	if (!isUsing) {

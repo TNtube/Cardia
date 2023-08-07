@@ -104,7 +104,7 @@ namespace Cardia
 		if (delta == Vector2f::Zero())
 			return;
 		
-		m_Transform.SetPosition(
+		m_Transform.SetRotation(
 			m_Transform.GetRotation()
 			+ Vector3f(-delta.y, -delta.x, 0)
 			* rotationSpeed());
