@@ -53,6 +53,7 @@ namespace Cardia :: Panel
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
 			SetSelectedEntityFromItself(Entity(), appContext);
 		}
+		ImGui::TreePop();
 		ImGui::End();
 	}
 

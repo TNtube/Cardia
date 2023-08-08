@@ -398,6 +398,7 @@ namespace Cardia
 		}
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Edit", nullptr, ImGuiWindowFlags_NoNav);
+		ImGui::PopStyleVar();
 
 		// Setup ImGuizmo
 		ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
@@ -537,7 +538,6 @@ namespace Cardia
 			// }
 		}
 		ImGui::End();
-		ImGui::PopStyleVar();
 	}
 
 	void CardiaTor::OnEvent(Event& event)

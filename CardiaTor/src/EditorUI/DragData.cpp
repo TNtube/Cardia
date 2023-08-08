@@ -117,11 +117,6 @@ namespace Cardia::EditorUI
 	template <typename T>
 	static bool InternalDragFloat4(const std::string &label, T& vector, float reset)
 	{
-		auto returnCallback = []() {
-			ImGui::PopStyleVar();
-			ImGui::Columns(1);
-			ImGui::PopID();
-		};
 
 		bool res = false;
 		ImGuiIO& io = ImGui::GetIO();
@@ -229,7 +224,9 @@ namespace Cardia::EditorUI
 			}
 		}
 
-		returnCallback();
+		ImGui::PopStyleVar();
+		ImGui::Columns(1);
+		ImGui::PopID();
 		return res;
 	}
 
