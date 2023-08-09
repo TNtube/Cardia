@@ -13,6 +13,7 @@ namespace Cardia
 	{
 		CdCoreAssert(!s_Instance, "Only one m_Instance of ScriptEngine is allowed");
 		s_Instance = this;
+
 		py::initialize_interpreter();
 		m_PythonBuiltins = py::module::import("builtins");
 		m_CardiaPythonAPI = py::module::import("cardia");
@@ -46,19 +47,19 @@ namespace Cardia
 				auto behavior = m_BehaviorInstances.at(uuid.Uuid);
 				for (const auto& item: script.Class.Attributes())
 				{
-					if (item.type == ScriptFieldType::PyBehavior) {
+					if (item.Type == ScriptFieldType::PyBehavior) {
 						try {
 							auto refBehavior = ScriptEngine::Instance().GetInstance(
-								UUID::FromString(py::handle(item.instance).cast<std::string>()));
+								UUID::FromString(py::handle(item.Instance).cast<std::string>()));
 							if (refBehavior)
 							{
-								py::setattr(behavior, item.name.c_str(), py::handle(*refBehavior));
+								py::setattr(behavior, item.Name.c_str(), py::handle(*refBehavior));
 							}
 						} catch (const std::exception& e) {
-							py::setattr(behavior, item.name.c_str(), py::none());
+							py::setattr(behavior, item.Name.c_str(), py::none());
 						}
 					} else {
-						py::setattr(behavior, item.name.c_str(), item.instance);
+						py::setattr(behavior, item.Name.c_str(), item.Instance);
 					}
 				}
 				behavior.GetAttrOrMethod("on_create")();
@@ -73,8 +74,9 @@ namespace Cardia
 		m_BehaviorInstances.clear();
 	}
 
-	Scene& ScriptEngine::GetSceneContext()
+	Scene& ScriptEngine::GetSceneContext() const
 	{
+		CdCoreAssert(m_CurrentContext, "No Scene Context");
 		return *m_CurrentContext;
 	}
 
@@ -107,10 +109,10 @@ namespace Cardia
 		}
 	}
 
-	ScriptClass ScriptEngine::GetClassFromPyFile(std::filesystem::path& relativePath)
+	ScriptClass ScriptEngine::GetClassFromPyFile(const std::filesystem::path& relativePath)
 	{
 		auto fileName = relativePath.filename().replace_extension().string();
-		auto importedFile = py::module_::import(fileName.c_str());
+		const auto importedFile = py::module_::import(fileName.c_str());
 
 		if (!py::hasattr(importedFile, fileName.c_str()) && !IsSubClass(importedFile.attr(fileName.c_str()), m_CardiaPythonAPI.attr("Behavior")))
 		{
@@ -121,15 +123,15 @@ namespace Cardia
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
+		return PyObject_IsSubclass(subClass.Ptr(), parentClass.Ptr());
 	}
 
 	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const py::handle& parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
+		return PyObject_IsSubclass(subClass.Ptr(), parentClass.ptr());
 	}
 
 	bool ScriptEngine::IsSubClass(const py::handle& subClass, const ScriptClass &parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
+		return PyObject_IsSubclass(subClass.ptr(), parentClass.Ptr());
 	}
 
 	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {

@@ -1,50 +1,23 @@
 #pragma once
 #include "ScriptInstance.hpp"
 #include "Cardia/Core/UUID.hpp"
-#include <map>
-#include <json/json_features.h>
+
+#include "ScriptField.hpp"
 
 namespace Cardia
-{
-	struct ScriptField {
-		ScriptField() : instance(py::str()) {}
-		std::string name;
-		ScriptFieldType type { ScriptFieldType::Unserializable };
-		ScriptFieldType keyType { ScriptFieldType::Unserializable };
-		ScriptFieldType valueType { ScriptFieldType::Unserializable };
-		ScriptInstance instance;
-
-		inline bool operator==(const ScriptField& other) const {
-			return name == other.name && type == other.type && valueType == other.valueType && keyType == other.keyType;
-		}
-
-		Json::Value Serialize() const;
-		static std::optional<ScriptField> Deserialize(const Json::Value& root);
-	};
-
-	py::object DefaultObjectFromScriptFieldType(ScriptFieldType type);
-
-
-	class ScriptClass
+{	class ScriptClass
 	{
 	public:
 		explicit ScriptClass(py::object cls);
-
-		ScriptClass(const ScriptClass &) = default;
 		ScriptClass() = default;
 
-		ScriptInstance Instantiate(const UUID &uuid, const std::string& name);
-		PyObject* ptr() const { return m_PyClass.ptr(); }
-
-		operator py::handle() const
-		{
-			return m_PyClass;
-		}
+		ScriptInstance Instantiate(const UUID &uuid, const std::string& name) const;
+		PyObject* Ptr() const { return m_PyClass.ptr(); }
 
 		inline bool operator== (const ScriptClass& rhs) const { return this->m_PyClass.is(rhs.m_PyClass); }
 
-		void RegisterAttributes();
-		std::vector<ScriptField>& Attributes() { return m_Attributes; }
+		bool IsSubClassOf(const ScriptClass& parentClass) const;
+		void RegisterAttributes(std::vector<ScriptField> attributes);
 		const std::vector<ScriptField>& Attributes() const { return m_Attributes; }
 
 	private:
@@ -60,7 +33,7 @@ namespace std {
 		std::size_t operator()(const Cardia::ScriptClass& scriptClass) const noexcept
 		{
 			static auto h = std::hash<PyObject*>{};
-			return h(py::handle(scriptClass).ptr());
+			return h(scriptClass.Ptr());
 		}
 	};
 }

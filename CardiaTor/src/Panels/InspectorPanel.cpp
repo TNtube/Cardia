@@ -266,10 +266,10 @@ namespace Cardia::Panel
 
 			for (auto& attribute: attributes)
 			{
-				auto fieldName = attribute.name;
+				auto fieldName = attribute.Name;
 				auto instance = ScriptEngine::Instance().GetInstance(uuid.Uuid);
-				auto type = attribute.type;
-				DrawField(instance, type, fieldName.c_str(), attribute.instance.object());
+				auto type = attribute.Type;
+				DrawField(instance, type, fieldName.c_str(), attribute.Instance.object());
 				switch (type) {
 					case ScriptFieldType::List:
 					{
@@ -277,7 +277,7 @@ namespace Cardia::Panel
 						if (instance) {
 							list = instance->GetAttrOrMethod(fieldName.c_str());
 						} else {
-							list = attribute.instance.object();
+							list = attribute.Instance.object();
 						}
 						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
 						{
@@ -290,7 +290,7 @@ namespace Cardia::Panel
 									index_to_del = index;
 								}
 								ImGui::SameLine();
-								if (DrawField(nullptr, attribute.valueType, str.c_str(), object)) {
+								if (DrawField(nullptr, attribute.ValueType, str.c_str(), object)) {
 									list[index] = object;
 								}
 							}
@@ -301,7 +301,7 @@ namespace Cardia::Panel
 
 							ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
 							if (ImGui::Button("  +  ")) {
-								list.append(DefaultObjectFromScriptFieldType(attribute.valueType));
+								list.append(DefaultObjectFromScriptFieldType(attribute.ValueType));
 							}
 
 							ImGui::TreePop();

@@ -13,7 +13,7 @@ set_optimize("fastest")
 
 add_requires("spdlog v1.9.0")
 add_requires("glfw 3.3.8")
-add_requires("imgui v1.89-docking", {configs = {glfw= true}})
+add_requires("imgui v1.89-docking", {configs = {glfw= true, debug = is_mode("debug")}})
 add_requires("entt v3.12.2")
 add_requires("nativefiledialog 1.1.6")
 add_requires("jsoncpp 1.9.5")
@@ -21,8 +21,8 @@ add_requires("assimp v5.2.5")
 add_requires("vulkan-loader")
 add_requires("catch2 v3.4.0")
 
-add_requires("imguizmo 1.89+WIP")
-add_requireconfs("imguizmo.imgui", {override = true, version = "v1.89-docking", configs = {glfw= true}}) -- config sub imgui module
+add_requires("imguizmo 1.89+WIP", {configs = { debug = is_mode("debug")}})
+add_requireconfs("imguizmo.imgui", {override = true, version = "v1.89-docking", configs = {glfw= true, debug = is_mode("debug")}}) -- config sub imgui module
 
 add_requires("python 3.9.13")
 add_requires("pybind11")
