@@ -20,7 +20,7 @@ namespace Cardia
 	template<typename T>
 	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
 	{
-		if (ScriptEngine::IsSubClass(cls, py::detail::get_type_handle(typeid(T), false))) {
+		if (PyObject_IsSubclass(cls.ptr(), py::detail::get_type_handle(typeid(T), false).ptr())) {
 			out["output"] = py::cast(entity.GetComponent<T>(), py::return_value_policy::reference);
 			return true;
 		}
@@ -136,7 +136,7 @@ namespace Cardia
 		});
 
 		m.def("register_update_method", [](py::object& cls, std::string& name) {
-			ScriptEngine::Instance().RegisterUpdateMethod(cls, name);
+			// ScriptEngine::Instance().RegisterUpdateMethod(cls, name);
 		});
 
 		m.def("get_delta_time_seconds", []() {

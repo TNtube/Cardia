@@ -21,12 +21,12 @@ namespace Cardia
 		ScriptEngine& operator=(ScriptEngine&& other) = delete;
 		~ScriptEngine();
 
-		ScriptClass GetClassFromPyFile(const std::filesystem::path& relativePath);
 		void OnRuntimeStart(Scene* context);
 		void OnRuntimeEnd();
 		void OnRuntimeUpdate();
 		Scene& GetSceneContext() const;
 		static ScriptEngine& Instance() { return *s_Instance; }
+		static void InvalidateProject();
 
 	private:
 		static ScriptEngine* s_Instance;

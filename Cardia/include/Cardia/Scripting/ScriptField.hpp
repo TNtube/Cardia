@@ -6,19 +6,33 @@
 
 namespace Cardia
 {
-	struct ScriptField {
-		ScriptField() : Instance(py::str()) {}
-		std::string Name;
-		ScriptFieldType Type { ScriptFieldType::Unserializable };
-		ScriptFieldType KeyType { ScriptFieldType::Unserializable };
-		ScriptFieldType ValueType { ScriptFieldType::Unserializable };
-		ScriptInstance Instance;
+	enum class ScriptFieldType
+	{
+		Int, Float, String, Vector2, Vector3, Vector4, List, Dict, PyBehavior, UnEditable
+	};
 
-		inline bool operator==(const ScriptField& other) const {
-			return Name == other.Name && Type == other.Type && ValueType == other.ValueType && KeyType == other.KeyType;
-		}
+	class ScriptField {
+	public:
+		ScriptField(std::string name) : m_Name(std::move(name)) {}
+
+		void DeduceType(const py::handle& handle, bool fromType = true);
+
+		std::string_view GetName() const { return m_Name; }
+		ScriptFieldType GetType() const { return m_Type; }
+
+		void SetValue(py::object instance) { m_PyObject = std::move(instance); DeduceType(m_PyObject, false); }
+		template <typename T>
+		T GetValue() const { return m_PyObject.cast<T>(); }
+
+		bool IsEditable() const;
+		bool IsNone() const;
 
 		Json::Value Serialize() const;
 		static std::optional<ScriptField> Deserialize(const Json::Value& root);
+
+	private:
+		std::string m_Name;
+		py::object m_PyObject = py::none();
+		ScriptFieldType m_Type {ScriptFieldType::UnEditable};
 	};
 }

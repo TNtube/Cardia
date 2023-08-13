@@ -63,42 +63,6 @@
 				"ChildCount" : 0,
 				"Parent" : "699b08e2-f8f6-4876-931d-f6d09890a424"
 			},
-			"Script" : 
-			{
-				"Attributes" : 
-				[
-					{
-						"name" : "velocity",
-						"type" : 0,
-						"value" : 0
-					},
-					{
-						"name" : "text",
-						"type" : 2,
-						"value" : ""
-					},
-					{
-						"name" : "color",
-						"type" : 7,
-						"value" : 
-						{
-							"x" : 0.0,
-							"y" : 0.0,
-							"z" : 0.0
-						}
-					},
-					{
-						"name" : "greeting",
-						"type" : 5,
-						"value" : ""
-					},
-					{
-						"name" : "lst",
-						"type" : 3
-					}
-				],
-				"Path" : ".\\Moving.py"
-			},
 			"Transform" : 
 			{
 				"Position" : 

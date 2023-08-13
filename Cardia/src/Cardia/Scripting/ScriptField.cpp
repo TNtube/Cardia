@@ -1,59 +1,62 @@
 ﻿#include "cdpch.hpp"
+#include "Cardia/Scripting/EntityBehavior.hpp"
 #include "Cardia/Scripting/ScriptClass.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 namespace Cardia
 {
+	namespace 
+	{
+		template <typename T>
+		bool IsSubclass(const py::handle& cls)
+		{
+			// TODO: can't find type_handle for int ??
+			const auto pyType = py::detail::get_type_handle(typeid(T), true);
+			if (!pyType) return false;
+			return PyObject_IsSubclass(cls.ptr(), pyType.ptr());
+		}
+	}
+
+	bool ScriptField::IsEditable() const
+	{
+		return m_Type != ScriptFieldType::UnEditable && !IsNone();
+	}
+
+	bool ScriptField::IsNone() const
+	{
+		return m_PyObject.is_none();
+	}
+
 	Json::Value ScriptField::Serialize() const
 	{
 		Json::Value out;
-		out["type"] = static_cast<int>(Type);
-		out["name"] = Name;
+		out["type"] = static_cast<int>(m_Type);
+		out["name"] = m_Name;
 
-		switch (Type) {
+		switch (m_Type) {
 		case ScriptFieldType::Int:
-			out["value"] = py::handle(Instance).cast<int>();
+			out["value"] = m_PyObject.cast<int>();
 			break;
 		case ScriptFieldType::Float:
-			out["value"] = py::handle(Instance).cast<float>();
+			out["value"] = m_PyObject.cast<float>();
 			break;
 		case ScriptFieldType::String:
-			out["value"] = py::handle(Instance).cast<std::string>();
-			break;
-		case ScriptFieldType::List:
-			{
-				py::list list(Instance);
-				for (int index = 0; index < py::len(list); index++) {
-					ScriptField subField;
-					subField.Name = std::to_string(index);
-					subField.Instance = py::object(list[index]);
-					switch (subField.ValueType) {
-					case ScriptFieldType::List:
-					case ScriptFieldType::Dict:
-						subField.Type = ScriptFieldType::Unserializable;
-						break;
-					default:
-						subField.Type = ValueType;
-						break;
-					}
-					out["value"].append(subField.Serialize());
-				}
-				break;
-			}
-		case ScriptFieldType::Dict:break;
-		case ScriptFieldType::PyBehavior:
-			out["value"] = py::handle(Instance).cast<std::string>();
+			out["value"] = m_PyObject.cast<std::string>();
 			break;
 		case ScriptFieldType::Vector2:
-			out["value"] = py::handle(Instance).cast<Vector2f>().Serialize();
+			out["value"] = m_PyObject.cast<Vector2f>().Serialize();
 			break;
 		case ScriptFieldType::Vector3:
-			out["value"] = py::handle(Instance).cast<Vector3f>().Serialize();
+			out["value"] = m_PyObject.cast<Vector3f>().Serialize();
 			break;
 		case ScriptFieldType::Vector4:
-			out["value"] = py::handle(Instance).cast<Vector4f>().Serialize();
+			out["value"] = m_PyObject.cast<Vector4f>().Serialize();
 			break;
-		case ScriptFieldType::Unserializable:break;
+		case ScriptFieldType::PyBehavior:
+		case ScriptFieldType::Dict:
+		case ScriptFieldType::List:
+		case ScriptFieldType::UnEditable:
+			break;
 		}
 
 		return out;
@@ -61,52 +64,73 @@ namespace Cardia
 
 	std::optional<ScriptField> ScriptField::Deserialize(const Json::Value& root)
 	{
-		ScriptField out;
+		ScriptField out(root["name"].asString());
+		const auto type = static_cast<ScriptFieldType>(root["type"].asInt());
 
-		out.Name = root["name"].asString();
-		out.Type = static_cast<ScriptFieldType>(root["type"].asInt());
+		auto instance = py::none();
 
-		switch (out.Type) {
+		switch (type) {
 		case ScriptFieldType::Int:
-			out.Instance = py::cast(root["value"].asInt());
+			instance = py::cast(root["value"].asInt());
 			break;
 		case ScriptFieldType::Float:
-			out.Instance = py::cast(root["value"].asFloat());
+			instance = py::cast(root["value"].asFloat());
 			break;
 		case ScriptFieldType::String:
-			out.Instance = py::cast(root["value"].asString());
-			break;
-		case ScriptFieldType::List:
-			{
-				const py::list list;
-				for (auto& subNode: root["value"]) {
-					if (auto subField = Deserialize(subNode))
-					{
-						out.ValueType = subField->Type;
-						list.attr("append")(subField->Instance.object());
-					}
-				}
-				out.Instance = list;
-				break;
-			}
-		case ScriptFieldType::Dict:break;
-		case ScriptFieldType::PyBehavior:
-			out.Instance = py::cast(root["value"].asString());
+			instance = py::cast(root["value"].asString());
 			break;
 		case ScriptFieldType::Vector2:
 			auto vec2 = *Vector2f::Deserialize(root["value"]);
-			out.Instance = py::cast(vec2);
+			instance = py::cast(vec2);
 			break;
 		case ScriptFieldType::Vector3:
 			auto vec3 = *Vector3f::Deserialize(root["value"]);
-			out.Instance = py::cast(vec3);
+			instance = py::cast(vec3);
 			break;
 		case ScriptFieldType::Vector4:
 			auto vec4 = *Vector4f::Deserialize(root["value"]);
-			out.Instance = py::cast(vec4);
+			instance = py::cast(vec4);
 			break;
-		case ScriptFieldType::Unserializable:break;
+		case ScriptFieldType::PyBehavior:
+		case ScriptFieldType::Dict:
+		case ScriptFieldType::List:
+		case ScriptFieldType::UnEditable:
+			break;
 		}
 		return out;
+	}
+
+	void ScriptField::DeduceType(const py::handle& handle, bool fromType)
+	{
+
+		auto type = ScriptFieldType::UnEditable;
+
+		const auto pyType = fromType ? handle : handle.get_type();
+		
+		if (IsSubclass<int>(pyType))
+			type = ScriptFieldType::Int;
+		else if (IsSubclass<float>(pyType))
+			type = ScriptFieldType::Float;
+		else if (IsSubclass<std::string>(pyType))
+			type = ScriptFieldType::String;
+		else if (IsSubclass<Vector2f>(pyType))
+			type = ScriptFieldType::Vector2;
+		else if (IsSubclass<Vector3f>(pyType))
+			type = ScriptFieldType::Vector3;
+		else if (IsSubclass<Vector4f>(pyType))
+			type = ScriptFieldType::Vector4;
+		else if (IsSubclass<EntityBehavior>(pyType))
+			type = ScriptFieldType::PyBehavior;
+
+		// TODO: add support for list and dict
+		/* else if (IsSubclass<std::vector<py::object>>(annotation))
+		{
+			attr.Type = ScriptFieldType::List;
+		} else if (IsSubclass<std::unordered_map<std::string, py::object>>(annotation))
+		{
+			attr.Type = ScriptFieldType::Dict;
+		}*/
+
+		m_Type = type;
 	}
 }

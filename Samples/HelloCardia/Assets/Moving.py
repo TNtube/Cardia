@@ -5,12 +5,13 @@ from Greeting import Greeting
 
 
 class Moving(Behavior):
-    velocity: int
-    _tick_count: float
-    text: str
-    color: Vector3
-    greeting: Greeting
-    lst: list[str]
+    def __init__(self):
+        self.velocity: int
+        self._tick_count: float
+        self.text: str
+        self.color: Vector3
+        self.greeting: Greeting
+        self.lst: list[str]
 
     def on_create(self):
         # self.velocity = 5
