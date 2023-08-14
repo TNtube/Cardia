@@ -10,16 +10,34 @@ namespace Cardia
 		template <typename T>
 		bool IsSubclass(const py::handle& cls)
 		{
-			// TODO: can't find type_handle for int ??
-			const auto pyType = py::detail::get_type_handle(typeid(T), true);
+			const auto pyType = py::type::of<T>();
 			if (!pyType) return false;
-			return PyObject_IsSubclass(cls.ptr(), pyType.ptr());
+			auto out = PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), reinterpret_cast<PyTypeObject*>(pyType.ptr()));
+			return out;
+		}
+
+		template<>
+		bool IsSubclass<int>(const py::handle& cls)
+		{
+			return PyType_FastSubclass(reinterpret_cast<PyTypeObject*>(cls.ptr()), Py_TPFLAGS_LONG_SUBCLASS);
+		}
+
+		template <>
+		bool IsSubclass<float>(const py::handle& cls)
+		{
+			return PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), &PyFloat_Type);
+		}
+
+		template<>
+		bool IsSubclass<std::string>(const py::handle& cls)
+		{
+			return PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), &PyUnicode_Type);
 		}
 	}
 
 	bool ScriptField::IsEditable() const
 	{
-		return m_Type != ScriptFieldType::UnEditable && !IsNone();
+		return m_Type != ScriptFieldType::UnEditable;
 	}
 
 	bool ScriptField::IsNone() const
@@ -71,26 +89,38 @@ namespace Cardia
 
 		switch (type) {
 		case ScriptFieldType::Int:
+		{
 			instance = py::cast(root["value"].asInt());
 			break;
+		}
 		case ScriptFieldType::Float:
+		{
 			instance = py::cast(root["value"].asFloat());
 			break;
+		}
 		case ScriptFieldType::String:
+		{
 			instance = py::cast(root["value"].asString());
 			break;
+		}
 		case ScriptFieldType::Vector2:
+		{
 			auto vec2 = *Vector2f::Deserialize(root["value"]);
 			instance = py::cast(vec2);
 			break;
+		}
 		case ScriptFieldType::Vector3:
+		{
 			auto vec3 = *Vector3f::Deserialize(root["value"]);
 			instance = py::cast(vec3);
 			break;
+		}
 		case ScriptFieldType::Vector4:
+		{
 			auto vec4 = *Vector4f::Deserialize(root["value"]);
 			instance = py::cast(vec4);
 			break;
+		}
 		case ScriptFieldType::PyBehavior:
 		case ScriptFieldType::Dict:
 		case ScriptFieldType::List:
@@ -119,8 +149,8 @@ namespace Cardia
 			type = ScriptFieldType::Vector3;
 		else if (IsSubclass<Vector4f>(pyType))
 			type = ScriptFieldType::Vector4;
-		else if (IsSubclass<EntityBehavior>(pyType))
-			type = ScriptFieldType::PyBehavior;
+		// else if (IsSubclass<EntityBehavior>(pyType))
+		// 	type = ScriptFieldType::PyBehavior;
 
 		// TODO: add support for list and dict
 		/* else if (IsSubclass<std::vector<py::object>>(annotation))
@@ -130,6 +160,9 @@ namespace Cardia
 		{
 			attr.Type = ScriptFieldType::Dict;
 		}*/
+
+		if (type != ScriptFieldType::UnEditable && IsNone())
+			m_PyObject = pyType();
 
 		m_Type = type;
 	}

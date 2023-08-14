@@ -334,7 +334,7 @@ namespace Cardia::Panel
 
 	bool InspectorPanel::DrawField(ScriptField& scriptField) {
 		const auto fieldName = scriptField.GetName().data();
-		if (!scriptField.IsEditable()) return false;
+		if (!scriptField.IsEditable() || scriptField.IsNone()) return false;
 		switch (scriptField.GetType()) {
 			case ScriptFieldType::Int:
 			{
