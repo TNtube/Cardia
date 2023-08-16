@@ -71,6 +71,7 @@ Device::~Device() {
 }
 
 void Device::CreateInstance() {
+	volkInitialize();
 	if (EnableValidationLayers && !CheckValidationLayerSupport()) {
 		throw std::runtime_error("validation layers requested, but not available!");
 	}
@@ -107,6 +108,8 @@ void Device::CreateInstance() {
 	if (vkCreateInstance(&createInfo, nullptr, &m_Instance) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create instance!");
 	}
+
+	volkLoadInstance(m_Instance);
 
 	HasGflwRequiredInstanceExtensions();
 }

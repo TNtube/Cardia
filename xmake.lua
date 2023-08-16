@@ -18,7 +18,7 @@ add_requires("entt v3.12.2")
 add_requires("nativefiledialog 1.1.6")
 add_requires("jsoncpp 1.9.5")
 add_requires("assimp v5.2.5")
-add_requires("vulkan-loader")
+add_requires("volk")
 add_requires("catch2 v3.4.0")
 
 add_requires("imguizmo 1.89+WIP")
@@ -52,12 +52,14 @@ target("Cardia")
     add_packages("spdlog", { public = true })
     add_packages("glfw")
     add_packages("assimp")
-    add_packages("vulkan-loader", { public = true })
+    add_packages("volk", { public = true })
     add_packages("imgui", { public = true })
     add_packages("entt", { public = true })
     add_packages("jsoncpp", { public = true })
     add_packages("python", { public = true })
     add_packages("pybind11", { public = true })
+
+    add_defines("VK_NO_PROTOTYPES", { public = true })
 
 
 --[[    after_build(function(target)
@@ -69,7 +71,7 @@ target("Cardia")
 
         os.setenv("PYTHONPATH", path.join(pythonDir, "Lib", "site-packages"))
         os.setenv("PYTHONHOME", pythonDir)
-    end)]]
+    end)--]]
 
 
 target("SandBox")
@@ -100,7 +102,7 @@ target("CardiaTor")
 
     add_headerfiles("CardiaTor/include/**.hpp")
     add_headerfiles("CardiaTor/resources/**") -- a hack for the moment
-    add_files("CardiaTor/src/**.cpp", "CardiaTor/resources/logo/resource.rc")
+    add_files("CardiaTor/src/**.cpp")
     add_includedirs("CardiaTor/include/", {public = true})
     set_rundir("CardiaTor/")
 
