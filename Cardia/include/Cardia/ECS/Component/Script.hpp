@@ -17,7 +17,7 @@ namespace Cardia::Component
 		std::string GetPath() const { return m_Path; }
 		void SetPath(const std::string& newPath) { m_Path = newPath; ReloadFile(); }
 
-		std::vector<ScriptField>& GetAttributes() const { return m_File->Attributes(); }
+		ScriptFile& GetFile() const { return *m_File; }
 
 		void Reset()
 		{

@@ -15,17 +15,16 @@ namespace Cardia::EditorUI
 	bool DragInt(const char *label, int *data, float speed, int v_min, int v_max)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
 		bool res = ImGui::DragInt("##int", data, speed, v_min, v_max);
 
-		ImGui::Columns(1);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 
@@ -35,17 +34,16 @@ namespace Cardia::EditorUI
 	bool DragFloat(const char *label, float *data, float speed, float v_min, float v_max)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
 		bool res = ImGui::DragFloat("##flt", data, speed, v_min, v_max);
 
-		ImGui::Columns(1);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 
@@ -83,27 +81,26 @@ namespace Cardia::EditorUI
 	bool InputText(const char* label, std::string* str, const Vector4f& color, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
-
-		ImGui::SetNextItemWidth(-0.01f);
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 		ImGui::PushStyleColor(ImGuiCol_Text, {color.x, color.y, color.z, color.w});
 		
 		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 		flags |= ImGuiInputTextFlags_CallbackResize;
 
-		InputTextCallback_UserData cb_user_data;
+		InputTextCallback_UserData cb_user_data {};
 		cb_user_data.Str = str;
 		cb_user_data.ChainCallback = callback;
 		cb_user_data.ChainCallbackUserData = user_data;
+
+		ImGui::SetNextItemWidth(-0.01f);
 		bool res = ImGui::InputText("##txt", const_cast<char*>(str->c_str()), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 		ImGui::PopStyleColor();
 
-		ImGui::Columns(1);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 
@@ -113,17 +110,16 @@ namespace Cardia::EditorUI
 	bool ColorEdit3(const char* label, float* col, ImGuiColorEditFlags flags)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
 		bool res = ImGui::ColorEdit3("##ce3", col, flags);
 
-		ImGui::Columns(1);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 
@@ -133,17 +129,16 @@ namespace Cardia::EditorUI
 	bool ColorEdit4(const char *label, float *col, ImGuiColorEditFlags flags)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
 		bool res = ImGui::ColorEdit4("##ce4", col, flags);
 
-		ImGui::Columns(1);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 
@@ -160,10 +155,11 @@ namespace Cardia::EditorUI
 
 		ImGui::PushID(label.c_str());
 
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
-		ImGui::Text("%s", label.c_str());
-		ImGui::NextColumn();
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
+
+		ImGui::TableNextColumn(); ImGui::Text("%s", label.c_str());
+		ImGui::TableNextColumn();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
@@ -261,7 +257,7 @@ namespace Cardia::EditorUI
 		}
 
 		ImGui::PopStyleVar();
-		ImGui::Columns(1);
+		ImGui::EndTable();
 		ImGui::PopID();
 		return res;
 	}
@@ -285,16 +281,15 @@ namespace Cardia::EditorUI
 		   int popup_max_height_in_items)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2);
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
 		bool res = ImGui::Combo("##cmb", current_item, items, items_count, popup_max_height_in_items);
-		ImGui::Columns(1);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 
@@ -304,16 +299,15 @@ namespace Cardia::EditorUI
 	bool Checkbox(const char *label, bool *v)
 	{
 		ImGui::PushID(label);
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, COLUMN_SIZE);
+		ImGui::BeginTable("##table", 2, ImGuiTableFlags_Borders, ImVec2(0, 0));
+		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
-		ImGui::Text("%s", label);
-
-		ImGui::NextColumn();
+		ImGui::TableNextColumn(); ImGui::Text("%s", label);
+		ImGui::TableNextColumn();
 
 		ImGui::SetNextItemWidth(-0.01f);
-		bool res = ImGui::Checkbox("##lbl", v);
-		ImGui::Columns(1);
+		bool res = ImGui::Checkbox("##cbx", v);
+		ImGui::EndTable();
 
 		ImGui::PopID();
 

@@ -8,12 +8,14 @@ namespace Cardia
 {
 	enum class ScriptFieldType
 	{
-		Int, Float, String, Vector2, Vector3, Vector4, List, Dict, PyBehavior, UnEditable
+		Bool, Int, Float, String, Tuple, // Immutable
+		List, Dict, Vector2, Vector3, Vector4,
+		PyBehavior, UnEditable
 	};
 
 	class ScriptField {
 	public:
-		ScriptField(std::string name) : m_Name(std::move(name)) {}
+		explicit ScriptField(std::string name) : m_Name(std::move(name)) {}
 
 		void DeduceType(const py::handle& handle, bool fromType = true);
 
@@ -23,6 +25,7 @@ namespace Cardia
 		void SetValue(py::object instance) { m_PyObject = std::move(instance); DeduceType(m_PyObject, false); }
 		template <typename T>
 		T GetValue() const { return m_PyObject.cast<T>(); }
+		const py::object& GetValue() const { return m_PyObject; }
 
 		bool IsEditable() const;
 		bool IsNone() const;

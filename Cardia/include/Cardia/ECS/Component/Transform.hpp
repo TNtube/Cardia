@@ -26,6 +26,9 @@ namespace Cardia::Component
 		void SetRotation(const Vector3f& rot) { m_Rotation = rot; m_Dirty = true; }
 		void SetScale(const Vector3f& sca) { m_Scale = sca; m_Dirty = true; }
 
+		void Translate(const Vector3f& translation) { m_Position += translation; m_Dirty = true; }
+		void Rotate(const Vector3f& rotation) { m_Rotation += rotation; m_Dirty = true; }
+
 		Matrix4f GetLocalTransform() const;
 		Matrix4f GetWorldTransform() const;
 

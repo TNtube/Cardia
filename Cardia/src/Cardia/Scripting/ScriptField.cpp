@@ -1,39 +1,11 @@
-﻿#include "cdpch.hpp"
+﻿#include <Cardia/Scripting/ScriptUtils.hpp>
+#include "cdpch.hpp"
 #include "Cardia/Scripting/EntityBehavior.hpp"
 #include "Cardia/Scripting/ScriptClass.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 namespace Cardia
 {
-	namespace 
-	{
-		template <typename T>
-		bool IsSubclass(const py::handle& cls)
-		{
-			const auto pyType = py::type::of<T>();
-			if (!pyType) return false;
-			auto out = PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), reinterpret_cast<PyTypeObject*>(pyType.ptr()));
-			return out;
-		}
-
-		template<>
-		bool IsSubclass<int>(const py::handle& cls)
-		{
-			return PyType_FastSubclass(reinterpret_cast<PyTypeObject*>(cls.ptr()), Py_TPFLAGS_LONG_SUBCLASS);
-		}
-
-		template <>
-		bool IsSubclass<float>(const py::handle& cls)
-		{
-			return PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), &PyFloat_Type);
-		}
-
-		template<>
-		bool IsSubclass<std::string>(const py::handle& cls)
-		{
-			return PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), &PyUnicode_Type);
-		}
-	}
 
 	bool ScriptField::IsEditable() const
 	{
@@ -85,7 +57,7 @@ namespace Cardia
 		ScriptField out(root["name"].asString());
 		const auto type = static_cast<ScriptFieldType>(root["type"].asInt());
 
-		auto instance = py::none();
+		py::object instance = py::none();
 
 		switch (type) {
 		case ScriptFieldType::Int:
@@ -127,6 +99,8 @@ namespace Cardia
 		case ScriptFieldType::UnEditable:
 			break;
 		}
+
+		out.m_PyObject = std::move(instance);
 		return out;
 	}
 
@@ -135,7 +109,7 @@ namespace Cardia
 
 		auto type = ScriptFieldType::UnEditable;
 
-		const auto pyType = fromType ? handle : handle.get_type();
+		const auto pyType = py::reinterpret_borrow<py::type>(fromType ? handle : handle.get_type());
 		
 		if (IsSubclass<int>(pyType))
 			type = ScriptFieldType::Int;

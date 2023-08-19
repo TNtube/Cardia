@@ -252,7 +252,7 @@ namespace Cardia::Panel
 
 			if (!scriptComponent.IsLoaded()) return;
 
-			auto& attributes = scriptComponent.GetAttributes();
+			auto& attributes = scriptComponent.GetFile().Attributes();
 
 			for (auto& attribute: attributes)
 			{

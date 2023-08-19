@@ -26,20 +26,16 @@ namespace Cardia
 
 	void ScriptEngine::OnRuntimeStart(Scene* context)
 	{
-		// m_CurrentContext = context;
-		//
-		// const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID, Component::Label>();
-		// for (const auto entity : view)
-		// {
-		// 	auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
-		// 	try {
-		// 		auto instance = script.Class.Instantiate(uuid.Uuid, name.Name);
-		// 		m_BehaviorInstances.insert({uuid.Uuid, instance});
-		// 	}
-		// 	catch (const std::exception& e) {
-		// 		Log::Error("Instantiating : {0}", e.what());
-		// 	}
-		// }
+		 m_CurrentContext = context;
+
+		const auto view = context->GetRegistry().view<Component::Script>();
+		for (const auto entity : view)
+		{
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				script.GetFile().InstantiateBehavior(Entity{ entity, context });
+			}
+		}
 		// for (const auto entity : view)
 		// {
 		// 	auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
@@ -71,7 +67,7 @@ namespace Cardia
 	}
 
 	void ScriptEngine::OnRuntimeEnd() {
-		m_BehaviorInstances.clear();
+		m_CurrentContext = nullptr;
 	}
 
 	Scene& ScriptEngine::GetSceneContext() const
@@ -82,18 +78,21 @@ namespace Cardia
 
 	void ScriptEngine::OnRuntimeUpdate()
 	{
-		for (auto& [uuid, instance] : m_BehaviorInstances)  {
-			try {
-				instance.GetAttrOrMethod("on_update")();
-				for (auto& callback : instance.m_OnUpdateCallbacks) {
-					auto method = instance.GetAttrOrMethod(callback.c_str());
-					// if (m_PythonBuiltins.attr("callable")(method).cast<bool>()) {
-					// 	method();
-					// }
+		const auto view = m_CurrentContext->GetRegistry().view<Component::Transform, Component::Script>();
+		for (const auto entity : view)
+		{
+			auto [transform, script] = view.get<Component::Transform, Component::Script>(entity);
+			if (script.IsLoaded()) {
+				try {
+					auto behavior = script.GetFile().GetBehavior();
+					if (behavior)
+						behavior->on_update();
+
+					if (transform.IsDirty())
+						transform.RecomputeWorld({entity, m_CurrentContext});
+				} catch (const std::exception& e) {
+					Log::Error("On Update : {0}", e.what());
 				}
-			}
-			catch (const std::exception& e) {
-				Log::Error("On Update : {0}", e.what());
 			}
 		}
 	}

@@ -33,7 +33,7 @@ namespace Cardia
 		return *this;
 	}
 
-	ChildCollection::ChildIterator ChildCollection::ChildIterator::operator++(int)
+	const ChildCollection::ChildIterator ChildCollection::ChildIterator::operator++(int)
 	{
 		auto& relationship = m_Entity.GetComponent<Component::Relationship>();
 

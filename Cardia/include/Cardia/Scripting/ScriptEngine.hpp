@@ -31,7 +31,6 @@ namespace Cardia
 	private:
 		static ScriptEngine* s_Instance;
 		Scene* m_CurrentContext;
-		std::unordered_map<UUID, ScriptInstance> m_BehaviorInstances;
 
 		friend class ScriptInstance;
 	};

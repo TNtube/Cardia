@@ -1,10 +1,10 @@
 ﻿#include "cdpch.hpp"
-#include "Cardia/Scripting/ScriptFile.hpp"
 
+#include "Cardia/Scripting/ScriptFile.hpp"
 #include "Cardia/Asset/AssetsManager.hpp"
 
-#include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
+#include <Cardia/Scripting/EntityBehavior.hpp>
 
 namespace Cardia
 {
@@ -27,105 +27,96 @@ namespace Cardia
 			}
 			return py::none();
 		}
+	}
 
-		std::vector<ScriptField> RetrievePublicAttributes(const py::object& sourceAst, const py::dict& sourceLocals)
+	void ScriptFile::RetrieveScriptInfos()
+	{
+		const auto& cardia = hasattr(m_Ast, "cardia")
+			? m_Ast.attr("cardia")
+			: py::module::import("cardia");
+
+		const py::module ast = py::globals().contains("ast")
+			? py::globals()["ast"]
+			: py::module::import("ast");
+
+		const auto& classDef = ast.attr("ClassDef");
+		const auto& functionDef = ast.attr("FunctionDef");
+		const auto& attribute = ast.attr("Attribute");
+		const auto& name = ast.attr("Name");
+		const auto& annAssign = ast.attr("AnnAssign");
+
+		py::object classBody = py::none();
+
+		auto body = py::list(m_Ast.attr("body"));
+
+		for (auto node: body)
 		{
-			const auto& cardia = hasattr(sourceAst, "cardia")
-					       ? sourceAst.attr("cardia")
-					       : py::module::import("cardia");
+			if (!py::isinstance(node, classDef))
+				continue;
 
-			py::object behavior = cardia.attr("Behavior");
+			auto className = node.attr("name");
+			if (!m_Locals.contains(className) && IsSubclass<Behavior>(m_Locals[className]))
+				continue;
 
-			const py::module ast = py::globals().contains("ast")
-						       ? py::globals()["ast"]
-						       : py::module::import("ast");
+			m_BehaviorClassDef = m_Locals[className];
+			classBody = node.attr("body");
+		}
 
-			const auto& classDef = ast.attr("ClassDef");
-			const auto& functionDef = ast.attr("FunctionDef");
-			const auto& attribute = ast.attr("Attribute");
-			const auto& name = ast.attr("Name");
-			const auto& annAssign = ast.attr("AnnAssign");
+		if (classBody.is_none())
+		{
+			// maybe warn about no class found ?
+			return;
+		}
 
-			std::vector<ScriptField> attributes;
+		py::list initBody{};
+		for (const auto classNode: classBody)
+		{
+			if (!py::isinstance(classNode, functionDef))
+				continue;
 
-			py::object classBody = py::none();
+			if (classNode.attr("name").cast<std::string>() != "__init__")
+				continue;
 
-			Log::Info("body ? {}", sourceAst.attr("body").is_none());
+			initBody = classNode.attr("body");
+			break;
+		}
 
-			auto body = py::list(sourceAst.attr("body"));
+		if (initBody.empty())
+		{
+			// is ok to not have an __init__ method
+			return;
+		}
 
-			Log::Info("is empty ? {}", body.empty());
+		for (const auto initNode: initBody)
+		{
+			if (!py::isinstance(initNode, annAssign))
+				continue;
 
-			for (auto node: body)
-			{
-				Log::Info("new node");
-				if (!py::isinstance(node, classDef))
-					continue;
+			auto target = initNode.attr("target");
+			if (!py::isinstance(target, attribute))
+				continue;
 
-				auto className = node.attr("name");
-				if (!sourceLocals.contains(className) && PyObject_IsSubclass(sourceLocals[className].ptr(), behavior.ptr()))
-					continue;
-				
-				classBody = node.attr("body");
-			}
+			if (!py::isinstance(target.attr("value"), name) && target.attr("value").attr("id").cast<std::string>() != "self")
+				continue;
 
-			if (classBody.is_none())
-			{
-				// maybe warn about no class found ?
-				return {};
-			}
+			const auto attrName = target.attr("attr").cast<std::string>();
 
-			py::list initBody{};
-			for (const auto classNode: classBody)
-			{
-				Log::Info("{}", classNode.attr("__repr__")().cast<std::string>());
-				if (!py::isinstance(classNode, functionDef))
-					continue;
+			const py::object annotation = AttributeChain(initNode.attr("annotation"), ast, m_Locals);
 
-				if (classNode.attr("name").cast<std::string>() != "__init__")
-					continue;
+			ScriptField attr(attrName);
+			attr.DeduceType(annotation);
 
-				initBody = classNode.attr("body");
-				break;
-			}
+			if (!attr.IsEditable())
+				continue;
 
-			if (initBody.empty())
-			{
-				// is ok to not have an __init__ method
-				return {};
-			}
-
-			for (const auto initNode: initBody)
-			{
-				if (!py::isinstance(initNode, annAssign))
-					continue;
-
-				auto target = initNode.attr("target");
-				if (!py::isinstance(target, attribute))
-					continue;
-
-				if (!py::isinstance(target.attr("value"), name) && target.attr("value").attr("id").cast<std::string>() != "self")
-					continue;
-
-				const auto attrName = target.attr("attr").cast<std::string>();
-
-				const py::object annotation = AttributeChain(initNode.attr("annotation"), ast, sourceLocals);
-
-				ScriptField attr(attrName);
-				attr.DeduceType(annotation);
-
-				if (!attr.IsEditable())
-					continue;
-
-				attributes.push_back(attr);
-			}
-
-			return attributes;
+			m_Attributes.push_back(attr);
 		}
 	}
-	ScriptFile::ScriptFile(std::string path, py::object ast, py::dict locals, std::vector<ScriptField> attributes)
-		: m_Filename(std::move(path)), m_Ast(std::move(ast)), m_Locals(std::move(locals)), m_Attributes(std::move(attributes))
+
+	ScriptFile::ScriptFile(std::string path, py::object ast, py::dict locals)
+		: m_Filename(std::move(path)), m_Ast(std::move(ast)), m_Locals(std::move(locals)), m_BehaviorClassDef(py::type::of(py::none()))
 	{
+		RetrieveScriptInfos();
 	}
 
 	std::shared_ptr<ScriptFile> ScriptFile::FromSource(const std::string& source, const std::string& sourcePath)
@@ -152,23 +143,28 @@ namespace Cardia
 		// don't use py::exec because of the support of ast objects
 		const auto& exec = builtins.attr("exec");
 
-		// try
-		// {
+		try
+		{
 			py::dict sourceLocals;
 
 			auto code = compile(sourceAst, sourcePath, "exec");
 			// use locals as globals to retrieve builtins
 			exec(code, sourceLocals, sourceLocals);
 
-			auto attributes = RetrievePublicAttributes(sourceAst, sourceLocals);
-
-			return std::make_shared<ScriptFile>(sourcePath, sourceAst, sourceLocals, std::move(attributes));
-		// }
-		// catch (const std::exception& e)
-		// {
-		// 	Log::Error("Error compiling script file: {0}\nPlease fix.", e.what());
-		// 	return nullptr;
-		// }
+			auto file = std::make_shared<ScriptFile>(sourcePath, sourceAst, sourceLocals);
+			if (!file->HasBehavior())
+			{
+				Log::Error("No behavior found in script file: {0}\nPlease fix.", sourcePath);
+				return nullptr;
+			}
+			return file;
+		}
+		catch (const py::type_error& e)
+		{
+			e.set_error();
+			Log::Error("Error compiling script file: {0}\nPlease fix.", e.what());
+			return nullptr;
+		}
 	}
 
 	std::shared_ptr<ScriptFile> ScriptFile::FromPath(const std::filesystem::path& absolutePath)
@@ -180,9 +176,29 @@ namespace Cardia
 		return FromSource(buffer.str(), absolutePath.filename().string());
 	}
 
-	ScriptClass ScriptFile::CompileToClass() const
+	Behavior *ScriptFile::InstantiateBehavior(Entity entity)
 	{
-		
-		return {};
+		if (!HasBehavior())
+			return nullptr;
+
+		try {
+			m_BehaviorInstance = m_BehaviorClassDef();
+			m_BehaviorPtr = m_BehaviorInstance.cast<Behavior*>();
+			m_BehaviorPtr->entity = entity;
+
+			for (auto& field : m_Attributes)
+			{
+				if (field.GetType() != ScriptFieldType::PyBehavior) {
+					py::setattr(m_BehaviorInstance, field.GetName().data(), field.GetValue());
+				}
+			}
+
+			m_BehaviorPtr->on_create();
+
+			return m_BehaviorPtr;
+		} catch (const std::exception& e) {
+			Log::Error("Error instantiating behavior: {0}\nPlease fix.", e.what());
+			return nullptr;
+		}
 	}
 }

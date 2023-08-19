@@ -24,9 +24,9 @@ add_requires("catch2 v3.4.0")
 add_requires("imguizmo 1.89+WIP", {configs = { debug = is_mode("debug")}})
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.89-docking", configs = {glfw= true, debug = is_mode("debug")}}) -- config sub imgui module
 
-add_requires("python 3.9.13")
+add_requires("python 3.11.3")
 add_requires("pybind11")
-add_requireconfs("pybind11.python", {override = true, config = {kind = "binary"}, version = "3.9.13"})
+add_requireconfs("pybind11.python", {override = true, config = {kind = "binary"}, version = "3.11.3"})
 
 local outputdir = "$(mode)-$(os)-$(arch)"
 
