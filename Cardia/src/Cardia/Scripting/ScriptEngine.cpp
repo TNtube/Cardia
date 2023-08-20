@@ -67,6 +67,18 @@ namespace Cardia
 	}
 
 	void ScriptEngine::OnRuntimeEnd() {
+		const auto view = m_CurrentContext->GetRegistry().view<Component::Script>();
+		for (const auto entity : view)
+		{
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				try {
+					script.GetFile().DestroyBehavior();
+				} catch (const std::exception& e) {
+					Log::Error("On Destroy : {0}", e.what());
+				}
+			}
+		}
 		m_CurrentContext = nullptr;
 	}
 

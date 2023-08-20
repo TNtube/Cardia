@@ -14,6 +14,7 @@ namespace Cardia
 		virtual ~Behavior() = default;
 		virtual void on_create() {};
 		virtual void on_update() {};
+		virtual void on_destroy() {};
 
 		Component::Transform& GetTransform();
 		Entity entity;
@@ -36,6 +37,14 @@ namespace Cardia
 				void,
 				Behavior,
 				on_update
+			);
+		}
+		void on_destroy() override
+		{
+			PYBIND11_OVERRIDE(
+				void,
+				Behavior,
+				on_destroy
 			);
 		}
 	};

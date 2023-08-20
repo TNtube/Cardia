@@ -17,11 +17,29 @@ namespace Cardia
 		static std::shared_ptr<ScriptFile> FromSource(const std::string& source, const std::string& filename = "default.py");
 		static std::shared_ptr<ScriptFile> FromPath(const std::filesystem::path& relativePath);
 
+		template<typename T>
+		T GetAttribute(const std::string& name) const
+		{
+			if (m_BehaviorPtr)
+				return m_BehaviorInstance.attr(name.c_str()).cast<T>();
+			return m_Attributes.at(name).GetValue<T>();
+		}
+
+		template<typename T>
+		void SetAttribute(const std::string& name, T value)
+		{
+			if (m_BehaviorPtr)
+				m_BehaviorInstance.attr(name.c_str()) = value;
+			else
+				m_Attributes.at(name).SetValue(py::cast(value));
+		}
+
 		bool HasBehavior() const { return IsSubclass<Behavior>(m_BehaviorClassDef); }
 		Behavior* InstantiateBehavior(Entity entity);
 		Behavior* GetBehavior() { return m_BehaviorPtr; }
+		void DestroyBehavior();
 
-		std::vector<ScriptField>& Attributes() { return m_Attributes; }
+		std::unordered_map<std::string, ScriptField>& Attributes() { return m_Attributes; }
 	private:
 		void RetrieveScriptInfos();
 
@@ -33,6 +51,6 @@ namespace Cardia
 		py::object m_BehaviorInstance;
 		Behavior* m_BehaviorPtr = nullptr;
 
-		std::vector<ScriptField> m_Attributes;
+		std::unordered_map<std::string, ScriptField> m_Attributes;
 	};
 }

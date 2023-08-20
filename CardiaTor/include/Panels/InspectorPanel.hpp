@@ -5,6 +5,7 @@
 #include "Cardia/ECS/Entity.hpp"
 #include "Cardia/Scripting/ScriptInstance.hpp"
 #include "Cardia/Scripting/ScriptClass.hpp"
+#include "Cardia/Scripting/ScriptFile.hpp"
 
 
 namespace Cardia::Panel
@@ -22,7 +23,7 @@ namespace Cardia::Panel
 	private:
 		template<typename T>
 		void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
-		static bool DrawField(ScriptField& scriptField);
+		static bool DrawField(ScriptFile& file, const std::string& fieldName, ScriptFieldType type);
 		Entity m_SelectedEntity;
 
 		static int m_LastWindowId;

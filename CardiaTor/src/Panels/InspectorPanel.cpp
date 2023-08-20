@@ -252,11 +252,14 @@ namespace Cardia::Panel
 
 			if (!scriptComponent.IsLoaded()) return;
 
-			auto& attributes = scriptComponent.GetFile().Attributes();
+			auto& file = scriptComponent.GetFile();
 
-			for (auto& attribute: attributes)
+			auto& attributes = file.Attributes();
+
+			for (auto& [name, field]: attributes)
 			{
-				DrawField(attribute);
+				if (!field.IsEditable() || field.IsNone()) continue;
+				DrawField(file, name, field.GetType());
 			}
 		});
 
@@ -332,63 +335,62 @@ namespace Cardia::Panel
 		ImGui::TreePop();
 	}
 
-	bool InspectorPanel::DrawField(ScriptField& scriptField) {
-		const auto fieldName = scriptField.GetName().data();
-		if (!scriptField.IsEditable() || scriptField.IsNone()) return false;
-		switch (scriptField.GetType()) {
+	bool InspectorPanel::DrawField(ScriptFile& file, const std::string& fieldName, ScriptFieldType type) {
+
+		switch (type) {
 			case ScriptFieldType::Int:
 			{
-				auto field = scriptField.GetValue<int>();
-				if (EditorUI::DragInt(fieldName, &field, 0.1f))
+				auto field = file.GetAttribute<int>(fieldName);
+				if (EditorUI::DragInt(fieldName.c_str(), &field, 0.1f))
 				{
-					scriptField.SetValue(py::cast(field));
+					file.SetAttribute(fieldName, field);
 					return true;
 				}
 				return false;
 			}
 			case ScriptFieldType::Bool:
 			{
-				auto field = scriptField.GetValue<bool>();
-				if (EditorUI::Checkbox(fieldName, &field))
+				auto field = file.GetAttribute<bool>(fieldName);
+				if (EditorUI::Checkbox(fieldName.c_str(), &field))
 				{
-					scriptField.SetValue(py::cast(field));
+					file.SetAttribute(fieldName, field);
 					return true;
 				}
 				return false;
 			}
 			case ScriptFieldType::Float:
 			{
-				auto field = scriptField.GetValue<float>();
-				if (EditorUI::DragFloat(fieldName, &field, 0.1f))
+				auto field = file.GetAttribute<float>(fieldName);
+				if (EditorUI::DragFloat(fieldName.c_str(), &field, 0.1f))
 				{
-					scriptField.SetValue(py::cast(field));
+					file.SetAttribute(fieldName, field);
 					return true;
 				}
 				return false;
 			}
 			case ScriptFieldType::String:
 			{
-				auto field = scriptField.GetValue<std::string>();
-				if (EditorUI::InputText(fieldName, &field))
+				auto field = file.GetAttribute<std::string>(fieldName);
+				if (EditorUI::InputText(fieldName.c_str(), &field))
 				{
-					scriptField.SetValue(py::cast(field));
+					file.SetAttribute(fieldName, field);
 					return true;
 				}
 				return false;
 			}
 			case ScriptFieldType::Vector2:
 			{
-				auto* field = scriptField.GetValue<Vector2f*>();
+				auto* field = file.GetAttribute<Vector2f*>(fieldName);
 				return EditorUI::DragFloat2(fieldName, *field, 0.0f);
 			}
 			case ScriptFieldType::Vector3:
 			{
-				auto* field = scriptField.GetValue<Vector3f*>();
+				auto* field = file.GetAttribute<Vector3f*>(fieldName);
 				return EditorUI::DragFloat3(fieldName, *field, 0.0f);
 			}
 			case ScriptFieldType::Vector4:
 			{
-				auto* field = scriptField.GetValue<Vector4f*>();
+				auto* field = file.GetAttribute<Vector4f*>(fieldName);
 				return EditorUI::DragFloat4(fieldName, *field, 0.0f);
 			}
 			case ScriptFieldType::List:

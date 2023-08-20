@@ -18,8 +18,8 @@ namespace Cardia::Component
 		
 		script["Path"] = GetPath();
 
-		for (auto& item : m_File->Attributes()) {
-			script["Attributes"].append(item.Serialize());
+		for (auto& [name, field] : m_File->Attributes()) {
+			script["Attributes"].append(field.Serialize());
 		}
 
 		return root;
@@ -47,11 +47,11 @@ namespace Cardia::Component
 		for (const auto& subNode: attrsNode) {
 			auto field = ScriptField::Deserialize(subNode);
 			if (!field) continue;
-			auto attrPair = std::ranges::find_if(attrs, [&](const ScriptField& attr) {
-				return attr.GetName() == field.value().GetName();
-			});
-			if (attrPair != attrs.end()) {
-				*attrPair = field.value();
+
+			if (attrs.contains(field->GetName())) {
+				attrs.insert_or_assign(field->GetName(), *field);
+			} else {
+				Log::CoreWarn("Deserialization: ScriptField '{0}' not found in script '{1}'", field->GetName(), temp.GetPath());
 			}
 		}
 

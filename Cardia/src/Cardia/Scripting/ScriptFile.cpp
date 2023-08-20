@@ -109,7 +109,7 @@ namespace Cardia
 			if (!attr.IsEditable())
 				continue;
 
-			m_Attributes.push_back(attr);
+			m_Attributes.insert({attrName, attr});
 		}
 	}
 
@@ -186,10 +186,10 @@ namespace Cardia
 			m_BehaviorPtr = m_BehaviorInstance.cast<Behavior*>();
 			m_BehaviorPtr->entity = entity;
 
-			for (auto& field : m_Attributes)
+			for (auto& [name, field] : m_Attributes)
 			{
 				if (field.GetType() != ScriptFieldType::PyBehavior) {
-					py::setattr(m_BehaviorInstance, field.GetName().data(), field.GetValue());
+					py::setattr(m_BehaviorInstance, name.c_str(), field.GetValue());
 				}
 			}
 
@@ -200,5 +200,13 @@ namespace Cardia
 			Log::Error("Error instantiating behavior: {0}\nPlease fix.", e.what());
 			return nullptr;
 		}
+	}
+
+	void ScriptFile::DestroyBehavior()
+	{
+		if (m_BehaviorPtr)
+			m_BehaviorPtr->on_destroy();
+		m_BehaviorInstance = py::none();
+		m_BehaviorPtr = nullptr;
 	}
 }

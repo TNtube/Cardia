@@ -19,7 +19,7 @@ namespace Cardia
 
 		void DeduceType(const py::handle& handle, bool fromType = true);
 
-		std::string_view GetName() const { return m_Name; }
+		const std::string& GetName() const { return m_Name; }
 		ScriptFieldType GetType() const { return m_Type; }
 
 		void SetValue(py::object instance) { m_PyObject = std::move(instance); DeduceType(m_PyObject, false); }
