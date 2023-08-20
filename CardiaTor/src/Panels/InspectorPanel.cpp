@@ -346,6 +346,16 @@ namespace Cardia::Panel
 				}
 				return false;
 			}
+			case ScriptFieldType::Bool:
+			{
+				auto field = scriptField.GetValue<bool>();
+				if (EditorUI::Checkbox(fieldName, &field))
+				{
+					scriptField.SetValue(py::cast(field));
+					return true;
+				}
+				return false;
+			}
 			case ScriptFieldType::Float:
 			{
 				auto field = scriptField.GetValue<float>();
@@ -383,6 +393,7 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::List:
 			case ScriptFieldType::Dict:
+			case ScriptFieldType::Tuple:
 			case ScriptFieldType::PyBehavior:
 			case ScriptFieldType::UnEditable:
 				return false;

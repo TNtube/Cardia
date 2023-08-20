@@ -9,9 +9,6 @@ namespace Cardia
 	template <typename T>
 	inline bool IsSubclass(const py::type& cls)
 	{
-		if (!PyObject_IsInstance(cls.ptr(), (PyObject *)&PyType_Type)) {
-			return false; // not a type
-		}
 		const auto pyType = py::type::of<T>();
 		if (!pyType) return false;
 		auto out = PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), reinterpret_cast<PyTypeObject*>(pyType.ptr()));
@@ -21,11 +18,13 @@ namespace Cardia
 	template<>
 	inline bool IsSubclass<int>(const py::type& cls)
 	{
-		if (!PyObject_IsInstance(cls.ptr(), (PyObject *)&PyType_Type)) {
-			return false; // not a type
-		}
-
 		return PyType_FastSubclass(reinterpret_cast<PyTypeObject*>(cls.ptr()), Py_TPFLAGS_LONG_SUBCLASS) > 0;
+	}
+
+	template<>
+	inline bool IsSubclass<bool>(const py::type& cls)
+	{
+		return PyType_IsSubtype(reinterpret_cast<PyTypeObject*>(cls.ptr()), &PyBool_Type) > 0;
 	}
 
 	template <>

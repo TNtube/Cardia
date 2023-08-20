@@ -299,7 +299,7 @@ namespace Cardia::EditorUI
 	bool Checkbox(const char *label, bool *v)
 	{
 		ImGui::PushID(label);
-		ImGui::BeginTable("##table", 2, ImGuiTableFlags_Borders, ImVec2(0, 0));
+		ImGui::BeginTable("##table", 2);
 		ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, COLUMN_SIZE);
 
 		ImGui::TableNextColumn(); ImGui::Text("%s", label);

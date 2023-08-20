@@ -27,6 +27,9 @@ namespace Cardia
 		case ScriptFieldType::Int:
 			out["value"] = m_PyObject.cast<int>();
 			break;
+		case ScriptFieldType::Bool:
+			out["value"] = m_PyObject.cast<bool>();
+			break;
 		case ScriptFieldType::Float:
 			out["value"] = m_PyObject.cast<float>();
 			break;
@@ -45,6 +48,7 @@ namespace Cardia
 		case ScriptFieldType::PyBehavior:
 		case ScriptFieldType::Dict:
 		case ScriptFieldType::List:
+		case ScriptFieldType::Tuple:
 		case ScriptFieldType::UnEditable:
 			break;
 		}
@@ -61,20 +65,17 @@ namespace Cardia
 
 		switch (out.m_Type) {
 		case ScriptFieldType::Int:
-		{
 			out.m_PyObject = py::cast(root["value"].asInt());
 			break;
-		}
+		case ScriptFieldType::Bool:
+			out.m_PyObject = py::cast(root["value"].asBool());
+			break;
 		case ScriptFieldType::Float:
-		{
 			out.m_PyObject = py::cast(root["value"].asFloat());
 			break;
-		}
 		case ScriptFieldType::String:
-		{
 			out.m_PyObject = py::cast(root["value"].asString());
 			break;
-		}
 		case ScriptFieldType::Vector2:
 		{
 			auto vec2 = *Vector2f::Deserialize(root["value"]);
@@ -96,6 +97,7 @@ namespace Cardia
 		case ScriptFieldType::PyBehavior:
 		case ScriptFieldType::Dict:
 		case ScriptFieldType::List:
+		case ScriptFieldType::Tuple:
 		case ScriptFieldType::UnEditable:
 			break;
 		}
@@ -109,8 +111,10 @@ namespace Cardia
 		auto type = ScriptFieldType::UnEditable;
 
 		const auto pyType = py::reinterpret_borrow<py::type>(fromType ? handle : handle.get_type());
-		
-		if (IsSubclass<int>(pyType))
+
+		if (IsSubclass<bool>(pyType))
+			type = ScriptFieldType::Bool;
+		else if (IsSubclass<int>(pyType))
 			type = ScriptFieldType::Int;
 		else if (IsSubclass<float>(pyType))
 			type = ScriptFieldType::Float;
