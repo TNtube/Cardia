@@ -55,42 +55,42 @@ namespace Cardia
 	std::optional<ScriptField> ScriptField::Deserialize(const Json::Value& root)
 	{
 		ScriptField out(root["name"].asString());
-		const auto type = static_cast<ScriptFieldType>(root["type"].asInt());
+		out.m_Type = static_cast<ScriptFieldType>(root["type"].asInt());
 
-		py::object instance = py::none();
+		out.m_PyObject = py::none();
 
-		switch (type) {
+		switch (out.m_Type) {
 		case ScriptFieldType::Int:
 		{
-			instance = py::cast(root["value"].asInt());
+			out.m_PyObject = py::cast(root["value"].asInt());
 			break;
 		}
 		case ScriptFieldType::Float:
 		{
-			instance = py::cast(root["value"].asFloat());
+			out.m_PyObject = py::cast(root["value"].asFloat());
 			break;
 		}
 		case ScriptFieldType::String:
 		{
-			instance = py::cast(root["value"].asString());
+			out.m_PyObject = py::cast(root["value"].asString());
 			break;
 		}
 		case ScriptFieldType::Vector2:
 		{
 			auto vec2 = *Vector2f::Deserialize(root["value"]);
-			instance = py::cast(vec2);
+			out.m_PyObject = py::cast(vec2);
 			break;
 		}
 		case ScriptFieldType::Vector3:
 		{
 			auto vec3 = *Vector3f::Deserialize(root["value"]);
-			instance = py::cast(vec3);
+			out.m_PyObject = py::cast(vec3);
 			break;
 		}
 		case ScriptFieldType::Vector4:
 		{
 			auto vec4 = *Vector4f::Deserialize(root["value"]);
-			instance = py::cast(vec4);
+			out.m_PyObject = py::cast(vec4);
 			break;
 		}
 		case ScriptFieldType::PyBehavior:
@@ -100,7 +100,6 @@ namespace Cardia
 			break;
 		}
 
-		out.m_PyObject = std::move(instance);
 		return out;
 	}
 
