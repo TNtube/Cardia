@@ -105,7 +105,7 @@ namespace Cardia
 		return out;
 	}
 
-	void ScriptField::DeduceType(const py::handle& handle, bool fromType)
+	void ScriptField::DeduceType(const py::handle& handle, bool fromType, bool setDefault)
 	{
 
 		auto type = ScriptFieldType::UnEditable;
@@ -138,7 +138,7 @@ namespace Cardia
 			attr.Type = ScriptFieldType::Dict;
 		}*/
 
-		if (type != ScriptFieldType::UnEditable && IsNone())
+		if (type != ScriptFieldType::UnEditable && setDefault)
 			m_PyObject = pyType();
 
 		m_Type = type;

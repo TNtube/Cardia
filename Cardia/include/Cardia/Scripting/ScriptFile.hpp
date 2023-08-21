@@ -15,14 +15,18 @@ namespace Cardia
 	public:
 		ScriptFile(std::string path, py::object ast, py::dict locals);
 		static std::shared_ptr<ScriptFile> FromSource(const std::string& source, const std::string& filename = "default.py");
-		static std::shared_ptr<ScriptFile> FromPath(const std::filesystem::path& relativePath);
+		static std::shared_ptr<ScriptFile> FromPath(const std::filesystem::path& absolutePath);
+
+		ScriptField* GetScriptField(const std::string& name);
+		void SetScriptField(const std::string& name, const ScriptField& field);
+		bool HasScriptField(const std::string& name);
 
 		template<typename T>
-		T GetAttribute(const std::string& name) const
+		T GetAttribute(const std::string& name)
 		{
 			if (m_BehaviorPtr)
 				return m_BehaviorInstance.attr(name.c_str()).cast<T>();
-			return m_Attributes.at(name).GetValue<T>();
+			return GetScriptField(name)->GetValue<T>();
 		}
 
 		template<typename T>
@@ -31,15 +35,15 @@ namespace Cardia
 			if (m_BehaviorPtr)
 				m_BehaviorInstance.attr(name.c_str()) = value;
 			else
-				m_Attributes.at(name).SetValue(py::cast(value));
+				GetScriptField(name)->SetValue(py::cast(value));
 		}
 
 		bool HasBehavior() const { return IsSubclass<Behavior>(m_BehaviorClassDef); }
 		Behavior* InstantiateBehavior(Entity entity);
-		Behavior* GetBehavior() { return m_BehaviorPtr; }
+		Behavior* GetBehavior() const { return m_BehaviorPtr; }
 		void DestroyBehavior();
 
-		std::unordered_map<std::string, ScriptField>& Attributes() { return m_Attributes; }
+		std::vector<ScriptField>& Attributes() { return m_Attributes; }
 	private:
 		void RetrieveScriptInfos();
 
@@ -51,6 +55,6 @@ namespace Cardia
 		py::object m_BehaviorInstance;
 		Behavior* m_BehaviorPtr = nullptr;
 
-		std::unordered_map<std::string, ScriptField> m_Attributes;
+		std::vector<ScriptField> m_Attributes;
 	};
 }

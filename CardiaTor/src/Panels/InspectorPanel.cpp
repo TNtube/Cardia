@@ -256,10 +256,10 @@ namespace Cardia::Panel
 
 			auto& attributes = file.Attributes();
 
-			for (auto& [name, field]: attributes)
+			for (auto& field: attributes)
 			{
 				if (!field.IsEditable() || field.IsNone()) continue;
-				DrawField(file, name, field.GetType());
+				DrawField(file, field.GetName(), field.GetType());
 			}
 		});
 

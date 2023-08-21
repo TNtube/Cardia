@@ -10,20 +10,43 @@ namespace Cardia
 {
 	namespace
 	{
-		py::object AttributeChain(const py::object& attr, const py::module& ast, const py::dict& sourceLocals)
+		py::object ResolveAstNode(const py::object& node, const py::module& ast, const py::dict& sourceLocals)
 		{
-			const auto& attribute = ast.attr("Attribute");
-			if (py::isinstance(attr, attribute))
+			const auto& constant = ast.attr("Constant");
+			if (py::isinstance(node, constant))
 			{
-				return AttributeChain(attr.attr("value"), ast, sourceLocals).attr(attr.attr("attr"));
+				return node.attr("value");
+			}
+
+			const auto& call = ast.attr("Call");
+			if (py::isinstance(node, call))
+			{
+				try {
+					auto rValue = ast.attr("unparse")(node);
+					auto result = py::eval(rValue, sourceLocals, sourceLocals);
+					return result;
+				} catch (const std::exception& e) {
+					return py::none();
+				}
+			}
+
+			const auto& attribute = ast.attr("Attribute");
+			if (py::isinstance(node, attribute))
+			{
+				auto value = ResolveAstNode(node.attr("value"), ast, sourceLocals);
+				if (value.is_none())
+					return value;
+				return value.attr(node.attr("node"));
 			}
 			const auto& name = ast.attr("Name");
-			if (py::isinstance(attr, name))
+			if (py::isinstance(node, name))
 			{
-				auto id = attr.attr("id");
-				return sourceLocals.contains(id)
-					? sourceLocals[id]
-					: sourceLocals["__builtins__"][id];
+				auto id = node.attr("id");
+				if (sourceLocals.contains(id))
+					return sourceLocals[id];
+				if (sourceLocals["__builtins__"].contains(id))
+					return sourceLocals["__builtins__"][id];
+				return py::none();
 			}
 			return py::none();
 		}
@@ -31,10 +54,6 @@ namespace Cardia
 
 	void ScriptFile::RetrieveScriptInfos()
 	{
-		const auto& cardia = hasattr(m_Ast, "cardia")
-			? m_Ast.attr("cardia")
-			: py::module::import("cardia");
-
 		const py::module ast = py::globals().contains("ast")
 			? py::globals()["ast"]
 			: py::module::import("ast");
@@ -101,15 +120,26 @@ namespace Cardia
 
 			const auto attrName = target.attr("attr").cast<std::string>();
 
-			const py::object annotation = AttributeChain(initNode.attr("annotation"), ast, m_Locals);
+			// skip private attributes
+			if (attrName.starts_with("_"))
+				continue;
+
+			// skip already added attributes
+			if (HasScriptField(attrName))
+				continue;
+
+			const py::object annotation = ResolveAstNode(initNode.attr("annotation"), ast, m_Locals);
 
 			ScriptField attr(attrName);
-			attr.DeduceType(annotation);
+			attr.DeduceType(annotation, true, true);
 
 			if (!attr.IsEditable())
 				continue;
 
-			m_Attributes.insert({attrName, attr});
+			const py::object attrValue = ResolveAstNode(initNode.attr("value"), ast, m_Locals);
+			if (!attrValue.is_none())
+				attr.SetValue(attrValue);
+			m_Attributes.push_back(attr);
 		}
 	}
 
@@ -119,9 +149,8 @@ namespace Cardia
 		RetrieveScriptInfos();
 	}
 
-	std::shared_ptr<ScriptFile> ScriptFile::FromSource(const std::string& source, const std::string& sourcePath)
+	std::shared_ptr<ScriptFile> ScriptFile::FromSource(const std::string& source, const std::string& filename)
 	{
-
 		const py::module ast = py::globals().contains("ast")
 					       ? py::globals()["ast"]
 					       : py::module::import("ast");
@@ -137,7 +166,7 @@ namespace Cardia
 		const py::module builtins = py::globals().contains("builtins")
 					       ? py::globals()["builtins"]
 					       : py::module::import("builtins");
-		
+
 		const auto& compile = builtins.attr("compile");
 
 		// don't use py::exec because of the support of ast objects
@@ -147,14 +176,14 @@ namespace Cardia
 		{
 			py::dict sourceLocals;
 
-			auto code = compile(sourceAst, sourcePath, "exec");
+			auto code = compile(sourceAst, filename, "exec");
 			// use locals as globals to retrieve builtins
 			exec(code, sourceLocals, sourceLocals);
 
-			auto file = std::make_shared<ScriptFile>(sourcePath, sourceAst, sourceLocals);
+			auto file = std::make_shared<ScriptFile>(filename, sourceAst, sourceLocals);
 			if (!file->HasBehavior())
 			{
-				Log::Error("No behavior found in script file: {0}\nPlease fix.", sourcePath);
+				Log::Error("No behavior found in script file: {0}\nPlease fix.", filename);
 				return nullptr;
 			}
 			return file;
@@ -176,7 +205,7 @@ namespace Cardia
 		return FromSource(buffer.str(), absolutePath.filename().string());
 	}
 
-	Behavior *ScriptFile::InstantiateBehavior(Entity entity)
+	Behavior* ScriptFile::InstantiateBehavior(Entity entity)
 	{
 		if (!HasBehavior())
 			return nullptr;
@@ -186,10 +215,10 @@ namespace Cardia
 			m_BehaviorPtr = m_BehaviorInstance.cast<Behavior*>();
 			m_BehaviorPtr->entity = entity;
 
-			for (auto& [name, field] : m_Attributes)
+			for (auto& field : m_Attributes)
 			{
 				if (field.GetType() != ScriptFieldType::PyBehavior) {
-					py::setattr(m_BehaviorInstance, name.c_str(), field.GetValue());
+					py::setattr(m_BehaviorInstance, field.GetName().c_str(), field.GetValue());
 				}
 			}
 
@@ -208,5 +237,32 @@ namespace Cardia
 			m_BehaviorPtr->on_destroy();
 		m_BehaviorInstance = py::none();
 		m_BehaviorPtr = nullptr;
+	}
+
+	ScriptField *ScriptFile::GetScriptField(const std::string &name)
+	{
+		for (auto& attribute : m_Attributes)
+		{
+			if (attribute.GetName() == name)
+				return &attribute;
+		}
+		return nullptr;
+	}
+
+	void ScriptFile::SetScriptField(const std::string &name, const ScriptField &field)
+	{
+		for (auto& attribute : m_Attributes)
+		{
+			if (attribute.GetName() == name)
+			{
+				attribute = field;
+				return;
+			}
+		}
+	}
+
+	bool ScriptFile::HasScriptField(const std::string &name)
+	{
+		return std::ranges::any_of(m_Attributes, [&name](const auto& attribute) { return attribute.GetName() == name; });
 	}
 }

@@ -18,7 +18,7 @@ namespace Cardia::Component
 		
 		script["Path"] = GetPath();
 
-		for (auto& [name, field] : m_File->Attributes()) {
+		for (auto& field : m_File->Attributes()) {
 			script["Attributes"].append(field.Serialize());
 		}
 
@@ -48,8 +48,8 @@ namespace Cardia::Component
 			auto field = ScriptField::Deserialize(subNode);
 			if (!field) continue;
 
-			if (attrs.contains(field->GetName())) {
-				attrs.insert_or_assign(field->GetName(), *field);
+			if (temp.m_File->HasScriptField(field->GetName())) {
+				temp.m_File->SetScriptField(field->GetName(), *field);
 			} else {
 				Log::CoreWarn("Deserialization: ScriptField '{0}' not found in script '{1}'", field->GetName(), temp.GetPath());
 			}

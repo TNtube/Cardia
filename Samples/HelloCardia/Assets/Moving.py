@@ -6,14 +6,22 @@ import colorsys
 from Greeting import Greeting
 
 
+def default_bool():
+    return True
+
+
 class Moving(Behavior):
+    @staticmethod
+    def default_velocity():
+        return 5
+
     def __init__(self):
         super().__init__()
-        self.velocity: int = 3
-        self._tick_count: float = 0.0
+        self.velocity: int = Moving.default_velocity()
+        self._tick_count: float = 5.27
         self.text: str = "Hello Cardia"
         self.color: Vector3 = Vector3(17, 15, 13)
-        self.show_text: bool = False
+        self.show_text: bool = default_bool()
 
     def on_create(self):
         self.velocity = 5

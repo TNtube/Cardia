@@ -17,7 +17,7 @@ namespace Cardia
 	public:
 		explicit ScriptField(std::string name) : m_Name(std::move(name)) {}
 
-		void DeduceType(const py::handle& handle, bool fromType = true);
+		void DeduceType(const py::handle& handle, bool fromType = true, bool setDefault = false);
 
 		const std::string& GetName() const { return m_Name; }
 		ScriptFieldType GetType() const { return m_Type; }
