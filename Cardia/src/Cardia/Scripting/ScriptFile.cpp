@@ -5,6 +5,8 @@
 
 #include <pybind11/pybind11.h>
 #include <Cardia/Scripting/EntityBehavior.hpp>
+#include "Cardia/ECS/Scene.hpp"
+#include "Cardia/ECS/Component/Script.hpp"
 
 namespace Cardia
 {
@@ -222,8 +224,6 @@ namespace Cardia
 				}
 			}
 
-			m_BehaviorPtr->on_create();
-
 			return m_BehaviorPtr;
 		} catch (const std::exception& e) {
 			Log::Error("Error instantiating behavior: {0}\nPlease fix.", e.what());
@@ -264,5 +264,30 @@ namespace Cardia
 	bool ScriptFile::HasScriptField(const std::string &name)
 	{
 		return std::ranges::any_of(m_Attributes, [&name](const auto& attribute) { return attribute.GetName() == name; });
+	}
+
+	void ScriptFile::ResolveBehaviorReferences(Scene &scene)
+	{
+		if (!HasBehavior())
+			return;
+
+		for (auto& field : m_Attributes)
+		{
+			if (field.GetType() != ScriptFieldType::PyBehavior)
+				continue;
+
+			try {
+				auto refEntity = scene.GetEntityByUUID(field.GetValue<UUID>());
+				if (refEntity.IsValid() && refEntity.HasComponent<Component::Script>())
+				{
+					auto& refScript = refEntity.GetComponent<Component::Script>();
+					auto* refBehavior = refScript.GetFile().GetBehavior();
+					if (refBehavior)
+						py::setattr(m_BehaviorInstance, field.GetName().c_str(), py::cast(refBehavior));
+				}
+			} catch (const std::exception& e) {
+				py::setattr(m_BehaviorInstance, field.GetName().c_str(), py::none());
+			}
+		}
 	}
 }

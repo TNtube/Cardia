@@ -1,4 +1,5 @@
 ﻿#include <Cardia/Scripting/ScriptUtils.hpp>
+#include <Cardia/ECS/Component/Id.hpp>
 #include "cdpch.hpp"
 #include "Cardia/Scripting/EntityBehavior.hpp"
 #include "Cardia/Scripting/ScriptClass.hpp"
@@ -46,6 +47,7 @@ namespace Cardia
 			out["value"] = m_PyObject.cast<Vector4f>().Serialize();
 			break;
 		case ScriptFieldType::PyBehavior:
+			out["value"] = m_PyObject.cast<Component::ID>().Serialize();
 		case ScriptFieldType::Dict:
 		case ScriptFieldType::List:
 		case ScriptFieldType::Tuple:
@@ -95,6 +97,11 @@ namespace Cardia
 			break;
 		}
 		case ScriptFieldType::PyBehavior:
+		{
+			auto id = *Component::ID::Deserialize(root["value"]);
+			out.m_PyObject = py::cast(id);
+			break;
+		}
 		case ScriptFieldType::Dict:
 		case ScriptFieldType::List:
 		case ScriptFieldType::Tuple:
@@ -126,8 +133,8 @@ namespace Cardia
 			type = ScriptFieldType::Vector3;
 		else if (IsSubclass<Vector4f>(pyType))
 			type = ScriptFieldType::Vector4;
-		// else if (IsSubclass<EntityBehavior>(pyType))
-		// 	type = ScriptFieldType::PyBehavior;
+		else if (IsSubclass<Behavior>(pyType))
+			type = ScriptFieldType::PyBehavior;
 
 		// TODO: add support for list and dict
 		/* else if (IsSubclass<std::vector<py::object>>(annotation))
@@ -138,8 +145,19 @@ namespace Cardia
 			attr.Type = ScriptFieldType::Dict;
 		}*/
 
-		if (type != ScriptFieldType::UnEditable && setDefault)
-			m_PyObject = pyType();
+		if (setDefault) {
+			switch (type)
+			{
+				case ScriptFieldType::PyBehavior:
+					m_PyObject = py::cast(Component::ID{});
+					break;
+				case ScriptFieldType::UnEditable:
+					break;
+				default:
+					m_PyObject = pyType();
+					break;
+			}
+		}
 
 		m_Type = type;
 	}

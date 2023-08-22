@@ -22,6 +22,7 @@ class Moving(Behavior):
         self.text: str = "Hello Cardia"
         self.color: Vector3 = Vector3(17, 15, 13)
         self.show_text: bool = default_bool()
+        self.greeting: Greeting
 
     def on_create(self):
         self.velocity = 5
@@ -40,3 +41,6 @@ class Moving(Behavior):
             log.trace(f"message from python {Input.get_mouse_x()} {Input.get_mouse_y()}")
 
         self._tick_count += Time.delta_time.seconds()
+
+        if self.greeting is not None:
+            self.greeting.hello_world()

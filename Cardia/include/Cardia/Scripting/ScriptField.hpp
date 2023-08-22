@@ -22,7 +22,11 @@ namespace Cardia
 		const std::string& GetName() const { return m_Name; }
 		ScriptFieldType GetType() const { return m_Type; }
 
-		void SetValue(py::object instance) { m_PyObject = std::move(instance); DeduceType(m_PyObject, false); }
+		void SetValue(py::object instance, bool deduce = true) {
+			m_PyObject = std::move(instance);
+			if (deduce)
+				DeduceType(m_PyObject, false);
+		}
 		template <typename T>
 		T GetValue() const { return m_PyObject.cast<T>(); }
 		const py::object& GetValue() const { return m_PyObject; }

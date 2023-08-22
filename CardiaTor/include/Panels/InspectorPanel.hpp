@@ -23,7 +23,7 @@ namespace Cardia::Panel
 	private:
 		template<typename T>
 		void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
-		static bool DrawField(ScriptFile& file, const std::string& fieldName, ScriptFieldType type);
+		bool DrawField(ScriptFile& file, const std::string& fieldName, ScriptFieldType type);
 		Entity m_SelectedEntity;
 
 		static int m_LastWindowId;

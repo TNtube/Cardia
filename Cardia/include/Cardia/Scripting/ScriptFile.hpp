@@ -5,11 +5,14 @@
 #include "ScriptClass.hpp"
 #include "EntityBehavior.hpp"
 #include "ScriptUtils.hpp"
+#include "Cardia/ECS/Component/Id.hpp"
 
 namespace py = pybind11;
 
 namespace Cardia
 {
+	class Scene;
+
 	class ScriptFile
 	{
 	public:
@@ -35,12 +38,14 @@ namespace Cardia
 			if (m_BehaviorPtr)
 				m_BehaviorInstance.attr(name.c_str()) = value;
 			else
-				GetScriptField(name)->SetValue(py::cast(value));
+				GetScriptField(name)->SetValue(py::cast(value), !std::is_same_v<T, Component::ID>);
 		}
 
 		bool HasBehavior() const { return IsSubclass<Behavior>(m_BehaviorClassDef); }
-		Behavior* InstantiateBehavior(Entity entity);
 		Behavior* GetBehavior() const { return m_BehaviorPtr; }
+
+		Behavior* InstantiateBehavior(Entity entity);
+		void ResolveBehaviorReferences(Scene& scene);
 		void DestroyBehavior();
 
 		std::vector<ScriptField>& Attributes() { return m_Attributes; }

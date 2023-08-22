@@ -88,6 +88,10 @@ namespace Cardia
 
 		// Components
 
+		py::class_<Component::ID>(m, "ID")
+			.def(py::init<>())
+			.def_readwrite("uuid", &Component::ID::Uuid, py::return_value_policy::reference);
+
 		py::class_<Component::Transform>(m, "Transform")
 			.def(py::init<>())
 			.def(py::init<Vector3f, Vector3f, Vector3f>())

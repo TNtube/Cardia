@@ -29,6 +29,8 @@ namespace Cardia
 		 m_CurrentContext = context;
 
 		const auto view = context->GetRegistry().view<Component::Script>();
+
+		// first pass, instantiate all behaviors
 		for (const auto entity : view)
 		{
 			auto script = view.get<Component::Script>(entity);
@@ -36,34 +38,25 @@ namespace Cardia
 				script.GetFile().InstantiateBehavior(Entity{ entity, context });
 			}
 		}
-		// for (const auto entity : view)
-		// {
-		// 	auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
-		// 	try {
-		// 		auto behavior = m_BehaviorInstances.at(uuid.Uuid);
-		// 		for (const auto& item: script.Class.Attributes())
-		// 		{
-		// 			if (item.Type == ScriptFieldType::PyBehavior) {
-		// 				try {
-		// 					auto refBehavior = GetInstance(
-		// 						UUID::FromString(py::handle(item.Instance).cast<std::string>()));
-		// 					if (refBehavior)
-		// 					{
-		// 						py::setattr(behavior, item.Name.c_str(), py::handle(*refBehavior));
-		// 					}
-		// 				} catch (const std::exception& e) {
-		// 					py::setattr(behavior, item.Name.c_str(), py::none());
-		// 				}
-		// 			} else {
-		// 				py::setattr(behavior, item.Name.c_str(), item.Instance);
-		// 			}
-		// 		}
-		// 		behavior.GetAttrOrMethod("on_create")();
-		// 	}
-		// 	catch (const std::exception& e) {
-		// 		Log::Error("On Create : {0}", e.what());
-		// 	}
-		// }
+		// second pass, pass behavior references to behaviors
+		for (const auto entity : view)
+		{
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				script.GetFile().ResolveBehaviorReferences(*context);
+			}
+		}
+
+		// third pass, call on_create on all behaviors
+		for (const auto entity : view)
+		{
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				auto behavior = script.GetFile().GetBehavior();
+				if (behavior)
+					behavior->on_create();
+			}
+		}
 	}
 
 	void ScriptEngine::OnRuntimeEnd() {

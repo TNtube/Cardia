@@ -393,10 +393,34 @@ namespace Cardia::Panel
 				auto* field = file.GetAttribute<Vector4f*>(fieldName);
 				return EditorUI::DragFloat4(fieldName, *field, 0.0f);
 			}
+			case ScriptFieldType::PyBehavior:
+			{
+				auto* field = file.GetAttribute<Component::ID*>(fieldName);
+				auto entityTarget = m_CurrentScene->GetEntityByUUID(field->Uuid);
+
+				std::string name = entityTarget.IsValid() ? entityTarget.GetComponent<Component::Label>().Name : "None";
+
+				EditorUI::InputText(fieldName.c_str(), &name, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
+
+				if (ImGui::BeginDragDropTarget()) {
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY"))
+					{
+						auto* entity = static_cast<Entity*>(payload->Data);
+						if (entity->HasComponent<Component::Script>())
+						{
+							auto script = entity->GetComponent<Component::Script>();
+							if (script.GetFile().HasBehavior())
+							{
+								file.SetAttribute(fieldName, entity->GetComponent<Component::ID>());
+							}
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+			}
 			case ScriptFieldType::List:
 			case ScriptFieldType::Dict:
 			case ScriptFieldType::Tuple:
-			case ScriptFieldType::PyBehavior:
 			case ScriptFieldType::UnEditable:
 				return false;
 		}
