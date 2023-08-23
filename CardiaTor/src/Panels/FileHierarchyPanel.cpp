@@ -41,14 +41,14 @@ namespace Cardia::Panel
 			return;
 		}
 
-		const auto pathFromAssets = std::filesystem::relative(m_CurrentPath, assetsPath);
-		ImGui::Text("%s", pathFromAssets != "." ? pathFromAssets.string().c_str() : "");
+		ImGui::Text("%s", m_PathFromAssets != "." ? m_PathFromAssets.string().c_str() : "");
 
 		if (m_CurrentPath != assetsPath)
 		{
 			if (ImGui::Button(".."))
 			{
 				m_CurrentPath = m_CurrentPath.parent_path();
+				CurrentPathUpdated();
 			}
 		}
 		const ImVec2 button_sz(100, 100);
@@ -62,21 +62,9 @@ namespace Cardia::Panel
 		if (columnCount < 1)
 			columnCount = 1;
 
-
-		std::set<std::filesystem::directory_entry> folders;
-		std::set<std::filesystem::directory_entry> files;
-
-		for (const auto& entry : std::filesystem::directory_iterator(m_CurrentPath))
-		{
-			if (entry.is_directory())
-				folders.insert(entry);
-			else
-				files.insert(entry);
-		}
-
 		ImGui::Columns(columnCount, nullptr, false);
 
-		for (const auto& entry : folders)
+		for (const auto& entry : m_Folders)
 		{
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
@@ -98,7 +86,7 @@ namespace Cardia::Panel
 			ImGui::PopID();
 		}
 
-		for (const auto& entry: files)
+		for (const auto& entry: m_Files)
 		{
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
@@ -110,7 +98,7 @@ namespace Cardia::Panel
 
 			if (ImGui::BeginDragDropSource())
 			{
-				std::string itemPath = (pathFromAssets / path).string();
+				std::string itemPath = (m_PathFromAssets / path).string();
 				ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
 				ImGui::EndDragDropSource();
 			}
@@ -131,5 +119,22 @@ namespace Cardia::Panel
 	void FileHierarchyPanel::OnUpdateWorkspace()
 	{
 		m_CurrentPath = Project::GetAssetDirectory();
+		CurrentPathUpdated();
+	}
+
+	void FileHierarchyPanel::CurrentPathUpdated()
+	{
+		const auto& assetsPath = Project::GetAssetDirectory();
+		m_PathFromAssets = std::filesystem::relative(m_CurrentPath, assetsPath);
+
+		m_Folders.clear();
+		m_Files.clear();
+		for (const auto& entry : std::filesystem::directory_iterator(m_CurrentPath))
+		{
+			if (entry.is_directory())
+				m_Folders.insert(entry);
+			else
+				m_Files.insert(entry);
+		}
 	}
 }

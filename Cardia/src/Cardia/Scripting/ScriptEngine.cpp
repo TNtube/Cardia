@@ -13,9 +13,10 @@ namespace Cardia
 	{
 		CdCoreAssert(!s_Instance, "Only one m_Instance of ScriptEngine is allowed");
 		s_Instance = this;
+
 		py::initialize_interpreter();
-		m_PythonBuiltins = py::module::import("builtins");
-		m_CardiaPythonAPI = py::module::import("cardia");
+		// m_PythonBuiltins = py::module::import("builtins");
+		// m_CardiaPythonAPI = py::module::import("cardia");
 	}
 
 	ScriptEngine::~ScriptEngine()
@@ -25,128 +26,80 @@ namespace Cardia
 
 	void ScriptEngine::OnRuntimeStart(Scene* context)
 	{
-		m_CurrentContext = context;
+		 m_CurrentContext = context;
 
-		const auto view = context->GetRegistry().view<Component::Transform, Component::Script, Component::ID, Component::Label>();
+		const auto view = context->GetRegistry().view<Component::Script>();
+
+		// first pass, instantiate all behaviors
 		for (const auto entity : view)
 		{
-			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
-			try {
-				auto instance = script.Class.Instantiate(uuid.Uuid, name.Name);
-				m_BehaviorInstances.insert({uuid.Uuid, instance});
-			}
-			catch (const std::exception& e) {
-				Log::Error("Instantiating : {0}", e.what());
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				script.GetFile().InstantiateBehavior(Entity{ entity, context });
 			}
 		}
+		// second pass, pass behavior references to behaviors
 		for (const auto entity : view)
 		{
-			auto [transform, script, uuid, name] = view.get<Component::Transform, Component::Script, Component::ID, Component::Label>(entity);
-			try {
-				auto behavior = m_BehaviorInstances.at(uuid.Uuid);
-				for (const auto& item: script.Class.Attributes())
-				{
-					if (item.type == ScriptFieldType::PyBehavior) {
-						try {
-							auto refBehavior = ScriptEngine::Instance().GetInstance(
-								UUID::FromString(py::handle(item.instance).cast<std::string>()));
-							if (refBehavior)
-							{
-								py::setattr(behavior, item.name.c_str(), py::handle(*refBehavior));
-							}
-						} catch (const std::exception& e) {
-							py::setattr(behavior, item.name.c_str(), py::none());
-						}
-					} else {
-						py::setattr(behavior, item.name.c_str(), item.instance);
-					}
-				}
-				behavior.GetAttrOrMethod("on_create")();
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				script.GetFile().ResolveBehaviorReferences(*context);
 			}
-			catch (const std::exception& e) {
-				Log::Error("On Create : {0}", e.what());
+		}
+
+		// third pass, call on_create on all behaviors
+		for (const auto entity : view)
+		{
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				auto behavior = script.GetFile().GetBehavior();
+				if (behavior)
+					behavior->on_create();
 			}
 		}
 	}
 
 	void ScriptEngine::OnRuntimeEnd() {
-		m_BehaviorInstances.clear();
+		const auto view = m_CurrentContext->GetRegistry().view<Component::Script>();
+		for (const auto entity : view)
+		{
+			auto script = view.get<Component::Script>(entity);
+			if (script.IsLoaded()) {
+				try {
+					script.GetFile().DestroyBehavior();
+				} catch (const std::exception& e) {
+					Log::Error("On Destroy : {0}", e.what());
+				}
+			}
+		}
+		m_CurrentContext = nullptr;
 	}
 
-	Scene& ScriptEngine::GetSceneContext()
+	Scene& ScriptEngine::GetSceneContext() const
 	{
+		CdCoreAssert(m_CurrentContext, "No Scene Context");
 		return *m_CurrentContext;
 	}
 
 	void ScriptEngine::OnRuntimeUpdate()
 	{
-		for (auto& [uuid, instance] : m_BehaviorInstances)  {
-			try {
-				instance.GetAttrOrMethod("on_update")();
-				for (auto& callback : instance.m_OnUpdateCallbacks) {
-					auto method = instance.GetAttrOrMethod(callback.c_str());
-					if (m_PythonBuiltins.attr("callable")(method).cast<bool>()) {
-						method();
-					}
+		const auto view = m_CurrentContext->GetRegistry().view<Component::Transform, Component::Script>();
+		for (const auto entity : view)
+		{
+			auto [transform, script] = view.get<Component::Transform, Component::Script>(entity);
+			if (script.IsLoaded()) {
+				try {
+					auto behavior = script.GetFile().GetBehavior();
+					if (behavior)
+						behavior->on_update();
+
+					if (transform.IsDirty())
+						transform.RecomputeWorld({entity, m_CurrentContext});
+				} catch (const std::exception& e) {
+					Log::Error("On Update : {0}", e.what());
 				}
 			}
-			catch (const std::exception& e) {
-				Log::Error("On Update : {0}", e.what());
-			}
 		}
-	}
-
-	void ScriptEngine::RegisterUpdateMethod(py::object& cls, std::string& name)
-	{
-		ScriptClass scriptClass(cls);
-		auto callBack = m_EventMethods.find(scriptClass);
-		if (callBack != m_EventMethods.end()) {
-			callBack->second.push_back(name);
-		} else {
-			m_EventMethods.insert({scriptClass, {name}});
-		}
-	}
-
-	ScriptClass ScriptEngine::GetClassFromPyFile(std::filesystem::path& relativePath)
-	{
-		auto fileName = relativePath.filename().replace_extension().string();
-		auto importedFile = py::module_::import(fileName.c_str());
-
-		if (!py::hasattr(importedFile, fileName.c_str()) && !IsSubClass(importedFile.attr(fileName.c_str()), m_CardiaPythonAPI.attr("Behavior")))
-		{
-			Log::CoreError("Cannot find {0} class child of Behavior", fileName);
-		}
-
-		return ScriptClass(importedFile.attr(fileName.c_str()));
-	}
-
-	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const ScriptClass& parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
-	}
-
-	bool ScriptEngine::IsSubClass(const ScriptClass& subClass, const py::handle& parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
-	}
-
-	bool ScriptEngine::IsSubClass(const py::handle& subClass, const ScriptClass &parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
-	}
-
-	bool ScriptEngine::IsSubClass(const py::handle &subClass, const py::handle &parentClass) {
-		return PyObject_IsSubclass(subClass.ptr(), parentClass.ptr());
-	}
-
-	ScriptInstance* ScriptEngine::GetInstance(const UUID &uuid) {
-		auto it = m_BehaviorInstances.find(uuid);
-
-		if (it != m_BehaviorInstances.end()) {
-			return &it->second;
-		}
-		return nullptr;
-	}
-
-	bool ScriptEngine::IsBehavior(const py::handle &scriptClass) {
-		return IsSubClass(scriptClass, m_CardiaPythonAPI.attr("Behavior"));
 	}
 
 	void ScriptEngine::InvalidateProject()
@@ -154,5 +107,6 @@ namespace Cardia
 		auto sys = py::module::import("sys");
 		sys.attr("path").attr("append")(Project::GetAssetDirectory().string());
 	}
+
 
 }

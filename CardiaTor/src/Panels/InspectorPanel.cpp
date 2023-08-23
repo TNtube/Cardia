@@ -12,8 +12,6 @@
 #include "Cardia/Asset/AssetsManager.hpp"
 #include "Cardia/Project/Project.hpp"
 
-#define PYBIND11_DETAILED_ERROR_MESSAGES
-
 
 namespace Cardia::Panel
 {
@@ -49,15 +47,7 @@ namespace Cardia::Panel
 		// Label Component
 		DrawInspectorComponent<Component::Label>("Label", [this](Component::Label& label)
 		{
-			char buffer[128] {0};
-			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-			label.Name.copy(buffer, bufferSize);
-
-			if(EditorUI::InputText("Name", buffer, bufferSize, label.Color))
-			{
-				label.Name = std::string(buffer);
-			}
-
+			EditorUI::InputText("Name", &label.Name, label.Color);
 			EditorUI::ColorEdit4("Color", &label.Color.x);
 		});
 
@@ -123,11 +113,10 @@ namespace Cardia::Panel
 		// MeshRendererC Component
 
 		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext](Component::MeshRendererC& meshRendererC) {
-			char buffer[128] {0};
-			constexpr size_t bufferSize = sizeof(buffer)/sizeof(char);
-			AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string().copy(buffer, bufferSize);
 
-			EditorUI::InputText("Mesh path", buffer, bufferSize, Vector4f(0), ImGuiInputTextFlags_ReadOnly);
+			auto str = AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string();
+
+			EditorUI::InputText("Mesh path", &str, Vector4f(0), ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
@@ -239,11 +228,10 @@ namespace Cardia::Panel
 		});
 
 		DrawInspectorComponent<Component::Script>("Script", [&](Component::Script& scriptComponent) {
-			std::filesystem::path filepath = scriptComponent.GetPath();
+			const std::filesystem::path filepath = scriptComponent.GetPath();
 			auto path = filepath.filename().string();
 
-			char* buffer = &path[0];
-			EditorUI::InputText("Script Name", buffer, path.size(), Vector4f(0), ImGuiInputTextFlags_ReadOnly);
+			EditorUI::InputText("Script Name", &path, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
 
 			if (ImGui::BeginDragDropTarget())
 			{
@@ -262,60 +250,16 @@ namespace Cardia::Panel
 				ImGui::EndDragDropTarget();
 			}
 
-			auto& attributes = scriptComponent.Class.Attributes();
+			if (!scriptComponent.IsLoaded()) return;
 
-			for (auto& attribute: attributes)
+			auto& file = scriptComponent.GetFile();
+
+			auto& attributes = file.Attributes();
+
+			for (auto& field: attributes)
 			{
-				auto fieldName = attribute.name;
-				auto instance = ScriptEngine::Instance().GetInstance(uuid.Uuid);
-				auto type = attribute.type;
-				DrawField(instance, type, fieldName.c_str(), attribute.instance.object());
-				switch (type) {
-					case ScriptFieldType::List:
-					{
-						py::list list;
-						if (instance) {
-							list = instance->GetAttrOrMethod(fieldName.c_str());
-						} else {
-							list = attribute.instance.object();
-						}
-						if(ImGui::TreeNodeEx(static_cast<void*>(list.ptr()), ImGuiTreeNodeFlags_SpanAvailWidth, "%s", fieldName.c_str()))
-						{
-							auto len = py::len(list);
-							auto index_to_del = -1;
-							for (int index = 0; index < len; index++) {
-								py::object object(list[index]);
-								auto str = std::to_string(index);
-								if (ImGui::Button(" - ")) {
-									index_to_del = index;
-								}
-								ImGui::SameLine();
-								if (DrawField(nullptr, attribute.valueType, str.c_str(), object)) {
-									list[index] = object;
-								}
-							}
-							if (index_to_del >= 0) {
-								list.attr("pop")(index_to_del);
-							}
-							const auto textWidth = ImGui::CalcTextSize("  +  ").x;
-
-							ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
-							if (ImGui::Button("  +  ")) {
-								list.append(DefaultObjectFromScriptFieldType(attribute.valueType));
-							}
-
-							ImGui::TreePop();
-						}
-						break;
-					}
-					case ScriptFieldType::Dict: {
-						auto dict = py::dict(instance->GetAttrOrMethod(fieldName.c_str()));
-						break;
-					}
-
-					default: break;
-				}
-
+				if (!field.IsEditable() || field.IsNone()) continue;
+				DrawField(file, field.GetName(), field.GetType());
 			}
 		});
 
@@ -336,32 +280,28 @@ namespace Cardia::Panel
 			if (!m_SelectedEntity.HasComponent<Component::Camera>() && ImGui::MenuItem("Camera"))
 			{
 				m_SelectedEntity.AddComponent<Component::Camera>();
-				ImGui::EndPopup();
 			}
 
 			if (!m_SelectedEntity.HasComponent<Component::SpriteRenderer>() && ImGui::MenuItem("Sprite Renderer"))
 			{
 				m_SelectedEntity.AddComponent<Component::SpriteRenderer>();
-				ImGui::EndPopup();
 			}
 
 			if (!m_SelectedEntity.HasComponent<Component::MeshRendererC>() && ImGui::MenuItem("Mesh Renderer"))
 			{
 				m_SelectedEntity.AddComponent<Component::MeshRendererC>();
-				ImGui::EndPopup();
 			}
 
 			if (!m_SelectedEntity.HasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))
 			{
 				m_SelectedEntity.AddComponent<Component::Script>();
-				ImGui::EndPopup();
 			}
 
 			if (!m_SelectedEntity.HasComponent<Component::Light>() && ImGui::MenuItem("Light"))
 			{
 				m_SelectedEntity.AddComponent<Component::Light>();
-				ImGui::EndPopup();
 			}
+			ImGui::EndPopup();
 		}
 		ImGui::End();
 	}
@@ -384,12 +324,10 @@ namespace Cardia::Panel
 			if (ImGui::MenuItem("Reset Component"))
 			{
 				component.Reset();
-				ImGui::EndPopup();
 			}
 			if (!std::is_same_v<T, Component::Transform> && ImGui::MenuItem("Remove Component"))
 			{
 				m_SelectedEntity.RemoveComponent<T>();
-				ImGui::EndPopup();
 			}
 			ImGui::EndPopup();
 		}
@@ -397,126 +335,97 @@ namespace Cardia::Panel
 		ImGui::TreePop();
 	}
 
-	bool InspectorPanel::DrawField(ScriptInstance* behaviorInstance, ScriptFieldType type, const char* fieldName, py::object& field) {
-		py::object value;
-		if (behaviorInstance) {
-			value = behaviorInstance->GetAttrOrMethod(fieldName);
-		} else {
-			value = field;
-		}
+	bool InspectorPanel::DrawField(ScriptFile& file, const std::string& fieldName, ScriptFieldType type) {
 
 		switch (type) {
 			case ScriptFieldType::Int:
 			{
-				auto castedField = value.cast<int>();
-				if (!EditorUI::DragInt(fieldName, &castedField, 0.1f))
-					return false;
-
-				auto pyField = py::cast(castedField);
-				if (behaviorInstance)
+				auto field = file.GetAttribute<int>(fieldName);
+				if (EditorUI::DragInt(fieldName.c_str(), &field, 0.1f))
 				{
-					behaviorInstance->SetAttr(fieldName, pyField);
+					file.SetAttribute(fieldName, field);
+					return true;
 				}
-				field = pyField;
-				return true;
+				return false;
+			}
+			case ScriptFieldType::Bool:
+			{
+				auto field = file.GetAttribute<bool>(fieldName);
+				if (EditorUI::Checkbox(fieldName.c_str(), &field))
+				{
+					file.SetAttribute(fieldName, field);
+					return true;
+				}
+				return false;
 			}
 			case ScriptFieldType::Float:
 			{
-				auto castedField = value.cast<float>();
-				if (!EditorUI::DragFloat(fieldName, &castedField, 0.1f))
-					return false;
-
-				auto pyField = py::cast(castedField);
-				if (behaviorInstance)
+				auto field = file.GetAttribute<float>(fieldName);
+				if (EditorUI::DragFloat(fieldName.c_str(), &field, 0.1f))
 				{
-					behaviorInstance->SetAttr(fieldName, pyField);
+					file.SetAttribute(fieldName, field);
+					return true;
 				}
-				field = pyField;
-				return true;
+				return false;
 			}
 			case ScriptFieldType::String:
 			{
-				auto castedField = value.cast<std::string>();
-				char buff[128] {0};
-				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
-				castedField.copy(buff, bufferSize);
-				if (!EditorUI::InputText(fieldName, buff, IM_ARRAYSIZE(buff)))
-					return false;
-				auto pyField = py::cast(std::string(buff));
-				if (behaviorInstance)
+				auto field = file.GetAttribute<std::string>(fieldName);
+				if (EditorUI::InputText(fieldName.c_str(), &field))
 				{
-					behaviorInstance->SetAttr(fieldName, pyField);
+					file.SetAttribute(fieldName, field);
+					return true;
 				}
-				field = pyField;
-				return true;
-			}
-			case ScriptFieldType::PyBehavior:
-			{
-				char buff[128]{0};
-				constexpr size_t bufferSize = sizeof(buff) / sizeof(char);
-				auto id = field.cast<std::string>();
-				try {
-					auto entity = m_CurrentScene->GetEntityByUUID(UUID::FromString(id));
-
-					if (entity.IsValid()) {
-						auto instanceName = entity.GetComponent<Component::Label>().Name;
-						instanceName.copy(buff, bufferSize);
-					}
-				} catch (std::exception& e) {
-
-				}
-				EditorUI::InputText(fieldName, buff, bufferSize, Vector4f(0), ImGuiInputTextFlags_ReadOnly);
-				if (!ImGui::BeginDragDropTarget())
-					return false;
-
-				const ImGuiPayload* payload;
-				if (!((payload = ImGui::AcceptDragDropPayload("ENTITY_UUID")))){
-					ImGui::EndDragDropTarget();
-					return false;
-				}
-				const char* str = static_cast<const char*>(payload->Data);
-				field = py::cast(str);
-				auto script = ScriptEngine::Instance().GetInstance(UUID::FromString(str));
-				if (script && behaviorInstance)
-				{
-					behaviorInstance->SetAttr(fieldName, *script);
-				}
-				ImGui::EndDragDropTarget();
-				return true;
+				return false;
 			}
 			case ScriptFieldType::Vector2:
 			{
-				auto castedField = value.cast<Vector2f>();
-				if (!EditorUI::DragFloat2(fieldName, castedField, 0.0f))
-					return false;
-				py::setattr(field, "x", py::cast(castedField.x));
-				py::setattr(field, "y", py::cast(castedField.y));
-				return true;
+				auto* field = file.GetAttribute<Vector2f*>(fieldName);
+				return EditorUI::DragFloat2(fieldName, *field, 0.0f);
 			}
 			case ScriptFieldType::Vector3:
 			{
-				auto castedField = value.cast<Vector3f>();
-				if (!EditorUI::DragFloat3(fieldName, castedField, 0.0f))
-					return false;
-				py::setattr(field, "x", py::cast(castedField.x));
-				py::setattr(field, "y", py::cast(castedField.y));
-				py::setattr(field, "z", py::cast(castedField.z));
-				return true;
+				auto* field = file.GetAttribute<Vector3f*>(fieldName);
+				return EditorUI::DragFloat3(fieldName, *field, 0.0f);
 			}
 			case ScriptFieldType::Vector4:
 			{
-				auto castedField = value.cast<Vector4f>();
-				if (!EditorUI::DragFloat4(fieldName, castedField, 0.0f))
-					return false;
-				py::setattr(field, "x", py::cast(castedField.x));
-				py::setattr(field, "y", py::cast(castedField.y));
-				py::setattr(field, "z", py::cast(castedField.z));
-				py::setattr(field, "w", py::cast(castedField.w));
-				return true;
+				auto* field = file.GetAttribute<Vector4f*>(fieldName);
+				return EditorUI::DragFloat4(fieldName, *field, 0.0f);
 			}
-			default:
+			case ScriptFieldType::PyBehavior:
+			{
+				auto field = file.GetBehaviorAttribute(fieldName);
+				auto entityTarget = field.has_value() ? m_CurrentScene->GetEntityByUUID(field->Uuid) : Entity();
+
+				std::string name = entityTarget.IsValid() ? entityTarget.GetComponent<Component::Label>().Name : "None";
+
+				EditorUI::InputText(fieldName.c_str(), &name, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
+
+				if (ImGui::BeginDragDropTarget()) {
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY"))
+					{
+						auto* entity = static_cast<Entity*>(payload->Data);
+						if (entity->IsValid() && entity->HasComponent<Component::Script>())
+						{
+							auto script = entity->GetComponent<Component::Script>();
+							if (script.GetFile().HasBehavior())
+							{
+								file.SetBehaviorAttribute(fieldName, *entity);
+							}
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+			}
+			case ScriptFieldType::List:
+			case ScriptFieldType::Dict:
+			case ScriptFieldType::Tuple:
+			case ScriptFieldType::UnEditable:
 				return false;
 		}
+
+		return false;
 
 	}
 

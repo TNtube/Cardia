@@ -327,7 +327,7 @@ namespace Cardia
 
 	void CardiaTor::InvalidateProject()
 	{
-		for (auto& panel : m_PanelManager.Panels())
+		for (const auto& panel : m_PanelManager.Panels())
 		{
 			panel->OnUpdateWorkspace();
 		}

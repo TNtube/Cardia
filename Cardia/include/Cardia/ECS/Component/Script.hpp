@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Cardia/Scripting/ScriptClass.hpp"
+#include "Cardia/Scripting/ScriptFile.hpp"
 #include <json/json.h>
 
 namespace Cardia::Component
@@ -11,14 +11,18 @@ namespace Cardia::Component
 		explicit Script(std::string scriptPath) : m_Path(std::move(scriptPath)) {
 			ReloadFile();
 		}
-		inline std::string GetPath() const {return m_Path; }
-		inline void SetPath(const std::string& newPath) { m_Path = newPath; ReloadFile(); }
-		ScriptClass Class;
 
-		inline void Reset()
+		bool IsLoaded() const { return m_File != nullptr; }
+
+		std::string GetPath() const { return m_Path; }
+		void SetPath(const std::string& newPath) { m_Path = newPath; ReloadFile(); }
+
+		ScriptFile& GetFile() const { return *m_File; }
+
+		void Reset()
 		{
 			m_Path.clear();
-			Class = ScriptClass();
+			m_File.reset();
 		}
 
 		Json::Value Serialize() const;
@@ -27,5 +31,6 @@ namespace Cardia::Component
 	private:
 		void ReloadFile();
 		std::string m_Path;
+		std::shared_ptr<ScriptFile> m_File;
 	};
 }

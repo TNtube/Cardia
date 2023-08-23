@@ -1,43 +1,43 @@
+import math
+
 from cardia import Behavior, Key, on_key_pressed, Time, Vector3, Input, Mouse
 import cardia.log as log
 import colorsys
 from Greeting import Greeting
 
 
+def default_bool():
+    return True
+
+
 class Moving(Behavior):
-    velocity: int
-    _tick_count: float
-    text: str
-    color: Vector3
-    greeting: Greeting
-    lst: list[str]
+    @staticmethod
+    def default_velocity():
+        return 5
+
+    def __init__(self):
+        super().__init__()
+        self.velocity: int = Moving.default_velocity()
+        self._tick_count: float = 5.27
+        self.text: str = "Hello Cardia"
+        self.color: Vector3 = Vector3(17, 15, 13)
+        self.show_text: bool = default_bool()
+        self.greeting: Greeting
 
     def on_create(self):
-        # self.velocity = 5
+        self.velocity = 5
         pass
 
     def on_update(self):
-        self.transform.rotation.y += self.velocity * Time.delta_time.seconds()
-        if Input.is_mouse_button_pressed(Mouse.Left):
-            log.trace("message from python")
-            log.trace("|".join(map(str, self.lst)))
+        self.transform.rotate(
+            Vector3(0, self.velocity * Time.delta_time.seconds(), 0)
+        )
 
-    @on_key_pressed(Key.Left)
-    def move_left(self):
-        self.transform.position.x -= self.velocity * Time.delta_time.seconds()
+        self.transform.translate(
+            Vector3(math.sin(self._tick_count) * self.velocity * Time.delta_time.seconds(), 0, 0)
+        )
 
-    @on_key_pressed(Key.Right)
-    def move_right(self):
-        self.transform.position.x += self.velocity * Time.delta_time.seconds()
+        if Input.is_mouse_button_pressed(Mouse.Left) and self.show_text and self.greeting is not None:
+            log.trace(f"message from python {Input.get_mouse_x()} {Input.get_mouse_y()} {self.greeting.message}")
 
-    @on_key_pressed(Key.Down)
-    def move_down(self):
-        self.transform.position.z -= self.velocity * Time.delta_time.seconds()
-
-    @on_key_pressed(Key.Up)
-    def move_top(self):
-        self.transform.position.z += self.velocity * Time.delta_time.seconds()
-
-    @on_key_pressed(Key.Space)
-    def greet(self):
-        self.greeting.hello_world()
+        self._tick_count += Time.delta_time.seconds()

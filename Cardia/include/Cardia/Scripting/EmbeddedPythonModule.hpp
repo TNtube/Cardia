@@ -11,27 +11,41 @@
 #include "ScriptEngine.hpp"
 #include "Cardia/Math/Vector2.hpp"
 #include "Cardia/Core/Time.hpp"
-
+#include "EntityBehavior.hpp"
+#include "Cardia/Scripting/ScriptUtils.hpp"
 
 namespace Cardia
 {
 	namespace py = pybind11;
 
-	template<typename T>
-	bool GetComponent(Entity& entity, py::object& cls, py::object& out)
+	template<typename... Cpn>
+	py::object GetComponent(ComponentGroup<Cpn...>, Entity entity, py::type& cls)
 	{
-		if (ScriptEngine::IsSubClass(cls, py::detail::get_type_handle(typeid(T), false))) {
-			out["output"] = py::cast(entity.GetComponent<T>(), py::return_value_policy::reference);
-			return true;
-		}
-		return false;
+		py::object out = py::none();
+
+		([&](){
+			if (IsSubclass<Cpn>(cls)) {
+				out = py::cast(entity.GetComponent<Cpn>(), py::return_value_policy::reference);
+			}
+		}(), ...);
+
+		return out;
 	}
 
 	PYBIND11_EMBEDDED_MODULE(cardia_native, m) {
 		m.doc() = "Cardia Python Bindings";
-		using namespace Cardia;
 
-		// glm utilities
+		// behavior
+		py::class_<Behavior, PyBehavior>(m, "Behavior")
+			.def(py::init<>())
+			.def("on_create", &Behavior::on_create)
+			.def("on_update", &Behavior::on_update)
+			.def_property_readonly("transform", &Behavior::GetTransform, py::return_value_policy::reference)
+			.def("get_component", [](Behavior& self, py::type& cls) -> py::object {
+				return GetComponent(ScriptableComponents{}, self.entity, cls);
+			}, py::return_value_policy::reference);
+
+		// math utilities
 		py::class_<Vector2f>(m, "vec2")
 			.def(py::init<float>())
 			.def(py::init<float, float>())
@@ -74,6 +88,10 @@ namespace Cardia
 
 		// Components
 
+		py::class_<Component::ID>(m, "ID")
+			.def(py::init<>())
+			.def_readwrite("uuid", &Component::ID::Uuid, py::return_value_policy::reference);
+
 		py::class_<Component::Transform>(m, "Transform")
 			.def(py::init<>())
 			.def(py::init<Vector3f, Vector3f, Vector3f>())
@@ -89,6 +107,8 @@ namespace Cardia
 				&Component::Transform::GetScale,
 				&Component::Transform::SetScale,
 				py::return_value_policy::reference)
+			.def("translate", &Component::Transform::Translate, py::return_value_policy::reference)
+			.def("rotate", &Component::Transform::Rotate, py::return_value_policy::reference)
 			.def("reset", &Component::Transform::Reset, py::return_value_policy::reference);
 
 		py::class_<Component::Light>(m, "Light")
@@ -107,37 +127,6 @@ namespace Cardia
 		m.def("get_mouse_position", &Input::GetMousePos, py::return_value_policy::reference);
 		m.def("get_mouse_x", &Input::GetMouseX, py::return_value_policy::reference);
 		m.def("get_mouse_y", &Input::GetMouseY, py::return_value_policy::reference);
-
-		m.def("get_native_transform", [](std::string& id) -> Component::Transform& {
-			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
-			return entity.GetComponent<Component::Transform>();
-		}, py::return_value_policy::reference);
-
-		m.def("set_native_transform", [](std::string& id, Component::Transform transform){
-			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
-			auto& t = entity.GetComponent<Component::Transform>();
-			t.SetPosition(transform.GetPosition());
-			t.SetRotation(transform.GetRotation());
-			t.SetScale(transform.GetScale());
-			t.RecomputeWorld(entity);
-		}, py::return_value_policy::reference);
-
-		m.def("get_component", [&](std::string& id, py::object& cls, py::object& out) {
-			auto& scene = ScriptEngine::Instance().GetSceneContext();
-			Entity entity = scene.GetEntityByUUID(UUID::FromString(id));
-			if (GetComponent<Component::Transform>(entity, cls, out)) {
-				return;
-			}
-			if (GetComponent<Component::Light>(entity, cls, out)) {
-				return;
-			}
-		});
-
-		m.def("register_update_method", [](py::object& cls, std::string& name) {
-			ScriptEngine::Instance().RegisterUpdateMethod(cls, name);
-		});
 
 		m.def("get_delta_time_seconds", []() {
 			return Time::GetDeltaTime().AsSeconds();
