@@ -395,8 +395,8 @@ namespace Cardia::Panel
 			}
 			case ScriptFieldType::PyBehavior:
 			{
-				auto* field = file.GetAttribute<Component::ID*>(fieldName);
-				auto entityTarget = m_CurrentScene->GetEntityByUUID(field->Uuid);
+				auto field = file.GetBehaviorAttribute(fieldName);
+				auto entityTarget = field.has_value() ? m_CurrentScene->GetEntityByUUID(field->Uuid) : Entity();
 
 				std::string name = entityTarget.IsValid() ? entityTarget.GetComponent<Component::Label>().Name : "None";
 
@@ -406,12 +406,12 @@ namespace Cardia::Panel
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY"))
 					{
 						auto* entity = static_cast<Entity*>(payload->Data);
-						if (entity->HasComponent<Component::Script>())
+						if (entity->IsValid() && entity->HasComponent<Component::Script>())
 						{
 							auto script = entity->GetComponent<Component::Script>();
 							if (script.GetFile().HasBehavior())
 							{
-								file.SetAttribute(fieldName, entity->GetComponent<Component::ID>());
+								file.SetBehaviorAttribute(fieldName, *entity);
 							}
 						}
 					}

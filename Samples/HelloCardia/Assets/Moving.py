@@ -37,10 +37,7 @@ class Moving(Behavior):
             Vector3(math.sin(self._tick_count) * self.velocity * Time.delta_time.seconds(), 0, 0)
         )
 
-        if Input.is_mouse_button_pressed(Mouse.Left) and self.show_text:
-            log.trace(f"message from python {Input.get_mouse_x()} {Input.get_mouse_y()}")
+        if Input.is_mouse_button_pressed(Mouse.Left) and self.show_text and self.greeting is not None:
+            log.trace(f"message from python {Input.get_mouse_x()} {Input.get_mouse_y()} {self.greeting.message}")
 
         self._tick_count += Time.delta_time.seconds()
-
-        if self.greeting is not None:
-            self.greeting.hello_world()

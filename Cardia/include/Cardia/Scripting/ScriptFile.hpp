@@ -38,8 +38,11 @@ namespace Cardia
 			if (m_BehaviorPtr)
 				m_BehaviorInstance.attr(name.c_str()) = value;
 			else
-				GetScriptField(name)->SetValue(py::cast(value), !std::is_same_v<T, Component::ID>);
+				GetScriptField(name)->SetValue(py::cast(value));
 		}
+
+		std::optional<Component::ID> GetBehaviorAttribute(const std::string& name);
+		void SetBehaviorAttribute(const std::string& name, Entity entity);
 
 		bool HasBehavior() const { return IsSubclass<Behavior>(m_BehaviorClassDef); }
 		Behavior* GetBehavior() const { return m_BehaviorPtr; }

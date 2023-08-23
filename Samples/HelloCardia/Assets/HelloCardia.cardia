@@ -2,7 +2,28 @@
 	"Entities" : 
 	[
 		{
-			"ID" : "699b08e2-f8f6-4876-931d-f6d09890a424",
+			"Camera" : 
+			{
+				"CameraData" : 
+				{
+					"AspectRatio" : 0.0,
+					"Orthographic" : 
+					{
+						"Far" : 1.0,
+						"Near" : -1.0,
+						"Size" : 10.0
+					},
+					"Perspective" : 
+					{
+						"Far" : 1000.0,
+						"Fov" : 1.0471975803375244,
+						"Near" : 0.0099999997764825821
+					},
+					"ProjectionType" : 0
+				},
+				"Primary" : true
+			},
+			"ID" : "50d396f6-069a-41ef-9e47-090de4e3a9eb",
 			"Label" : 
 			{
 				"Color" : 
@@ -12,60 +33,31 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Entity"
+				"Name" : "Camera"
 			},
 			"Relationship" : 
 			{
-				"ChildCount" : 1,
-				"FirstChild" : "f568b91c-caf4-428b-876f-ac6e7b89d83b"
+				"ChildCount" : 0
 			},
 			"Script" : 
 			{
 				"Attributes" : 
 				[
 					{
-						"name" : "velocity",
-						"type" : 1,
-						"value" : 5
-					},
-					{
-						"name" : "text",
+						"name" : "message",
 						"type" : 3,
-						"value" : "Hello Cardia"
-					},
-					{
-						"name" : "color",
-						"type" : 8,
-						"value" : 
-						{
-							"x" : 17.0,
-							"y" : 15.0,
-							"z" : 13.0
-						}
-					},
-					{
-						"name" : "show_text",
-						"type" : 0,
-						"value" : true
-					},
-					{
-						"name" : "greeting",
-						"type" : 10,
-						"value" : 
-						{
-							"ID" : "4077d281-05c5-4e6c-8241-700a90d05909"
-						}
+						"value" : "Cardia"
 					}
 				],
-				"Path" : ".\\Moving.py"
+				"Path" : ".\\Greeting.py"
 			},
 			"Transform" : 
 			{
 				"Position" : 
 				{
-					"x" : 2.7999999523162842,
+					"x" : 2.9000000953674316,
 					"y" : 0.0,
-					"z" : 0.0
+					"z" : 9.8999996185302734
 				},
 				"Rotation" : 
 				{
@@ -126,28 +118,7 @@
 			}
 		},
 		{
-			"Camera" : 
-			{
-				"CameraData" : 
-				{
-					"AspectRatio" : 0.0,
-					"Orthographic" : 
-					{
-						"Far" : 1.0,
-						"Near" : -1.0,
-						"Size" : 10.0
-					},
-					"Perspective" : 
-					{
-						"Far" : 1000.0,
-						"Fov" : 1.0471975803375244,
-						"Near" : 0.0099999997764825821
-					},
-					"ProjectionType" : 0
-				},
-				"Primary" : true
-			},
-			"ID" : "50d396f6-069a-41ef-9e47-090de4e3a9eb",
+			"ID" : "699b08e2-f8f6-4876-931d-f6d09890a424",
 			"Label" : 
 			{
 				"Color" : 
@@ -157,31 +128,60 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Camera"
+				"Name" : "Entity"
 			},
 			"Relationship" : 
 			{
-				"ChildCount" : 0
+				"ChildCount" : 1,
+				"FirstChild" : "f568b91c-caf4-428b-876f-ac6e7b89d83b"
 			},
 			"Script" : 
 			{
 				"Attributes" : 
 				[
 					{
-						"name" : "message",
+						"name" : "velocity",
+						"type" : 1,
+						"value" : 5
+					},
+					{
+						"name" : "text",
 						"type" : 3,
-						"value" : "Cardia"
+						"value" : "Hello Cardia"
+					},
+					{
+						"name" : "color",
+						"type" : 8,
+						"value" : 
+						{
+							"x" : 17.0,
+							"y" : 15.0,
+							"z" : 13.0
+						}
+					},
+					{
+						"name" : "show_text",
+						"type" : 0,
+						"value" : true
+					},
+					{
+						"name" : "greeting",
+						"type" : 10,
+						"value" : 
+						{
+							"ID" : "50d396f6-069a-41ef-9e47-090de4e3a9eb"
+						}
 					}
 				],
-				"Path" : ".\\Greeting.py"
+				"Path" : ".\\Moving.py"
 			},
 			"Transform" : 
 			{
 				"Position" : 
 				{
-					"x" : 2.9000000953674316,
+					"x" : 2.7999999523162842,
 					"y" : 0.0,
-					"z" : 9.8999996185302734
+					"z" : 0.0
 				},
 				"Rotation" : 
 				{

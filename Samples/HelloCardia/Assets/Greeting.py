@@ -1,4 +1,4 @@
-from cardia import Behavior
+from cardia import Behavior, log
 
 
 class Greeting(Behavior):
@@ -7,4 +7,4 @@ class Greeting(Behavior):
         self.message: str = "Cardia"
 
     def hello_world(self):
-        print(f"Hello {self.message}")
+        self.message += "!"

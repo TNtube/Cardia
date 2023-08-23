@@ -239,7 +239,7 @@ namespace Cardia
 		m_BehaviorPtr = nullptr;
 	}
 
-	ScriptField *ScriptFile::GetScriptField(const std::string &name)
+	ScriptField* ScriptFile::GetScriptField(const std::string &name)
 	{
 		for (auto& attribute : m_Attributes)
 		{
@@ -277,7 +277,7 @@ namespace Cardia
 				continue;
 
 			try {
-				auto refEntity = scene.GetEntityByUUID(field.GetValue<UUID>());
+				auto refEntity = scene.GetEntityByUUID(field.GetValue<Component::ID>().Uuid);
 				if (refEntity.IsValid() && refEntity.HasComponent<Component::Script>())
 				{
 					auto& refScript = refEntity.GetComponent<Component::Script>();
@@ -289,5 +289,43 @@ namespace Cardia
 				py::setattr(m_BehaviorInstance, field.GetName().c_str(), py::none());
 			}
 		}
+	}
+
+	std::optional<Component::ID> ScriptFile::GetBehaviorAttribute(const std::string &name)
+	{
+		if (!HasBehavior())
+			return std::nullopt;
+
+		if (!HasScriptField(name))
+			return std::nullopt;
+
+
+		if (m_BehaviorPtr && !py::hasattr(m_BehaviorInstance, name.c_str()))
+		{
+			auto value = m_BehaviorInstance.attr(name.c_str());
+			auto* behaviorRef = value.cast<Behavior*>();
+			if (behaviorRef)
+				return behaviorRef->entity.GetComponent<Component::ID>();
+		}
+
+		return GetScriptField(name)->GetValue<Component::ID>();
+	}
+
+	void ScriptFile::SetBehaviorAttribute(const std::string &name, Entity entity)
+	{
+		if (!HasBehavior())
+			return;
+
+
+		auto& script = entity.GetComponent<Component::Script>();
+
+		if (m_BehaviorPtr)
+		{
+			py::setattr(m_BehaviorInstance, name.c_str(), script.GetFile().m_BehaviorInstance);
+			return;
+		}
+
+		GetScriptField(name)->SetValue(py::cast(entity.GetComponent<Component::ID>()), false);
+
 	}
 }
