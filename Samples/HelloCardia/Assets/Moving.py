@@ -1,43 +1,47 @@
-from cardia import Behavior, Key, on_key_pressed, Time, Vector3, Input, Mouse
-import cardia.log as log
-import colorsys
-from Greeting import Greeting
+from cardia import Behavior, Time, Vector3, Input, Key
 
 
 class Moving(Behavior):
-    velocity: int
-    _tick_count: float
-    text: str
-    color: Vector3
-    greeting: Greeting
-    lst: list[str]
+    def __init__(self):
+        super().__init__()
+        self.velocity: int = 300
+        self.remaining_angle: float = 0.0
+
+        self.routine = None
+        self.is_rotating = False
 
     def on_create(self):
         # self.velocity = 5
         pass
 
     def on_update(self):
-        self.transform.rotation.y += self.velocity * Time.delta_time.seconds()
-        if Input.is_mouse_button_pressed(Mouse.Left):
-            log.trace("message from python")
-            log.trace("|".join(map(str, self.lst)))
+        if self.routine is not None:
+            try:
+                next(self.routine)
+            except StopIteration:
+                self.routine = None
 
-    @on_key_pressed(Key.Left)
-    def move_left(self):
-        self.transform.position.x -= self.velocity * Time.delta_time.seconds()
+        if self.is_rotating:
+            return
 
-    @on_key_pressed(Key.Right)
-    def move_right(self):
-        self.transform.position.x += self.velocity * Time.delta_time.seconds()
+        if Input.is_key_pressed(Key.Left):
+            self.routine = self.roll(Vector3.left)
+        elif Input.is_key_pressed(Key.Right):
+            self.routine = self.roll(Vector3.right)
+        elif Input.is_key_pressed(Key.Up):
+            self.routine = self.roll(Vector3.forward)
+        elif Input.is_key_pressed(Key.Down):
+            self.routine = self.roll(Vector3.back)
 
-    @on_key_pressed(Key.Down)
-    def move_down(self):
-        self.transform.position.z -= self.velocity * Time.delta_time.seconds()
+    def roll(self, direction: Vector3) -> iter:
+        self.is_rotating = True
+        self.remaining_angle = 90
+        center = self.transform.position + direction + Vector3.down
+        axis = Vector3.up.cross(direction)
+        while self.remaining_angle > 0:
+            angle = min(self.remaining_angle, self.velocity * Time.delta_time.seconds())
+            self.transform.rotate_around(center, axis, angle)
+            self.remaining_angle -= angle
+            yield
 
-    @on_key_pressed(Key.Up)
-    def move_top(self):
-        self.transform.position.z += self.velocity * Time.delta_time.seconds()
-
-    @on_key_pressed(Key.Space)
-    def greet(self):
-        self.greeting.hello_world()
+        self.is_rotating = False

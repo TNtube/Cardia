@@ -24,10 +24,10 @@ namespace Cardia
 			return s_ActiveProject->m_ProjectDirectory;
 		}
 
-		static std::filesystem::path GetAssetDirectory()
+		static const std::filesystem::path& GetAssetDirectory()
 		{
 			CdCoreAssert(s_ActiveProject, "Should not be null");
-			return std::filesystem::canonical(GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory);
+			return s_ActiveProject->m_AssetDirectory;
 		}
 
 		static std::shared_ptr<Project> GetActive() { return s_ActiveProject; }
@@ -42,6 +42,7 @@ namespace Cardia
 
 		ProjectConfig m_Config;
 		std::filesystem::path m_ProjectDirectory;
+		std::filesystem::path m_AssetDirectory;
 		static std::shared_ptr<Project> s_ActiveProject;
 	};
 }

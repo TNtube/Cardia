@@ -37,6 +37,8 @@ namespace Cardia
 		constexpr Matrix4 Inverse() const noexcept;
 		constexpr Matrix4 Transpose() const noexcept;
 
+		constexpr Vector3<T> ToEulerAngles() const noexcept;
+
 		constexpr T* Data() noexcept { return &values[0].x; }
 		constexpr T* Data() const noexcept { return const_cast<T*>(&values[0].x); }
 
@@ -44,7 +46,7 @@ namespace Cardia
 		static constexpr Matrix4 Perspective(Radian<T> fovY, T aspectRatio, T zNear, T zFar) noexcept;
 		static constexpr Matrix4 Orthographic(T left, T right, T bottom, T top, T zNear, T zFar) noexcept;
 	};
-	
+
 	using Matrix4f = Matrix4<float>;
 	using Matrix4d = Matrix4<double>;
 }

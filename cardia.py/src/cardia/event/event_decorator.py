@@ -12,7 +12,7 @@ class RegisterMethod:
 
     def __set_name__(self, cls, __):
         self.cls = cls
-        _cd.register_update_method(cls, self.func.__name__)
+        # _cd.register_update_method(cls, self.func.__name__)
 
     def __call__(self, *args, **kwargs):
         self.func(self, *args, **kwargs)

@@ -211,6 +211,28 @@ namespace Cardia
 		return result;
 	}
 
+	template <floating_point T>
+	constexpr Vector3<T> Matrix4<T>::ToEulerAngles() const noexcept
+	{
+		T sy = sqrt(values[0][0] * values[0][0] +  values[1][0] * values[1][0]);
+
+		bool singular = sy < 1e-6;
+
+		Vector3<T> result;
+		if (!singular) {
+			result.x = atan2(values[2][1] , values[2][2]);
+			result.y = atan2(-values[2][0], sy);
+			result.z = atan2(values[1][0], values[0][0]);
+		}
+		else {
+			result.x = atan2(-values[1][2], values[1][1]);
+			result.y = atan2(-values[2][0], sy);
+			result.z = 0;
+		}
+
+		return result;
+	}
+
 
 	template <floating_point T>
 	constexpr Matrix4<T> Matrix4<T>::Identity() noexcept

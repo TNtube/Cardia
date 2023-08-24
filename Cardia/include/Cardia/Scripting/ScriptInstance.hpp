@@ -4,12 +4,6 @@
 namespace py = pybind11;
 namespace Cardia
 {
-	enum class ScriptFieldType
-	{
-		Int, Float, String, List, Dict, PyBehavior, Vector2, Vector3, Vector4, Unserializable
-	};
-
-	ScriptFieldType PyHandleToFieldType(const py::handle& handle);
 
 	class ScriptInstance
 	{
@@ -17,7 +11,6 @@ namespace Cardia
 		ScriptInstance(py::object instance, bool registerCallback = false);
 		py::object GetAttrOrMethod(const char* name) const;
 		void SetAttr(const char* name, const py::handle& value);
-		ScriptFieldType GetType();
 		py::object& object() { return m_Instance; }
 
 		operator py::handle() const

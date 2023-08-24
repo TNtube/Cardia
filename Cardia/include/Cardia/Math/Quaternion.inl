@@ -268,4 +268,86 @@ namespace Cardia
 		return result;
 	}
 
+	template<floating_point T>
+	constexpr T Quaternion<T>::roll() const noexcept
+	{
+		const T y = static_cast<T>(2) * (m_Imaginary.x * m_Imaginary.y + m_Real * m_Imaginary.z);
+		const T x = m_Real * m_Real + m_Imaginary.x * m_Imaginary.x - m_Imaginary.y * m_Imaginary.y - m_Imaginary.z * m_Imaginary.z;
+
+		if (Vector2<T>(x, y) == Vector2<T>(0)) // avoid atan2(0,0) - handle singularity - Matiis
+			return static_cast<T>(0);
+
+		return static_cast<T>(std::atan2(y, x));
+	}
+
+	template<floating_point T>
+	constexpr T Quaternion<T>::pitch() const noexcept
+	{
+		const T y = static_cast<T>(2) * (m_Imaginary.y * m_Imaginary.z - m_Real * m_Imaginary.x);
+		const T x = m_Real * m_Real - m_Imaginary.x * m_Imaginary.x - m_Imaginary.y * m_Imaginary.y + m_Imaginary.z * m_Imaginary.z;
+
+		if (Vector2<T>(x, y) == Vector2<T>(0)) // avoid atan2(0,0) - handle singularity - Matiis
+			return static_cast<T>(0);
+
+		return static_cast<T>(std::atan2(y, x));
+	}
+
+	template<floating_point T>
+	constexpr T Quaternion<T>::yaw() const noexcept
+	{
+		return std::asin(
+			std::clamp(
+				static_cast<T>(-2) * (m_Imaginary.x * m_Imaginary.z - m_Real * m_Imaginary.y),
+				static_cast<T>(-1),
+				static_cast<T>(1)));
+	}
+
+	template<floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::Identity() noexcept
+	{
+		return Quaternion(static_cast<T>(1), Vector3(static_cast<T>(0)));
+	}
+
+
+	template<floating_point T>
+	constexpr Quaternion<T> Quaternion<T>::FromAxisAngle(const Vector3<T>& axis, Radian<T> angle) noexcept
+	{
+		T const a(angle.Value());
+		T const s = std::sin(a * static_cast<T>(0.5));
+
+		return Quaternion(std::cos(a * static_cast<T>(0.5)), axis * s);
+	}
+
+	template <floating_point T>
+	constexpr Vector3<T> Quaternion<T>::ToEuler() const noexcept
+	{
+		return Vector3<T>(pitch(), yaw(), roll());
+	}
+
+	template<floating_point T>
+	Json::Value Quaternion<T>::Serialize() const
+	{
+		Json::Value root;
+		root["x"] = m_Imaginary.x;
+		root["y"] = m_Imaginary.y;
+		root["z"] = m_Imaginary.z;
+		root["w"] = m_Real;
+		return root;
+	}
+
+	template<floating_point T>
+	std::optional<Quaternion<T>> Quaternion<T>::Deserialize(const Json::Value& root)
+	{
+		if (!root.isMember("x") || !root.isMember("y") || !root.isMember("z") || !root.isMember("w"))
+			return std::nullopt;
+
+		Quaternion temp;
+		temp.m_Imaginary.x = root["x"].asFloat();
+		temp.m_Imaginary.y = root["y"].asFloat();
+		temp.m_Imaginary.z = root["z"].asFloat();
+		temp.m_Real = root["w"].asFloat();
+
+		return temp;
+	}
+
 }

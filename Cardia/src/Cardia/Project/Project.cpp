@@ -21,6 +21,7 @@ namespace Cardia
 		{
 			const auto projPtr = std::make_shared<Project>(*project);
 			projPtr->m_ProjectDirectory = canonical(path.parent_path());
+			projPtr->m_AssetDirectory = projPtr->m_ProjectDirectory / projPtr->m_Config.AssetDirectory;
 			s_ActiveProject = projPtr;
 			return s_ActiveProject;
 		}
@@ -34,6 +35,7 @@ namespace Cardia
 		Serializer serializer(*s_ActiveProject);
 		serializer.Serialize(path);
 		s_ActiveProject->m_ProjectDirectory = canonical(path.parent_path());
+		s_ActiveProject->m_AssetDirectory = s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_Config.AssetDirectory;
 		return true;
 	}
 

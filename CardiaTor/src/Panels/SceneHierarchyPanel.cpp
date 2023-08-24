@@ -105,15 +105,14 @@ namespace Cardia :: Panel
 
 			if (ImGui::BeginDragDropSource())
 			{
-				const std::string itemUuid = uuid.Uuid.ToString();
-				ImGui::SetDragDropPayload("ENTITY_UUID", itemUuid.c_str(), (itemUuid.size() + 1) * sizeof(char));
+				ImGui::SetDragDropPayload("ENTITY", &entity, sizeof(Entity));
 				ImGui::EndDragDropSource();
 			}
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				SetSelectedEntityFromItself(entity, appCtx);
 			}
 
-			
+
 			for (auto child : entity.GetChildren()) {
 				DrawEntityNode(child, appCtx);
 			}

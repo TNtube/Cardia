@@ -2,6 +2,85 @@
 	"Entities" : 
 	[
 		{
+			"Camera" : 
+			{
+				"CameraData" : 
+				{
+					"AspectRatio" : 0.0,
+					"Orthographic" : 
+					{
+						"Far" : 1.0,
+						"Near" : -1.0,
+						"Size" : 10.0
+					},
+					"Perspective" : 
+					{
+						"Far" : 1000.0,
+						"Fov" : 1.0471975803375244,
+						"Near" : 0.0099999997764825821
+					},
+					"ProjectionType" : 0
+				},
+				"Primary" : true
+			},
+			"ID" : "50d396f6-069a-41ef-9e47-090de4e3a9eb",
+			"Label" : 
+			{
+				"Color" : 
+				{
+					"w" : 1.0,
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				},
+				"Name" : "Camera"
+			},
+			"Relationship" : 
+			{
+				"ChildCount" : 0
+			},
+			"Script" : 
+			{
+				"Attributes" : 
+				[
+					{
+						"name" : "message",
+						"type" : 3,
+						"value" : "Cardia"
+					}
+				],
+				"Path" : ".\\Greeting.py"
+			},
+			"Transform" : 
+			{
+				"Euler" : 
+				{
+					"x" : -0.38048157095909119,
+					"y" : -0.36826446652412415,
+					"z" : 0.0
+				},
+				"Position" : 
+				{
+					"x" : -6.5999999046325684,
+					"y" : 5.1999998092651367,
+					"z" : 15.5
+				},
+				"Rotation" : 
+				{
+					"w" : 0.96535927057266235,
+					"x" : -0.1858987957239151,
+					"y" : -0.17979027330875397,
+					"z" : -0.034622129052877426
+				},
+				"Scale" : 
+				{
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				}
+			}
+		},
+		{
 			"ID" : "699b08e2-f8f6-4876-931d-f6d09890a424",
 			"Label" : 
 			{
@@ -12,23 +91,50 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Entity"
+				"Name" : "Player"
+			},
+			"MeshRenderer" : 
+			{
+				"Mesh" : ".\\cube.obj"
 			},
 			"Relationship" : 
 			{
-				"ChildCount" : 1,
-				"FirstChild" : "f568b91c-caf4-428b-876f-ac6e7b89d83b"
+				"ChildCount" : 0
+			},
+			"Script" : 
+			{
+				"Attributes" : 
+				[
+					{
+						"name" : "velocity",
+						"type" : 1,
+						"value" : 300
+					},
+					{
+						"name" : "remaining_angle",
+						"type" : 2,
+						"value" : 0.0
+					}
+				],
+				"Path" : ".\\Moving.py"
 			},
 			"Transform" : 
 			{
-				"Position" : 
+				"Euler" : 
 				{
-					"x" : 2.7999999523162842,
+					"x" : 0.0,
 					"y" : 0.0,
 					"z" : 0.0
 				},
+				"Position" : 
+				{
+					"x" : -7.152557373046875e-07,
+					"y" : 1.4126300811767578e-05,
+					"z" : -2.9802322387695312e-06
+				},
 				"Rotation" : 
 				{
+					"w" : 1.0,
 					"x" : 0.0,
 					"y" : 0.0,
 					"z" : 0.0
@@ -42,7 +148,7 @@
 			}
 		},
 		{
-			"ID" : "f568b91c-caf4-428b-876f-ac6e7b89d83b",
+			"ID" : "5b5cbffc-9199-4a56-9830-d4c4675347fd",
 			"Label" : 
 			{
 				"Color" : 
@@ -52,72 +158,42 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Entity"
+				"Name" : "Floor"
 			},
 			"MeshRenderer" : 
 			{
-				"Mesh" : ".\\suzanne.obj"
+				"Mesh" : ".\\cube.obj"
 			},
 			"Relationship" : 
 			{
-				"ChildCount" : 0,
-				"Parent" : "699b08e2-f8f6-4876-931d-f6d09890a424"
-			},
-			"Script" : 
-			{
-				"Attributes" : 
-				[
-					{
-						"name" : "velocity",
-						"type" : 0,
-						"value" : 0
-					},
-					{
-						"name" : "text",
-						"type" : 2,
-						"value" : ""
-					},
-					{
-						"name" : "color",
-						"type" : 7,
-						"value" : 
-						{
-							"x" : 0.0,
-							"y" : 0.0,
-							"z" : 0.0
-						}
-					},
-					{
-						"name" : "greeting",
-						"type" : 5,
-						"value" : ""
-					},
-					{
-						"name" : "lst",
-						"type" : 3
-					}
-				],
-				"Path" : ".\\Moving.py"
+				"ChildCount" : 0
 			},
 			"Transform" : 
 			{
-				"Position" : 
+				"Euler" : 
 				{
 					"x" : 0.0,
 					"y" : 0.0,
 					"z" : 0.0
 				},
+				"Position" : 
+				{
+					"x" : 0.0,
+					"y" : -1.1000000238418579,
+					"z" : 0.0
+				},
 				"Rotation" : 
 				{
+					"w" : 1.0,
 					"x" : 0.0,
 					"y" : 0.0,
 					"z" : 0.0
 				},
 				"Scale" : 
 				{
-					"x" : 1.0,
-					"y" : 1.0,
-					"z" : 1.0
+					"x" : 10.0,
+					"y" : 0.10000000149011612,
+					"z" : 10.0
 				}
 			}
 		}

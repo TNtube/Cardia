@@ -80,7 +80,7 @@ namespace Cardia
 			Entity operator*() const { return m_Entity; }
 			Entity* operator->() { return &m_Entity; }
 			ChildIterator& operator++();
-			ChildIterator operator++(int);
+			const ChildIterator operator++(int);
 			bool operator==(const ChildIterator& other) const { return m_Entity.Handle() == other.m_Entity.Handle(); }
 			bool operator!=(const ChildIterator& other) const { return m_Entity.Handle() != other.m_Entity.Handle(); }
 
