@@ -587,6 +587,7 @@ namespace Cardia
 			{
 				if (m_SelectedEntity.IsValid() && ImGuizmo::IsOver()) return;
 				if (!m_HoverViewport) return;
+				if (!m_HoveredEntity.IsValid()) return;
 
 				m_SelectedEntity = m_HoveredEntity;
 				auto inspector = m_PanelManager.GetLastFocused<Panel::InspectorPanel>();

@@ -39,5 +39,8 @@ class Transform(_cd.Transform):
     def rotate(self, rotation: Vector3):
         _cd.Transform.rotate(self, rotation)
 
+    def rotate_around(self, point: Vector3, axis: Vector3, angle: float):
+        _cd.Transform.rotate_around(self, point, axis, angle)
+
     def reset(self):
         pass

@@ -25,13 +25,8 @@ namespace Cardia::Component
 
 	Vector3f Transform::Forward() const
 	{
-		Vector3f forward;
-
-		forward.x = cos(m_Rotation.x) * sin(m_Rotation.y);
-		forward.y = -sin(m_Rotation.x);
-		forward.z = cos(m_Rotation.x) * cos(m_Rotation.y);
-
-		return forward;
+		Vector3f forward(0.0f, 0.0f, 1.0f);
+		return m_Rotation * forward;
 	}
 
 	Vector3f Transform::Up() const
@@ -41,11 +36,17 @@ namespace Cardia::Component
 
 	Vector3f Transform::Right() const
 	{
-		Vector3f right;
-		right.x =  cos(m_Rotation.y);
-		right.y =  0;
-		right.z = -sin(m_Rotation.y);
-		return right;
+		Vector3f right(1.0f, 0.0f, 0.0f);
+		return m_Rotation * right;
+	}
+
+	void Transform::RotateAround(const Vector3f &point, const Vector3f &axis, float angleInDegrees)
+	{
+		Quatf q = Quatf::FromAxisAngle(axis, Radianf::FromDegree(angleInDegrees));
+		m_Position = point + q * (m_Position - point);
+		m_Rotation = q * m_Rotation;
+
+		m_Dirty = true;
 	}
 
 	void Transform::RecomputeWorld(Entity entity)
@@ -61,7 +62,7 @@ namespace Cardia::Component
 		{
 			const auto& parentTransform = parent.GetComponent<Transform>();
 			m_WorldPosition = parentTransform.m_WorldPosition + parentTransform.m_WorldRotation * (parentTransform.m_WorldScale * m_Position);
-			m_WorldRotation = parentTransform.m_WorldRotation * Quatf(m_Rotation);
+			m_WorldRotation = parentTransform.m_WorldRotation * m_Rotation;
 			m_WorldScale = parentTransform.m_WorldScale * m_Scale;
 		} else
 		{
@@ -86,6 +87,7 @@ namespace Cardia::Component
 
 		transform["Position"] = m_Position.Serialize();
 		transform["Rotation"] = m_Rotation.Serialize();
+		transform["Euler"] = m_EulerRotation.Serialize();
 		transform["Scale"] = m_Scale.Serialize();
 
 		return root;
@@ -100,6 +102,7 @@ namespace Cardia::Component
 
 		if (!transform.isMember("Position") ||
 			!transform.isMember("Rotation") ||
+			!transform.isMember("Euler") ||
 			!transform.isMember("Scale"))
 				return std::nullopt;
 
@@ -110,8 +113,13 @@ namespace Cardia::Component
 		else
 			return std::nullopt;
 
-		if (const auto rot = Vector3f::Deserialize(transform["Rotation"]))
+		if (const auto rot = Quatf::Deserialize(transform["Rotation"]))
 			temp.m_Rotation = rot.value();
+		else
+			return std::nullopt;
+
+		if (const auto rot = Vector3f::Deserialize(transform["Euler"]))
+			temp.m_EulerRotation = rot.value();
 		else
 			return std::nullopt;
 
@@ -119,6 +127,8 @@ namespace Cardia::Component
 			temp.m_Scale = scale.value();
 		else
 			return std::nullopt;
+
+		temp.m_Dirty = true;
 
 		return temp;
 	}

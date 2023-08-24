@@ -3,6 +3,7 @@
 #include "Matrix4.hpp"
 #include "Cardia/Core/Concepts.hpp"
 #include "Vector3.hpp"
+#include "Vector2.hpp"
 
 
 namespace Cardia
@@ -19,8 +20,17 @@ namespace Cardia
 		explicit constexpr Quaternion(Vector3<T> euler) noexcept;
 		constexpr Quaternion(Vector3<T> u, Vector3<T> v) noexcept;
 
+		static constexpr Quaternion Identity() noexcept;
+		static constexpr Quaternion FromAxisAngle(const Vector3<T>& axis, Radian<T> angle) noexcept;
+
 		constexpr bool operator==(const Quaternion& other) const noexcept;
 		constexpr bool operator!=(const Quaternion& other) const noexcept;
+
+		constexpr Vector3<T> GetImaginary() const noexcept { return m_Imaginary; }
+		constexpr T GetReal() const noexcept { return m_Real; }
+
+		constexpr Vector3<T>& GetImaginary() noexcept { return m_Imaginary; }
+		constexpr T& GetReal() noexcept { return m_Real; }
 
 		constexpr T x() const noexcept { return m_Imaginary.x; }
 		constexpr T y() const noexcept { return m_Imaginary.y; }
@@ -31,6 +41,10 @@ namespace Cardia
 		constexpr T& y() noexcept { return m_Imaginary.y; }
 		constexpr T& z() noexcept { return m_Imaginary.z; }
 		constexpr T& w() noexcept { return m_Real; }
+
+		constexpr T roll() const noexcept;
+		constexpr T pitch() const noexcept;
+		constexpr T yaw() const noexcept;
 
 		constexpr Quaternion operator-() const noexcept;
 
@@ -67,6 +81,10 @@ namespace Cardia
 		constexpr Quaternion Normalize() const noexcept;
 
 		constexpr Matrix4<T> ToMatrix() const noexcept;
+		constexpr Vector3<T> ToEuler() const noexcept;
+
+		Json::Value Serialize() const;
+		static std::optional<Quaternion> Deserialize(const Json::Value& root);
 	private:
 		T m_Real;
 		Vector3<T> m_Imaginary;

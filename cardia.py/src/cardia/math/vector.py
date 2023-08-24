@@ -1,4 +1,5 @@
 import cardia_native as _cd
+from numbers import Number
 
 
 class ClassProperty:
@@ -15,12 +16,34 @@ class Vector2(_cd.vec2):
         self.y: int
         super().__init__(x, y)
 
+    def __add__(self, other: Number | 'Vector2'):
+        if isinstance(other, Number):
+            return super().__add__scalar(other)
+        return super().__add__(other)
+
+    def __sub__(self, other: Number | 'Vector2'):
+        if isinstance(other, Number):
+            return super().__sub__scalar(other)
+        return super().__sub__(other)
+
+    def __mul__(self, other: Number | 'Vector2'):
+        if isinstance(other, Number):
+            return super().__mul__scalar(other)
+        return super().__mul__(other)
+
+    def __truediv__(self, other: Number | 'Vector2'):
+        if isinstance(other, Number):
+            return super().__mul__scalar(other)
+        return super().__truediv__(other)
+
+    def __len__(self):
+        return super().size()
+
     def length(self) -> float:
         pass
 
-    @classmethod
-    def lerp(cls, start: 'Vector2', end: 'Vector2', step: float):
-        return super().lerp(start, end, step)
+    def lerp(self, end: 'Vector2', step: float):
+        return super().lerp(end, step)
 
 
 class Vector3(_cd.vec3):
@@ -30,20 +53,69 @@ class Vector3(_cd.vec3):
         self.z: int
         super().__init__(x, y, z)
 
-    def length(self) -> float:
-        pass
+    def __add__(self, other: Number | 'Vector3'):
+        if isinstance(other, Number):
+            return super().__add__scalar(other)
+        return super().__add__(other)
 
-    @classmethod
-    def lerp(cls, start: 'Vector3', end: 'Vector3', step: float):
-        return super().lerp(start, end, step)
+    def __sub__(self, other: Number | 'Vector3'):
+        if isinstance(other, Number):
+            return super().__sub__scalar(other)
+        return super().__sub__(other)
+
+    def __mul__(self, other: Number | 'Vector3'):
+        if isinstance(other, Number):
+            return super().__mul__scalar(other)
+        return super().__mul__(other)
+
+    def __truediv__(self, other: Number | 'Vector3'):
+        if isinstance(other, Number):
+            return super().__mul__scalar(other)
+        return super().__truediv__(other)
+
+    def __len__(self):
+        return super().size()
+
+    def cross(self, other: 'Vector3'):
+        return super().cross(other)
+
+    def length(self) -> float:
+        return super().length()
+
+    def lerp(self, end: 'Vector3', step: float):
+        return super().lerp(end, step)
 
     @ClassProperty
-    def zero(cls):
-        return Vector3(0, 0, 0)
+    def back(cls):
+        return Vector3(0, 0, -1)
+
+    @ClassProperty
+    def down(cls):
+        return Vector3(0, -1, 0)
+
+    @ClassProperty
+    def forward(cls):
+        return Vector3(0, 0, 1)
+
+    @ClassProperty
+    def left(cls):
+        return Vector3(-1, 0, 0)
 
     @ClassProperty
     def one(cls):
         return Vector3(1, 1, 1)
+
+    @ClassProperty
+    def right(cls):
+        return Vector3(1, 0, 0)
+
+    @ClassProperty
+    def up(cls):
+        return Vector3(0, 1, 0)
+
+    @ClassProperty
+    def zero(cls):
+        return Vector3(0, 0, 0)
 
 
 class Vector4(_cd.vec4):
@@ -54,9 +126,31 @@ class Vector4(_cd.vec4):
         self.w: int
         super().__init__(x, y, z, w)
 
+    def __add__(self, other: Number | 'Vector4'):
+        if isinstance(other, Number):
+            return super().__add__scalar(other)
+        return super().__add__(other)
+
+    def __sub__(self, other: Number | 'Vector4'):
+        if isinstance(other, Number):
+            return super().__sub__scalar(other)
+        return super().__sub__(other)
+
+    def __mul__(self, other: Number | 'Vector4'):
+        if isinstance(other, Number):
+            return super().__mul__scalar(other)
+        return super().__mul__(other)
+
+    def __truediv__(self, other: Number | 'Vector4'):
+        if isinstance(other, Number):
+            return super().__mul__scalar(other)
+        return super().__truediv__(other)
+
+    def __len__(self):
+        return super().size()
+
     def length(self) -> float:
         pass
 
-    @classmethod
-    def lerp(cls, start: 'Vector4', end: 'Vector4', step: float):
-        return super().lerp(start, end, step)
+    def lerp(self, end: 'Vector2', step: float):
+        return super().lerp(end, step)
