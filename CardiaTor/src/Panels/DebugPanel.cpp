@@ -142,15 +142,15 @@ namespace Cardia::Panel
 				transform.SetPosition(position);
 
 			auto rotation = Vector3f(
-				Radianf::FromDegree(transform.GetRotation().x).Value(),
-				Radianf::FromDegree(transform.GetRotation().y).Value(),
-				Radianf::FromDegree(transform.GetRotation().z).Value());
+				Degreef::FromRadian(transform.GetRotation().x).Value(),
+				Degreef::FromRadian(transform.GetRotation().y).Value(),
+				Degreef::FromRadian(transform.GetRotation().z).Value());
 			if (EditorUI::DragFloat3("Rotation", rotation))
 			{
 				transform.SetRotation(Vector3f(
-					Degreef::FromRadian(rotation.x).Value(),
-					Degreef::FromRadian(rotation.y).Value(),
-					Degreef::FromRadian(rotation.z).Value()));
+					Radianf::FromDegree(rotation.x).Value(),
+					Radianf::FromDegree(rotation.y).Value(),
+					Radianf::FromDegree(rotation.z).Value()));
 			}
 
 			auto scale = transform.GetScale();

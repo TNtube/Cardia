@@ -8,7 +8,7 @@ namespace Cardia
 	EditorCamera::EditorCamera(Radianf fov, float nearClip, float farClip)
 	{
 		m_Camera.SetPerspective({fov, nearClip, farClip});
-		m_Transform.SetPosition({0, 0, 10});
+		m_Transform.SetPosition({0, 5, -20});
 	}
 
 	void EditorCamera::OnUpdate()
@@ -87,12 +87,12 @@ namespace Cardia
 		if (delta == Vector2f::Zero())
 			return;
 
-		m_Transform.SetPosition(m_Transform.GetPosition() +
+		m_Transform.Translate(
 			-m_Transform.Right()
 			* delta.x
 			* m_MovementSpeed
 			* Time::GetDeltaTime().AsSeconds());
-		m_Transform.SetPosition(m_Transform.GetPosition() +
+		m_Transform.Translate(
 			m_Transform.Up()
 			* delta.y
 			* m_MovementSpeed
@@ -107,12 +107,13 @@ namespace Cardia
 		m_Transform.SetRotation(
 			m_Transform.GetRotation()
 			+ Vector3f(delta.y, delta.x, 0)
-			* rotationSpeed());
+			* rotationSpeed()
+			* Time::GetDeltaTime().AsSeconds());
 	}
 
 
 	float EditorCamera::rotationSpeed() const
 	{
-		return 0.8f;
+		return 40.0f;
 	}
 }

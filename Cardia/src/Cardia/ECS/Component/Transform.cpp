@@ -45,6 +45,7 @@ namespace Cardia::Component
 		Quatf q = Quatf::FromAxisAngle(axis, Radianf::FromDegree(angleInDegrees));
 		m_Position = point + q * (m_Position - point);
 		m_Rotation = q * m_Rotation;
+		m_EulerRotation += q.ToEuler();
 
 		m_Dirty = true;
 	}
