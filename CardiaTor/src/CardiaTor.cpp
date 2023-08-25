@@ -344,6 +344,7 @@ namespace Cardia
 		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
+		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 	}
 
 	void CardiaTor::SaveScene() const
