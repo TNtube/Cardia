@@ -2,28 +2,7 @@
 	"Entities" : 
 	[
 		{
-			"Camera" : 
-			{
-				"CameraData" : 
-				{
-					"AspectRatio" : 0.0,
-					"Orthographic" : 
-					{
-						"Far" : 1.0,
-						"Near" : -1.0,
-						"Size" : 10.0
-					},
-					"Perspective" : 
-					{
-						"Far" : 1000.0,
-						"Fov" : 1.0471975803375244,
-						"Near" : 0.0099999997764825821
-					},
-					"ProjectionType" : 0
-				},
-				"Primary" : true
-			},
-			"ID" : "50d396f6-069a-41ef-9e47-090de4e3a9eb",
+			"ID" : "5b5cbffc-9199-4a56-9830-d4c4675347fd",
 			"Label" : 
 			{
 				"Color" : 
@@ -33,50 +12,42 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Camera"
+				"Name" : "Floor"
+			},
+			"MeshRenderer" : 
+			{
+				"Mesh" : ".\\cube.obj"
 			},
 			"Relationship" : 
 			{
 				"ChildCount" : 0
 			},
-			"Script" : 
-			{
-				"Attributes" : 
-				[
-					{
-						"name" : "message",
-						"type" : 3,
-						"value" : "Cardia"
-					}
-				],
-				"Path" : ".\\Greeting.py"
-			},
 			"Transform" : 
 			{
 				"Euler" : 
 				{
-					"x" : -0.38048157095909119,
-					"y" : -0.36826446652412415,
+					"x" : 0.0,
+					"y" : 0.0,
 					"z" : 0.0
 				},
 				"Position" : 
 				{
-					"x" : -6.5999999046325684,
-					"y" : 5.1999998092651367,
-					"z" : 15.5
+					"x" : 0.0,
+					"y" : -1.1000000238418579,
+					"z" : 0.0
 				},
 				"Rotation" : 
 				{
-					"w" : 0.96535927057266235,
-					"x" : -0.1858987957239151,
-					"y" : -0.17979027330875397,
-					"z" : -0.034622129052877426
+					"w" : 1.0,
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
 				},
 				"Scale" : 
 				{
-					"x" : 1.0,
-					"y" : 1.0,
-					"z" : 1.0
+					"x" : 10.0,
+					"y" : 0.10000000149011612,
+					"z" : 10.0
 				}
 			}
 		},
@@ -148,7 +119,28 @@
 			}
 		},
 		{
-			"ID" : "5b5cbffc-9199-4a56-9830-d4c4675347fd",
+			"Camera" : 
+			{
+				"CameraData" : 
+				{
+					"AspectRatio" : 1.8790984153747559,
+					"Orthographic" : 
+					{
+						"Far" : 1.0,
+						"Near" : -1.0,
+						"Size" : 10.0
+					},
+					"Perspective" : 
+					{
+						"Far" : 1000.0,
+						"Fov" : 1.0471975803375244,
+						"Near" : 0.0099999997764825821
+					},
+					"ProjectionType" : 0
+				},
+				"Primary" : true
+			},
+			"ID" : "50d396f6-069a-41ef-9e47-090de4e3a9eb",
 			"Label" : 
 			{
 				"Color" : 
@@ -158,42 +150,50 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Floor"
-			},
-			"MeshRenderer" : 
-			{
-				"Mesh" : ".\\cube.obj"
+				"Name" : "Camera"
 			},
 			"Relationship" : 
 			{
 				"ChildCount" : 0
 			},
+			"Script" : 
+			{
+				"Attributes" : 
+				[
+					{
+						"name" : "message",
+						"type" : 3,
+						"value" : "Cardia"
+					}
+				],
+				"Path" : ".\\Greeting.py"
+			},
 			"Transform" : 
 			{
 				"Euler" : 
 				{
-					"x" : 0.0,
-					"y" : 0.0,
+					"x" : 0.23387411236763,
+					"y" : -0.36651915311813354,
 					"z" : 0.0
 				},
 				"Position" : 
 				{
-					"x" : 0.0,
-					"y" : -1.1000000238418579,
-					"z" : 0.0
+					"x" : 11.0,
+					"y" : 8.0,
+					"z" : -20.0
 				},
 				"Rotation" : 
 				{
-					"w" : 1.0,
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 0.0
+					"w" : 0.97653985023498535,
+					"x" : 0.11471706628799438,
+					"y" : -0.18099096417427063,
+					"z" : 0.021261552348732948
 				},
 				"Scale" : 
 				{
-					"x" : 10.0,
-					"y" : 0.10000000149011612,
-					"z" : 10.0
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
 				}
 			}
 		}

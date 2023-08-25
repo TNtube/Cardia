@@ -36,13 +36,13 @@ namespace Cardia
 			}
 			if (Input::IsKeyPressed(Key::W)) {
 				m_Transform.SetPosition(m_Transform.GetPosition() +
-					-m_Transform.Forward()
+					m_Transform.Forward()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds());
 			}
 			if (Input::IsKeyPressed(Key::S)) {
 				m_Transform.SetPosition(m_Transform.GetPosition() +
-					m_Transform.Forward()
+					-m_Transform.Forward()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds());
 			}
@@ -106,7 +106,7 @@ namespace Cardia
 		
 		m_Transform.SetRotation(
 			m_Transform.GetRotation()
-			+ Vector3f(-delta.y, -delta.x, 0)
+			+ Vector3f(delta.y, delta.x, 0)
 			* rotationSpeed());
 	}
 

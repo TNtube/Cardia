@@ -7,7 +7,7 @@
 
 namespace Cardia
 {
-	// Matrix4 is right handed, zero to one depth range and Y up
+	// Matrix4 is left handed, zero to one depth range and Y up
 	template<floating_point T>
 	struct Matrix4
 	{
