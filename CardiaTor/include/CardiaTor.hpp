@@ -21,16 +21,15 @@ namespace Cardia
 
 	struct OffscreenFrameData
 	{
-		OffscreenFrameData(RenderPass renderPass, Texture2D colorTexture, Texture2D depthTexture, Framebuffer framebuffer)
-			: RenderPass{std::move(renderPass)},
-			  ColorTexture{std::move(colorTexture)},
-			  DepthTexture{std::move(depthTexture)},
-			  Framebuffer{std::move(framebuffer)}
-		{}
-		RenderPass RenderPass;
+		OffscreenFrameData(const Renderer& renderer, RenderPass renderPass, Texture2D colorTexture, Texture2D depthTexture, Framebuffer framebuffer);
+		RenderPass CurrentRenderPass;
 		Texture2D ColorTexture;
+		std::unique_ptr<DescriptorSet> ColorTextureDescriptorSet;
 		Texture2D DepthTexture;
-		Framebuffer Framebuffer;
+		std::unique_ptr<DescriptorSet> DepthTextureDescriptorSet;
+		Framebuffer CurrentFrameBuffer;
+	private:
+		const Renderer& m_Renderer;
 	};
 
 
@@ -74,7 +73,9 @@ namespace Cardia
 		std::unique_ptr<OffscreenFrameData> m_OffscreenFrameData;
 
 		std::shared_ptr<Texture2D> m_IconPlay;
+		std::shared_ptr<DescriptorSet> m_IconPlayDescriptorSet;
 		std::shared_ptr<Texture2D> m_IconStop;
+		std::shared_ptr<DescriptorSet> m_IconStopDescriptorSet;
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::unique_ptr<Scene> m_LastEditorScene;

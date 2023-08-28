@@ -16,39 +16,45 @@ namespace Cardia
 
 		m_DescriptorLayoutCache = std::make_unique<DescriptorLayoutCache>(m_Device);
 
-		auto& uboSetLayout = DescriptorSetLayout::Builder(*m_DescriptorLayoutCache)
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			.Build();
+		Shader shader(m_Device);
 
-		auto& textureLayout = DescriptorSetLayout::Builder(*m_DescriptorLayoutCache)
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			.Build();
-
-		std::vector descriptorSetLayouts {
-			uboSetLayout.GetDescriptorSetLayout(),
-			textureLayout.GetDescriptorSetLayout()
-		};
+		shader.AddShader(ShaderType::Vertex, "resources/shaders/simple.vert.spv");
+		shader.AddShader(ShaderType::Fragment, "resources/shaders/simple.frag.spv");
 
 		VkPushConstantRange pushConstant;
 		pushConstant.offset = 0;
 		pushConstant.size = sizeof(PushConstantData);
 		pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-		std::vector pushConstantRanges {
-			pushConstant
+		auto mvpLayout = DescriptorSetLayout::Builder(*m_DescriptorLayoutCache)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
+			.Build();
+
+		m_MaterialDescriptorSetLayout = DescriptorSetLayout::Builder(*m_DescriptorLayoutCache)
+				.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1) // Albedo
+				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1) // Normal
+				.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1) // MetallicRoughness
+				.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1) // AO
+				.Build();
+
+		const std::array<VkDescriptorSetLayout, 2> descLayouts = {
+			mvpLayout->GetDescriptorSetLayout(),
+			m_MaterialDescriptorSetLayout->GetDescriptorSetLayout()
 		};
 
-		m_PipelineLayout = std::make_unique<PipelineLayout>(m_Device, descriptorSetLayouts, pushConstantRanges);
-		
-		PipelineConfigInfo pipelineConfig = Pipeline::DefaultPipelineConfigInfo(m_SwapChain->Width(), m_SwapChain->Height());
-		pipelineConfig.renderPass = m_SwapChain->GetRenderPass().GetRenderPass();
-		pipelineConfig.pipelineLayout = m_PipelineLayout->GetPipelineLayout();
-		m_Pipeline = std::make_unique<Pipeline>(
-			m_Device,
-			"resources/shaders/simple.vert.spv",
-			"resources/shaders/simple.frag.spv",
-			pipelineConfig
-		);
+		const std::array<VkPushConstantRange, 1> pushConsts = { pushConstant };
+
+		PipelineBuilder builder{ m_Device };
+		builder.SetShader(&shader);
+		builder.SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false);
+		builder.SetViewport(m_SwapChain->GetExtent().width, m_SwapChain->GetExtent().height);
+		builder.SetRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_FRONT_BIT);
+		builder.SetMultisampling();
+		builder.SetDepthStencil(true, true, VK_COMPARE_OP_LESS);
+		builder.SetColorBlend(true, VK_BLEND_OP_ADD, VK_BLEND_OP_ADD, false, VK_LOGIC_OP_COPY);
+		builder.SetDescriptorSetLayout(static_cast<uint32_t>(descLayouts.size()), descLayouts.data(), static_cast<uint32_t>(pushConsts.size()), pushConsts.data());
+
+		m_Pipeline = builder.BuildGraphics(m_SwapChain->GetRenderPass());
 
 		for (auto& frame : m_Frames)
 		{
@@ -61,15 +67,16 @@ namespace Cardia
 
 			auto bufferInfo = frame.UboBuffer->DescriptorInfo();
 
-			frame.UboDescriptorSet = std::make_unique<DescriptorSet>(
-				*DescriptorSet::Writer(*m_DescriptorAllocator, uboSetLayout)
-					.WriteBuffer(0, &bufferInfo)
-					.Build());
+			frame.UboDescriptorSet = DescriptorSet::Writer(*m_DescriptorAllocator, *mvpLayout)
+				.WriteBuffer(0, &bufferInfo)
+				.Build();
 		}
 
 		uint32_t whiteColor = 0xffffffff;
+		uint32_t normalColor = 0x8080ffff;
 		constexpr VkExtent2D size {1, 1};
 		m_WhiteTexture = std::make_unique<Texture2D>(m_Device, *this, size, &whiteColor);
+		m_NormalTexture = std::make_unique<Texture2D>(m_Device, *this, size, &normalColor);
 	}
 
 	Renderer::~Renderer()

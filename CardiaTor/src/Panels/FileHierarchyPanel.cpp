@@ -9,6 +9,7 @@
 #include "Cardia/Asset/AssetsManager.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "CardiaTor.hpp"
 
 namespace Cardia::Panel
 {
@@ -21,6 +22,30 @@ namespace Cardia::Panel
 
 	void FileHierarchyPanel::OnImGuiRender(CardiaTor* appContext)
 	{
+		if (!m_FolderIconDescriptorSet && !m_FileIconDescriptorSet) {
+
+			auto textureLayout = DescriptorSetLayout::Builder(appContext->GetRenderer().GetDescriptorLayoutCache())
+				.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.Build();
+
+			VkDescriptorImageInfo imageBufferInfo;
+			imageBufferInfo.sampler = m_FileIcon->GetSampler();
+			imageBufferInfo.imageView = m_FileIcon->GetView();
+			imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			m_FileIconDescriptorSet =
+				DescriptorSet::Writer(appContext->GetRenderer().GetDescriptorAllocator(), *textureLayout)
+					.WriteImage(0, imageBufferInfo)
+					.Build();
+
+			imageBufferInfo.sampler = m_FolderIcon->GetSampler();
+			imageBufferInfo.imageView = m_FolderIcon->GetView();
+
+			m_FolderIconDescriptorSet =
+				DescriptorSet::Writer(appContext->GetRenderer().GetDescriptorAllocator(), *textureLayout)
+					.WriteImage(0, imageBufferInfo)
+					.Build();
+		}
 		char buff[64];
 		sprintf(buff, "Files##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
@@ -69,7 +94,7 @@ namespace Cardia::Panel
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			const auto id = m_FolderIcon->GetDescriptorSet().GetDescriptor();
+			const auto id = m_FolderIconDescriptorSet->GetDescriptor();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
 			if (ImGui::ImageButton(id, button_sz))
@@ -93,7 +118,7 @@ namespace Cardia::Panel
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
 
-			const auto id = m_FileIcon->GetDescriptorSet().GetDescriptor();
+			const auto id = m_FileIconDescriptorSet->GetDescriptor();
 			ImGui::ImageButton(id, button_sz);
 
 			if (ImGui::BeginDragDropSource())

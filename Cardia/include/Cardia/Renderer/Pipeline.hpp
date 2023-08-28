@@ -1,68 +1,57 @@
 ﻿#pragma once
 #include "Descriptors.hpp"
 #include "Device.hpp"
+#include "RenderPass.hpp"
+#include "Shader.hpp"
 
 namespace Cardia
 {
 
-	struct PipelineConfigInfo {
-		VkViewport viewport;
-		VkRect2D scissor;
-		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
-		VkPipelineMultisampleStateCreateInfo multisampleInfo;
-		VkPipelineColorBlendAttachmentState colorBlendAttachment;
-		VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-		VkPipelineLayout pipelineLayout = nullptr;
-		VkRenderPass renderPass = nullptr;
-		uint32_t subpass = 0;
-	};
-
-	class PipelineLayout
-	{
-	public:
-		PipelineLayout(Device& device, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
-		PipelineLayout(Device& device, const std::vector<DescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
-		PipelineLayout(const PipelineLayout&) = delete;
-		PipelineLayout& operator=(const PipelineLayout&) = delete;
-		PipelineLayout(const PipelineLayout&&) = delete;
-		PipelineLayout& operator=(const PipelineLayout&&) = delete;
-		virtual ~PipelineLayout();
-
-		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
-
-	private:
-		void Init(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts, const std::vector<VkPushConstantRange>& pushConstantRanges);
-		Device& m_Device;
-		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
-	};
-
 	class Pipeline
 	{
 	public:
-		Pipeline(Device& device, const std::string& vertPath, const std::string& fragPath, const PipelineConfigInfo& configInfo);
+		explicit Pipeline(const Device &device, const VkPipeline& pipeline, const VkPipelineLayout& layout);
 		virtual ~Pipeline();
-		Pipeline(const Pipeline&) = delete;
-		Pipeline& operator=(const Pipeline&) = delete;
-		Pipeline(const Pipeline&&) = delete;
-		Pipeline& operator=(const Pipeline&&) = delete;
 
 		void Bind(VkCommandBuffer commandBuffer) const;
 
-		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);
+		const VkPipeline& GetPipeline() const { return m_Pipeline; }
+		const VkPipelineLayout& GetLayout() const { return m_Layout; }
 
 	private:
-		static std::vector<char> ReadFile(const std::filesystem::path& filepath);
+		const Device& m_Device;
+		VkPipeline m_Pipeline {};
+		VkPipelineLayout m_Layout {};
+	};
 
-		void CreateGraphicsPipeline(const std::string& vertPath, const std::string& fragPath, const PipelineConfigInfo& configInfo);
+	class PipelineBuilder
+	{
+	public:
+		explicit PipelineBuilder(const Device& device) : m_Device(device) {}
 
-		void CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) const;
+		void SetShader(Shader* pShader);
+		void SetInputAssembly(VkPrimitiveTopology topology, bool primitiveRestartEnable);
+		void SetViewport(uint32_t width, uint32_t height);
+		void SetRasterizer(VkPolygonMode polygonMode, VkCullModeFlagBits cullMode);
+		void SetMultisampling();
+		void SetDepthStencil(bool depthTest, bool depthWrite, VkCompareOp compareOp);
+		void SetColorBlend(bool blendEnable, VkBlendOp colorBlendOp, VkBlendOp alphaBlendOp, bool logicOpEnable, VkLogicOp logicOp);
+		void SetDescriptorSetLayout(uint32_t layoutsCount, const VkDescriptorSetLayout* pLayouts, uint32_t pushConstCount, const VkPushConstantRange* pPushConstants);
+
+		std::unique_ptr<Pipeline> BuildGraphics(const RenderPass& renderPass);
 
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 
-		VkPipeline m_GraphicsPipeline {};
-		VkShaderModule m_VertShader {};
-		VkShaderModule m_FragShader {};
+		Shader* m_pShader{};
+		VkPipelineInputAssemblyStateCreateInfo m_InputAssembly{};
+		VkViewport m_Viewport{};
+		VkRect2D m_Scissor{};
+		VkPipelineRasterizationStateCreateInfo m_Rasterizer{};
+		VkPipelineMultisampleStateCreateInfo m_Multisampling{};
+		VkPipelineDepthStencilStateCreateInfo m_DepthStencil{};
+		VkPipelineColorBlendAttachmentState m_ColorBlendAttachment{};
+		VkPipelineColorBlendStateCreateInfo m_ColorBlending{};
+		VkPipelineLayoutCreateInfo m_PipelineLayoutInfo{};
 	};
 }

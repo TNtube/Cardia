@@ -116,7 +116,7 @@ namespace Cardia
 			vkCmdBindDescriptorSets(
 				commandBuffer,
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				m_Renderer.GetPipeline().GetLayout(),
 				0, 1,
 				&frame.UboDescriptorSet->GetDescriptor(),
 				0, nullptr);
@@ -133,12 +133,11 @@ namespace Cardia
 			constants.TransposedInvertedModel = constants.Model.Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
-				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				m_Renderer.GetPipeline().GetLayout(),
 				VK_SHADER_STAGE_VERTEX_BIT,
 				0, sizeof(PushConstantData),
 				&constants);
 
-			m_Renderer.GetWhiteTexture().Bind(commandBuffer);
 			meshRenderer.Renderer->Draw(commandBuffer);
 		}
 	}

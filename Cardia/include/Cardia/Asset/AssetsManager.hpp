@@ -132,7 +132,7 @@ namespace Cardia
 		const TypeID id {typeid(Mesh), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Mesh::ReadMeshFromFile(absPath.string()));
+			AssetRefCounter res(Mesh::ReadMeshFromFile(m_Renderer, absPath.string()));
 			m_Assets.insert_or_assign(id, res);
 		}
 

@@ -5,40 +5,22 @@
 
 #include "Device.hpp"
 #include "Descriptors.hpp"
+#include "Cardia/Asset/Asset.hpp"
 
 
 namespace Cardia
 {
 
 	class Renderer;
-	class Texture2D final
+	class Texture2D final : public Asset
 	{
 	public:
+		void Reload(const std::filesystem::path& path) override;
+
 		Texture2D(const Texture2D& other) = delete;
 		Texture2D& operator=(const Texture2D& other) = delete;
-
-		Texture2D(Texture2D&& other) noexcept
-			: m_Size{other.m_Size},
-			  m_Device{other.m_Device},
-			  m_Renderer{other.m_Renderer},
-			  m_TextureImage{other.m_TextureImage},
-			  m_TextureImageMemory{other.m_TextureImageMemory},
-			  m_TextureImageView{other.m_TextureImageView},
-			  m_TextureSampler{other.m_TextureSampler},
-			  m_TextureDescriptorSet{std::move(other.m_TextureDescriptorSet)}
-		{
-			other.m_TextureImage = VK_NULL_HANDLE;
-			other.m_TextureImageMemory = VK_NULL_HANDLE;
-			other.m_TextureImageView = VK_NULL_HANDLE;
-			other.m_TextureSampler = VK_NULL_HANDLE;
-		}
-
-		Texture2D& operator=(Texture2D&& other) noexcept
-		{
-			using std::swap;
-			swap(*this, other);
-			return *this;
-		}
+		Texture2D(Texture2D&& other) noexcept;
+		Texture2D& operator=(Texture2D&& other) noexcept;
 
 		Texture2D(Device& device, Renderer& renderer, const std::filesystem::path& path);
 		Texture2D(
@@ -51,18 +33,19 @@ namespace Cardia
 
 		Texture2D(Device& device, Renderer& renderer, const VkExtent2D& size, const void* data);
 
-		virtual ~Texture2D();
+		~Texture2D() override;
 
 		uint32_t GetHeight() const { return m_Size.height; }
 		uint32_t GetWidth() const { return m_Size.width; }
 
 		VkSampler GetSampler() const { return m_TextureSampler; }
 		VkImageView GetView() const { return m_TextureImageView; }
-		DescriptorSet& GetDescriptorSet() const { return *m_TextureDescriptorSet; }
-		
-		void Bind(VkCommandBuffer commandBuffer) const;
+		VkDescriptorImageInfo GetImageInfo() const;
 
 	private:
+		void Init(const std::filesystem::path& path);
+		void Release();
+
 		void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
 		void TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 		void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
@@ -76,6 +59,5 @@ namespace Cardia
 		VkDeviceMemory m_TextureImageMemory {};
 		VkImageView m_TextureImageView {};
 		VkSampler m_TextureSampler {};
-		std::unique_ptr<DescriptorSet> m_TextureDescriptorSet {};
 	};
 }

@@ -21,7 +21,7 @@ namespace Cardia {
 				VkDescriptorType descriptorType,
 				VkShaderStageFlags stageFlags,
 				uint32_t count = 1);
-			DescriptorSetLayout& Build() const;
+			std::shared_ptr<DescriptorSetLayout> Build() const;
 
 		private:
 			DescriptorLayoutCache& m_Cache;
@@ -49,7 +49,7 @@ namespace Cardia {
 	public:
 		DescriptorLayoutCache(Device& device) : m_Device(device) {}
 
-		DescriptorSetLayout& CreateLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
+		std::shared_ptr<DescriptorSetLayout> CreateLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
 
 		struct DescriptorLayoutInfo {
 			std::vector<VkDescriptorSetLayoutBinding> Bindings;
@@ -73,7 +73,7 @@ namespace Cardia {
 		};
 
 		Device& m_Device;
-		std::unordered_map<DescriptorLayoutInfo, DescriptorSetLayout, DescriptorLayoutHash> m_LayoutCache;
+		std::unordered_map<DescriptorLayoutInfo, std::shared_ptr<DescriptorSetLayout>, DescriptorLayoutHash> m_LayoutCache;
 	};
 
 
@@ -169,9 +169,9 @@ namespace Cardia {
 		public:
 			Writer(DescriptorAllocator& allocator, DescriptorSetLayout& setLayout);
 			Writer& WriteBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
-			Writer& WriteImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
+			Writer& WriteImage(uint32_t binding, const VkDescriptorImageInfo& imageInfo);
 
-			std::optional<DescriptorSet> Build();
+			std::unique_ptr<DescriptorSet> Build();
 			void Overwrite(const DescriptorSet& set);
 	
 		private:
