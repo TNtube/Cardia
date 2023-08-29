@@ -14,6 +14,7 @@
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Panels/ConsolePanel.hpp"
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 
 namespace Cardia
@@ -37,7 +38,9 @@ namespace Cardia
 		}
 
 		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/play.png");
+		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/pause.png");
+		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		ImGuiIO &io = ImGui::GetIO();
 		io.IniFilename = "resources/editorconfig.ini";
@@ -462,13 +465,7 @@ namespace Cardia
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
 
-		ImTextureID set = 0;
-		if (m_IconPlayDescriptorSet) {
-			static auto& playSet = m_IconPlayDescriptorSet->GetDescriptor();
-			static auto& stopSet = m_IconStopDescriptorSet->GetDescriptor();
-
-			set = m_EditorState == EditorState::Edit ? playSet : stopSet;
-		}
+		ImTextureID set = m_EditorState == EditorState::Edit ? m_IconPlayDescriptorSet : m_IconStopDescriptorSet;
 		if (ImGui::ImageButton(set, ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <functional>
+#include <imgui.h>
 
 #include "IPanel.hpp"
 #include "Cardia/ECS/Entity.hpp"
@@ -13,7 +14,7 @@ namespace Cardia::Panel
 	class InspectorPanel : public IPanel
 	{
 	public:
-		explicit InspectorPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++){}
+		explicit InspectorPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++) {}
 		~InspectorPanel() override = default;
 		void OnImGuiRender(CardiaTor* appContext) override;
 		void SetSelectedEntity(Entity entity);
@@ -25,6 +26,8 @@ namespace Cardia::Panel
 		void DrawInspectorComponent(const char* name, std::function<void(T&)> func);
 		bool DrawField(ScriptFile& file, const std::string& fieldName, ScriptFieldType type);
 		Entity m_SelectedEntity;
+
+		ImTextureID m_WhiteTextureSet {nullptr};
 
 		static int m_LastWindowId;
 	};

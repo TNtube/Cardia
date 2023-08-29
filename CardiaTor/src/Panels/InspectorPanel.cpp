@@ -11,6 +11,7 @@
 #include "Cardia/Application.hpp"
 #include "Cardia/Asset/AssetsManager.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 
 namespace Cardia::Panel
@@ -18,6 +19,11 @@ namespace Cardia::Panel
 	int InspectorPanel::m_LastWindowId = 0;
 	void InspectorPanel::OnImGuiRender(CardiaTor* appContext)
 	{
+		if (!m_WhiteTextureSet)
+		{
+			m_WhiteTextureSet = ImGui_ImplVulkan_AddTexture(appContext->GetRenderer().GetWhiteTexture()->GetSampler(), appContext->GetRenderer().GetWhiteTexture()->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
+
 		char buff[64];
 		sprintf(buff, "Inspector##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
@@ -112,7 +118,7 @@ namespace Cardia::Panel
 
 		// MeshRendererC Component
 
-		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext](Component::MeshRendererC& meshRendererC) {
+		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext, this](Component::MeshRendererC& meshRendererC) {
 
 			auto str = AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string();
 
@@ -134,9 +140,7 @@ namespace Cardia::Panel
 			if (!meshRendererC.Renderer->GetMesh()) return;
 			auto& materials = meshRendererC.Renderer->GetMesh()->GetMaterialInstances();
 			for (auto& material : materials) {
-				// TODO: imgui utility to get unique descriptor set
-				VkDescriptorSet texID = 0;
-				ImGui::Image(texID, {15, 15});
+				ImGui::Image(m_WhiteTextureSet, {15, 15});
 //				if (ImGui::BeginDragDropTarget())
 //				{
 //					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))

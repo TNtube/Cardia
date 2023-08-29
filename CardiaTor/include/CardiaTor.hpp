@@ -4,6 +4,7 @@
 #include <Cardia.hpp>
 #include <random>
 #include <stack>
+#include <imgui.h>
 
 #include "EditorCamera.hpp"
 #include "Cardia/Renderer/RenderPass.hpp"
@@ -73,9 +74,9 @@ namespace Cardia
 		std::unique_ptr<OffscreenFrameData> m_OffscreenFrameData;
 
 		std::shared_ptr<Texture2D> m_IconPlay;
-		std::shared_ptr<DescriptorSet> m_IconPlayDescriptorSet;
+		ImTextureID m_IconPlayDescriptorSet {};
 		std::shared_ptr<Texture2D> m_IconStop;
-		std::shared_ptr<DescriptorSet> m_IconStopDescriptorSet;
+		ImTextureID m_IconStopDescriptorSet {};
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::unique_ptr<Scene> m_LastEditorScene;
