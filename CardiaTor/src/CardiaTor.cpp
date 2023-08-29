@@ -106,7 +106,7 @@ namespace Cardia
 
 			if (m_EditorState == EditorState::Edit)
 			{
-				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransformMatrix());
+				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransformComponent());
 			} else if (m_EditorState == EditorState::Play)
 			{
 				m_CurrentScene->OnRuntimeRender(commandBuffer);

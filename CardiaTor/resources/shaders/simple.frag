@@ -8,6 +8,7 @@ struct Vertex {
 };
 
 layout (location = 0) in Vertex vertex;
+layout (location = 4) in vec3 cameraPosition;
 
 layout (location = 0) out vec4 fragColor;
 

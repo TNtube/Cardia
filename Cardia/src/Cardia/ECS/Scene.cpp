@@ -81,7 +81,7 @@ namespace Cardia
 	void Scene::OnRuntimeRender(VkCommandBuffer commandBuffer)
 	{
 		SceneCamera* mainCamera = nullptr;
-		Matrix4f mainCameraTransform;
+		Component::Transform* mainCameraTransform = nullptr;
 
 		{
 			const auto viewCamera = m_Registry.view<Component::Transform, Component::Camera>();
@@ -92,7 +92,7 @@ namespace Cardia
 				if (cam.Primary)
 				{
 					mainCamera = &cam.CameraData;
-					mainCameraTransform = transform.GetWorldTransform();
+					mainCameraTransform = &transform;
 				}
 			}
 		}
@@ -102,10 +102,10 @@ namespace Cardia
 			Log::Error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
 			return;
 		}
-		OnRender(commandBuffer, *mainCamera, mainCameraTransform);
+		OnRender(commandBuffer, *mainCamera, *mainCameraTransform);
 	}
 
-	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform)
+	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Component::Transform& cameraTransform)
 	{
 		m_Renderer.GetPipeline().Bind(commandBuffer);
 		auto& frame = m_Renderer.GetCurrentFrame();
@@ -121,7 +121,8 @@ namespace Cardia
 				&frame.UboDescriptorSet->GetDescriptor(),
 				0, nullptr);
 			UboData data {};
-			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.Inverse();
+			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.GetWorldTransform().Inverse();
+			data.CameraPosition = cameraTransform.GetPosition();
 			frame.UboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)

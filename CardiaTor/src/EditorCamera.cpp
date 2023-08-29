@@ -66,6 +66,10 @@ namespace Cardia
 				m_MovementSpeed = std::lerp(m_MovementSpeed, m_BaseMovementSpeed, Time::GetDeltaTime().AsSeconds() * 2);
 			}
 		}
+
+		if (m_Transform.IsDirty()) {
+			m_Transform.RecomputeWorld({});
+		}
 	}
 
 	void EditorCamera::OnEvent(Event &e)
@@ -78,6 +82,8 @@ namespace Cardia
 				* delta
 				* m_MovementSpeed
 				* Time::GetDeltaTime().AsSeconds());
+
+			m_Transform.RecomputeWorld({});
 			return false;
 		});
 	}
@@ -114,6 +120,6 @@ namespace Cardia
 
 	float EditorCamera::rotationSpeed() const
 	{
-		return 40.0f;
+		return 60.0f;
 	}
 }

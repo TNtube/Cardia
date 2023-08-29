@@ -7,7 +7,7 @@
 
 #include <entt/entt.hpp>
 #include <filesystem>
-
+#include <Cardia/ECS/Component/Transform.hpp>
 
 
 namespace Cardia
@@ -33,7 +33,7 @@ namespace Cardia
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 		void OnRuntimeRender(VkCommandBuffer commandBuffer);
-		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform);
+		void OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Component::Transform& cameraTransform);
 		void OnViewportResize(float width, float height);
 		Entity GetEntityByUUID(const UUID& uuid);
 		bool IsEntityValid(entt::entity entity) const;

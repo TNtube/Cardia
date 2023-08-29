@@ -13,10 +13,12 @@ struct Vertex {
 };
 
 layout (location = 0) out Vertex vertex;
+layout (location = 4) out vec3 cameraPosition;
 
 layout(set = 0, binding = 0) uniform UBO
 {
     mat4 viewProjection;
+    vec3 cameraPosition;
 } ubo;
 
 layout(push_constant) uniform constants
@@ -31,6 +33,7 @@ void main() {
     vertex.normal = normalize(mat3(pushConstants.transposedInvertedModel) * normal);
     vertex.textureCoord = textureCoord;
     vertex.tangent = normalize(mat3(pushConstants.transposedInvertedModel) * tangent);
+    cameraPosition = ubo.cameraPosition;
 
     gl_Position = ubo.viewProjection * pushConstants.model * vec4(position, 1.0f);
 }
