@@ -18,16 +18,20 @@ namespace Cardia
 	{
 		for (auto& resource : Instance().m_Assets) {
 			if (resource.second.Resource.use_count() == 1) {
-				resource.second.UnusedCounter += forceCollection ? MAX_UNUSED_COUNT : 1;
+				resource.second.UnusedCounter += 1;
 			} else {
 				resource.second.UnusedCounter = 0;
+			}
+
+			if (forceCollection) {
+				resource.second.UnusedCounter = MAX_UNUSED_COUNT;
 			}
 
 			if (resource.second.UnusedCounter >= MAX_UNUSED_COUNT) {
 				Instance().m_Assets.erase(resource.first);
 			}
 		}
-	}
+ 	}
 
 	void AssetsManager::CollectionRoutine(DeltaTime& dt)
 	{
