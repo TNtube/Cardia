@@ -112,11 +112,10 @@ namespace Cardia
 		m_PipelineLayoutInfo.pPushConstantRanges = pPushConstants;
 	}
 
-	std::unique_ptr<Pipeline> PipelineBuilder::BuildGraphics(const RenderPass& renderPass)
+	std::unique_ptr<Pipeline> PipelineBuilder::BuildGraphics(const RenderPass& renderPass,
+															 const std::vector<VkVertexInputBindingDescription>& bindingDescriptions,
+															 const std::vector<VkVertexInputAttributeDescription>& attributeDescriptions)
 	{
-		auto bindingDescriptions = Vertex::GetBindingDescriptions();
-		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
-
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

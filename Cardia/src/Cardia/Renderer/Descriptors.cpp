@@ -167,7 +167,7 @@ namespace Cardia
 
 
 	DescriptorPool::DescriptorPool(
-		Device& device,
+		const Device& device,
 		uint32_t maxSets,
 		VkDescriptorPoolCreateFlags poolFlags,
 		const std::vector<VkDescriptorPoolSize>& poolSizes) : m_Device{device}

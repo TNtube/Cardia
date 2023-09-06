@@ -29,7 +29,7 @@ namespace Cardia
 		vkCmdBindDescriptorSets(
 			commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			m_Renderer.GetPipeline().GetLayout(),
+			m_Renderer.GetMainPipeline().GetLayout(),
 			1, 1,
 			&m_DescriptorSet->GetDescriptor(),
 			0, nullptr);

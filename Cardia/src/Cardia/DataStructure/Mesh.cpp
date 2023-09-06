@@ -38,7 +38,7 @@ namespace Cardia
 			if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_COLOR_DIFFUSE, &textureColor))
 				mat.AlbedoColor = Vector4f(textureColor.r, textureColor.g, textureColor.b, textureColor.a);
 			if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
-				mat.AlbedoMap = AssetsManager::Load<Texture2D>(texturePath.C_Str());
+				mat.AlbedoMap = AssetsManager::Load<Texture>(texturePath.C_Str());
 			else
 				mat.AlbedoMap = renderer.GetWhiteTexture();
 
@@ -47,24 +47,24 @@ namespace Cardia
 			if (AI_SUCCESS == aiGetMaterialFloat(pMaterial, AI_MATKEY_ROUGHNESS_FACTOR, &textureFloat))
 				mat.Roughness = textureFloat;
 			if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
-				mat.MetallicRoughnessMap = AssetsManager::Load<Texture2D>(texturePath.C_Str());
+				mat.MetallicRoughnessMap = AssetsManager::Load<Texture>(texturePath.C_Str());
 			else
 				mat.MetallicRoughnessMap = renderer.GetWhiteTexture();
 
 			if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
-				mat.NormalMap = AssetsManager::Load<Texture2D>(texturePath.C_Str());
+				mat.NormalMap = AssetsManager::Load<Texture>(texturePath.C_Str());
 			else
 				mat.NormalMap = renderer.GetNormalTexture();
 
 			if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath))
-				mat.AOMap = AssetsManager::Load<Texture2D>(texturePath.C_Str());
+				mat.AOMap = AssetsManager::Load<Texture>(texturePath.C_Str());
 			else
 				mat.AOMap = renderer.GetWhiteTexture();
 
 			if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_EMISSIVE_INTENSITY, &textureColor))
 				mat.EmissiveFactor = Vector3f(textureColor.r, textureColor.g, textureColor.b);
 			if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
-				mat.EmissiveMap = AssetsManager::Load<Texture2D>(texturePath.C_Str());
+				mat.EmissiveMap = AssetsManager::Load<Texture>(texturePath.C_Str());
 			else
 				mat.EmissiveMap = renderer.GetWhiteTexture();
 

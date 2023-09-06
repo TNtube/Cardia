@@ -18,7 +18,7 @@ namespace Cardia
 	class Framebuffer
 	{
 	public:
-		Framebuffer(Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec);
+		Framebuffer(const Device& device, const RenderPass& renderPass, const FramebufferSpecification& spec);
 		virtual ~Framebuffer();
 		Framebuffer(const Framebuffer &) = delete;
 		Framebuffer& operator=(const Framebuffer &) = delete;
@@ -37,7 +37,7 @@ namespace Cardia
 		// uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const;
 		
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 		VkFramebuffer m_Framebuffer {};
 		VkExtent2D m_Extent {};
 	};

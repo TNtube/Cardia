@@ -83,21 +83,21 @@ namespace Cardia {
 	public:
 		class Builder {
 		public:
-			Builder(Device& device) : m_Device{device} {}
+			Builder(const Device& device) : m_Device{device} {}
 			Builder& AddPoolSize(VkDescriptorType descriptorType, uint32_t count);
 			Builder& SetPoolFlags(VkDescriptorPoolCreateFlags flags);
 			Builder& SetMaxSets(uint32_t count);
 			DescriptorPool Build() const;
 
 		private:
-			Device& m_Device;
+			const Device& m_Device;
 			std::vector<VkDescriptorPoolSize> m_PoolSizes{};
 			uint32_t m_MaxSets = 1000;
 			VkDescriptorPoolCreateFlags m_PoolFlags = 0;
 		};
 
 		DescriptorPool(
-			Device& device,
+			const Device& device,
 			uint32_t maxSets,
 			VkDescriptorPoolCreateFlags poolFlags,
 			const std::vector<VkDescriptorPoolSize>& poolSizes);
@@ -117,7 +117,7 @@ namespace Cardia {
 		void ResetPool() const;
 
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 		VkDescriptorPool m_DescriptorPool {VK_NULL_HANDLE};
 
 		friend class DescriptorSet;

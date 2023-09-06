@@ -18,8 +18,8 @@ namespace Cardia::Panel
 	int FileHierarchyPanel::m_LastWindowId = 0;
 	FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++)
 	{
-		m_FolderIcon = AssetsManager::Load<Texture2D>("resources/icons/folder.png");
-		m_FileIcon = AssetsManager::Load<Texture2D>("resources/icons/file.png");
+		m_FolderIcon = AssetsManager::Load<Texture>("resources/icons/folder.png");
+		m_FileIcon = AssetsManager::Load<Texture>("resources/icons/file.png");
 	}
 
 	void FileHierarchyPanel::OnImGuiRender(CardiaTor* appContext)

@@ -9,7 +9,7 @@ namespace Cardia
 	class SubMeshRenderer
 	{
 	public:
-		SubMeshRenderer(Device& device, SubMesh& subMesh);
+		SubMeshRenderer(const Device& device, SubMesh& subMesh);
 		~SubMeshRenderer();
 		SubMeshRenderer(SubMeshRenderer&& other) noexcept;
 
@@ -19,7 +19,7 @@ namespace Cardia
 		void Bind(VkCommandBuffer commandBuffer) const;
 		void Draw(VkCommandBuffer commandBuffer) const;
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 		uint32_t m_VertexCount;
 		uint32_t m_IndexCount;
 		Buffer m_VertexBuffer;

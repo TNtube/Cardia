@@ -54,29 +54,45 @@ namespace Cardia
 		builder.SetColorBlend(true, VK_BLEND_OP_ADD, VK_BLEND_OP_ADD, false, VK_LOGIC_OP_COPY);
 		builder.SetDescriptorSetLayout(static_cast<uint32_t>(descLayouts.size()), descLayouts.data(), static_cast<uint32_t>(pushConsts.size()), pushConsts.data());
 
-		m_Pipeline = builder.BuildGraphics(m_SwapChain->GetRenderPass());
+		m_MainPipeline = builder.BuildGraphics(m_SwapChain->GetRenderPass(), Vertex::GetBindingDescriptions(), Vertex::GetAttributeDescriptions());
 
 		for (auto& frame : m_Frames)
 		{
-			frame.UboBuffer = std::make_shared<Buffer>(
+			frame.MainUboBuffer = std::make_shared<Buffer>(
 				m_Device,
 				sizeof(UboData),
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-			auto bufferInfo = frame.UboBuffer->DescriptorInfo();
+			auto bufferInfo = frame.MainUboBuffer->DescriptorInfo();
 
-			frame.UboDescriptorSet = DescriptorSet::Writer(*m_DescriptorAllocator, *mvpLayout)
+			frame.MainUboDescriptorSet = DescriptorSet::Writer(*m_DescriptorAllocator, *mvpLayout)
+				.WriteBuffer(0, &bufferInfo)
+				.Build();
+
+			frame.SkyboxUboBuffer = std::make_shared<Buffer>(
+				m_Device,
+				sizeof(SkyboxUboData),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+			bufferInfo = frame.SkyboxUboBuffer->DescriptorInfo();
+
+			frame.SkyboxUboDescriptorSet = DescriptorSet::Writer(*m_DescriptorAllocator, *mvpLayout)
 				.WriteBuffer(0, &bufferInfo)
 				.Build();
 		}
 
+		m_Skybox = std::make_unique<Skybox>(*this, "resources/textures/skybox/lilienstein_skybox.tga");
+
 		uint32_t whiteColor = 0xffffffff;
 		uint32_t normalColor = 0x8080ffff;
 		constexpr VkExtent2D size {1, 1};
-		m_WhiteTexture = std::make_unique<Texture2D>(m_Device, *this, size, &whiteColor);
-		m_NormalTexture = std::make_unique<Texture2D>(m_Device, *this, size, &normalColor);
+		m_WhiteTexture = std::make_unique<Texture>(m_Device, size, &whiteColor);
+		m_NormalTexture = std::make_unique<Texture>(m_Device, size, &normalColor);
+
 	}
 
 	Renderer::~Renderer()

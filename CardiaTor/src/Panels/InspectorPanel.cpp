@@ -95,7 +95,7 @@ namespace Cardia::Panel
 			EditorUI::ColorEdit4("Color", &sprite.Color.x);
 
 			auto white = appContext->GetRenderer().GetWhiteTexture();
-//			const VkDescriptorSet texID = sprite.Texture ? sprite.Texture->GetDescriptorSet().GetDescriptor() : white->GetDescriptorSet().GetDescriptor();
+//			const VkDescriptorSet texID = sprite.SpriteTexture ? sprite.SpriteTexture->GetDescriptorSet().GetDescriptor() : white->GetDescriptorSet().GetDescriptor();
 
 //			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
@@ -103,15 +103,15 @@ namespace Cardia::Panel
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					if (auto tex = AssetsManager::Load<Texture2D>(cStrPath))
+					if (auto tex = AssetsManager::Load<Texture>(cStrPath))
 					{
-						sprite.Texture = std::move(tex);
+						sprite.SpriteTexture = std::move(tex);
 					}
 				}
 				ImGui::EndDragDropTarget();
 			}
 			ImGui::SameLine();
-			ImGui::Text("Texture");
+			ImGui::Text("SpriteTexture");
 			EditorUI::DragInt("zIndex", &sprite.ZIndex, 0.05f);
 		});
 
@@ -148,7 +148,7 @@ namespace Cardia::Panel
 //						const auto* cStrPath = static_cast<const char*>(payload->Data);
 //
 //						std::filesystem::path path = cStrPath;
-//						if (auto texture = AssetsManager::Load<Texture2D>(path))
+//						if (auto texture = AssetsManager::Load<SpriteTexture>(path))
 //						{
 //							material = std::move(texture);
 //						}
@@ -156,13 +156,13 @@ namespace Cardia::Panel
 //					ImGui::EndDragDropTarget();
 //				}
 				ImGui::SameLine();
-				ImGui::Text("Texture");
+				ImGui::Text("SpriteTexture");
 			}
 			const auto textWidth = ImGui::CalcTextSize("  +  ").x;
 
 			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
 //			if (ImGui::Button("  +  ")) {
-//				materials.push_back(AssetsManager::Load<Texture2D>("resources/textures/white.jpg", AssetsManager::LoadType::Editor));
+//				materials.push_back(AssetsManager::Load<SpriteTexture>("resources/textures/white.jpg", AssetsManager::LoadType::Editor));
 //			}
 		});
 

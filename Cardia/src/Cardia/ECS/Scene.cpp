@@ -107,23 +107,43 @@ namespace Cardia
 
 	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Component::Transform& cameraTransform)
 	{
-		m_Renderer.GetPipeline().Bind(commandBuffer);
 		auto& frame = m_Renderer.GetCurrentFrame();
 
+		// Render Skybox
+		auto& skybox = m_Renderer.GetSkybox();
+		auto& skyboxPipeline = skybox.GetPipeline();
+		skyboxPipeline.Bind(commandBuffer);
+		vkCmdBindDescriptorSets(
+			commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			skyboxPipeline.GetLayout(),
+			0, 1,
+			&frame.SkyboxUboDescriptorSet->GetDescriptor(),
+			0, nullptr);
+		SkyboxUboData skyboxUboData {};
+		skyboxUboData.Projection = camera.GetProjectionMatrix();
+		skyboxUboData.Model = cameraTransform.GetWorldTransform().Inverse();
+		skyboxUboData.Model[3] = Vector4f(0, 0, 0, 1);
+		frame.SkyboxUboBuffer->UploadData(sizeof(SkyboxUboData), &skyboxUboData);
+
+		skybox.Draw(commandBuffer);
+
+		// Render Meshes
+		m_Renderer.GetMainPipeline().Bind(commandBuffer);
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		if (meshView.size_hint() > 0)
 		{
 			vkCmdBindDescriptorSets(
 				commandBuffer,
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				m_Renderer.GetPipeline().GetLayout(),
+				m_Renderer.GetMainPipeline().GetLayout(),
 				0, 1,
-				&frame.UboDescriptorSet->GetDescriptor(),
+				&frame.MainUboDescriptorSet->GetDescriptor(),
 				0, nullptr);
 			UboData data {};
 			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.GetWorldTransform().Inverse();
 			data.CameraPosition = cameraTransform.GetPosition();
-			frame.UboBuffer->UploadData(sizeof(UboData), &data);
+			frame.MainUboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)
 		{
@@ -134,7 +154,7 @@ namespace Cardia
 			constants.TransposedInvertedModel = constants.Model.Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
-				m_Renderer.GetPipeline().GetLayout(),
+				m_Renderer.GetMainPipeline().GetLayout(),
 				VK_SHADER_STAGE_VERTEX_BIT,
 				0, sizeof(PushConstantData),
 				&constants);

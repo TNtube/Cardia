@@ -10,30 +10,34 @@
 
 namespace Cardia
 {
+	enum class TextureMode
+	{
+		Texture2D,
+		CubeMap
+	};
 
 	class Renderer;
-	class Texture2D final : public Asset
+	class Texture final : public Asset
 	{
 	public:
 		void Reload(const std::filesystem::path& path) override;
 
-		Texture2D(const Texture2D& other) = delete;
-		Texture2D& operator=(const Texture2D& other) = delete;
-		Texture2D(Texture2D&& other) noexcept;
-		Texture2D& operator=(Texture2D&& other) noexcept;
+		Texture(const Texture& other) = delete;
+		Texture& operator=(const Texture& other) = delete;
+		Texture(Texture&& other) noexcept;
+		Texture& operator=(Texture&& other) noexcept;
 
-		Texture2D(Device& device, Renderer& renderer, const std::filesystem::path& path);
-		Texture2D(
-			Device& device,
-			Renderer& renderer,
+		Texture(const Device& device, const std::filesystem::path& path, TextureMode textureMode = TextureMode::Texture2D);
+		Texture(
+			const Device& device,
 			const VkExtent2D& size,
 			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
 			VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
 			VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
-		Texture2D(Device& device, Renderer& renderer, const VkExtent2D& size, const void* data);
+		Texture(const Device& device, const VkExtent2D& size, const void* data);
 
-		~Texture2D() override;
+		~Texture() override;
 
 		uint32_t GetHeight() const { return m_Size.height; }
 		uint32_t GetWidth() const { return m_Size.width; }
@@ -46,18 +50,20 @@ namespace Cardia
 		void Init(const std::filesystem::path& path);
 		void Release();
 
-		void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
+		void CreateImage(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
 		void TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 		void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
 		void CreateTextureSampler();
 
 		VkExtent2D m_Size {};
-		
-		Device& m_Device;
-		Renderer& m_Renderer;
+
+		const Device& m_Device;
 		VkImage m_TextureImage {};
 		VkDeviceMemory m_TextureImageMemory {};
 		VkImageView m_TextureImageView {};
 		VkSampler m_TextureSampler {};
+
+		uint32_t m_LayerCount { 1 };
+		TextureMode m_TextureMode { TextureMode::Texture2D };
 	};
 }

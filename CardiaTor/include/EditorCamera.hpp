@@ -29,9 +29,9 @@ namespace Cardia
 		}
 	private:
 
-		void mousePan(const Vector2f& delta);
-		void mouseRotate(const Vector2f& delta);
-		float rotationSpeed() const;
+		void MousePan(const Vector2f& delta);
+		void MouseRotate(const Vector2f& delta);
+		float RotationSpeed() const;
 
 	private:
 		SceneCamera m_Camera;

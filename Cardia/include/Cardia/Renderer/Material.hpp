@@ -11,12 +11,12 @@ namespace Cardia
 	class Material
 	{
 	public:
-		std::shared_ptr<Texture2D> AlbedoMap = nullptr;
-		std::shared_ptr<Texture2D> MetallicRoughnessMap = nullptr;
+		std::shared_ptr<Texture> AlbedoMap = nullptr;
+		std::shared_ptr<Texture> MetallicRoughnessMap = nullptr;
 
-		std::shared_ptr<Texture2D> NormalMap = nullptr;
-		std::shared_ptr<Texture2D> AOMap = nullptr;
-		std::shared_ptr<Texture2D> EmissiveMap = nullptr;
+		std::shared_ptr<Texture> NormalMap = nullptr;
+		std::shared_ptr<Texture> AOMap = nullptr;
+		std::shared_ptr<Texture> EmissiveMap = nullptr;
 
 		Vector4f AlbedoColor = Vector4f(1.0f);
 		float Metallic = 0.0f;

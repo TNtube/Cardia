@@ -37,9 +37,9 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/play.png");
+		m_IconPlay = std::make_unique<Texture>(m_Renderer.GetDevice(), "resources/icons/play.png");
 		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/pause.png");
+		m_IconStop = std::make_unique<Texture>(m_Renderer.GetDevice(), "resources/icons/pause.png");
 		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		ImGuiIO &io = ImGui::GetIO();
@@ -104,6 +104,7 @@ namespace Cardia
 			// Offscreen rendering
 			m_Renderer.BeginRenderPass(m_OffscreenFrameData->CurrentFrameBuffer, m_OffscreenFrameData->CurrentRenderPass);
 
+			// Render Scene
 			if (m_EditorState == EditorState::Edit)
 			{
 				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransformComponent());
@@ -193,8 +194,8 @@ namespace Cardia
 
 		RenderPass renderPass(m_Renderer.GetDevice(), specification);
 
-		Texture2D colorTexture{ m_Renderer.GetDevice(), m_Renderer, extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
-		Texture2D depthTexture{ m_Renderer.GetDevice(), m_Renderer, extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
+		Texture colorTexture{ m_Renderer.GetDevice(), extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
+		Texture depthTexture{ m_Renderer.GetDevice(), extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
 
 		const std::vector attachments = {colorTexture.GetView(), depthTexture.GetView()};
 		const FramebufferSpecification framebufferSpecification {
@@ -643,7 +644,7 @@ namespace Cardia
 		m_SelectedEntity = entity;
 	}
 
-	OffscreenFrameData::OffscreenFrameData(const Renderer &renderer, RenderPass renderPass, Texture2D colorTexture, Texture2D depthTexture, Framebuffer framebuffer)
+	OffscreenFrameData::OffscreenFrameData(const Renderer &renderer, RenderPass renderPass, Texture colorTexture, Texture depthTexture, Framebuffer framebuffer)
 		: m_Renderer(renderer),
 		  CurrentRenderPass{std::move(renderPass)},
 		  ColorTexture{std::move(colorTexture)},

@@ -112,17 +112,17 @@ namespace Cardia
 	}
 
 	template<>
-	inline std::shared_ptr<Texture2D> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
+	inline std::shared_ptr<Texture> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
 		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		const TypeID id {typeid(Texture2D), path.string()};
+		const TypeID id {typeid(Texture), path.string()};
 
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(std::make_shared<Texture2D>(m_Renderer.GetDevice(), m_Renderer, absPath.string()));
+			AssetRefCounter res(std::make_shared<Texture>(m_Renderer.GetDevice(), absPath.string()));
 			m_Assets.insert_or_assign(id, res);
 		}
 
-		return std::static_pointer_cast<Texture2D>(m_Assets[id].Resource);
+		return std::static_pointer_cast<Texture>(m_Assets[id].Resource);
 	}
 
 	template<>

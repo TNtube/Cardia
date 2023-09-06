@@ -38,7 +38,9 @@ namespace Cardia
 		void SetColorBlend(bool blendEnable, VkBlendOp colorBlendOp, VkBlendOp alphaBlendOp, bool logicOpEnable, VkLogicOp logicOp);
 		void SetDescriptorSetLayout(uint32_t layoutsCount, const VkDescriptorSetLayout* pLayouts, uint32_t pushConstCount, const VkPushConstantRange* pPushConstants);
 
-		std::unique_ptr<Pipeline> BuildGraphics(const RenderPass& renderPass);
+		std::unique_ptr<Pipeline> BuildGraphics(const RenderPass& renderPass,
+												const std::vector<VkVertexInputBindingDescription>& bindingDescriptions,
+												const std::vector<VkVertexInputAttributeDescription>& attributeDescriptions);
 
 	private:
 		const Device& m_Device;
@@ -47,7 +49,7 @@ namespace Cardia
 		VkPipelineInputAssemblyStateCreateInfo m_InputAssembly{};
 		VkViewport m_Viewport{};
 		VkRect2D m_Scissor{};
-		VkPipelineRasterizationStateCreateInfo m_Rasterizer{};
+		VkPipelineRasterizationStateCreateInfo m_Rasterizer {};
 		VkPipelineMultisampleStateCreateInfo m_Multisampling{};
 		VkPipelineDepthStencilStateCreateInfo m_DepthStencil{};
 		VkPipelineColorBlendAttachmentState m_ColorBlendAttachment{};

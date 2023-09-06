@@ -12,12 +12,12 @@ namespace Cardia::Component
 			: Color(color) {}
 
 		Vector4f Color { 1.0f };
-		std::shared_ptr<Texture2D> Texture = nullptr;
+		std::shared_ptr<Texture> SpriteTexture = nullptr;
 		float TillingFactor = 1.0f;
 		int32_t ZIndex = 0;
 
 		inline void Reset() {
-			Texture = nullptr;
+			SpriteTexture = nullptr;
 			TillingFactor = 1.0f;
 			Color = Vector4f(1.0f);
 		}

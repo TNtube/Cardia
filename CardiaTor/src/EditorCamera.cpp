@@ -18,42 +18,42 @@ namespace Cardia
 		m_InitialMousePosition = mouse;
 
 		if (Input::IsMouseButtonPressed(Mouse::Middle))
-			mousePan(delta);
+			MousePan(delta);
 		else if (Input::IsMouseButtonPressed(Mouse::Right))
 		{
-			mouseRotate(delta);
+			MouseRotate(delta);
 			if (Input::IsKeyPressed(Key::A)) {
-				m_Transform.SetPosition(m_Transform.GetPosition() +
+				m_Transform.Translate(
 					-m_Transform.Right()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds());
 			}
 			if (Input::IsKeyPressed(Key::D)) {
-				m_Transform.SetPosition(m_Transform.GetPosition() +
+				m_Transform.Translate(
 					m_Transform.Right()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds());
 			}
 			if (Input::IsKeyPressed(Key::W)) {
-				m_Transform.SetPosition(m_Transform.GetPosition() +
+				m_Transform.Translate(
 					m_Transform.Forward()
 					* m_MovementSpeed
 					* Time::GetDeltaTime().AsSeconds());
 			}
 			if (Input::IsKeyPressed(Key::S)) {
-				m_Transform.SetPosition(m_Transform.GetPosition() +
+				m_Transform.Translate(
 					-m_Transform.Forward()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds());
 			}
 			if (Input::IsKeyPressed(Key::Q)) {
-				m_Transform.SetPosition(m_Transform.GetPosition() +
+				m_Transform.Translate(
 					-m_Transform.Up()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds());
 			}
 			if (Input::IsKeyPressed(Key::E)) {
-				m_Transform.SetPosition(m_Transform.GetPosition() +
+				m_Transform.Translate(
 					m_Transform.Up()
 					* m_MovementSpeed *
 					Time::GetDeltaTime().AsSeconds());
@@ -77,7 +77,7 @@ namespace Cardia
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& event) -> bool {
 			float delta = event.getOffSetY();
-			m_Transform.SetPosition(m_Transform.GetPosition() +
+			m_Transform.Translate(
 				m_Transform.Forward()
 				* delta
 				* m_MovementSpeed
@@ -88,7 +88,7 @@ namespace Cardia
 		});
 	}
 
-	void EditorCamera::mousePan(const Vector2f& delta)
+	void EditorCamera::MousePan(const Vector2f& delta)
 	{
 		if (delta == Vector2f::Zero())
 			return;
@@ -105,7 +105,7 @@ namespace Cardia
 			* Time::GetDeltaTime().AsSeconds());
 	}
 
-	void EditorCamera::mouseRotate(const Vector2f &delta)
+	void EditorCamera::MouseRotate(const Vector2f &delta)
 	{
 		if (delta == Vector2f::Zero())
 			return;
@@ -113,12 +113,12 @@ namespace Cardia
 		m_Transform.SetRotation(
 			m_Transform.GetRotation()
 			+ Vector3f(delta.y, delta.x, 0)
-			* rotationSpeed()
+			* RotationSpeed()
 			* Time::GetDeltaTime().AsSeconds());
 	}
 
 
-	float EditorCamera::rotationSpeed() const
+	float EditorCamera::RotationSpeed() const
 	{
 		return 60.0f;
 	}
