@@ -26,11 +26,11 @@ namespace Cardia
 			if (forceCollection) {
 				resource.second.UnusedCounter = MAX_UNUSED_COUNT;
 			}
-
-			if (resource.second.UnusedCounter >= MAX_UNUSED_COUNT) {
-				Instance().m_Assets.erase(resource.first);
-			}
 		}
+
+		std::erase_if(Instance().m_Assets, [](const auto& resource) {
+			return resource.second.UnusedCounter >= MAX_UNUSED_COUNT;
+		});
  	}
 
 	void AssetsManager::CollectionRoutine(DeltaTime& dt)
