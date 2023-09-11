@@ -7,5 +7,10 @@ layout(set = 1, binding = 0) uniform samplerCube cubemap;
 
 void main()
 {
-    fragColor = texture(cubemap, vPosition) * 3.f;
+    vec3 color = texture(cubemap, vPosition).rgb;
+
+    // gamma correct
+    color = pow(color, vec3(1.0/2.2));
+
+    fragColor = vec4(color, 1.0);
 }
