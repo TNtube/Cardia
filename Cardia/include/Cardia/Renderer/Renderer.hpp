@@ -15,7 +15,7 @@ namespace Cardia
 	struct UboData
 	{
 		Matrix4f ViewProjection;
-		Vector3f CameraPosition;
+		Vector4f CameraPositionAndTime;
 	};
 	
 	struct PushConstantData

@@ -142,7 +142,7 @@ namespace Cardia
 				0, nullptr);
 			UboData data {};
 			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.GetWorldTransform().Inverse();
-			data.CameraPosition = cameraTransform.GetPosition();
+			data.CameraPositionAndTime = Vector4f(cameraTransform.GetPosition(), Time::GetTime());
 			frame.MainUboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)

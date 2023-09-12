@@ -9,6 +9,7 @@ struct Vertex {
 
 layout (location = 0) in Vertex vertex;
 layout (location = 4) in vec3 cameraPosition;
+layout (location = 5) in float time;
 
 layout (location = 0) out vec4 fragColor;
 
@@ -16,10 +17,6 @@ layout(set = 1, binding = 0) uniform sampler2D texAlbedo;
 layout(set = 1, binding = 1) uniform sampler2D texNormal;
 layout(set = 1, binding = 2) uniform sampler2D texMetallicRoughness;
 layout(set = 1, binding = 3) uniform sampler2D texAmbientOcclusion;
-
-const vec3[] lightPositions = {
-    vec3(1, 1, 1)
-};
 
 const float PI = 3.14159265359;
 
@@ -111,13 +108,15 @@ void main()
     // reflectance equation
     vec3 Lo = vec3(0.0);
 
-    for (int i = 0; i < lightPositions.length(); i++) {
+    vec3 lightPosition = vec3(cos(time) * 10, 1, 1);
+
+//    for (int i = 0; i < lightPositions.length(); i++) {
         // calculate per-light radiance
-        vec3 L = normalize(lightPositions[i] - vertex.position);
+        vec3 L = normalize(lightPosition - vertex.position);
         vec3 H = normalize(V + L);
-        float distance = length(lightPositions[i] - vertex.position);
+        float distance = length(lightPosition - vertex.position);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = vec3(1.0) * attenuation; // magic value is light color
+        vec3 radiance = vec3(255.0f, 255.0f, 255.0f) * attenuation; // magic value is light color
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
@@ -144,7 +143,7 @@ void main()
 
         // add to outgoing radiance Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-    }
+//    }
 
     vec3 ambient = albedo * ao;
 
