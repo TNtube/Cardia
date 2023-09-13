@@ -114,24 +114,24 @@ namespace Cardia
 		drawRect(position, size, rotation, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Texture2D* texture, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Texture* texture, float tilingFactor)
 	{
 		drawRect(position, size, texture, Vector4f(1.0f), tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Texture2D *texture, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Texture *texture, float tilingFactor)
 	{
 		drawRect(position, size, rotation, texture, Vector4f(1.0f), tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Texture2D* texture, const Vector4f &color, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f& position, const Vector2f& size, const Texture* texture, const Vector4f &color, float tilingFactor)
 	{
 		const Matrix4f transform = Matrix4f::Identity().Translate(position)
 			* Matrix4f::Identity().Scale({ size.x, size.y, 1.0f });
 		drawRect(transform, texture, color, tilingFactor);
 	}
 
-	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Texture2D *texture, const Vector4f &color, float tilingFactor)
+	void Renderer2D::drawRect(const Vector3f &position, const Vector2f &size, float rotation, const Texture *texture, const Vector4f &color, float tilingFactor)
 	{
 		const Matrix4f transform = Matrix4f::Identity().Translate(position)
 			* Matrix4f::Identity().Rotate(Radianf::FromDegree(rotation), { 0.0f, 0.0f, 1.0f })
@@ -144,7 +144,7 @@ namespace Cardia
 		drawRect(transform, nullptr, color);
 	}
 
-	void Renderer2D::drawRect(const Matrix4f &transform, const Texture2D *texture, const Vector4f &color, float tilingFactor, int32_t zIndex, float entityID)
+	void Renderer2D::drawRect(const Matrix4f &transform, const Texture *texture, const Vector4f &color, float tilingFactor, int32_t zIndex, float entityID)
 	{
 		constexpr Vector2f texCoords[] {
 			{ 0.0f, 0.0f },

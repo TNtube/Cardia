@@ -26,12 +26,12 @@ namespace Cardia
 
 		static void drawRect(const Vector3f& position, const Vector2f& size, const Vector4f& color);
 		static void drawRect(const Vector3f& position, const Vector2f& size, float rotation, const Vector4f& color);
-		static void drawRect(const Vector3f& position, const Vector2f& size, const Texture2D* texture, float tilingFactor = 1.0f);
-		static void drawRect(const Vector3f& position, const Vector2f& size, float rotation, const Texture2D* texture, float tilingFactor = 1.0f);
-		static void drawRect(const Vector3f& position, const Vector2f& size, const Texture2D* texture, const Vector4f& color, float tilingFactor = 1.0f);
-		static void drawRect(const Vector3f& position, const Vector2f& size, float rotation, const Texture2D* texture, const Vector4f& color, float tilingFactor = 1.0f);
+		static void drawRect(const Vector3f& position, const Vector2f& size, const Texture* texture, float tilingFactor = 1.0f);
+		static void drawRect(const Vector3f& position, const Vector2f& size, float rotation, const Texture* texture, float tilingFactor = 1.0f);
+		static void drawRect(const Vector3f& position, const Vector2f& size, const Texture* texture, const Vector4f& color, float tilingFactor = 1.0f);
+		static void drawRect(const Vector3f& position, const Vector2f& size, float rotation, const Texture* texture, const Vector4f& color, float tilingFactor = 1.0f);
 		static void drawRect(const Matrix4f& transform, const Vector4f& color);
-		static void drawRect(const Matrix4f& transform, const Texture2D* texture, const Vector4f& color, float tilingFactor = 1.0f, int32_t zIndex = 0, float entityID = -1);
+		static void drawRect(const Matrix4f& transform, const Texture* texture, const Vector4f& color, float tilingFactor = 1.0f, int32_t zIndex = 0, float entityID = -1);
 
 		static void addLight(const Component::Transform& transform, const Component::Light& lightComponent);
 	};

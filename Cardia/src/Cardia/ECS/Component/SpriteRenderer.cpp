@@ -11,7 +11,7 @@ namespace Cardia::Component
 		auto& sprite = root["SpriteRenderer"];
 
 		sprite["Color"] = Color.Serialize();
-		sprite["Texture"] = AssetsManager::GetPathFromAsset(Texture).string();
+		sprite["SpriteTexture"] = AssetsManager::GetPathFromAsset(SpriteTexture).string();
 		sprite["TilingFactor"] = TillingFactor;
 		sprite["ZIndex"] = ZIndex;
 
@@ -26,7 +26,7 @@ namespace Cardia::Component
 		const auto& sprite = root["SpriteRenderer"];
 
 		if (!sprite.isMember("Color") ||
-			!sprite.isMember("Texture") ||
+			!sprite.isMember("SpriteTexture") ||
 			!sprite.isMember("TilingFactor") ||
 			!sprite.isMember("ZIndex"))
 				return std::nullopt;
@@ -38,7 +38,7 @@ namespace Cardia::Component
 		else
 			return std::nullopt;
 
-		temp.Texture = AssetsManager::Load<Texture2D>(sprite["Texture"].asString());
+		temp.SpriteTexture = AssetsManager::Load<Texture>(sprite["SpriteTexture"].asString());
 		temp.TillingFactor = sprite["TilingFactor"].asFloat();
 		temp.ZIndex = sprite["ZIndex"].asInt();
 

@@ -21,7 +21,7 @@ namespace Cardia {
 				VkDescriptorType descriptorType,
 				VkShaderStageFlags stageFlags,
 				uint32_t count = 1);
-			DescriptorSetLayout& Build() const;
+			std::shared_ptr<DescriptorSetLayout> Build() const;
 
 		private:
 			DescriptorLayoutCache& m_Cache;
@@ -49,7 +49,7 @@ namespace Cardia {
 	public:
 		DescriptorLayoutCache(Device& device) : m_Device(device) {}
 
-		DescriptorSetLayout& CreateLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
+		std::shared_ptr<DescriptorSetLayout> CreateLayout(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
 
 		struct DescriptorLayoutInfo {
 			std::vector<VkDescriptorSetLayoutBinding> Bindings;
@@ -73,7 +73,7 @@ namespace Cardia {
 		};
 
 		Device& m_Device;
-		std::unordered_map<DescriptorLayoutInfo, DescriptorSetLayout, DescriptorLayoutHash> m_LayoutCache;
+		std::unordered_map<DescriptorLayoutInfo, std::shared_ptr<DescriptorSetLayout>, DescriptorLayoutHash> m_LayoutCache;
 	};
 
 
@@ -83,21 +83,21 @@ namespace Cardia {
 	public:
 		class Builder {
 		public:
-			Builder(Device& device) : m_Device{device} {}
+			Builder(const Device& device) : m_Device{device} {}
 			Builder& AddPoolSize(VkDescriptorType descriptorType, uint32_t count);
 			Builder& SetPoolFlags(VkDescriptorPoolCreateFlags flags);
 			Builder& SetMaxSets(uint32_t count);
 			DescriptorPool Build() const;
 
 		private:
-			Device& m_Device;
+			const Device& m_Device;
 			std::vector<VkDescriptorPoolSize> m_PoolSizes{};
 			uint32_t m_MaxSets = 1000;
 			VkDescriptorPoolCreateFlags m_PoolFlags = 0;
 		};
 
 		DescriptorPool(
-			Device& device,
+			const Device& device,
 			uint32_t maxSets,
 			VkDescriptorPoolCreateFlags poolFlags,
 			const std::vector<VkDescriptorPoolSize>& poolSizes);
@@ -117,7 +117,7 @@ namespace Cardia {
 		void ResetPool() const;
 
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 		VkDescriptorPool m_DescriptorPool {VK_NULL_HANDLE};
 
 		friend class DescriptorSet;
@@ -169,9 +169,9 @@ namespace Cardia {
 		public:
 			Writer(DescriptorAllocator& allocator, DescriptorSetLayout& setLayout);
 			Writer& WriteBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
-			Writer& WriteImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
+			Writer& WriteImage(uint32_t binding, const VkDescriptorImageInfo& imageInfo);
 
-			std::optional<DescriptorSet> Build();
+			std::unique_ptr<DescriptorSet> Build();
 			void Overwrite(const DescriptorSet& set);
 	
 		private:

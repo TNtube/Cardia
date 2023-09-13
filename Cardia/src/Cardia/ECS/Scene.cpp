@@ -81,7 +81,7 @@ namespace Cardia
 	void Scene::OnRuntimeRender(VkCommandBuffer commandBuffer)
 	{
 		SceneCamera* mainCamera = nullptr;
-		Matrix4f mainCameraTransform;
+		Component::Transform* mainCameraTransform = nullptr;
 
 		{
 			const auto viewCamera = m_Registry.view<Component::Transform, Component::Camera>();
@@ -92,7 +92,7 @@ namespace Cardia
 				if (cam.Primary)
 				{
 					mainCamera = &cam.CameraData;
-					mainCameraTransform = transform.GetWorldTransform();
+					mainCameraTransform = &transform;
 				}
 			}
 		}
@@ -102,27 +102,48 @@ namespace Cardia
 			Log::Error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
 			return;
 		}
-		OnRender(commandBuffer, *mainCamera, mainCameraTransform);
+		OnRender(commandBuffer, *mainCamera, *mainCameraTransform);
 	}
 
-	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Matrix4f& cameraTransform)
+	void Scene::OnRender(VkCommandBuffer commandBuffer, Camera& camera, const Component::Transform& cameraTransform)
 	{
-		m_Renderer.GetPipeline().Bind(commandBuffer);
 		auto& frame = m_Renderer.GetCurrentFrame();
 
+		// Render Skybox
+		auto& skybox = m_Renderer.GetSkybox();
+		auto& skyboxPipeline = skybox.GetPipeline();
+		skyboxPipeline.Bind(commandBuffer);
+		vkCmdBindDescriptorSets(
+			commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			skyboxPipeline.GetLayout(),
+			0, 1,
+			&frame.SkyboxUboDescriptorSet->GetDescriptor(),
+			0, nullptr);
+		SkyboxUboData skyboxUboData {};
+		skyboxUboData.Projection = camera.GetProjectionMatrix();
+		skyboxUboData.Model = cameraTransform.GetWorldTransform().Inverse();
+		skyboxUboData.Model[3] = Vector4f(0, 0, 0, 1);
+		frame.SkyboxUboBuffer->UploadData(sizeof(SkyboxUboData), &skyboxUboData);
+
+		skybox.Draw(commandBuffer);
+
+		// Render Meshes
+		m_Renderer.GetMainPipeline().Bind(commandBuffer);
 		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
 		if (meshView.size_hint() > 0)
 		{
 			vkCmdBindDescriptorSets(
 				commandBuffer,
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				m_Renderer.GetMainPipeline().GetLayout(),
 				0, 1,
-				&frame.UboDescriptorSet->GetDescriptor(),
+				&frame.MainUboDescriptorSet->GetDescriptor(),
 				0, nullptr);
 			UboData data {};
-			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.Inverse();
-			frame.UboBuffer->UploadData(sizeof(UboData), &data);
+			data.ViewProjection = camera.GetProjectionMatrix() * cameraTransform.GetWorldTransform().Inverse();
+			data.CameraPositionAndTime = Vector4f(cameraTransform.GetPosition(), Time::GetTime());
+			frame.MainUboBuffer->UploadData(sizeof(UboData), &data);
 		}
 		for (const auto entity : meshView)
 		{
@@ -133,12 +154,11 @@ namespace Cardia
 			constants.TransposedInvertedModel = constants.Model.Inverse().Transpose();
 			vkCmdPushConstants(
 				commandBuffer,
-				m_Renderer.GetPipelineLayout().GetPipelineLayout(),
+				m_Renderer.GetMainPipeline().GetLayout(),
 				VK_SHADER_STAGE_VERTEX_BIT,
 				0, sizeof(PushConstantData),
 				&constants);
 
-			m_Renderer.GetWhiteTexture().Bind(commandBuffer);
 			meshRenderer.Renderer->Draw(commandBuffer);
 		}
 	}

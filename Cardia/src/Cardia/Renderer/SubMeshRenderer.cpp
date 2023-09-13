@@ -5,7 +5,7 @@
 
 namespace Cardia
 {
-	SubMeshRenderer::SubMeshRenderer(Device& device, SubMesh &subMesh)
+	SubMeshRenderer::SubMeshRenderer(const Device& device, SubMesh &subMesh)
 		: m_Device(device),
 		m_VertexCount(static_cast<uint32_t>(subMesh.GetVertices().size())),
 		m_IndexCount(static_cast<uint32_t>(subMesh.GetIndices().size())),

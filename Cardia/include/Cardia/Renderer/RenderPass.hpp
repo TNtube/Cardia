@@ -16,7 +16,7 @@ namespace Cardia
 	class RenderPass
 	{
 	public:
-		RenderPass(Device& device, const RenderPassSpecification& spec);
+		RenderPass(const Device& device, const RenderPassSpecification& spec);
 		virtual ~RenderPass();
 		RenderPass(const RenderPass& other) = delete;
 		RenderPass& operator=(const RenderPass& other) = delete;
@@ -41,7 +41,7 @@ namespace Cardia
 		VkRenderPass GetRenderPass() const { return m_RenderPass; }
 
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 		VkRenderPass m_RenderPass {};
 	};
 }

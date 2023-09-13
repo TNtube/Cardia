@@ -4,7 +4,7 @@
 
 namespace Cardia
 {
-	RenderPass::RenderPass(Device& device, const RenderPassSpecification& spec) : m_Device(device)
+	RenderPass::RenderPass(const Device& device, const RenderPassSpecification& spec) : m_Device(device)
 	{
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

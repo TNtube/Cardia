@@ -29,7 +29,7 @@ namespace Cardia
 	class Batch
 	{
 	public:
-		Batch(const Vector3f& cameraPosition, const Texture2D* texture, const BatchSpecification& specification);
+		Batch(const Vector3f& cameraPosition, const Texture* texture, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
 		bool addMesh(SubMesh* mesh);
@@ -46,6 +46,6 @@ namespace Cardia
 
 		std::vector<std::vector<uint32_t>> indexBufferData;
 		uint32_t indexOffset {};
-		const Texture2D* m_CurrentTexture = nullptr;
+		const Texture* m_CurrentTexture = nullptr;
 	};
 }

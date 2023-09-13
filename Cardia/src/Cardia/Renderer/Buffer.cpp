@@ -12,7 +12,7 @@ namespace Cardia
 		return instanceSize;
 	}
 
-	Buffer::Buffer(Device& device, VkDeviceSize size, uint32_t instanceCount, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffsetAlignment)
+	Buffer::Buffer(const Device& device, VkDeviceSize size, uint32_t instanceCount, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffsetAlignment)
 		: m_Device(device), m_InstanceSize(size)
 	{
 		m_AlignmentSize = GetAlignment(size, minOffsetAlignment);

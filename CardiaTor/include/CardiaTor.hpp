@@ -4,6 +4,7 @@
 #include <Cardia.hpp>
 #include <random>
 #include <stack>
+#include <imgui.h>
 
 #include "EditorCamera.hpp"
 #include "Cardia/Renderer/RenderPass.hpp"
@@ -21,16 +22,15 @@ namespace Cardia
 
 	struct OffscreenFrameData
 	{
-		OffscreenFrameData(RenderPass renderPass, Texture2D colorTexture, Texture2D depthTexture, Framebuffer framebuffer)
-			: RenderPass{std::move(renderPass)},
-			  ColorTexture{std::move(colorTexture)},
-			  DepthTexture{std::move(depthTexture)},
-			  Framebuffer{std::move(framebuffer)}
-		{}
-		RenderPass RenderPass;
-		Texture2D ColorTexture;
-		Texture2D DepthTexture;
-		Framebuffer Framebuffer;
+		OffscreenFrameData(const Renderer& renderer, RenderPass renderPass, Texture colorTexture, Texture depthTexture, Framebuffer framebuffer);
+		RenderPass CurrentRenderPass;
+		Texture ColorTexture;
+		std::unique_ptr<DescriptorSet> ColorTextureDescriptorSet;
+		Texture DepthTexture;
+		std::unique_ptr<DescriptorSet> DepthTextureDescriptorSet;
+		Framebuffer CurrentFrameBuffer;
+	private:
+		const Renderer& m_Renderer;
 	};
 
 
@@ -73,8 +73,10 @@ namespace Cardia
 
 		std::unique_ptr<OffscreenFrameData> m_OffscreenFrameData;
 
-		std::shared_ptr<Texture2D> m_IconPlay;
-		std::shared_ptr<Texture2D> m_IconStop;
+		std::shared_ptr<Texture> m_IconPlay;
+		ImTextureID m_IconPlayDescriptorSet {};
+		std::shared_ptr<Texture> m_IconStop;
+		ImTextureID m_IconStopDescriptorSet {};
 
 		std::unique_ptr<Scene> m_CurrentScene;
 		std::unique_ptr<Scene> m_LastEditorScene;

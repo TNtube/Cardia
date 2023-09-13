@@ -2,7 +2,7 @@
 	"Entities" : 
 	[
 		{
-			"ID" : "5b5cbffc-9199-4a56-9830-d4c4675347fd",
+			"ID" : "1e1f133e-9266-4c51-b2ba-abc5bbfbb012",
 			"Label" : 
 			{
 				"Color" : 
@@ -12,7 +12,7 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Floor"
+				"Name" : "cube"
 			},
 			"MeshRenderer" : 
 			{
@@ -33,75 +33,8 @@
 				"Position" : 
 				{
 					"x" : 0.0,
-					"y" : -1.1000000238418579,
-					"z" : 0.0
-				},
-				"Rotation" : 
-				{
-					"w" : 1.0,
-					"x" : 0.0,
 					"y" : 0.0,
 					"z" : 0.0
-				},
-				"Scale" : 
-				{
-					"x" : 10.0,
-					"y" : 0.10000000149011612,
-					"z" : 10.0
-				}
-			}
-		},
-		{
-			"ID" : "699b08e2-f8f6-4876-931d-f6d09890a424",
-			"Label" : 
-			{
-				"Color" : 
-				{
-					"w" : 1.0,
-					"x" : 1.0,
-					"y" : 1.0,
-					"z" : 1.0
-				},
-				"Name" : "Player"
-			},
-			"MeshRenderer" : 
-			{
-				"Mesh" : ".\\cube.obj"
-			},
-			"Relationship" : 
-			{
-				"ChildCount" : 0
-			},
-			"Script" : 
-			{
-				"Attributes" : 
-				[
-					{
-						"name" : "velocity",
-						"type" : 1,
-						"value" : 300
-					},
-					{
-						"name" : "remaining_angle",
-						"type" : 2,
-						"value" : 0.0
-					}
-				],
-				"Path" : ".\\Moving.py"
-			},
-			"Transform" : 
-			{
-				"Euler" : 
-				{
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 0.0
-				},
-				"Position" : 
-				{
-					"x" : -7.152557373046875e-07,
-					"y" : 1.4126300811767578e-05,
-					"z" : -2.9802322387695312e-06
 				},
 				"Rotation" : 
 				{
@@ -123,7 +56,7 @@
 			{
 				"CameraData" : 
 				{
-					"AspectRatio" : 1.8790984153747559,
+					"AspectRatio" : 1.7715133428573608,
 					"Orthographic" : 
 					{
 						"Far" : 1.0,
@@ -156,18 +89,6 @@
 			{
 				"ChildCount" : 0
 			},
-			"Script" : 
-			{
-				"Attributes" : 
-				[
-					{
-						"name" : "message",
-						"type" : 3,
-						"value" : "Cardia"
-					}
-				],
-				"Path" : ".\\Greeting.py"
-			},
 			"Transform" : 
 			{
 				"Euler" : 
@@ -194,6 +115,56 @@
 					"x" : 1.0,
 					"y" : 1.0,
 					"z" : 1.0
+				}
+			}
+		},
+		{
+			"ID" : "5b5cbffc-9199-4a56-9830-d4c4675347fd",
+			"Label" : 
+			{
+				"Color" : 
+				{
+					"w" : 1.0,
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
+				},
+				"Name" : "Floor"
+			},
+			"MeshRenderer" : 
+			{
+				"Mesh" : ".\\Sponza.gltf"
+			},
+			"Relationship" : 
+			{
+				"ChildCount" : 0
+			},
+			"Transform" : 
+			{
+				"Euler" : 
+				{
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
+				},
+				"Position" : 
+				{
+					"x" : 0.0,
+					"y" : -0.69999998807907104,
+					"z" : 0.0
+				},
+				"Rotation" : 
+				{
+					"w" : 1.0,
+					"x" : 0.0,
+					"y" : 0.0,
+					"z" : 0.0
+				},
+				"Scale" : 
+				{
+					"x" : 0.10000000149011612,
+					"y" : 0.10000000149011612,
+					"z" : 0.10000000149011612
 				}
 			}
 		}

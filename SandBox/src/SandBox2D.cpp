@@ -6,8 +6,8 @@
 
 SandBox2D::SandBox2D()
 {
-	// m_TextureSquare = Cardia::Texture2D::create("resources/square.jpg");
-	// m_TextureBox = Cardia::Texture2D::create("resources/container.jpg");
+	// m_TextureSquare = Cardia::SpriteTexture::create("resources/square.jpg");
+	// m_TextureBox = Cardia::SpriteTexture::create("resources/container.jpg");
 
 	std::uniform_int_distribution dist{-7, 6};
 	applePos = {static_cast<float>(dist(random)), static_cast<float>(dist(random)), 0.0f};
