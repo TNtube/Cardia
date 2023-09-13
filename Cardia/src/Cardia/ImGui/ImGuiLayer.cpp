@@ -52,7 +52,7 @@ namespace Cardia
 //		ImGui_ImplVulkan_LoadFunctions( ??? );
 		ImGui_ImplVulkan_LoadFunctions([](const char *function_name, void *vulkan_instance) {
 			return vkGetInstanceProcAddr(*(reinterpret_cast<VkInstance *>(vulkan_instance)), function_name);
-		}, &m_Renderer.GetDevice().m_Instance);
+		}, const_cast<VkInstance*>(&m_Renderer.GetDevice().m_Instance));
 		ImGui_ImplVulkan_Init(&init_info, m_Renderer.GetSwapChain().GetRenderPass().GetRenderPass());
 
 		constexpr float fontSize = 16.0f;
