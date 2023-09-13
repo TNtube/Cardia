@@ -9,18 +9,26 @@
 #include "Cardia/Asset/AssetsManager.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "CardiaTor.hpp"
+
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 namespace Cardia::Panel
 {
 	int FileHierarchyPanel::m_LastWindowId = 0;
 	FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++)
 	{
-		m_FolderIcon = AssetsManager::Load<Texture2D>("resources/icons/folder.png");
-		m_FileIcon = AssetsManager::Load<Texture2D>("resources/icons/file.png");
+		m_FolderIcon = AssetsManager::Load<Texture>("resources/icons/folder.png");
+		m_FileIcon = AssetsManager::Load<Texture>("resources/icons/file.png");
 	}
 
 	void FileHierarchyPanel::OnImGuiRender(CardiaTor* appContext)
 	{
+		if (!m_FolderIconDescriptorSet && !m_FileIconDescriptorSet)
+		{
+			m_FileIconDescriptorSet = ImGui_ImplVulkan_AddTexture(m_FileIcon->GetSampler(), m_FileIcon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			m_FolderIconDescriptorSet = ImGui_ImplVulkan_AddTexture(m_FolderIcon->GetSampler(), m_FolderIcon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
 		char buff[64];
 		sprintf(buff, "Files##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
@@ -69,10 +77,9 @@ namespace Cardia::Panel
 			std::string path(entry.path().filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			const auto id = m_FolderIcon->GetDescriptorSet().GetDescriptor();
 
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
-			if (ImGui::ImageButton(id, button_sz))
+			if (ImGui::ImageButton(m_FolderIconDescriptorSet, button_sz))
 			{
 				m_CurrentPath /= path;
 			}
@@ -93,8 +100,7 @@ namespace Cardia::Panel
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
 
-			const auto id = m_FileIcon->GetDescriptorSet().GetDescriptor();
-			ImGui::ImageButton(id, button_sz);
+			ImGui::ImageButton(m_FileIconDescriptorSet, button_sz);
 
 			if (ImGui::BeginDragDropSource())
 			{

@@ -33,11 +33,10 @@ namespace Cardia
 
 	void Application::Run()
 	{
-		float time = 0.0f;
 		while (m_Running)
 		{
-			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - time;
-			time += Time::m_DeltaTime.AsSeconds();
+			Time::m_DeltaTime = static_cast<float>(glfwGetTime()) - Time::m_LastFrameTime;
+			Time::m_LastFrameTime += Time::m_DeltaTime.AsSeconds();
 			m_Window->OnUpdate();
 
 			OnUpdate();

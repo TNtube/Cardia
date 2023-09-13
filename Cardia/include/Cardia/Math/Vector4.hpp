@@ -3,6 +3,7 @@
 #include <json/value.h>
 
 #include "Cardia/Core/Concepts.hpp"
+#include "Vector3.hpp"
 
 
 namespace Cardia
@@ -20,6 +21,9 @@ namespace Cardia
 
 		constexpr Vector4(T x, T y, T z, T w) noexcept
 			: x(x), y(y), z(z), w(w) {}
+
+		constexpr Vector4(const Vector3<T>& other, T w) noexcept
+			: x(other.x), y(other.y), z(other.z), w(w) {}
 
 		explicit constexpr Vector4(T scalar) noexcept
 			: x(scalar), y(scalar), z(scalar), w(scalar) {}

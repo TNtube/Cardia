@@ -7,7 +7,7 @@
 
 namespace Cardia
 {
-	Batch::Batch(const Vector3f& cameraPosition, const Texture2D* texture, const BatchSpecification& specification) :
+	Batch::Batch(const Vector3f& cameraPosition, const Texture* texture, const BatchSpecification& specification) :
 		specification(specification), camPos(cameraPosition), m_CurrentTexture(texture)
 	{
 

@@ -9,7 +9,7 @@ namespace Cardia
 {
 	class ImGuiLayer {
 	public:
-		ImGuiLayer(Renderer& renderer);
+		explicit ImGuiLayer(Renderer& renderer);
 		~ImGuiLayer();
 
 		void OnEvent(Event &event) {}
@@ -22,6 +22,5 @@ namespace Cardia
 		void CreatePool();
 		Renderer& m_Renderer;
 		std::unique_ptr<DescriptorPool> m_Pool;
-		float m_Time {};
 	};
 }

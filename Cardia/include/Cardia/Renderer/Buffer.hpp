@@ -11,7 +11,7 @@ namespace Cardia
 	class Buffer
 	{
 	public:
-		Buffer(Device& device, VkDeviceSize size, uint32_t instanceCount, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffsetAlignment = 1);
+		Buffer(const Device& device, VkDeviceSize size, uint32_t instanceCount, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffsetAlignment = 1);
 		Buffer(Buffer && other) noexcept;
 		Buffer& operator=(Buffer&& other) noexcept;
 		Buffer(const Buffer&) = delete;
@@ -24,7 +24,7 @@ namespace Cardia
 		
 		virtual ~Buffer();
 	private:
-		Device& m_Device;
+		const Device& m_Device;
 		VkBuffer m_Buffer {};
 		VkDeviceMemory m_BufferMemory {};
 		void* m_MappedMemory = nullptr;

@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <set>
 #include <string>
+#include <imgui.h>
 
 #include "IPanel.hpp"
 #include "Cardia/Renderer/Texture.hpp"
@@ -25,8 +26,10 @@ namespace Cardia::Panel
 		std::set<std::filesystem::directory_entry> m_Folders;
 		std::set<std::filesystem::directory_entry> m_Files;
 
-		std::shared_ptr<Texture2D> m_FileIcon;
-		std::shared_ptr<Texture2D> m_FolderIcon;
+		std::shared_ptr<Texture> m_FileIcon;
+		ImTextureID m_FileIconDescriptorSet {};
+		std::shared_ptr<Texture> m_FolderIcon;
+		ImTextureID m_FolderIconDescriptorSet {};
 
 		static int m_LastWindowId;
 	};

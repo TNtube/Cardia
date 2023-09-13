@@ -250,9 +250,9 @@ namespace Cardia
 		Matrix4 result(static_cast<T>(0));
 
 		result[0][0] = static_cast<T>(1) / (aspectRatio * tanHalfFovY);
-		result[1][1] = static_cast<T>(1) / tanHalfFovY;
-		result[2][2] = zFar / (zNear - zFar);
-		result[2][3] = - static_cast<T>(1);
+		result[1][1] = static_cast<T>(1) / (tanHalfFovY);
+		result[2][2] = zFar / (zFar - zNear);
+		result[2][3] = static_cast<T>(1);
 		result[3][2] = -(zFar * zNear) / (zFar - zNear);
 
 		return result;
@@ -265,7 +265,7 @@ namespace Cardia
 
 		result[0][0] = static_cast<T>(2) / (right - left);
 		result[1][1] = static_cast<T>(2) / (top - bottom);
-		result[2][2] = - static_cast<T>(1) / (zFar - zNear);
+		result[2][2] = static_cast<T>(1) / (zFar - zNear);
 		result[3][0] = - (right + left) / (right - left);
 		result[3][1] = - (top + bottom) / (top - bottom);
 		result[3][2] = - zNear / (zFar - zNear);

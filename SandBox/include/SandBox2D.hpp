@@ -18,8 +18,8 @@ public:
 
 private:
 	void onResize(const Cardia::WindowResizeEvent& e);
-	std::unique_ptr<Cardia::Texture2D> m_TextureSquare;
-	std::unique_ptr<Cardia::Texture2D> m_TextureBox;
+	std::unique_ptr<Cardia::Texture> m_TextureSquare;
+	std::unique_ptr<Cardia::Texture> m_TextureBox;
 
 	Cardia::Vector2f m_SceneSize {};
 

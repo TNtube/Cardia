@@ -51,6 +51,8 @@ struct QueueFamilyIndices {
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
 		void CopyBufferToImage(
 				VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
+		void CopyBufferToImageCubemap(
+				VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
 
 		void CreateImageWithInfo(
 			const VkImageCreateInfo &imageInfo,

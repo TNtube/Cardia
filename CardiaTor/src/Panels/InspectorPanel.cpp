@@ -11,6 +11,7 @@
 #include "Cardia/Application.hpp"
 #include "Cardia/Asset/AssetsManager.hpp"
 #include "Cardia/Project/Project.hpp"
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 
 namespace Cardia::Panel
@@ -18,6 +19,11 @@ namespace Cardia::Panel
 	int InspectorPanel::m_LastWindowId = 0;
 	void InspectorPanel::OnImGuiRender(CardiaTor* appContext)
 	{
+		if (!m_WhiteTextureSet)
+		{
+			m_WhiteTextureSet = ImGui_ImplVulkan_AddTexture(appContext->GetRenderer().GetWhiteTexture()->GetSampler(), appContext->GetRenderer().GetWhiteTexture()->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
+
 		char buff[64];
 		sprintf(buff, "Inspector##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
@@ -88,35 +94,35 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::SpriteRenderer>("Sprite Renderer", [appContext](Component::SpriteRenderer& sprite) {
 			EditorUI::ColorEdit4("Color", &sprite.Color.x);
 
-			auto& white = appContext->GetRenderer().GetWhiteTexture();
-			const VkDescriptorSet texID = sprite.Texture ? sprite.Texture->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
+			auto white = appContext->GetRenderer().GetWhiteTexture();
+//			const VkDescriptorSet texID = sprite.SpriteTexture ? sprite.SpriteTexture->GetDescriptorSet().GetDescriptor() : white->GetDescriptorSet().GetDescriptor();
 
-			ImGui::Image(texID, {15, 15});
+//			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
 				{
 					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					if (auto tex = AssetsManager::Load<Texture2D>(cStrPath))
+					if (auto tex = AssetsManager::Load<Texture>(cStrPath))
 					{
-						sprite.Texture = std::move(tex);
+						sprite.SpriteTexture = std::move(tex);
 					}
 				}
 				ImGui::EndDragDropTarget();
 			}
 			ImGui::SameLine();
-			ImGui::Text("Texture");
+			ImGui::Text("SpriteTexture");
 			EditorUI::DragInt("zIndex", &sprite.ZIndex, 0.05f);
 		});
 
 
 		// MeshRendererC Component
 
-		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext](Component::MeshRendererC& meshRendererC) {
+		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext, this](Component::MeshRendererC& meshRendererC) {
 
 			auto str = AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string();
 
-			EditorUI::InputText("Mesh path", &str, Vector4f(0), ImGuiInputTextFlags_ReadOnly);
+			EditorUI::InputText("Mesh path", &str, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
@@ -132,34 +138,32 @@ namespace Cardia::Panel
 			ImGui::Text("Materials");
 
 			if (!meshRendererC.Renderer->GetMesh()) return;
-			auto& materials = meshRendererC.Renderer->GetMesh()->GetMaterials();
+			auto& materials = meshRendererC.Renderer->GetMesh()->GetMaterialInstances();
 			for (auto& material : materials) {
-				auto& white = appContext->GetRenderer().GetWhiteTexture();
-				const VkDescriptorSet texID = material ? material->GetDescriptorSet().GetDescriptor() : white.GetDescriptorSet().GetDescriptor();
-				ImGui::Image(texID, {15, 15});
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
-					{
-						const auto* cStrPath = static_cast<const char*>(payload->Data);
-						
-						std::filesystem::path path = cStrPath;
-						if (auto texture = AssetsManager::Load<Texture2D>(path))
-						{
-							material = std::move(texture);
-						}
-					}
-					ImGui::EndDragDropTarget();
-				}
+				ImGui::Image(m_WhiteTextureSet, {15, 15});
+//				if (ImGui::BeginDragDropTarget())
+//				{
+//					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+//					{
+//						const auto* cStrPath = static_cast<const char*>(payload->Data);
+//
+//						std::filesystem::path path = cStrPath;
+//						if (auto texture = AssetsManager::Load<SpriteTexture>(path))
+//						{
+//							material = std::move(texture);
+//						}
+//					}
+//					ImGui::EndDragDropTarget();
+//				}
 				ImGui::SameLine();
-				ImGui::Text("Texture");
+				ImGui::Text("SpriteTexture");
 			}
 			const auto textWidth = ImGui::CalcTextSize("  +  ").x;
 
 			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - textWidth) * 0.5f);
-			if (ImGui::Button("  +  ")) {
-				materials.push_back(AssetsManager::Load<Texture2D>("resources/textures/white.jpg", AssetsManager::LoadType::Editor));
-			}
+//			if (ImGui::Button("  +  ")) {
+//				materials.push_back(AssetsManager::Load<SpriteTexture>("resources/textures/white.jpg", AssetsManager::LoadType::Editor));
+//			}
 		});
 
 		// Camera Component

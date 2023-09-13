@@ -21,9 +21,11 @@ namespace Cardia {
 
 	class Time {
 	public:
-		static DeltaTime GetDeltaTime() { return m_DeltaTime; };
+		static DeltaTime GetDeltaTime() { return m_DeltaTime; }
+		static double GetTime() { return m_LastFrameTime; }
 	private:
 		friend Application;
 		static DeltaTime m_DeltaTime;
+		static double m_LastFrameTime;
 	};
 }

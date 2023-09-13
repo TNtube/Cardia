@@ -27,7 +27,7 @@ namespace Cardia
 		return *this;
 	}
 
-	DescriptorSetLayout& DescriptorSetLayout::Builder::Build() const {
+	std::shared_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::Build() const {
 		return m_Cache.CreateLayout(m_Bindings);
 	}
 
@@ -69,7 +69,7 @@ namespace Cardia
 	}
 
 
-	DescriptorSetLayout& DescriptorLayoutCache::CreateLayout(
+	std::shared_ptr<DescriptorSetLayout> DescriptorLayoutCache::CreateLayout(
 		const std::vector<VkDescriptorSetLayoutBinding>& bindings)
 	{
 		DescriptorLayoutInfo layoutInfo;
@@ -104,8 +104,7 @@ namespace Cardia
 			return it->second;
 		}
 
-		DescriptorSetLayout layout{m_Device, layoutInfo.Bindings};
-		m_LayoutCache.insert({layoutInfo, std::move(layout)});
+		m_LayoutCache.insert({layoutInfo, std::make_shared<DescriptorSetLayout>(m_Device, layoutInfo.Bindings)});
 		return m_LayoutCache.at(layoutInfo);
 	}
 
@@ -168,7 +167,7 @@ namespace Cardia
 
 
 	DescriptorPool::DescriptorPool(
-		Device& device,
+		const Device& device,
 		uint32_t maxSets,
 		VkDescriptorPoolCreateFlags poolFlags,
 		const std::vector<VkDescriptorPoolSize>& poolSizes) : m_Device{device}
@@ -350,7 +349,7 @@ namespace Cardia
 	}
 
 	DescriptorSet::Writer& DescriptorSet::Writer::WriteImage(
-		uint32_t binding, VkDescriptorImageInfo* imageInfo) {
+		uint32_t binding, const VkDescriptorImageInfo& imageInfo) {
 		assert(std::ranges::count_if(m_SetLayout.m_Bindings, [binding](const VkDescriptorSetLayoutBinding& layoutBinding)
 				{
 					return layoutBinding.binding == binding;
@@ -366,20 +365,20 @@ namespace Cardia
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		write.descriptorType = bindingDescription.descriptorType;
 		write.dstBinding = binding;
-		write.pImageInfo = imageInfo;
+		write.pImageInfo = &imageInfo;
 		write.descriptorCount = 1;
 
 		m_Writes.push_back(write);
 		return *this;
 	}
 
-	std::optional<DescriptorSet> DescriptorSet::Writer::Build() {
+	std::unique_ptr<DescriptorSet> DescriptorSet::Writer::Build() {
 		auto out = m_Allocator.Allocate(m_SetLayout);
 		if (!out.has_value()) {
 			return {};
 		}
 		Overwrite(out.value());
-		return out;
+		return std::make_unique<DescriptorSet>(std::move(out.value()));
 	}
 
 	void DescriptorSet::Writer::Overwrite(const DescriptorSet& set) {

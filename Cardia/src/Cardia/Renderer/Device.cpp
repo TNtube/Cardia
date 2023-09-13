@@ -496,6 +496,45 @@ void Device::CopyBufferToImage(
 	EndSingleTimeCommands(commandBuffer);
 }
 
+void Device::CopyBufferToImageCubemap(
+		VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const
+{
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+	std::vector<VkBufferImageCopy> regions;
+
+	const uint32_t imageSize = width * height * 4 * 6;
+	const uint32_t layerSize = imageSize / 6;
+
+	for (uint32_t face = 0; face < 6; face++)
+	{
+		// TODO: add support for mip levels.
+
+		const uint32_t offset = layerSize * face;
+
+		VkBufferImageCopy region{};
+		region.bufferOffset = offset;
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = 0;
+		region.imageSubresource.baseArrayLayer = face;
+		region.imageSubresource.layerCount = 1;
+		region.imageExtent.width = width;
+		region.imageExtent.height = height;
+		region.imageExtent.depth = 1;
+		regions.push_back(region);
+	}
+
+	vkCmdCopyBufferToImage(
+			commandBuffer,
+			buffer,
+			image,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			static_cast<uint32_t>(regions.size()),
+			regions.data());
+
+	EndSingleTimeCommands(commandBuffer);
+}
+
 void Device::CreateImageWithInfo(
 		const VkImageCreateInfo &imageInfo,
 		VkMemoryPropertyFlags properties,

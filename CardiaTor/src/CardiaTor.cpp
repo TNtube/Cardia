@@ -14,6 +14,7 @@
 #include "Panels/FileHierarchyPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Panels/ConsolePanel.hpp"
+#include "Cardia/ImGui/imgui_impl_vulkan.h"
 
 
 namespace Cardia
@@ -36,8 +37,10 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/play.png");
-		m_IconStop = std::make_unique<Texture2D>(m_Renderer.GetDevice(), m_Renderer, "resources/icons/pause.png");
+		m_IconPlay = std::make_unique<Texture>(m_Renderer.GetDevice(), "resources/icons/play.png");
+		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		m_IconStop = std::make_unique<Texture>(m_Renderer.GetDevice(), "resources/icons/pause.png");
+		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		ImGuiIO &io = ImGui::GetIO();
 		io.IniFilename = "resources/editorconfig.ini";
@@ -99,11 +102,12 @@ namespace Cardia
 		if (const auto commandBuffer = m_Renderer.Begin())
 		{
 			// Offscreen rendering
-			m_Renderer.BeginRenderPass(m_OffscreenFrameData->Framebuffer, m_OffscreenFrameData->RenderPass);
+			m_Renderer.BeginRenderPass(m_OffscreenFrameData->CurrentFrameBuffer, m_OffscreenFrameData->CurrentRenderPass);
 
+			// Render Scene
 			if (m_EditorState == EditorState::Edit)
 			{
-				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransformMatrix());
+				m_CurrentScene->OnRender(commandBuffer, m_EditorCamera.GetCamera(), m_EditorCamera.GetTransformComponent());
 			} else if (m_EditorState == EditorState::Play)
 			{
 				m_CurrentScene->OnRuntimeRender(commandBuffer);
@@ -190,8 +194,8 @@ namespace Cardia
 
 		RenderPass renderPass(m_Renderer.GetDevice(), specification);
 
-		Texture2D colorTexture{ m_Renderer.GetDevice(), m_Renderer, extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
-		Texture2D depthTexture{ m_Renderer.GetDevice(), m_Renderer, extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
+		Texture colorTexture{ m_Renderer.GetDevice(), extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
+		Texture depthTexture{ m_Renderer.GetDevice(), extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
 
 		const std::vector attachments = {colorTexture.GetView(), depthTexture.GetView()};
 		const FramebufferSpecification framebufferSpecification {
@@ -205,7 +209,12 @@ namespace Cardia
 		// TODO: Make waiting for device idle a device method
 		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
 
-		m_OffscreenFrameData = std::make_unique<OffscreenFrameData>(std::move(renderPass), std::move(colorTexture), std::move(depthTexture), std::move(framebuffer));
+		m_OffscreenFrameData = std::make_unique<OffscreenFrameData>(
+			m_Renderer,
+			std::move(renderPass),
+			std::move(colorTexture),
+			std::move(depthTexture),
+			std::move(framebuffer));
 
 	}
 
@@ -344,6 +353,7 @@ namespace Cardia
 		for (auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
+		m_CurrentScene->OnViewportResize(m_SceneSize.x, m_SceneSize.y);
 	}
 
 	void CardiaTor::SaveScene() const
@@ -429,8 +439,7 @@ namespace Cardia
 
 		ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 
-		const auto& textureID = m_OffscreenFrameData->ColorTexture;
-		ImGui::Image(textureID.GetDescriptorSet().GetDescriptor(),
+		ImGui::Image(m_OffscreenFrameData->ColorTextureDescriptorSet->GetDescriptor(),
 			     ImVec2{m_SceneSize.x, m_SceneSize.y});
 
 		if (ImGui::BeginDragDropTarget())
@@ -457,10 +466,7 @@ namespace Cardia
 		const auto playButtonSize = 40;
 		ImGui::SetCursorScreenPos(ImVec2(canvas_p0.x + (m_SceneSize.x - playButtonSize) / 2.0f, canvas_p0.y + 10));
 
-		static auto& playSet = m_IconPlay->GetDescriptorSet();
-		static auto& stopSet = m_IconStop->GetDescriptorSet();
-
-		auto set = m_EditorState == EditorState::Edit ? playSet.GetDescriptor() : stopSet.GetDescriptor();
+		ImTextureID set = m_EditorState == EditorState::Edit ? m_IconPlayDescriptorSet : m_IconStopDescriptorSet;
 		if (ImGui::ImageButton(set, ImVec2(playButtonSize, playButtonSize), ImVec2(0, 0), ImVec2(1, 1)))
 		{
 			switch (m_EditorState)
@@ -636,5 +642,35 @@ namespace Cardia
 	void CardiaTor::SetSelectedEntity(Entity entity)
 	{
 		m_SelectedEntity = entity;
+	}
+
+	OffscreenFrameData::OffscreenFrameData(const Renderer &renderer, RenderPass renderPass, Texture colorTexture, Texture depthTexture, Framebuffer framebuffer)
+		: m_Renderer(renderer),
+		  CurrentRenderPass{std::move(renderPass)},
+		  ColorTexture{std::move(colorTexture)},
+		  DepthTexture{std::move(depthTexture)},
+		  CurrentFrameBuffer{std::move(framebuffer)}
+	{
+		auto textureLayout = DescriptorSetLayout::Builder(m_Renderer.GetDescriptorLayoutCache())
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.Build();
+
+		VkDescriptorImageInfo imageBufferInfo;
+		imageBufferInfo.sampler = ColorTexture.GetSampler();
+		imageBufferInfo.imageView = ColorTexture.GetView();
+		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		ColorTextureDescriptorSet =
+			DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), *textureLayout)
+				.WriteImage(0, imageBufferInfo)
+				.Build();
+
+		imageBufferInfo.sampler = DepthTexture.GetSampler();
+		imageBufferInfo.imageView = DepthTexture.GetView();
+
+		DepthTextureDescriptorSet =
+			DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), *textureLayout)
+				.WriteImage(0, imageBufferInfo)
+				.Build();
 	}
 }

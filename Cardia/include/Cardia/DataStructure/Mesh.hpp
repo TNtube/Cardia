@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <memory>
+#include <Cardia/Renderer/Material.hpp>
 #include "SubMesh.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 
@@ -11,14 +12,12 @@ namespace Cardia
 		Mesh() = default;
 		std::vector<SubMesh>& GetSubMeshes() { return  m_SubMeshes; }
 		const std::vector<SubMesh>& GetSubMeshes() const { return  m_SubMeshes; }
-		std::vector<std::shared_ptr<Texture2D>>& GetMaterials() { return  m_Materials; }
-		const std::vector<std::shared_ptr<Texture2D>>& GetMaterials() const { return  m_Materials; }
+		const std::vector<MaterialInstance>& GetMaterialInstances() const { return  m_MaterialInstances; }
 
-		static std::shared_ptr<Mesh> ReadMeshFromFile(const std::string& path);
+		static std::shared_ptr<Mesh> ReadMeshFromFile(Renderer& renderer, const std::string& path);
 
 	private:
-		std::vector<std::shared_ptr<Texture2D>> m_Materials;
+		std::vector<MaterialInstance> m_MaterialInstances;
 		std::vector<SubMesh> m_SubMeshes {};
-
 	};
 }

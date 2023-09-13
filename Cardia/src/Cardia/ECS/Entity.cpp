@@ -7,7 +7,9 @@ namespace Cardia
 {
 	Entity Entity::GetParent() const
 	{
-		return {m_Scene->m_Registry.get<Component::Relationship>(m_Entity).Parent, m_Scene};
+		if (m_Scene)
+			return {m_Scene->m_Registry.get<Component::Relationship>(m_Entity).Parent, m_Scene};
+		return {entt::null, nullptr};
 	}
 
 	ChildCollection Entity::GetChildren() const
@@ -17,7 +19,9 @@ namespace Cardia
 
 	ChildCollection::ChildIterator ChildCollection::begin() const
 	{
-		return ChildIterator( {m_Parent.GetComponent<Component::Relationship>().FirstChild, m_Parent.m_Scene} );
+		if (m_Parent.IsValid())
+			return ChildIterator( {m_Parent.GetComponent<Component::Relationship>().FirstChild, m_Parent.m_Scene} );
+		return ChildIterator( {entt::null, m_Parent.m_Scene} );
 	}
 
 	ChildCollection::ChildIterator ChildCollection::end() const
