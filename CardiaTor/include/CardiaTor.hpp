@@ -49,7 +49,7 @@ namespace Cardia
 		void OnUpdate() override;
 		void OnRender() override;
 		void OnEvent(Event& event) override;
-		void OnImGuiDraw() override;
+		void OnImGuiDraw();
 		void SetSelectedEntity(Entity entity);
 
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }

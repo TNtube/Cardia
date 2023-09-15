@@ -21,7 +21,6 @@ namespace Cardia
 		virtual void OnEvent(Event& e) = 0;
 		virtual void OnUpdate() = 0;
 		virtual void OnRender() = 0;
-		virtual void OnImGuiDraw() = 0;
 		virtual Scene* GetCurrentScene() = 0;
 		bool OnWinClose(WindowCloseEvent& e);
 
