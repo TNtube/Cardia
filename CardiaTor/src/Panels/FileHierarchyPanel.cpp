@@ -51,7 +51,7 @@ namespace Cardia::Panel
 
 		ImGui::Text("%s", m_PathFromAssets != "." ? m_PathFromAssets.string().c_str() : "");
 
-		if (m_CurrentPath != assetsPath)
+		if (m_CurrentPath.compare(assetsPath) != 0)
 		{
 			if (ImGui::Button(".."))
 			{
@@ -82,6 +82,7 @@ namespace Cardia::Panel
 			if (ImGui::ImageButton(m_FolderIconDescriptorSet, button_sz))
 			{
 				m_CurrentPath /= path;
+				CurrentPathUpdated();
 			}
 			
 			ImGui::PopStyleColor();
@@ -130,6 +131,7 @@ namespace Cardia::Panel
 
 	void FileHierarchyPanel::CurrentPathUpdated()
 	{
+		m_CurrentPath = canonical(m_CurrentPath);
 		const auto& assetsPath = Project::GetAssetDirectory();
 		m_PathFromAssets = std::filesystem::relative(m_CurrentPath, assetsPath);
 
