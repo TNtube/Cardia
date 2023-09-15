@@ -72,8 +72,9 @@ Device::~Device() {
 
 void Device::CreateInstance() {
 	volkInitialize();
-	if (EnableValidationLayers && !CheckValidationLayerSupport()) {
-		throw std::runtime_error("validation layers requested, but not available!");
+
+	if (EnableValidationLayers) {
+		EnableValidationLayers = CheckValidationLayerSupport();
 	}
 
 	VkApplicationInfo appInfo = {};

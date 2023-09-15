@@ -62,9 +62,9 @@ struct QueueFamilyIndices {
 
 		VkPhysicalDeviceProperties Properties {};
 #ifdef NDEBUG
-		const bool EnableValidationLayers = false;
+		bool EnableValidationLayers = false;
 #else
-		const bool EnableValidationLayers = true;
+		bool EnableValidationLayers = true;
 #endif
 
 	 private:
