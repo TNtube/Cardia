@@ -14,7 +14,7 @@ namespace Cardia
 		const std::vector<SubMesh>& GetSubMeshes() const { return  m_SubMeshes; }
 		const std::vector<MaterialInstance>& GetMaterialInstances() const { return  m_MaterialInstances; }
 
-		static std::shared_ptr<Mesh> ReadMeshFromFile(Renderer& renderer, const std::string& path);
+		static std::shared_ptr<Mesh> ReadMeshFromFile(Renderer& renderer, const std::filesystem::path& path);
 
 	private:
 		std::vector<MaterialInstance> m_MaterialInstances;
