@@ -85,13 +85,23 @@ namespace Cardia
 				.Build();
 		}
 
-		m_Skybox = std::make_unique<Skybox>(*this, "resources/textures/skybox/lilienstein_skybox.tga");
+		AssetHandle skyBoxAssetHandle {
+			UUID{},
+			"resources/textures/skybox/lilienstein_skybox.tga"
+		};
+		m_Skybox = std::make_unique<Skybox>(*this, skyBoxAssetHandle);
 
 		uint32_t whiteColor = 0xffffffff;
 		uint32_t normalColor = 0x8080ffff;
 		constexpr VkExtent2D size {1, 1};
-		m_WhiteTexture = std::make_unique<Texture>(m_Device, size, &whiteColor);
-		m_NormalTexture = std::make_unique<Texture>(m_Device, size, &normalColor);
+
+		auto textureBuilder = Texture::Builder(m_Device)
+			.SetSize(size)
+			.SetData(&whiteColor);
+		m_WhiteTexture = textureBuilder.Build();
+
+		textureBuilder.SetData(&normalColor);
+		m_NormalTexture = textureBuilder.Build();
 
 	}
 

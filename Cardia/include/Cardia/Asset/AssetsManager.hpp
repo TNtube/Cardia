@@ -107,7 +107,7 @@ namespace Cardia
 	template<typename T>
 	inline std::shared_ptr<T> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
 	{
-		CdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()).c_str());
+		CdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()));
 		return std::shared_ptr<T>();
 	}
 
@@ -117,8 +117,13 @@ namespace Cardia
 		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
 		const TypeID id {typeid(Texture), path.string()};
 
+		AssetHandle assetHandle {
+			UUID{},
+			absPath
+		};
+
 		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(std::make_shared<Texture>(m_Renderer.GetDevice(), absPath.string()));
+			AssetRefCounter res(std::make_shared<Texture>(m_Renderer.GetDevice(), assetHandle, TextureCreateInfo{}));
 			m_Assets.insert_or_assign(id, res);
 		}
 

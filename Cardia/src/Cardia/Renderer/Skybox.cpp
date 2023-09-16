@@ -6,10 +6,11 @@
 namespace Cardia
 {
 
-	Skybox::Skybox(const Renderer& renderer, const std::filesystem::path &path)
+	Skybox::Skybox(const Renderer& renderer, const AssetHandle& assetHandle)
 		: m_Renderer(renderer)
 	{
-		m_SkyboxTexture = std::make_unique<Texture>(m_Renderer.GetDevice(), path, TextureMode::CubeMap);
+		m_SkyboxTexture = Texture::Builder(m_Renderer.GetDevice())
+			.SetAssetHandle(assetHandle).SetTextureMode(TextureMode::CubeMap).Build();
 
 		Shader skyboxShader(m_Renderer.GetDevice());
 
@@ -56,7 +57,7 @@ namespace Cardia
 		m_SkyboxTextureDescriptorSet = DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), *skyboxDescriptorLayout)
 			.WriteImage(0, m_SkyboxTexture->GetImageInfo())
 			.Build();
-		
+
 		std::vector<Vector3f> vertices = {
 			{-1, -1, -1},
 			{1, -1, -1},
@@ -80,14 +81,14 @@ namespace Cardia
 		m_VertexCount = static_cast<uint32_t>(vertices.size());
 		m_IndexCount = static_cast<uint32_t>(indices.size());
 		m_VertexBuffer = std::make_unique<Buffer>(m_Renderer.GetDevice(),
-		               sizeof(vertices[0]) * m_VertexCount,
-		               1,
-		               VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-		               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		                                          sizeof(vertices[0]) * m_VertexCount,
+		                                          1,
+		                                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		m_IndexBuffer = std::make_unique<Buffer>(m_Renderer.GetDevice(),
-		              sizeof(indices[0]) * m_IndexCount,
-		              1,
-		              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		                                         sizeof(indices[0]) * m_IndexCount,
+		                                         1,
+		                                         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * m_VertexCount;
 		m_VertexBuffer->UploadData(bufferSize, vertices.data());

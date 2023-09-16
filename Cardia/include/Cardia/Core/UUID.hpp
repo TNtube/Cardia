@@ -14,6 +14,8 @@ namespace Cardia {
 		static UUID FromString(const std::string& strUuid);
 		std::string ToString() const { return uuids::to_string(m_UUID); }
 
+		bool IsValid() const { return !m_UUID.is_nil(); }
+
 		inline bool operator==(const UUID& rhs) const { return this->m_UUID == rhs.m_UUID; }
 	private:
 		uuids::uuid m_UUID;

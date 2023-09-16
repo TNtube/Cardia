@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "Device.hpp"
 #include "Descriptors.hpp"
@@ -16,38 +17,60 @@ namespace Cardia
 		CubeMap
 	};
 
+	struct TextureCreateInfo
+	{
+		VkExtent2D Size {1, 1};
+		VkFormat Format {VK_FORMAT_R8G8B8A8_SRGB};
+		VkImageUsageFlags UsageFlags {VK_IMAGE_USAGE_TRANSFER_DST_BIT};
+		VkImageAspectFlags AspectFlags {VK_IMAGE_ASPECT_COLOR_BIT};
+		TextureMode TextureMode = TextureMode::Texture2D;
+		void* Data = nullptr;
+	};
+
 	class Renderer;
 	class Texture final : public Asset
 	{
 	public:
-		void Reload(const std::filesystem::path& path) override;
+		class Builder
+		{
+		public:
+			explicit Builder(const Device& device) : m_Device(device) {}
+			Builder& SetAssetHandle(AssetHandle assetHandle) { m_AssetHandle = std::move(assetHandle); return *this; }
+			Builder& SetTextureMode(TextureMode textureMode) { m_TextureCreateInfo.TextureMode = textureMode; return *this; }
+			Builder& SetFormat(VkFormat format) { m_TextureCreateInfo.Format = format; return *this; }
+			Builder& SetSize(const VkExtent2D& size) { m_TextureCreateInfo.Size = size; return *this; }
+			Builder& SetUsageFlags(VkImageUsageFlags usageFlags) { m_TextureCreateInfo.UsageFlags = usageFlags; return *this; }
+			Builder& SetAspectFlags(VkImageAspectFlags aspectFlags) { m_TextureCreateInfo.AspectFlags = aspectFlags; return *this; }
+			Builder& SetData(void* data) { m_TextureCreateInfo.Data = data; return *this; }
+			std::unique_ptr<Texture> Build() const;
+		private:
+			const Device& m_Device;
+			AssetHandle m_AssetHandle;
+			TextureCreateInfo m_TextureCreateInfo {};
+		};
+
+	public:
+		void Reload() override;
 
 		Texture(const Texture& other) = delete;
 		Texture& operator=(const Texture& other) = delete;
 		Texture(Texture&& other) noexcept;
 		Texture& operator=(Texture&& other) noexcept;
 
-		Texture(const Device& device, const std::filesystem::path& path, TextureMode textureMode = TextureMode::Texture2D);
-		Texture(
-			const Device& device,
-			const VkExtent2D& size,
-			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
-			VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
-			VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
-
-		Texture(const Device& device, const VkExtent2D& size, const void* data);
+		Texture(const Device& device, AssetHandle assetHandle, const TextureCreateInfo& textureCreateInfo);
+		Texture(const Device& device, const TextureCreateInfo& textureCreateInfo);
 
 		~Texture() override;
 
-		uint32_t GetHeight() const { return m_Size.height; }
-		uint32_t GetWidth() const { return m_Size.width; }
+		uint32_t GetHeight() const { return m_CreateInfo.Size.height; }
+		uint32_t GetWidth() const { return m_CreateInfo.Size.width; }
 
-		VkSampler GetSampler() const { return m_TextureSampler; }
-		VkImageView GetView() const { return m_TextureImageView; }
+		VkSampler GetSampler() const { return m_Sampler; }
+		VkImageView GetView() const { return m_ImageView; }
 		VkDescriptorImageInfo GetImageInfo() const;
 
 	private:
-		void Init(const std::filesystem::path& path);
+		void Init();
 		void Release();
 
 		void CreateImage(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
@@ -55,15 +78,14 @@ namespace Cardia
 		void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
 		void CreateTextureSampler();
 
-		VkExtent2D m_Size {};
+		TextureCreateInfo m_CreateInfo {};
 
 		const Device& m_Device;
-		VkImage m_TextureImage {};
-		VkDeviceMemory m_TextureImageMemory {};
-		VkImageView m_TextureImageView {};
-		VkSampler m_TextureSampler {};
+		VkImage m_Image {};
+		VkDeviceMemory m_Memory {};
+		VkImageView m_ImageView {};
+		VkSampler m_Sampler {};
 
 		uint32_t m_LayerCount { 1 };
-		TextureMode m_TextureMode { TextureMode::Texture2D };
 	};
 }

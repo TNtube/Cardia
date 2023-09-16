@@ -37,9 +37,9 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = std::make_unique<Texture>(m_Renderer.GetDevice(), "resources/icons/play.png");
+		m_IconPlay = AssetsManager::Load<Texture>("resources/icons/play.png");
 		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		m_IconStop = std::make_unique<Texture>(m_Renderer.GetDevice(), "resources/icons/pause.png");
+		m_IconStop = AssetsManager::Load<Texture>("resources/icons/pause.png");
 		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		ImGuiIO &io = ImGui::GetIO();
@@ -58,14 +58,14 @@ namespace Cardia
 		{
 			switch (m_EditorState)
 			{
-			case EditorState::Play:
-				m_LastEditorScene = Scene::Copy(*m_CurrentScene);
-				m_CurrentScene->OnRuntimeStart();
-				break;
-			case EditorState::Edit:
-				m_CurrentScene->OnRuntimeStop();
-				ReloadScene();
-				break;
+				case EditorState::Play:
+					m_LastEditorScene = Scene::Copy(*m_CurrentScene);
+					m_CurrentScene->OnRuntimeStart();
+					break;
+				case EditorState::Edit:
+					m_CurrentScene->OnRuntimeStop();
+					ReloadScene();
+					break;
 			}
 			m_EditorStateUpdated = false;
 		}
@@ -195,8 +195,20 @@ namespace Cardia
 
 		RenderPass renderPass(m_Renderer.GetDevice(), specification);
 
-		Texture colorTexture{ m_Renderer.GetDevice(), extent, imageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT};
-		Texture depthTexture{ m_Renderer.GetDevice(), extent, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT};
+		TextureCreateInfo colorCreateInfo {};
+		colorCreateInfo.Size = extent;
+		colorCreateInfo.Format = imageFormat;
+		colorCreateInfo.UsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		colorCreateInfo.AspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+
+		Texture colorTexture{ m_Renderer.GetDevice(), colorCreateInfo};
+
+		TextureCreateInfo depthCreateInfo {};
+		depthCreateInfo.Size = extent;
+		depthCreateInfo.Format = depthFormat;
+		depthCreateInfo.UsageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		depthCreateInfo.AspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
+		Texture depthTexture{ m_Renderer.GetDevice(), depthCreateInfo};
 
 		const std::vector attachments = {colorTexture.GetView(), depthTexture.GetView()};
 		const FramebufferSpecification framebufferSpecification {
