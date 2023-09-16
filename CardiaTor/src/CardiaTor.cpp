@@ -101,6 +101,11 @@ namespace Cardia
 		bool failed;
 		if (const auto commandBuffer = m_Renderer.Begin())
 		{
+			// ImGui processing
+			m_ImGuiLayer->Begin();
+			OnImGuiDraw();
+			m_ImGuiLayer->End();
+
 			// Offscreen rendering
 			m_Renderer.BeginRenderPass(m_OffscreenFrameData->CurrentFrameBuffer, m_OffscreenFrameData->CurrentRenderPass);
 
@@ -117,10 +122,6 @@ namespace Cardia
 
 			// Draw to swapchain
 			m_Renderer.BeginSwapChainRenderPass();
-			m_ImGuiLayer->Begin();
-			OnImGuiDraw();
-			m_ImGuiLayer->End();
-
 			m_ImGuiLayer->Render(commandBuffer);
 			m_Renderer.EndRenderPass();
 			failed = m_Renderer.End();
