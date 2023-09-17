@@ -2,61 +2,11 @@
 	"Entities" : 
 	[
 		{
-			"ID" : "1e1f133e-9266-4c51-b2ba-abc5bbfbb012",
-			"Label" : 
-			{
-				"Color" : 
-				{
-					"w" : 1.0,
-					"x" : 1.0,
-					"y" : 1.0,
-					"z" : 1.0
-				},
-				"Name" : "cube"
-			},
-			"MeshRenderer" : 
-			{
-				"Mesh" : ".\\cube.obj"
-			},
-			"Relationship" : 
-			{
-				"ChildCount" : 0
-			},
-			"Transform" : 
-			{
-				"Euler" : 
-				{
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 0.0
-				},
-				"Position" : 
-				{
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 0.0
-				},
-				"Rotation" : 
-				{
-					"w" : 1.0,
-					"x" : 0.0,
-					"y" : 0.0,
-					"z" : 0.0
-				},
-				"Scale" : 
-				{
-					"x" : 1.0,
-					"y" : 1.0,
-					"z" : 1.0
-				}
-			}
-		},
-		{
 			"Camera" : 
 			{
 				"CameraData" : 
 				{
-					"AspectRatio" : 1.7715133428573608,
+					"AspectRatio" : 1.7379912137985229,
 					"Orthographic" : 
 					{
 						"Far" : 1.0,
@@ -119,7 +69,7 @@
 			}
 		},
 		{
-			"ID" : "5b5cbffc-9199-4a56-9830-d4c4675347fd",
+			"ID" : "1e1f133e-9266-4c51-b2ba-abc5bbfbb012",
 			"Label" : 
 			{
 				"Color" : 
@@ -129,15 +79,32 @@
 					"y" : 1.0,
 					"z" : 1.0
 				},
-				"Name" : "Floor"
+				"Name" : "cube"
 			},
 			"MeshRenderer" : 
 			{
-				"Mesh" : ".\\Sponza.gltf"
+				"Mesh" : ".\\DamagedHelmet\\DamagedHelmet.gltf"
 			},
 			"Relationship" : 
 			{
 				"ChildCount" : 0
+			},
+			"Script" : 
+			{
+				"Attributes" : 
+				[
+					{
+						"name" : "velocity",
+						"type" : 1,
+						"value" : 300
+					},
+					{
+						"name" : "remaining_angle",
+						"type" : 2,
+						"value" : 0.0
+					}
+				],
+				"Path" : ".\\Moving.py"
 			},
 			"Transform" : 
 			{
@@ -150,7 +117,7 @@
 				"Position" : 
 				{
 					"x" : 0.0,
-					"y" : -0.69999998807907104,
+					"y" : 0.0,
 					"z" : 0.0
 				},
 				"Rotation" : 
@@ -162,9 +129,9 @@
 				},
 				"Scale" : 
 				{
-					"x" : 0.10000000149011612,
-					"y" : 0.10000000149011612,
-					"z" : 0.10000000149011612
+					"x" : 1.0,
+					"y" : 1.0,
+					"z" : 1.0
 				}
 			}
 		}

@@ -19,7 +19,7 @@ namespace Cardia
 {
 	void Texture::Reload()
 	{
-		if (m_Handle.Path.empty())
+		if (!m_Handle.IsValid())
 			return;
 		Release();
 		Init();
@@ -59,8 +59,6 @@ namespace Cardia
 		CreateImage(m_CreateInfo.Format, m_CreateInfo.UsageFlags, m_CreateInfo.AspectFlags);
 
 		if (m_CreateInfo.Data) {
-			CreateImage(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
-
 			const auto imageSize = m_CreateInfo.Size.width * m_CreateInfo.Size.height * 4;
 			Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 			buffer.UploadData(imageSize, m_CreateInfo.Data);
@@ -128,6 +126,7 @@ namespace Cardia
 
 	void Texture::Release()
 	{
+		m_Device.WaitIdle();
 		vkDestroySampler(m_Device.GetDevice(), m_Sampler, nullptr);
 		vkDestroyImageView(m_Device.GetDevice(), m_ImageView, nullptr);
 		vkDestroyImage(m_Device.GetDevice(), m_Image, nullptr);
@@ -162,20 +161,6 @@ namespace Cardia
 
 		CreateImageView(format, aspectFlags);
 		CreateTextureSampler();
-
-//		VkDescriptorImageInfo imageBufferInfo;
-//		imageBufferInfo.sampler = m_Sampler;
-//		imageBufferInfo.imageView = m_ImageView;
-//		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-//
-//		auto& textureLayout = DescriptorSetLayout::Builder(m_Renderer.GetDescriptorLayoutCache())
-//			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-//			.Build();
-//
-//		m_TextureDescriptorSet = std::make_unique<DescriptorSet>(
-//			*DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), textureLayout)
-//					.WriteImage(0, &imageBufferInfo)
-//					.Build());
 	}
 
 	void Texture::TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout,

@@ -10,7 +10,9 @@ namespace Cardia
 		: m_Renderer(renderer)
 	{
 		m_SkyboxTexture = Texture::Builder(m_Renderer.GetDevice())
-			.SetAssetHandle(assetHandle).SetTextureMode(TextureMode::CubeMap).Build();
+			.SetAssetHandle(assetHandle)
+			.SetTextureMode(TextureMode::CubeMap)
+			.Build();
 
 		Shader skyboxShader(m_Renderer.GetDevice());
 

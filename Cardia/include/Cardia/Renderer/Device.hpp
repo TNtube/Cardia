@@ -60,6 +60,8 @@ struct QueueFamilyIndices {
 			VkImage &image,
 			VkDeviceMemory &imageMemory) const;
 
+		void WaitIdle() const { vkDeviceWaitIdle(m_Device); }
+
 		VkPhysicalDeviceProperties Properties {};
 #ifdef NDEBUG
 		bool EnableValidationLayers = false;

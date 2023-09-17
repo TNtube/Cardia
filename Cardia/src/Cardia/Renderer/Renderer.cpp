@@ -219,7 +219,7 @@ namespace Cardia
 			extent = m_Window.GetExtent();
 			glfwWaitEvents();
 		}
-		vkDeviceWaitIdle(m_Device.GetDevice());
+		m_Device.WaitIdle();
 
 		SwapChain::SwapChainInfo info {};
 		info.WindowExtent = extent;

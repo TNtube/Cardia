@@ -8,7 +8,7 @@ namespace Cardia
 {
 	struct AssetHandle
 	{
-		UUID ID;
+		UUID ID = UUID::Default();
 		std::filesystem::path Path;
 
 		bool IsValid() const { return ID.IsValid(); }

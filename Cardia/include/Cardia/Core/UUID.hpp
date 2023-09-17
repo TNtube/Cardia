@@ -11,6 +11,7 @@ namespace Cardia {
 		UUID(const uuids::uuid& uuid);
 		UUID(const UUID&) = default;
 
+		static UUID Default() { return uuids::uuid(); };
 		static UUID FromString(const std::string& strUuid);
 		std::string ToString() const { return uuids::to_string(m_UUID); }
 

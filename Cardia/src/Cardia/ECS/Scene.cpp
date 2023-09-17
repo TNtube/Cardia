@@ -48,7 +48,7 @@ namespace Cardia
 	Scene::~Scene()
 	{
 		// TODO : Move this to assets manager
-		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
+		m_Renderer.GetDevice().WaitIdle();
 	}
 
 	Entity Scene::CreateEntity(const std::string& name, entt::entity parent)

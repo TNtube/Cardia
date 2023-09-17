@@ -71,14 +71,14 @@ namespace Cardia
 		auto commandBuffer = device.BeginSingleTimeCommands();
 		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
 		device.EndSingleTimeCommands(commandBuffer);
-		vkDeviceWaitIdle(device.m_Device);
+		device.WaitIdle();
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
 		const auto& device = m_Renderer.GetDevice();
-		vkDeviceWaitIdle(device.GetDevice());
+		device.WaitIdle();
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();

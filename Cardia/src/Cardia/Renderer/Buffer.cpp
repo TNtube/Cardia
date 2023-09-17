@@ -97,7 +97,7 @@ namespace Cardia
 	{
 		const auto& device = m_Device.GetDevice();
 		// if (m_MappedMemory)
-		vkDeviceWaitIdle(device);
+		m_Device.WaitIdle();
 		vkDestroyBuffer(device, m_Buffer, nullptr);
 		vkFreeMemory(device, m_BufferMemory, nullptr);
 	}
