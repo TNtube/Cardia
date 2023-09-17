@@ -11,7 +11,7 @@ namespace Cardia
 	class Skybox
 	{
 	public:
-		Skybox(const Renderer& device, const AssetHandle& assetHandle);
+		Skybox(const Renderer& device, const AssetHandle& assetHandle, const std::filesystem::path& path);
 
 		Pipeline& GetPipeline() const { return *m_SkyboxPipeline; }
 

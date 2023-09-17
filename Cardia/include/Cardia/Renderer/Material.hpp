@@ -8,7 +8,7 @@
 
 namespace Cardia
 {
-	class Material
+	class Material : public Asset
 	{
 	public:
 		std::shared_ptr<Texture> AlbedoMap = nullptr;
@@ -22,6 +22,8 @@ namespace Cardia
 		float Metallic = 0.0f;
 		float Roughness = 0.0f;
 		Vector3f EmissiveFactor = Vector3f(0.0f);
+
+		void Reload() override {};
 	};
 
 	class MaterialInstance

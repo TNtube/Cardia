@@ -17,11 +17,22 @@ namespace Cardia
 		m_UUID = uuid;
 	}
 
+	UUID::UUID(UUID&& other) noexcept
+	{
+		m_UUID.swap(other.m_UUID);
+	}
+
+	UUID& UUID::operator=(UUID&& other) noexcept
+	{
+		m_UUID.swap(other.m_UUID);
+		return *this;
+	}
+
 	UUID UUID::FromString(const std::string &uuid) {
-		auto id =  uuids::uuid::from_string(uuid);
+		auto id = uuids::uuid::from_string(uuid);
 		if (!id.has_value()) {
 			throw std::invalid_argument("UUID : " + uuid + " is not a valid id");
 		}
-		return id.value();
+		return UUID(id.value());
 	}
 }

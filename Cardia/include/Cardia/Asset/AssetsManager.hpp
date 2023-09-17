@@ -2,25 +2,10 @@
 
 #include <memory>
 #include <string>
-#include <typeindex>
-#include <utility>
-#include "Cardia/Core/Core.hpp"
-#include "Cardia/Renderer/Texture.hpp"
-#include "Cardia/DataStructure/Mesh.hpp"
-#include "Cardia/Project/Project.hpp"
-#include "Cardia/Core/Time.hpp"
-#include "Cardia/Renderer/Renderer.hpp"
+#include <type_traits>
+#include "Cardia/Serialization/Serializer.hpp"
 
 namespace Cardia {
-	struct TypeID
-	{
-		std::type_index type_index;
-		std::string ID;
-		bool operator==(const TypeID& other) const {
-			return ID == other.ID && type_index == other.type_index;
-		}
-	};
-
 	struct AssetRefCounter
 	{
 		AssetRefCounter() = default;
@@ -30,118 +15,63 @@ namespace Cardia {
 	};
 }
 
-namespace std {
-	template<>
-	struct hash<Cardia::TypeID> {
-		auto operator()(const Cardia::TypeID& typeId) const noexcept -> ::size_t {
-			return hash<std::string>{}(typeId.ID) ^ hash<std::type_index>{}(typeId.type_index);
-		}
-	};
-}
-
 namespace Cardia
 {
+	template <typename T> concept AssetType = std::same_as<T, Asset>;
+
 	class AssetsManager
 	{
 	public:
-		enum class LoadType {
-			Editor,
-			Game
-		};
+		AssetsManager(const Renderer& renderer) : m_Renderer(renderer) {}
 
-	public:
-		explicit AssetsManager(Renderer& renderer);
-		static void Init(Renderer& renderer);
-		static std::filesystem::path GetPathFromAsset(const std::shared_ptr<void>& resource);
-
-		static std::filesystem::path GetAssetAbsolutePath(const std::filesystem::path& relative) {
-			return Project::GetAssetDirectory() / relative;
+		template<AssetType T>
+		std::shared_ptr<T> Load(const std::filesystem::path& path)
+		{
+			return Load<T>(GetHandle(path));
 		}
 
-		template<typename T>
-		static std::shared_ptr<T> Load(const std::filesystem::path& path)
+		template<AssetType T>
+		std::shared_ptr<T> Load(const AssetHandle& handle)
 		{
-			return Load<T>(path, LoadType::Game);
+			CdCoreAssert(false, "Asset type not supported");
 		}
 
-		template<typename T>
-		static std::shared_ptr<T> Load(const std::filesystem::path& path, LoadType loadType)
-		{
-			return Instance().LoadImpl<T>(path, loadType);
-		}
+		template<AssetType T>
+		std::shared_ptr<Texture> Load(const AssetHandle& handle);
 
-		static void CollectGarbage(bool forceCollection = true);
+		template<AssetType T>
+		std::shared_ptr<Shader> Load(const AssetHandle& handle);
 
-		static AssetsManager& Instance() { return *s_Instance; }
+		template<AssetType T>
+		std::shared_ptr<Material> Load(const AssetHandle& handle);
 
-		// absolutely temporary
-		Renderer& GetRenderer() const { return m_Renderer; }
-	private:
+//		template<AssetType T>
+//		std::shared_ptr<Model> Load(const AssetHandle& handle);
 
-		static std::filesystem::path GetAbsolutePath(const std::filesystem::path& relative, LoadType loadType);
-		template<typename T>
-		std::shared_ptr<T> LoadImpl(const std::filesystem::path& path, LoadType loadType);
+		virtual AssetHandle GetHandle(const std::filesystem::path& relativePath) {
+			if (!m_AssetPaths.contains(relativePath))
+				return m_AssetPaths[relativePath];
 
-		static std::unique_ptr<AssetsManager> s_Instance;
-
-		Renderer& m_Renderer;
-		std::unordered_map<TypeID, AssetRefCounter> m_Assets;
-
-		// Collection related
-		friend Application;
-		void CollectionRoutine(DeltaTime& dt);
-		std::chrono::duration<float> m_ElapsedTime {};
-	};
-
-	inline std::filesystem::path AssetsManager::GetPathFromAsset(const std::shared_ptr<void>& resource)
-	{
-		for (auto& res : Instance().m_Assets)
-		{
-			if (res.second.Resource == resource) {
-				return res.first.ID;
+			auto handle = Serializer<AssetHandle>::Deserialize(GetAssetPath(relativePath));
+			if (!handle)
+			{
+				Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", relativePath.string());
+				return AssetHandle::Invalid();
 			}
-		}
-		return "";
-	}
 
-	template<typename T>
-	inline std::shared_ptr<T> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		CdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()));
-		return std::shared_ptr<T>();
-	}
-
-	template<>
-	inline std::shared_ptr<Texture> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		const TypeID id {typeid(Texture), path.string()};
-
-		AssetHandle assetHandle {
-			UUID{},
-			absPath
-		};
-
-		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(std::make_shared<Texture>(m_Renderer.GetDevice(), assetHandle, TextureCreateInfo{}));
-			m_Assets.insert_or_assign(id, res);
+			m_AssetPaths[relativePath] = *handle;
+			return m_AssetPaths[relativePath];
 		}
 
-		return std::static_pointer_cast<Texture>(m_Assets[id].Resource);
-	}
+		virtual std::filesystem::path GetAssetPath(const std::filesystem::path& path) = 0;
 
-	template<>
-	inline std::shared_ptr<Mesh> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		const TypeID id {typeid(Mesh), path.string()};
+	private:
+		const Renderer& m_Renderer;
 
-		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Mesh::ReadMeshFromFile(m_Renderer, absPath.string()));
-			m_Assets.insert_or_assign(id, res);
-		}
+		std::unordered_map<AssetHandle, AssetRefCounter> m_Assets;
+		std::unordered_map<std::filesystem::path, AssetHandle> m_AssetPaths;
 
-		return std::static_pointer_cast<Mesh>(m_Assets[id].Resource);
-
-	}
+	};
 }
+
+#include "Cardia/Asset/AssetsManager.inl"
