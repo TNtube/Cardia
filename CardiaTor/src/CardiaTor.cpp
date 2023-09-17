@@ -219,8 +219,7 @@ namespace Cardia
 
 		Framebuffer framebuffer{ m_Renderer.GetDevice(), renderPass, framebufferSpecification };
 
-		// TODO: Make waiting for device idle a device method
-		vkDeviceWaitIdle(m_Renderer.GetDevice().GetDevice());
+		m_Renderer.GetDevice().WaitIdle();
 
 		m_OffscreenFrameData = std::make_unique<OffscreenFrameData>(
 			m_Renderer,
