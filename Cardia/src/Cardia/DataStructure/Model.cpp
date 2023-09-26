@@ -121,6 +121,12 @@ namespace Cardia
 				model.m_MaterialHandles = ProcessImportedMaterials(impFilePath);
 			} else {
 				model.m_MaterialHandles = ProcessMaterialsFromScene(absolutePath, scene);
+				for (const auto& mat: model.m_MaterialHandles) {
+					root["Materials"].append(mat.Serialize());
+				}
+				std::ofstream os(impFilePath);
+				os << root;
+				os.close();
 			}
 		}
 
