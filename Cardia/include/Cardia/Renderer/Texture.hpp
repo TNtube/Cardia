@@ -36,7 +36,6 @@ namespace Cardia
 		public:
 			explicit Builder(const Device& device) : m_Device(device) {}
 			Builder& SetAssetHandle(AssetHandle assetHandle) { m_AssetHandle = std::move(assetHandle); return *this; }
-			Builder& SetPath(std::filesystem::path path) { m_Path = std::move(path); return *this; }
 			Builder& SetTextureMode(TextureMode textureMode) { m_TextureCreateInfo.TextureMode = textureMode; return *this; }
 			Builder& SetFormat(VkFormat format) { m_TextureCreateInfo.Format = format; return *this; }
 			Builder& SetSize(const VkExtent2D& size) { m_TextureCreateInfo.Size = size; return *this; }
@@ -46,8 +45,7 @@ namespace Cardia
 			std::unique_ptr<Texture> Build() const;
 		private:
 			const Device& m_Device;
-			AssetHandle m_AssetHandle;
-			std::filesystem::path m_Path;
+			AssetHandle m_AssetHandle = AssetHandle::Invalid();
 			TextureCreateInfo m_TextureCreateInfo {};
 		};
 
@@ -58,8 +56,6 @@ namespace Cardia
 		Texture& operator=(const Texture& other) = delete;
 		Texture(Texture&& other) noexcept;
 		Texture& operator=(Texture&& other) noexcept;
-
-		Texture(const Device& device, TextureCreateInfo textureCreateInfo, AssetHandle assetHandle, std::filesystem::path path);
 		Texture(const Device& device, TextureCreateInfo textureCreateInfo, AssetHandle assetHandle = AssetHandle::Invalid());
 
 		~Texture() override;
@@ -72,7 +68,7 @@ namespace Cardia
 		VkDescriptorImageInfo GetImageInfo() const;
 
 	private:
-		void Init();
+		void InitFromPath();
 		void Release();
 
 		void CreateImage(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
@@ -89,7 +85,5 @@ namespace Cardia
 		VkSampler m_Sampler {};
 
 		uint32_t m_LayerCount { 1 };
-
-		std::filesystem::path m_Path;
 	};
 }

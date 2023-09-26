@@ -61,6 +61,6 @@ namespace Cardia::Component
 	void Script::ReloadFile()
 	{
 		if (m_Path.empty()) return;
-		m_File = ScriptFile::FromPath(AssetsManager::GetAssetAbsolutePath(m_Path));
+		m_File = ScriptFile::FromPath(m_Path);
 	}
 }

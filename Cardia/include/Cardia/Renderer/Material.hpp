@@ -8,37 +8,61 @@
 
 namespace Cardia
 {
-	class Material : public Asset
+	struct MaterialData
 	{
-	public:
-		std::shared_ptr<Texture> AlbedoMap = nullptr;
-		std::shared_ptr<Texture> MetallicRoughnessMap = nullptr;
+		AssetHandle AlbedoMap = AssetHandle::Invalid();
+		AssetHandle NormalMap = AssetHandle::Invalid();
 
-		std::shared_ptr<Texture> NormalMap = nullptr;
-		std::shared_ptr<Texture> AOMap = nullptr;
-		std::shared_ptr<Texture> EmissiveMap = nullptr;
+		AssetHandle MetallicRoughnessMap = AssetHandle::Invalid();
+		AssetHandle AOMap = AssetHandle::Invalid();
+		AssetHandle EmissiveMap = AssetHandle::Invalid();
 
 		Vector4f AlbedoColor = Vector4f(1.0f);
 		float Metallic = 0.0f;
 		float Roughness = 0.0f;
 		Vector3f EmissiveFactor = Vector3f(0.0f);
 
-		void Reload() override {};
+
+		Json::Value Serialize() const;
+		static std::optional<MaterialData> Deserialize(const Json::Value& root);
 	};
 
-	class MaterialInstance
+
+	class Material : public Asset
 	{
 	public:
-		explicit MaterialInstance(Renderer& renderer, Material material);
+		class Builder {
+		public:
+			explicit Builder(const Device& device) : m_Device(device) {}
+			Builder& SetAssetHandle(const AssetHandle& handle) { m_Handle = handle; return *this; }
+			Builder& SetAlbedoMap(const AssetHandle& handle) { m_MaterialData.AlbedoMap = handle; return *this; }
+			Builder& SetNormalMap(const AssetHandle& handle) { m_MaterialData.NormalMap = handle; return *this; }
+			Builder& SetMetallicRoughnessMap(const AssetHandle& handle) { m_MaterialData.MetallicRoughnessMap = handle; return *this; }
+			Builder& SetAOMap(const AssetHandle& handle) { m_MaterialData.AOMap = handle; return *this; }
+			Builder& SetEmissiveMap(const AssetHandle& handle) { m_MaterialData.EmissiveMap = handle; return *this; }
 
-		void Bind(VkCommandBuffer commandBuffer) const;
+			Builder& SetAlbedoColor(const Vector4f& color) { m_MaterialData.AlbedoColor = color; return *this; }
+			Builder& SetMetallicFactor(float metallic) { m_MaterialData.Metallic = metallic; return *this; }
+			Builder& SetRoughnessFactor(float roughness) { m_MaterialData.Roughness = roughness; return *this; }
+			Builder& SetEmissiveFactor(Vector3f emissive) { m_MaterialData.EmissiveFactor = emissive; return *this; }
+
+			Material Build();
+
+		private:
+			const Device& m_Device;
+			MaterialData m_MaterialData;
+			AssetHandle m_Handle = AssetHandle::Invalid();
+		};
+
+	public:
+		Material(const Device& device, MaterialData materialData, AssetHandle assetHandle);
+		void Bind(const Pipeline& pipeline, VkCommandBuffer commandBuffer) const;
+		void Reload() override;
+
 	private:
 		void CreateDescriptorSet();
-		Renderer& m_Renderer;
-
-		Material m_Material;
-
-		std::shared_ptr<DescriptorSetLayout> m_DescriptorSetLayout;
+		const Device& m_Device;
+		MaterialData m_MaterialData;
 		std::unique_ptr<DescriptorSet> m_DescriptorSet;
 	};
 }

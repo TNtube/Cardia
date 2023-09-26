@@ -2,6 +2,7 @@
 #include "Cardia/Renderer/Renderer.hpp"
 
 #include <GLFW/glfw3.h>
+#include <Cardia/Application.hpp>
 
 namespace Cardia
 {
@@ -84,12 +85,6 @@ namespace Cardia
 				.WriteBuffer(0, &bufferInfo)
 				.Build();
 		}
-
-		AssetHandle skyBoxAssetHandle {
-			UUID{},
-			"resources/textures/skybox/lilienstein_skybox.tga"
-		};
-		m_Skybox = std::make_unique<Skybox>(*this, skyBoxAssetHandle);
 
 		uint32_t whiteColor = 0xffffffff;
 		uint32_t normalColor = 0x8080ffff;
@@ -263,5 +258,17 @@ namespace Cardia
 				throw std::runtime_error("failed to create synchronization objects for a frame!");
 			}
 		}
+	}
+
+	const Skybox &Renderer::GetSkybox()
+	{
+		if (!m_Skybox) {
+
+			auto& am = Application::Get().GetAssetsManager();
+
+			auto handle = am.AddEntry("resources/textures/skybox/lilienstein_skybox.tga");
+			m_Skybox = std::make_unique<Skybox>(*this, handle);
+		}
+		return *m_Skybox;
 	}
 }

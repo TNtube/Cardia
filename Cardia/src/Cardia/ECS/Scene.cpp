@@ -1,13 +1,15 @@
 #include <Cardia/Asset/AssetsManager.hpp>
 #include <utility>
+#include <Cardia/Core/Time.hpp>
 #include "cdpch.hpp"
 #include "Cardia/ECS/Scene.hpp"
 #include "Cardia/ECS/Entity.hpp"
 #include "Cardia/ECS/Components.hpp"
-#include "Cardia/Renderer/Renderer2D.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include "Cardia/Serialization/Serializer.hpp"
+#include "Cardia/Application.hpp"
 
 
 namespace Cardia
@@ -97,7 +99,7 @@ namespace Cardia
 			}
 		}
 
-		if (!mainCamera)
+		if (!mainCamera || !mainCameraTransform)
 		{
 			Log::Error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
 			return;
@@ -130,7 +132,7 @@ namespace Cardia
 
 		// Render Meshes
 		m_Renderer.GetMainPipeline().Bind(commandBuffer);
-		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		const auto meshView = m_Registry.view<Component::Transform, Component::ModelRenderer>();
 		if (meshView.size_hint() > 0)
 		{
 			vkCmdBindDescriptorSets(
@@ -147,7 +149,7 @@ namespace Cardia
 		}
 		for (const auto entity : meshView)
 		{
-			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::ModelRenderer>(entity);
 			// m_UBO->bind(0);
 			PushConstantData constants {};
 			constants.Model = transform.GetWorldTransform();
@@ -159,7 +161,8 @@ namespace Cardia
 				0, sizeof(PushConstantData),
 				&constants);
 
-			meshRenderer.Renderer->Draw(commandBuffer);
+			if (meshRenderer.Renderer)
+				meshRenderer.Renderer->Draw(m_Renderer.GetMainPipeline(), commandBuffer);
 		}
 	}
 
@@ -293,7 +296,7 @@ namespace Cardia
 		if (!root.isMember("Entities"))
 			return std::nullopt;
 
-		std::optional<Scene> scene({AssetsManager::Instance().GetRenderer(), std::string("Deserialized Scene")});
+		std::optional<Scene> scene({Application::Get().GetRenderer(), std::string("Deserialized Scene")});
 
 		// Deserialize all serializable components
 		for (auto& entityNode : root["Entities"])

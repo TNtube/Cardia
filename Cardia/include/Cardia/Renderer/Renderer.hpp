@@ -73,7 +73,7 @@ namespace Cardia
 		std::shared_ptr<Texture> GetNormalTexture() const { return m_NormalTexture; }
 
 		DescriptorSetLayout& GetMaterialDescriptorSetLayout() const { return *m_MaterialDescriptorSetLayout; }
-		Skybox& GetSkybox() const { return *m_Skybox; }
+		const Skybox& GetSkybox();
 
 
 	private:
@@ -101,7 +101,5 @@ namespace Cardia
 		std::shared_ptr<Pipeline> m_MainPipeline {};
 
 		std::shared_ptr<Skybox> m_Skybox;
-
-		MeshRenderer m_MeshRenderer;
 	};
 }

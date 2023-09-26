@@ -4,7 +4,7 @@
 #include "Component/Id.hpp"
 #include "Component/Label.hpp"
 #include "Component/Light.hpp"
-#include "Component/MeshRenderer.hpp"
+#include "Component/ModelRenderer.hpp"
 #include "Component/Relationship.hpp"
 #include "Component/Script.hpp"
 #include "Component/SpriteRenderer.hpp"
@@ -16,18 +16,18 @@ namespace Cardia {
 
 	using AllComponents = ComponentGroup<
 		Component::Relationship, Component::Label, Component::ID,
-		Component::Transform, Component::SpriteRenderer, Component::MeshRendererC,
+		Component::Transform, Component::SpriteRenderer, Component::ModelRenderer,
 		Component::Camera, Component::Light, Component::Script
 	>;
 
 	using SerializableComponents = ComponentGroup<
 		Component::Label, Component::ID, Component::Transform,
-		Component::SpriteRenderer, Component::MeshRendererC, Component::Camera,
+		Component::SpriteRenderer, Component::ModelRenderer, Component::Camera,
 		Component::Light, Component::Script
 	>;
 
 	using ScriptableComponents = ComponentGroup<
 		Component::Label, Component::ID, Component::Transform,
-		Component::SpriteRenderer, Component::MeshRendererC, Component::Camera,
+		Component::SpriteRenderer, Component::ModelRenderer, Component::Camera,
 		Component::Light>;
 }

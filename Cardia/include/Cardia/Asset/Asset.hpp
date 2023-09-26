@@ -19,6 +19,8 @@ namespace Cardia
 		Json::Value Serialize() const {
 			Json::Value value;
 			value["ID"] = ID.ToString();
+
+			return value;
 		}
 		static std::optional<AssetHandle> Deserialize(const Json::Value& value) {
 			if (value["ID"].isNull())

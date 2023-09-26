@@ -37,9 +37,17 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		m_IconPlay = AssetsManager::Load<Texture>("resources/icons/play.png");
+		// TODO: move to editor assets
+		Texture::Builder builder(Application::Get().GetRenderer().GetDevice());
+
+		auto playHandle = m_AssetsManager.AddEntry("resources/icons/play.png");
+		builder.SetAssetHandle(playHandle);
+		m_IconPlay = builder.Build();
 		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		m_IconStop = AssetsManager::Load<Texture>("resources/icons/pause.png");
+
+		auto pauseHandle = m_AssetsManager.AddEntry("resources/icons/pause.png");
+		builder.SetAssetHandle(pauseHandle);
+		m_IconStop = builder.Build();
 		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		ImGuiIO &io = ImGui::GetIO();
@@ -355,7 +363,10 @@ namespace Cardia
 		ScriptEngine::InvalidateProject();
 		const auto activeProject = Project::GetActive();
 		const auto& config = activeProject->GetConfig();
-		OpenScene(AssetsManager::GetAssetAbsolutePath(config.StartScene));
+
+		m_AssetsManager.PopulateHandleFromProject(*activeProject);
+
+		OpenScene(m_AssetsManager.GetHandleFromRelative(config.StartScene));
 	}
 
 	void CardiaTor::InvalidateScene()
@@ -390,8 +401,9 @@ namespace Cardia
 		serializer.Serialize(path);
 	}
 
-	void CardiaTor::OpenScene(const std::filesystem::path& scenePath)
+	void CardiaTor::OpenScene(const AssetHandle& handle)
 	{
+		auto scenePath = m_AssetsManager.AbsolutePathFromHandle(handle);
 		if (const auto scene = Serializer<Scene>::Deserialize(scenePath))
 		{
 			m_CurrentScene = std::make_unique<Scene>(*scene);
@@ -456,10 +468,10 @@ namespace Cardia
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
 			{
-				const auto* path = static_cast<const char*>(payload->Data);
-				OpenScene(AssetsManager::GetAssetAbsolutePath(path));
+				const auto* path = static_cast<AssetHandle*>(payload->Data);
+				OpenScene(*path);
 			}
 			ImGui::EndDragDropTarget();
 		}

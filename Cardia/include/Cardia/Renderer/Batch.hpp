@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Cardia/DataStructure/Mesh.hpp"
+#include "Cardia/DataStructure/Model.hpp"
 #include "Texture.hpp"
 
 namespace Cardia
@@ -32,7 +32,7 @@ namespace Cardia
 		Batch(const Vector3f& cameraPosition, const Texture* texture, const BatchSpecification& specification);
 		void startBash();
 		void render(bool alpha = false);
-		bool addMesh(SubMesh* mesh);
+		bool addMesh(Mesh* mesh);
 		BatchSpecification specification;
 	private:
 		Vector3f camPos {};

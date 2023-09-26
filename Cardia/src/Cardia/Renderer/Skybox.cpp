@@ -6,12 +6,11 @@
 namespace Cardia
 {
 
-	Skybox::Skybox(const Renderer& renderer, const AssetHandle& assetHandle, const std::filesystem::path& path)
+	Skybox::Skybox(const Renderer& renderer, const AssetHandle& assetHandle)
 		: m_Renderer(renderer)
 	{
 		m_SkyboxTexture = Texture::Builder(m_Renderer.GetDevice())
 			.SetAssetHandle(assetHandle)
-			.SetPath(path)
 			.SetTextureMode(TextureMode::CubeMap)
 			.Build();
 

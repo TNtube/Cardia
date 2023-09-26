@@ -2,7 +2,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Renderer/Pipeline.hpp"
 
-#include "Cardia/DataStructure/SubMesh.hpp"
+#include "Cardia/DataStructure/Mesh.hpp"
 
 namespace Cardia
 {
