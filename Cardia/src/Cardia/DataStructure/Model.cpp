@@ -84,20 +84,11 @@ namespace Cardia
 			return result;
 		}
 
-		std::vector<AssetHandle> ProcessImportedMaterials(const std::filesystem::path& impFilePath) {
+		std::vector<AssetHandle> ProcessImportedMaterials(const Json::Value& root) {
 			std::vector<AssetHandle> result;
 
-			// open file
-			std::ifstream file(impFilePath);
-			if (!file.is_open())
-				return result;
-
-			Json::Value root;
-			file >> root;
-			file.close();
-
 			// process json
-			for (Json::Value& jsonMat : root["Materials"])
+			for (const Json::Value& jsonMat : root["Materials"])
 			{
 				result.emplace_back(UUID::FromString(jsonMat.asString()));
 			}
@@ -120,7 +111,13 @@ namespace Cardia
 		// Materials
 		if (includeMaterials) {
 			auto impFilePath = absolutePath.string() + ".imp";
-			if (std::filesystem::exists(impFilePath)) {
+			std::ifstream file(impFilePath);
+			Json::Value root;
+			file >> root;
+			file.close();
+
+
+			if (root.isMember("Materials")) {
 				model.m_MaterialHandles = ProcessImportedMaterials(impFilePath);
 			} else {
 				model.m_MaterialHandles = ProcessMaterialsFromScene(absolutePath, scene);
