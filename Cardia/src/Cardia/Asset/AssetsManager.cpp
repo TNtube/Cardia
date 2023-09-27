@@ -17,19 +17,19 @@ namespace Cardia
 		std::unordered_set<std::filesystem::path> alreadyVisited;
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(absoluteAssetsPath)) {
-			const auto& path = std::filesystem::absolute(entry.path());
+			auto path = std::filesystem::absolute(entry.path());
 			if (path.extension() == ".imp") {
 				auto handle = Serializer<AssetHandle>::Deserialize(path);
 				if (handle) {
 					alreadyVisited.insert(path);
-					m_AssetPaths[path] = *handle;
+					m_AssetPaths[path.replace_extension()] = *handle;
 				}
 				continue;
 			}
 
-			auto impPath = std::filesystem::absolute(entry.path().string() + ".imp");
+			const auto& impPath = std::filesystem::absolute(entry.path().string() + ".imp");
 
-			if (alreadyVisited.contains(impPath))
+			if (alreadyVisited.contains(impPath) || std::filesystem::exists(impPath))
 				continue;
 
 			AssetHandle handle;
