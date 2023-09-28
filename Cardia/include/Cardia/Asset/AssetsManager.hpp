@@ -26,12 +26,14 @@ namespace Cardia
 	class AssetsManager
 	{
 	public:
-		explicit AssetsManager(const Renderer& renderer) : m_Renderer(renderer) {}
+		explicit AssetsManager(const Renderer& renderer) : m_Renderer(renderer) {
+			PopulateHandleFromResource();
+		}
 
 		template<AssetType T>
 		std::shared_ptr<T> Load(const std::filesystem::path& path)
 		{
-			return Load<T>(GetHandleFromRelative(path));
+			return Load<T>(GetHandleFromAsset(path));
 		}
 
 		template<AssetType T>
@@ -53,6 +55,14 @@ namespace Cardia
 		std::shared_ptr<Shader> Load(const AssetHandle& handle) { return nullptr; }
 
 		virtual AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath) {
+
+			if (relativePath.is_relative()) {
+				return GetHandleFromAbsolute(std::filesystem::absolute(relativePath));
+			}
+			return GetHandleFromAbsolute(relativePath);
+		}
+
+		virtual AssetHandle GetHandleFromAsset(const std::filesystem::path& relativePath) {
 
 			auto absolute = m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory / relativePath;
 			return GetHandleFromAbsolute(absolute);
@@ -77,11 +87,13 @@ namespace Cardia
 		AssetHandle AddEntry(const std::filesystem::path& absolutePath);
 
 		void PopulateHandleFromProject(const Project& project);
+		void PopulateHandleFromResource();
 
 		std::filesystem::path RelativePathFromHandle(const AssetHandle& handle) const;
 		std::filesystem::path AbsolutePathFromHandle(const AssetHandle& handle) const;
 
 	private:
+		void PopulateHandleFromPath(const std::filesystem::path& abs);
 		const Renderer& m_Renderer;
 
 		Project m_Project;

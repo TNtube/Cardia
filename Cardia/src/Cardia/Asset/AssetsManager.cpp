@@ -14,30 +14,12 @@ namespace Cardia
 		m_Project = project;
 		auto& config = m_Project.GetConfig();
 		auto absoluteAssetsPath = m_Project.ProjectPath() / config.AssetDirectory;
-		std::unordered_set<std::filesystem::path> alreadyVisited;
+		PopulateHandleFromPath(absoluteAssetsPath);
+	}
 
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(absoluteAssetsPath)) {
-			auto path = std::filesystem::absolute(entry.path());
-			if (path.extension() == ".imp") {
-				auto handle = Serializer<AssetHandle>::Deserialize(path);
-				if (handle) {
-					alreadyVisited.insert(path);
-					m_AssetPaths[path.replace_extension()] = *handle;
-				}
-				continue;
-			}
-
-			const auto& impPath = std::filesystem::absolute(entry.path().string() + ".imp");
-
-			if (alreadyVisited.contains(impPath) || std::filesystem::exists(impPath))
-				continue;
-
-			AssetHandle handle;
-			m_AssetPaths[std::filesystem::absolute(path)] = handle;
-
-			Serializer<AssetHandle> serializer(handle);
-			serializer.Serialize(impPath);
-		}
+	void AssetsManager::PopulateHandleFromResource()
+	{
+		PopulateHandleFromPath("resources");
 	}
 
 	std::filesystem::path AssetsManager::RelativePathFromHandle(const AssetHandle &handle) const
@@ -64,5 +46,33 @@ namespace Cardia
 		AssetHandle newHandle;
 		m_AssetPaths[std::filesystem::absolute(absolutePath)] = newHandle;
 		return newHandle;
+	}
+
+	void AssetsManager::PopulateHandleFromPath(const std::filesystem::path &abs)
+	{
+		std::unordered_set<std::filesystem::path> alreadyVisited;
+
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(abs)) {
+			auto path = std::filesystem::absolute(entry.path());
+			if (path.extension() == ".imp") {
+				auto handle = Serializer<AssetHandle>::Deserialize(path);
+				if (handle) {
+					alreadyVisited.insert(path);
+					m_AssetPaths[path.replace_extension()] = *handle;
+				}
+				continue;
+			}
+
+			const auto& impPath = std::filesystem::absolute(entry.path().string() + ".imp");
+
+			if (alreadyVisited.contains(impPath) || std::filesystem::exists(impPath))
+				continue;
+
+			AssetHandle handle;
+			m_AssetPaths[std::filesystem::absolute(path)] = handle;
+
+			Serializer<AssetHandle> serializer(handle);
+			serializer.Serialize(impPath);
+		}
 	}
 }

@@ -40,7 +40,7 @@ namespace Cardia
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
 					mat.AlbedoMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.AlbedoMap = assetsManager.GetHandleFromAbsolute("resources/textures/white.jpg");
+					mat.AlbedoMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
 
 				if (AI_SUCCESS == aiGetMaterialFloat(pMaterial, AI_MATKEY_METALLIC_FACTOR, &textureFloat))
 					mat.Metallic = textureFloat;
@@ -49,24 +49,24 @@ namespace Cardia
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
 					mat.MetallicRoughnessMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.MetallicRoughnessMap = assetsManager.GetHandleFromAbsolute("resources/textures/white.jpg");
+					mat.MetallicRoughnessMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
 
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
 					mat.NormalMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.NormalMap = assetsManager.GetHandleFromAbsolute("resources/textures/normal.jpg");
+					mat.NormalMap = assetsManager.GetHandleFromRelative("resources/textures/normal.jpg");
 
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath))
 					mat.AOMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.AOMap = assetsManager.GetHandleFromAbsolute("resources/textures/white.jpg");
+					mat.AOMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
 
 				if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_EMISSIVE_INTENSITY, &textureColor))
 					mat.EmissiveFactor = Vector3f(textureColor.r, textureColor.g, textureColor.b);
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
 					mat.EmissiveMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.EmissiveMap = assetsManager.GetHandleFromAbsolute("resources/textures/white.jpg");
+					mat.EmissiveMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
 
 				std::filesystem::path matFilename = pMaterial->GetName().C_Str();
 				auto absoluteMatPath = GetPathRelativeToMesh(modelPath, matFilename.string() + ".mat");
@@ -90,7 +90,7 @@ namespace Cardia
 			// process json
 			for (const Json::Value& jsonMat : root["Materials"])
 			{
-				result.emplace_back(UUID::FromString(jsonMat.asString()));
+				result.emplace_back(*AssetHandle::Deserialize(jsonMat));
 			}
 
 			return result;
@@ -118,7 +118,7 @@ namespace Cardia
 
 
 			if (root.isMember("Materials")) {
-				model.m_MaterialHandles = ProcessImportedMaterials(impFilePath);
+				model.m_MaterialHandles = ProcessImportedMaterials(root);
 			} else {
 				model.m_MaterialHandles = ProcessMaterialsFromScene(absolutePath, scene);
 				for (const auto& mat: model.m_MaterialHandles) {

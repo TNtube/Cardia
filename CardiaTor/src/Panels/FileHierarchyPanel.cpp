@@ -21,11 +21,11 @@ namespace Cardia::Panel
 		auto& app = Application::Get();
 		Texture::Builder builder(app.GetRenderer().GetDevice());
 
-		auto folderHandle = app.GetAssetsManager().AddEntry("resources/icons/folder.png");
+		auto folderHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/folder.png");
 		builder.SetAssetHandle(folderHandle);
 		m_FolderIcon = builder.Build();
 
-		auto fileHandle = app.GetAssetsManager().AddEntry("resources/icons/file.png");
+		auto fileHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/file.png");
 		builder.SetAssetHandle(fileHandle);
 		m_FileIcon = builder.Build();
 	}
@@ -149,7 +149,7 @@ namespace Cardia::Panel
 		{
 			if (entry.is_directory())
 				m_Folders.insert(entry);
-			else
+			else if (entry.path().extension() != ".imp")
 				m_Files.insert(entry);
 		}
 	}

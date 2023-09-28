@@ -89,7 +89,8 @@ namespace Cardia
 		unsigned char errorColor[] = {255, 0, 255, 255};
 		if (!pixels)
 		{
-			Log::CoreError(stbi_failure_reason());
+			auto* error = stbi_failure_reason();
+			Log::CoreError("Error: `{0}` at path `{1}`", error, path.string());
 			texWidth = 1;
 			texHeight = 1;
 			pixels = errorColor;
