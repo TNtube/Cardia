@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "Cardia/DataStructure/SubMesh.hpp"
+#include "Cardia/DataStructure/Mesh.hpp"
 #include "Buffer.hpp"
 
 namespace Cardia
@@ -9,13 +9,13 @@ namespace Cardia
 	class SubMeshRenderer
 	{
 	public:
-		SubMeshRenderer(const Device& device, SubMesh& subMesh);
+		SubMeshRenderer(const Device& device, Mesh& mesh);
 		~SubMeshRenderer();
 		SubMeshRenderer(SubMeshRenderer&& other) noexcept;
 
 		SubMeshRenderer(const SubMeshRenderer&) = delete;
 		SubMeshRenderer &operator=(const SubMeshRenderer&) = delete;
-		void SubmitSubMesh(SubMesh& subMesh);
+		void SubmitSubMesh(Mesh& subMesh);
 		void Bind(VkCommandBuffer commandBuffer) const;
 		void Draw(VkCommandBuffer commandBuffer) const;
 	private:

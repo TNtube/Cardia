@@ -2,25 +2,14 @@
 
 #include <memory>
 #include <string>
-#include <typeindex>
-#include <utility>
-#include "Cardia/Core/Core.hpp"
-#include "Cardia/Renderer/Texture.hpp"
-#include "Cardia/DataStructure/Mesh.hpp"
+#include <type_traits>
+#include "Cardia/Serialization/Serializer.hpp"
 #include "Cardia/Project/Project.hpp"
-#include "Cardia/Core/Time.hpp"
-#include "Cardia/Renderer/Renderer.hpp"
+#include "Cardia/Renderer/Material.hpp"
+#include "Cardia/Renderer/MeshRenderer.hpp"
+#include "Cardia/Renderer/Texture.hpp"
 
 namespace Cardia {
-	struct TypeID
-	{
-		std::type_index type_index;
-		std::string ID;
-		bool operator==(const TypeID& other) const {
-			return ID == other.ID && type_index == other.type_index;
-		}
-	};
-
 	struct AssetRefCounter
 	{
 		AssetRefCounter() = default;
@@ -30,118 +19,88 @@ namespace Cardia {
 	};
 }
 
-namespace std {
-	template<>
-	struct hash<Cardia::TypeID> {
-		auto operator()(const Cardia::TypeID& typeId) const noexcept -> ::size_t {
-			return hash<std::string>{}(typeId.ID) ^ hash<std::type_index>{}(typeId.type_index);
-		}
-	};
-}
-
 namespace Cardia
 {
+	template <typename T> concept AssetType = std::is_base_of_v<Asset, T>;
+
 	class AssetsManager
 	{
 	public:
-		enum class LoadType {
-			Editor,
-			Game
-		};
-
-	public:
-		explicit AssetsManager(Renderer& renderer);
-		static void Init(Renderer& renderer);
-		static std::filesystem::path GetPathFromAsset(const std::shared_ptr<void>& resource);
-
-		static std::filesystem::path GetAssetAbsolutePath(const std::filesystem::path& relative) {
-			return Project::GetAssetDirectory() / relative;
+		explicit AssetsManager(const Renderer& renderer) : m_Renderer(renderer) {
+			PopulateHandleFromResource();
 		}
 
-		template<typename T>
-		static std::shared_ptr<T> Load(const std::filesystem::path& path)
+		template<AssetType T>
+		std::shared_ptr<T> Load(const std::filesystem::path& path)
 		{
-			return Load<T>(path, LoadType::Game);
+			return Load<T>(GetHandleFromAsset(path));
 		}
 
-		template<typename T>
-		static std::shared_ptr<T> Load(const std::filesystem::path& path, LoadType loadType)
+		template<AssetType T>
+		std::shared_ptr<T> Load(const AssetHandle& handle)
 		{
-			return Instance().LoadImpl<T>(path, loadType);
+			CdCoreAssert(false, "Asset type not supported");
 		}
 
-		static void CollectGarbage(bool forceCollection = true);
+		template<>
+		std::shared_ptr<Texture> Load(const AssetHandle& handle);
 
-		static AssetsManager& Instance() { return *s_Instance; }
+		template<>
+		std::shared_ptr<MeshRenderer> Load(const AssetHandle& handle);
 
-		// absolutely temporary
-		Renderer& GetRenderer() const { return m_Renderer; }
-	private:
+		template<>
+		std::shared_ptr<Material> Load(const AssetHandle& handle);
 
-		static std::filesystem::path GetAbsolutePath(const std::filesystem::path& relative, LoadType loadType);
-		template<typename T>
-		std::shared_ptr<T> LoadImpl(const std::filesystem::path& path, LoadType loadType);
+		template<>
+		std::shared_ptr<Shader> Load(const AssetHandle& handle) { return nullptr; }
 
-		static std::unique_ptr<AssetsManager> s_Instance;
+		virtual AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath) {
 
-		Renderer& m_Renderer;
-		std::unordered_map<TypeID, AssetRefCounter> m_Assets;
-
-		// Collection related
-		friend Application;
-		void CollectionRoutine(DeltaTime& dt);
-		std::chrono::duration<float> m_ElapsedTime {};
-	};
-
-	inline std::filesystem::path AssetsManager::GetPathFromAsset(const std::shared_ptr<void>& resource)
-	{
-		for (auto& res : Instance().m_Assets)
-		{
-			if (res.second.Resource == resource) {
-				return res.first.ID;
+			if (relativePath.is_relative()) {
+				return GetHandleFromAbsolute(std::filesystem::absolute(relativePath));
 			}
-		}
-		return "";
-	}
-
-	template<typename T>
-	inline std::shared_ptr<T> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		CdCoreAssert(false, std::format("Unknown assets type {}", typeid(T).name()));
-		return std::shared_ptr<T>();
-	}
-
-	template<>
-	inline std::shared_ptr<Texture> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		const TypeID id {typeid(Texture), path.string()};
-
-		AssetHandle assetHandle {
-			UUID{},
-			absPath
-		};
-
-		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(std::make_shared<Texture>(m_Renderer.GetDevice(), assetHandle, TextureCreateInfo{}));
-			m_Assets.insert_or_assign(id, res);
+			return GetHandleFromAbsolute(relativePath);
 		}
 
-		return std::static_pointer_cast<Texture>(m_Assets[id].Resource);
-	}
+		virtual AssetHandle GetHandleFromAsset(const std::filesystem::path& relativePath) {
 
-	template<>
-	inline std::shared_ptr<Mesh> AssetsManager::LoadImpl(const std::filesystem::path& path, LoadType loadType)
-	{
-		const std::filesystem::path absPath = GetAbsolutePath(path, loadType);
-		const TypeID id {typeid(Mesh), path.string()};
-
-		if (!m_Assets.contains(id)) {
-			AssetRefCounter res(Mesh::ReadMeshFromFile(m_Renderer, absPath.string()));
-			m_Assets.insert_or_assign(id, res);
+			auto absolute = m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory / relativePath;
+			return GetHandleFromAbsolute(absolute);
 		}
 
-		return std::static_pointer_cast<Mesh>(m_Assets[id].Resource);
+		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath) {
+			if (!m_AssetPaths.contains(absolutePath))
+				return m_AssetPaths[absolutePath];
 
-	}
+
+			auto handle = Serializer<AssetHandle>::Deserialize(absolutePath.string() + ".imp");
+			if (!handle)
+			{
+				Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", absolutePath.string());
+				return AssetHandle::Invalid();
+			}
+
+			m_AssetPaths[absolutePath] = *handle;
+			return m_AssetPaths[absolutePath];
+		}
+
+		AssetHandle AddEntry(const std::filesystem::path& absolutePath);
+
+		void PopulateHandleFromProject(const Project& project);
+		void PopulateHandleFromResource();
+
+		std::filesystem::path RelativePathFromHandle(const AssetHandle& handle) const;
+		std::filesystem::path AbsolutePathFromHandle(const AssetHandle& handle) const;
+
+	private:
+		void PopulateHandleFromPath(const std::filesystem::path& abs);
+		const Renderer& m_Renderer;
+
+		Project m_Project;
+
+		std::unordered_map<AssetHandle, AssetRefCounter> m_Assets;
+		std::unordered_map<std::filesystem::path, AssetHandle> m_AssetPaths;
+	};
 }
+
+#include "Cardia/Asset/AssetsManager.inl"

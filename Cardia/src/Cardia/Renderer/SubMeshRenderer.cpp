@@ -1,25 +1,25 @@
 #include <Cardia/Renderer/Renderer2D.hpp>
 #include "cdpch.hpp"
 
-#include "Cardia/Renderer/SubMeshRenderer.hpp"
+#include "Cardia/Renderer/SubMeshRenderer"
 
 namespace Cardia
 {
-	SubMeshRenderer::SubMeshRenderer(const Device& device, SubMesh &subMesh)
+	SubMeshRenderer::SubMeshRenderer(const Device& device, Mesh &mesh)
 		: m_Device(device),
-		m_VertexCount(static_cast<uint32_t>(subMesh.GetVertices().size())),
-		m_IndexCount(static_cast<uint32_t>(subMesh.GetIndices().size())),
+		m_VertexCount(static_cast<uint32_t>(mesh.GetVertices().size())),
+		m_IndexCount(static_cast<uint32_t>(mesh.GetIndices().size())),
 		m_VertexBuffer(device,
-			sizeof(subMesh.GetVertices()[0]) * m_VertexCount,
+			sizeof(mesh.GetVertices()[0]) * m_VertexCount,
 			1,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT),
 		m_IndexBuffer(device,
-			sizeof(subMesh.GetIndices()[0]) * m_IndexCount,
+			sizeof(mesh.GetIndices()[0]) * m_IndexCount,
 			1,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
-		SubmitSubMesh(subMesh);
+		SubmitSubMesh(mesh);
 	}
 
 	SubMeshRenderer::~SubMeshRenderer() = default;
@@ -33,7 +33,7 @@ namespace Cardia
 	{
 	}
 
-	void SubMeshRenderer::SubmitSubMesh(SubMesh &subMesh)
+	void SubMeshRenderer::SubmitSubMesh(Mesh &subMesh)
 	{
 		VkDeviceSize bufferSize = sizeof(subMesh.GetVertices()[0]) * m_VertexCount;
 		m_VertexBuffer.UploadData(bufferSize, subMesh.GetVertices().data());

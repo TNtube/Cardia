@@ -32,6 +32,33 @@ namespace Cardia
 		return out;
 	}
 
+	template<typename... Cpn>
+	py::object AddComponent(ComponentGroup<Cpn...>, Entity entity, py::type& cls)
+	{
+		py::object out = py::none();
+
+		([&](){
+			if (IsSubclass<Cpn>(cls)) {
+				out = py::cast(entity.AddComponent<Cpn>(), py::return_value_policy::reference);
+			}
+		}(), ...);
+
+		return out;
+	}
+
+	template<typename... Cpn>
+	bool HasComponent(ComponentGroup<Cpn...>, Entity entity, py::type& cls)
+	{
+		bool out = false;
+		([&](){
+			if (IsSubclass<Cpn>(cls)) {
+				out = entity.HasComponent<Cpn>();
+			}
+		}(), ...);
+
+		return out;
+	}
+
 	PYBIND11_EMBEDDED_MODULE(cardia_native, m) {
 		m.doc() = "Cardia Python Bindings";
 
@@ -41,8 +68,23 @@ namespace Cardia
 			.def("on_create", &Behavior::on_create)
 			.def("on_update", &Behavior::on_update)
 			.def_property_readonly("transform", &Behavior::GetTransform, py::return_value_policy::reference)
-			.def("get_component", [](Behavior& self, py::type& cls) -> py::object {
-				return GetComponent(ScriptableComponents{}, self.entity, cls);
+			.def_property_readonly("entity", [](Behavior& self){ return self.entity; }, py::return_value_policy::reference)
+			.def("spawn", &Behavior::Spawn);
+
+		// entity
+		py::class_<Entity>(m, "Entity")
+			.def(py::init<>())
+			.def_property_readonly("transform", [](Entity& self) {
+				return self.GetComponent<Component::Transform>();
+			}, py::return_value_policy::reference)
+			.def("get_component", [](Entity& self, py::type& cls) -> py::object {
+				return GetComponent(ScriptableComponents{}, self, cls);
+			}, py::return_value_policy::reference)
+			.def("add_component", [](Entity& self, py::type& cls) -> py::object {
+				return AddComponent(ScriptableComponents{}, self, cls);
+			}, py::return_value_policy::reference)
+			.def("has_component", [](Entity& self, py::type& cls) -> bool {
+				return HasComponent(ScriptableComponents{}, self, cls);
 			}, py::return_value_policy::reference);
 
 		// math utilities
@@ -115,6 +157,11 @@ namespace Cardia
 			.def(py::init<>())
 			.def_readwrite("uuid", &Component::ID::Uuid, py::return_value_policy::reference);
 
+		py::class_<Component::Label>(m, "Label")
+			.def(py::init<>())
+			.def_readwrite("name", &Component::Label::Name, py::return_value_policy::reference)
+			.def_readwrite("color", &Component::Label::Color, py::return_value_policy::reference);
+
 		py::class_<Component::Transform>(m, "Transform")
 			.def(py::init<>())
 			.def(py::init<Vector3f, Vector3f, Vector3f>())
@@ -134,6 +181,9 @@ namespace Cardia
 			.def("rotate", &Component::Transform::Rotate, py::return_value_policy::reference)
 			.def("rotate_around", &Component::Transform::RotateAround, py::return_value_policy::reference)
 			.def("reset", &Component::Transform::Reset, py::return_value_policy::reference);
+
+		py::class_<Component::Camera>(m, "Camera")
+			.def(py::init<>());
 
 		py::class_<Component::Light>(m, "Light")
 			.def(py::init<>())

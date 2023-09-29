@@ -1,13 +1,14 @@
-#include <Cardia/Asset/AssetsManager.hpp>
 #include <utility>
+#include <Cardia/Core/Time.hpp>
 #include "cdpch.hpp"
 #include "Cardia/ECS/Scene.hpp"
 #include "Cardia/ECS/Entity.hpp"
 #include "Cardia/ECS/Components.hpp"
-#include "Cardia/Renderer/Renderer2D.hpp"
+#include "Cardia/Renderer/Renderer.hpp"
 #include "Cardia/Renderer/Camera.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include "Cardia/Serialization/Serializer.hpp"
+#include "Cardia/Application.hpp"
 
 
 namespace Cardia
@@ -97,7 +98,7 @@ namespace Cardia
 			}
 		}
 
-		if (!mainCamera)
+		if (!mainCamera || !mainCameraTransform)
 		{
 			Log::Error("Scene hierarchy should have a primary camera. Either create one or set the existing one to primary");
 			return;
@@ -130,7 +131,7 @@ namespace Cardia
 
 		// Render Meshes
 		m_Renderer.GetMainPipeline().Bind(commandBuffer);
-		const auto meshView = m_Registry.view<Component::Transform, Component::MeshRendererC>();
+		const auto meshView = m_Registry.view<Component::Transform, Component::ModelRenderer>();
 		if (meshView.size_hint() > 0)
 		{
 			vkCmdBindDescriptorSets(
@@ -147,7 +148,7 @@ namespace Cardia
 		}
 		for (const auto entity : meshView)
 		{
-			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::MeshRendererC>(entity);
+			auto [transform, meshRenderer] = meshView.get<Component::Transform, Component::ModelRenderer>(entity);
 			// m_UBO->bind(0);
 			PushConstantData constants {};
 			constants.Model = transform.GetWorldTransform();
@@ -159,7 +160,8 @@ namespace Cardia
 				0, sizeof(PushConstantData),
 				&constants);
 
-			meshRenderer.Renderer->Draw(commandBuffer);
+			if (meshRenderer.Renderer)
+				meshRenderer.Renderer->Draw(m_Renderer.GetMainPipeline(), commandBuffer);
 		}
 	}
 
@@ -224,22 +226,6 @@ namespace Cardia
 		}
 	}
 
-
-	template <Serializable Cpn>
-	static void SerializeOneComponent(const entt::registry& src, Json::Value& root, entt::entity entity)
-	{
-		if (src.all_of<Cpn>(entity))
-		{
-			MergeJson(root, src.get<Cpn>(entity).Serialize());
-		}
-	}
-
-	template <Serializable... Cpn>
-	static void SerializeAllComponents(ComponentGroup<Cpn...>, const entt::registry& src, Json::Value& root, entt::entity entity)
-	{
-		(SerializeOneComponent<Cpn>(src, root, entity), ...);
-	}
-
 	Json::Value Scene::Serialize() const
 	{
 		Json::Value root;
@@ -247,8 +233,8 @@ namespace Cardia
 		auto& entitiesNode = root["Entities"];
 		for(const auto entity: m_Registry.view<entt::entity>())
 		{
-			Json::Value currentEntityNode(Json::objectValue);
-			SerializeAllComponents(SerializableComponents{}, m_Registry, currentEntityNode, entity);
+			Entity currEntity(entity, const_cast<Scene*>(this));
+			Json::Value currentEntityNode = currEntity.SerializeComponents();
 
 			// Serialize Relationships here as they need scene context to be deserialized
 			const auto& relationship = m_Registry.get<Component::Relationship>(entity);
@@ -272,34 +258,18 @@ namespace Cardia
 
 	}
 
-	template <Serializable Cpn>
-	static void DeserializeAndAssignOneComponent(const Json::Value& root, entt::registry& dst, entt::entity entity)
-	{
-		std::optional<Cpn> cpn = Cpn::Deserialize(root);
-		if (cpn.has_value())
-		{
-			dst.emplace_or_replace<Cpn>(entity, *cpn);
-		}
-	}
-
-	template <Serializable... Cpn>
-	static void DeserializeAndAssignAllComponents(ComponentGroup<Cpn...>, const Json::Value& root, entt::registry& dst, entt::entity entity)
-	{
-		(DeserializeAndAssignOneComponent<Cpn>(root, dst, entity), ...);
-	}
-
 	std::optional<Scene> Scene::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("Entities"))
 			return std::nullopt;
 
-		std::optional<Scene> scene({AssetsManager::Instance().GetRenderer(), std::string("Deserialized Scene")});
+		std::optional<Scene> scene({Application::Get().GetRenderer(), std::string("Deserialized Scene")});
 
 		// Deserialize all serializable components
 		for (auto& entityNode : root["Entities"])
 		{
 			const auto entity = scene->m_Registry.create();
-			DeserializeAndAssignAllComponents(SerializableComponents{}, entityNode, scene->m_Registry, entity);
+			Entity::DeserializeAndAssignComponents(entityNode, scene->m_Registry, entity);
 		}
 
 		// Second pass to deserialize things that need scene context

@@ -73,9 +73,10 @@ namespace Cardia::Panel
 				// 	"Triangle Count");
 				ImGui::Separator();
 				ImGui::Text("GPU's Info");
-				// ImGui::Text("Vendor   : %s", RenderAPI::get().getVendor().c_str());
-				// ImGui::Text("Renderer : %s", RenderAPI::get().getRenderer().c_str());
-				// ImGui::Text("Version  : %s", RenderAPI::get().getVersion().c_str());
+
+				auto& deviceProperties = appContext->GetRenderer().GetDevice().Properties;
+				ImGui::Text("Vendor   : %s", deviceProperties.deviceName);
+				ImGui::Text("Version : %i", deviceProperties.apiVersion);
 				ImGui::Separator();
 				ImGui::TreePop();
 			}

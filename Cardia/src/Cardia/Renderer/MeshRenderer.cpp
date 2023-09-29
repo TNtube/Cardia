@@ -1,38 +1,65 @@
 #include "cdpch.hpp"
+#include <Cardia/Application.hpp>
 #include "Cardia/Renderer/Texture.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
-#include "cdpch.hpp"
 
 #include "Cardia/Renderer/MeshRenderer.hpp"
 
 namespace Cardia
 {
 
-	void MeshRenderer::SubmitMesh(const Device& device, const std::shared_ptr<Mesh>& mesh)
+	MeshRenderer::MeshRenderer(const Device &device, AssetHandle handle, Model model)
+		: Asset(std::move(handle)), m_Device(device), m_Model(std::move(model))
 	{
-		m_Mesh = mesh;
-		auto& subMeshes = mesh->GetSubMeshes();
-
-		for (auto& subMesh : subMeshes)
-		{
-			auto& subMeshRender = m_SubMeshRenderers.emplace_back(device, subMesh);
-			subMeshRender.SubmitSubMesh(subMesh);
-		}
+		Init();
 	}
 
-	void MeshRenderer::Draw(VkCommandBuffer commandBuffer) const
+	void MeshRenderer::Reload()
 	{
-		auto& materials = m_Mesh->GetMaterialInstances();
+		if (!m_Handle.IsValid())
+			return;
+
+		auto& assetsManager = Application::Get().GetAssetsManager();
+
+		auto path = assetsManager.AbsolutePathFromHandle(GetHandle());
+
+		auto materials = m_Model.GetMaterialHandles();
+
+		m_Model = Model::FromFile(path, false);
+
+		m_Model.GetMaterialHandles() = materials;
+
+		m_SubMeshRenderers.clear();
+		m_Materials.clear();
+
+		Init();
+	}
+
+	void MeshRenderer::Draw(const Pipeline& pipeline, VkCommandBuffer commandBuffer) const
+	{
 		for (size_t i = 0; i < m_SubMeshRenderers.size(); i++)
 		{
-			const auto materialIndex = m_Mesh->GetSubMeshes()[i].GetMaterialIndex();
-			if (materials.size() > materialIndex)
+			const auto materialIndex = m_Model.GetMeshes()[i].GetMaterialIndex();
+			if (m_Materials.size() > materialIndex)
 			{
-				auto& materialInstance = materials[materialIndex];
-				materialInstance.Bind(commandBuffer);
+				auto& materialInstance = m_Materials[materialIndex];
+				materialInstance->Bind(pipeline, commandBuffer);
 			}
 			m_SubMeshRenderers[i].Bind(commandBuffer);
 			m_SubMeshRenderers[i].Draw(commandBuffer);
+		}
+	}
+
+	void MeshRenderer::Init()
+	{
+		auto& assetsManager = Application::Get().GetAssetsManager();
+		for (const auto& material : m_Model.GetMaterialHandles())
+		{
+			m_Materials.emplace_back(assetsManager.Load<Material>(material));
+		}
+
+		for (auto& mesh : m_Model.GetMeshes())
+		{
+			m_SubMeshRenderers.emplace_back(m_Device, mesh);
 		}
 	}
 }

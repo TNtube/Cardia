@@ -2,22 +2,26 @@
 
 #include <vector>
 #include <memory>
-#include "Cardia/DataStructure/Mesh.hpp"
-#include "SubMeshRenderer.hpp"
+#include "Cardia/DataStructure/Model.hpp"
+#include "SubMeshRenderer"
 
 
 namespace Cardia
 {
-	class MeshRenderer
+	class MeshRenderer : public Asset
 	{
 	public:
-		MeshRenderer() = default;
+		explicit MeshRenderer(const Device& device, AssetHandle handle, Model model);
+		const Model& GetModel() const { return m_Model; }
+		void Draw(const Pipeline& pipeline, VkCommandBuffer commandBuffer) const;
 
-		void SubmitMesh(const Device& device, const std::shared_ptr<Mesh>& mesh);
-		std::shared_ptr<Mesh> GetMesh() { return m_Mesh; }
-		void Draw(VkCommandBuffer commandBuffer) const;
+		void Reload() override;
 	private:
+		const Device& m_Device;
+
+		void Init();
+		Model m_Model {};
+		std::vector<std::shared_ptr<Material>> m_Materials {};
 		std::vector<SubMeshRenderer> m_SubMeshRenderers {};
-		std::shared_ptr<Mesh> m_Mesh;
 	};
 }

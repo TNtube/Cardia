@@ -7,4 +7,9 @@ namespace Cardia
 	{
 		return entity.GetComponent<Component::Transform>();
 	}
+
+	Entity Behavior::Spawn(const std::string& name) const
+	{
+		return entity.GetScene()->CreateEntity(name, entity.Handle());
+	}
 }

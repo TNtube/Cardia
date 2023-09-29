@@ -3,10 +3,12 @@
 
 #include <volk.h>
 
+#include <utility>
+#include <Cardia/Application.hpp>
+
 #include "Cardia/Renderer/Buffer.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
-#include "Cardia/Renderer/Renderer.hpp"
 
 namespace
 {
@@ -22,7 +24,7 @@ namespace Cardia
 		if (!m_Handle.IsValid())
 			return;
 		Release();
-		Init();
+		InitFromPath();
 	}
 
 	Texture &Texture::operator=(Texture &&other) noexcept
@@ -32,30 +34,26 @@ namespace Cardia
 	}
 
 	Texture::Texture(Texture &&other) noexcept
-		: Asset(std::move(other.m_Handle)),
-		  m_Device{other.m_Device},
-		  m_Image{other.m_Image},
-		  m_Memory{other.m_Memory},
-		  m_ImageView{other.m_ImageView},
-		  m_Sampler{other.m_Sampler},
-		  m_LayerCount{other.m_LayerCount},
-		  m_CreateInfo{other.m_CreateInfo}
+		: Asset(other.GetHandle()), m_Device(other.m_Device),
+		m_Image(other.m_Image), m_ImageView(other.m_ImageView),
+		m_Memory(other.m_Memory), m_Sampler(other.m_Sampler),
+		m_LayerCount(other.m_LayerCount), m_CreateInfo(std::move(other.m_CreateInfo))
 	{
 		other.m_Image = VK_NULL_HANDLE;
-		other.m_Memory = VK_NULL_HANDLE;
 		other.m_ImageView = VK_NULL_HANDLE;
+		other.m_Memory = VK_NULL_HANDLE;
 		other.m_Sampler = VK_NULL_HANDLE;
+		other.m_LayerCount = 0;
 	}
 
-	Texture::Texture(const Device& device, AssetHandle assetHandle, const TextureCreateInfo& textureCreateInfo)
+	Texture::Texture(const Device& device, TextureCreateInfo textureCreateInfo, AssetHandle assetHandle)
 		: Asset(std::move(assetHandle)), m_Device(device), m_CreateInfo(textureCreateInfo)
 	{
-		Init();
-	}
+		if (GetHandle().IsValid()) {
+			InitFromPath();
+			return;
+		}
 
-	Texture::Texture(const Device& device, const TextureCreateInfo& textureCreateInfo)
-		: m_Device(device), m_CreateInfo(textureCreateInfo)
-	{
 		CreateImage(m_CreateInfo.Format, m_CreateInfo.UsageFlags, m_CreateInfo.AspectFlags);
 
 		if (m_CreateInfo.Data) {
@@ -81,26 +79,18 @@ namespace Cardia
 		Release();
 	}
 
-//	void SpriteTexture::Bind(VkCommandBuffer commandBuffer) const
-//	{
-//		vkCmdBindDescriptorSets(
-//			commandBuffer,
-//			VK_PIPELINE_BIND_POINT_GRAPHICS,
-//			m_Renderer.GetPipelineLayout().GetPipelineLayout(),
-//			1, 1,
-//			&m_TextureDescriptorSet->GetDescriptor(),
-//			0, nullptr);
-//	}
-
-	void Texture::Init()
+	void Texture::InitFromPath()
 	{
+		auto path = Application::Get().GetAssetsManager().AbsolutePathFromHandle(GetHandle());
 		int texWidth {}, texHeight {}, texChannels {};
-		stbi_uc* pixels = stbi_load(m_Handle.Path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+
+		stbi_uc* pixels = stbi_load(path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
 		unsigned char errorColor[] = {255, 0, 255, 255};
 		if (!pixels)
 		{
-			Log::CoreError(stbi_failure_reason());
+			auto* error = stbi_failure_reason();
+			Log::CoreError("Error: `{0}` at path `{1}`", error, path.string());
 			texWidth = 1;
 			texHeight = 1;
 			pixels = errorColor;
@@ -293,9 +283,6 @@ namespace Cardia
 
 	std::unique_ptr<Texture> Texture::Builder::Build() const
 	{
-		if (m_AssetHandle.IsValid())
-			return std::make_unique<Texture>(m_Device, m_AssetHandle, m_TextureCreateInfo);
-
-		return std::make_unique<Texture>(m_Device, m_TextureCreateInfo);
+		return std::make_unique<Texture>(m_Device, m_TextureCreateInfo, m_AssetHandle);
 	}
 }

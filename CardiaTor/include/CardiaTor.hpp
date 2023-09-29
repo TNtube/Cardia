@@ -10,6 +10,7 @@
 #include "Cardia/Renderer/RenderPass.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Command/Commands.hpp"
+#include "Cardia/Asset/AssetsManager.hpp"
 
 
 namespace Cardia
@@ -53,7 +54,7 @@ namespace Cardia
 		void SetSelectedEntity(Entity entity);
 
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
-		Renderer& GetRenderer() { return m_Renderer; }
+		AssetsManager& GetAssetsManager() { return m_AssetsManager; }
 
 		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
 
@@ -64,7 +65,7 @@ namespace Cardia
 		void InvalidateProject();
 		void InvalidateScene();
 		void SaveScene() const;
-		void OpenScene(const std::filesystem::path& scenePath);
+		void OpenScene(const AssetHandle& handle);
 		void ReloadScene();
 		void UndoCommand();
 		void RedoCommand();

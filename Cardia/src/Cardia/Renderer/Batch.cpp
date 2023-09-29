@@ -69,7 +69,7 @@ namespace Cardia
 		// RenderAPI::get().drawIndexed(vertexArray, indexCount);
 	}
 
-	bool Batch::addMesh(SubMesh* mesh)
+	bool Batch::addMesh(Mesh* mesh)
 	{
 		if (indexCount >= maxIndices)
 			return false;

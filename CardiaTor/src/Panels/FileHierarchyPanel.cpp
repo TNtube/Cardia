@@ -18,8 +18,16 @@ namespace Cardia::Panel
 	int FileHierarchyPanel::m_LastWindowId = 0;
 	FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++)
 	{
-		m_FolderIcon = AssetsManager::Load<Texture>("resources/icons/folder.png");
-		m_FileIcon = AssetsManager::Load<Texture>("resources/icons/file.png");
+		auto& app = Application::Get();
+		Texture::Builder builder(app.GetRenderer().GetDevice());
+
+		auto folderHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/folder.png");
+		builder.SetAssetHandle(folderHandle);
+		m_FolderIcon = builder.Build();
+
+		auto fileHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/file.png");
+		builder.SetAssetHandle(fileHandle);
+		m_FileIcon = builder.Build();
 	}
 
 	void FileHierarchyPanel::OnImGuiRender(CardiaTor* appContext)
@@ -105,8 +113,8 @@ namespace Cardia::Panel
 
 			if (ImGui::BeginDragDropSource())
 			{
-				std::string itemPath = (m_PathFromAssets / path).string();
-				ImGui::SetDragDropPayload("FILE_PATH", itemPath.c_str(), (strlen(itemPath.c_str()) + 1) * sizeof(char));
+				auto handle = appContext->GetAssetsManager().GetHandleFromAbsolute(entry);
+				ImGui::SetDragDropPayload("ASSET_HANDLE", &handle, sizeof(handle));
 				ImGui::EndDragDropSource();
 			}
 
@@ -141,7 +149,7 @@ namespace Cardia::Panel
 		{
 			if (entry.is_directory())
 				m_Folders.insert(entry);
-			else
+			else if (entry.path().extension() != ".imp")
 				m_Files.insert(entry);
 		}
 	}

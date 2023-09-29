@@ -22,12 +22,10 @@ namespace Cardia
 		});
 		
 		Renderer2D::init();
-		AssetsManager::Init(m_Renderer);
 	}
 
 	Application::~Application()
 	{
-		AssetsManager::CollectGarbage(true);
 		Renderer2D::quit();
 	};
 
@@ -42,8 +40,6 @@ namespace Cardia
 			OnUpdate();
 
 			OnRender();
-
-			AssetsManager::Instance().CollectionRoutine(Time::m_DeltaTime);
 		}
 	}
 

@@ -64,6 +64,9 @@ namespace Cardia
 
 		bool IsValid() const { return  m_Scene && m_Scene->GetRegistry().valid(m_Entity); }
 
+		Json::Value SerializeComponents();
+		static void DeserializeAndAssignComponents(const Json::Value& root, entt::registry& dst, entt::entity entity);
+
 	private:
 		friend class Scene;
 		friend struct ChildCollection;

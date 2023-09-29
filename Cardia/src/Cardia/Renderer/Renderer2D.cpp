@@ -162,7 +162,7 @@ namespace Cardia
 		};
 		constexpr Vector4f normal { 0.0f, 0.0f, 1.0f, 0.0f };
 
-		SubMesh mesh;
+		Mesh mesh;
 		// const auto finalNormal = glm::mat3(glm::transpose(glm::inverse(transform))) * normal;
 		for (int i = 0; i < sizeof(rectPositions) / sizeof(Vector4f); ++i)
 		{

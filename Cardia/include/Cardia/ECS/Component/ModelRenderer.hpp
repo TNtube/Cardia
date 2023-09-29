@@ -4,9 +4,9 @@
 
 namespace Cardia::Component
 {
-	struct MeshRendererC
+	struct ModelRenderer
 	{
-		MeshRendererC() : Renderer(std::make_shared<MeshRenderer>()) {}
+		ModelRenderer() = default;
 
 		std::shared_ptr<MeshRenderer> Renderer = nullptr;
 
@@ -15,6 +15,8 @@ namespace Cardia::Component
 		}
 
 		Json::Value Serialize() const;
-		static std::optional<MeshRendererC> Deserialize(const Json::Value& root);
+		static std::optional<ModelRenderer> Deserialize(const Json::Value& root);
+
+	private:
 	};
 }

@@ -1,6 +1,7 @@
 ﻿#include "cdpch.hpp"
 #include "Cardia/Asset/AssetsManager.hpp"
 #include "Cardia/ECS/Component/SpriteRenderer.hpp"
+#include <Cardia/Application.hpp>
 
 namespace Cardia::Component
 {
@@ -11,7 +12,7 @@ namespace Cardia::Component
 		auto& sprite = root["SpriteRenderer"];
 
 		sprite["Color"] = Color.Serialize();
-		sprite["SpriteTexture"] = AssetsManager::GetPathFromAsset(SpriteTexture).string();
+		sprite["SpriteTexture"] = SpriteTexture->GetHandle().ID.ToString();
 		sprite["TilingFactor"] = TillingFactor;
 		sprite["ZIndex"] = ZIndex;
 
@@ -38,7 +39,8 @@ namespace Cardia::Component
 		else
 			return std::nullopt;
 
-		temp.SpriteTexture = AssetsManager::Load<Texture>(sprite["SpriteTexture"].asString());
+		AssetHandle spriteHandle = AssetHandle{ UUID::FromString(sprite["SpriteTexture"].asString()) };
+		temp.SpriteTexture = Application::Get().GetAssetsManager().Load<Texture>(spriteHandle);
 		temp.TillingFactor = sprite["TilingFactor"].asFloat();
 		temp.ZIndex = sprite["ZIndex"].asInt();
 

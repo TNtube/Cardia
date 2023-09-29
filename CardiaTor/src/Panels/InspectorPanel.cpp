@@ -48,6 +48,9 @@ namespace Cardia::Panel
 			return;
 		}
 
+
+		auto& assetsManager = appContext->GetAssetsManager();
+
 		const auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
 
 		// Label Component
@@ -100,10 +103,10 @@ namespace Cardia::Panel
 //			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
 				{
-					const auto* cStrPath = static_cast<const char*>(payload->Data);
-					if (auto tex = AssetsManager::Load<Texture>(cStrPath))
+					auto pHandle = static_cast<AssetHandle*>(payload->Data);
+					if (auto tex = appContext->GetAssetsManager().Load<Texture>(*pHandle))
 					{
 						sprite.SpriteTexture = std::move(tex);
 					}
@@ -118,32 +121,33 @@ namespace Cardia::Panel
 
 		// MeshRendererC Component
 
-		DrawInspectorComponent<Component::MeshRendererC>("Mesh Renderer", [appContext, this](Component::MeshRendererC& meshRendererC) {
+		DrawInspectorComponent<Component::ModelRenderer>("Model Renderer", [&assetsManager, appContext, this](Component::ModelRenderer& meshRendererC) {
+			std::string name;
+			if (meshRendererC.Renderer)
+				name = assetsManager.RelativePathFromHandle(meshRendererC.Renderer->GetHandle()).filename().string();
 
-			auto str = AssetsManager::GetPathFromAsset(meshRendererC.Renderer->GetMesh()).string();
-
-			EditorUI::InputText("Mesh path", &str, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
+			EditorUI::InputText("Model path", &name, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
 				{
-					auto path = std::filesystem::path(static_cast<const char*>(payload->Data));
-					auto mesh = AssetsManager::Load<Mesh>(path);
+					auto pHandle = static_cast<AssetHandle*>(payload->Data);
+					auto mesh = appContext->GetAssetsManager().Load<MeshRenderer>(*pHandle);
 					
-					meshRendererC.Renderer->SubmitMesh(appContext->GetRenderer().GetDevice(), mesh);
+					meshRendererC.Renderer = mesh;
 				}
 				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::Text("Materials");
 
-			if (!meshRendererC.Renderer->GetMesh()) return;
-			auto& materials = meshRendererC.Renderer->GetMesh()->GetMaterialInstances();
+			if (!meshRendererC.Renderer) return;
+			auto& materials = meshRendererC.Renderer->GetModel().GetMaterialHandles();
 			for (auto& material : materials) {
 				ImGui::Image(m_WhiteTextureSet, {15, 15});
 //				if (ImGui::BeginDragDropTarget())
 //				{
-//					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+//					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
 //					{
 //						const auto* cStrPath = static_cast<const char*>(payload->Data);
 //
@@ -156,7 +160,8 @@ namespace Cardia::Panel
 //					ImGui::EndDragDropTarget();
 //				}
 				ImGui::SameLine();
-				ImGui::Text("SpriteTexture");
+				auto txt = assetsManager.RelativePathFromHandle(material).filename().string();
+				ImGui::Text("%s", txt.c_str());
 			}
 			const auto textWidth = ImGui::CalcTextSize("  +  ").x;
 
@@ -239,9 +244,9 @@ namespace Cardia::Panel
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
 				{
-					const std::filesystem::path behaviorPath = static_cast<const char*>(payload->Data);
+					auto behaviorPath = assetsManager.AbsolutePathFromHandle(*static_cast<AssetHandle*>(payload->Data));
 					if (behaviorPath.extension() == ".py")
 					{
 						scriptComponent.SetPath(behaviorPath.string());
@@ -291,9 +296,9 @@ namespace Cardia::Panel
 				m_SelectedEntity.AddComponent<Component::SpriteRenderer>();
 			}
 
-			if (!m_SelectedEntity.HasComponent<Component::MeshRendererC>() && ImGui::MenuItem("Mesh Renderer"))
+			if (!m_SelectedEntity.HasComponent<Component::ModelRenderer>() && ImGui::MenuItem("Model Renderer"))
 			{
-				m_SelectedEntity.AddComponent<Component::MeshRendererC>();
+				m_SelectedEntity.AddComponent<Component::ModelRenderer>();
 			}
 
 			if (!m_SelectedEntity.HasComponent<Component::Script>() && ImGui::MenuItem("Entity Behavior"))

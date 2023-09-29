@@ -16,7 +16,8 @@ namespace Cardia
 	class Project
 	{
 	public:
-		ProjectConfig& GetConfig() { return m_Config; }
+		const ProjectConfig& GetConfig() const { return m_Config; }
+		const std::filesystem::path& ProjectPath() const { return m_ProjectDirectory; }
 
 		static const std::filesystem::path& GetProjectDirectory()
 		{

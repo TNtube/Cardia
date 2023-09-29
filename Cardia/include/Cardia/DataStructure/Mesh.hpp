@@ -1,8 +1,13 @@
-﻿#pragma once
-#include <memory>
-#include <Cardia/Renderer/Material.hpp>
-#include "SubMesh.hpp"
-#include "Cardia/Renderer/Texture.hpp"
+#pragma once
+
+#include <vector>
+
+#include <volk.h>
+
+#include "Cardia/Math/Vector2.hpp"
+#include "Cardia/Math/Vector3.hpp"
+#include "Vertex.hpp"
+
 
 namespace Cardia
 {
@@ -10,14 +15,14 @@ namespace Cardia
 	{
 	public:
 		Mesh() = default;
-		std::vector<SubMesh>& GetSubMeshes() { return  m_SubMeshes; }
-		const std::vector<SubMesh>& GetSubMeshes() const { return  m_SubMeshes; }
-		const std::vector<MaterialInstance>& GetMaterialInstances() const { return  m_MaterialInstances; }
-
-		static std::shared_ptr<Mesh> ReadMeshFromFile(Renderer& renderer, const std::filesystem::path& path);
+		std::vector<Vertex>& GetVertices() { return  m_Vertices; }
+		std::vector<uint32_t>& GetIndices() { return  m_Indices; }
+		uint32_t GetMaterialIndex() const { return m_MaterialIndex; }
 
 	private:
-		std::vector<MaterialInstance> m_MaterialInstances;
-		std::vector<SubMesh> m_SubMeshes {};
+		friend class Model;
+		uint32_t m_MaterialIndex = 0;
+		std::vector<Vertex> m_Vertices;
+		std::vector<uint32_t> m_Indices;
 	};
 }

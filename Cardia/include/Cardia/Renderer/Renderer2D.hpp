@@ -2,7 +2,7 @@
 
 #include "Camera.hpp"
 #include "Texture.hpp"
-#include "Cardia/DataStructure/Mesh.hpp"
+#include "Cardia/DataStructure/Model.hpp"
 
 #include <Cardia/ECS/Components.hpp>
 
