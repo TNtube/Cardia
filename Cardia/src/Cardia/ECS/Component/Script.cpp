@@ -1,4 +1,5 @@
-﻿#include "cdpch.hpp"
+﻿#include <Cardia/Application.hpp>
+#include "cdpch.hpp"
 
 #include "Cardia/ECS/Component/Script.hpp"
 
@@ -61,6 +62,7 @@ namespace Cardia::Component
 	void Script::ReloadFile()
 	{
 		if (m_Path.empty()) return;
-		m_File = ScriptFile::FromPath(m_Path);
+		auto& am = Application::Get().GetAssetsManager();
+		m_File = ScriptFile::FromPath(am.AbsolutePathFromHandle(am.GetHandleFromAsset(m_Path)));
 	}
 }

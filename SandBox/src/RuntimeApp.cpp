@@ -8,8 +8,11 @@
 RuntimeApp::RuntimeApp()
 {
 	auto project = Cardia::Project::Load("resources/build.cdproj");
+	m_AssetsManager.PopulateHandleFromProject(*project);
 	auto& config = project->GetConfig();
-	if (const auto scene = Cardia::Serializer<Cardia::Scene>::Deserialize(Cardia::AssetsManager::GetAssetAbsolutePath(config.StartScene)))
+
+	auto sceneHandle = m_AssetsManager.GetHandleFromAsset(config.StartScene);
+	if (const auto scene = Cardia::Serializer<Cardia::Scene>::Deserialize(m_AssetsManager.AbsolutePathFromHandle(sceneHandle)))
 	{
 		m_CurrentScene = std::make_unique<Cardia::Scene>(*scene);
 	} else
