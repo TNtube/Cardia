@@ -1,4 +1,3 @@
-#include <Cardia/Asset/AssetsManager.hpp>
 #include <utility>
 #include <Cardia/Core/Time.hpp>
 #include "cdpch.hpp"
@@ -227,22 +226,6 @@ namespace Cardia
 		}
 	}
 
-
-	template <Serializable Cpn>
-	static void SerializeOneComponent(const entt::registry& src, Json::Value& root, entt::entity entity)
-	{
-		if (src.all_of<Cpn>(entity))
-		{
-			MergeJson(root, src.get<Cpn>(entity).Serialize());
-		}
-	}
-
-	template <Serializable... Cpn>
-	static void SerializeAllComponents(ComponentGroup<Cpn...>, const entt::registry& src, Json::Value& root, entt::entity entity)
-	{
-		(SerializeOneComponent<Cpn>(src, root, entity), ...);
-	}
-
 	Json::Value Scene::Serialize() const
 	{
 		Json::Value root;
@@ -250,8 +233,8 @@ namespace Cardia
 		auto& entitiesNode = root["Entities"];
 		for(const auto entity: m_Registry.view<entt::entity>())
 		{
-			Json::Value currentEntityNode(Json::objectValue);
-			SerializeAllComponents(SerializableComponents{}, m_Registry, currentEntityNode, entity);
+			Entity currEntity(entity, const_cast<Scene*>(this));
+			Json::Value currentEntityNode = currEntity.SerializeComponents();
 
 			// Serialize Relationships here as they need scene context to be deserialized
 			const auto& relationship = m_Registry.get<Component::Relationship>(entity);
@@ -275,22 +258,6 @@ namespace Cardia
 
 	}
 
-	template <Serializable Cpn>
-	static void DeserializeAndAssignOneComponent(const Json::Value& root, entt::registry& dst, entt::entity entity)
-	{
-		std::optional<Cpn> cpn = Cpn::Deserialize(root);
-		if (cpn.has_value())
-		{
-			dst.emplace_or_replace<Cpn>(entity, *cpn);
-		}
-	}
-
-	template <Serializable... Cpn>
-	static void DeserializeAndAssignAllComponents(ComponentGroup<Cpn...>, const Json::Value& root, entt::registry& dst, entt::entity entity)
-	{
-		(DeserializeAndAssignOneComponent<Cpn>(root, dst, entity), ...);
-	}
-
 	std::optional<Scene> Scene::Deserialize(const Json::Value& root)
 	{
 		if (!root.isMember("Entities"))
@@ -302,7 +269,7 @@ namespace Cardia
 		for (auto& entityNode : root["Entities"])
 		{
 			const auto entity = scene->m_Registry.create();
-			DeserializeAndAssignAllComponents(SerializableComponents{}, entityNode, scene->m_Registry, entity);
+			Entity::DeserializeAndAssignComponents(entityNode, scene->m_Registry, entity);
 		}
 
 		// Second pass to deserialize things that need scene context

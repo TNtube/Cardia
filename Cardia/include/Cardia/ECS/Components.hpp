@@ -28,6 +28,5 @@ namespace Cardia {
 
 	using ScriptableComponents = ComponentGroup<
 		Component::Label, Component::ID, Component::Transform,
-		Component::SpriteRenderer, Component::ModelRenderer, Component::Camera,
-		Component::Light>;
+		Component::Camera, Component::Light>;
 }

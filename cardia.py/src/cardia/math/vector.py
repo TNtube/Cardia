@@ -33,7 +33,7 @@ class Vector2(_cd.vec2):
 
     def __truediv__(self, other: Number | 'Vector2'):
         if isinstance(other, Number):
-            return super().__mul__scalar(other)
+            return super().__truediv__scalar(other)
         return super().__truediv__(other)
 
     def __len__(self):
@@ -70,7 +70,7 @@ class Vector3(_cd.vec3):
 
     def __truediv__(self, other: Number | 'Vector3'):
         if isinstance(other, Number):
-            return super().__mul__scalar(other)
+            return super().__truediv__scalar(other)
         return super().__truediv__(other)
 
     def __len__(self):
@@ -143,7 +143,7 @@ class Vector4(_cd.vec4):
 
     def __truediv__(self, other: Number | 'Vector4'):
         if isinstance(other, Number):
-            return super().__mul__scalar(other)
+            return super().__truediv__scalar(other)
         return super().__truediv__(other)
 
     def __len__(self):

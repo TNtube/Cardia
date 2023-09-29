@@ -17,6 +17,7 @@ namespace Cardia
 		virtual void on_destroy() {};
 
 		Component::Transform& GetTransform();
+		Entity Spawn(const std::string& name) const;
 		Entity entity;
 	};
 
