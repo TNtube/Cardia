@@ -8,6 +8,7 @@
 RuntimeApp::RuntimeApp()
 {
 	auto project = Cardia::Project::Load("resources/build.cdproj");
+	Cardia::ScriptEngine::InvalidateProject();
 	m_AssetsManager.PopulateHandleFromProject(*project);
 	auto& config = project->GetConfig();
 

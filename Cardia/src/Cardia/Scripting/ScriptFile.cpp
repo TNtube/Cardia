@@ -153,29 +153,30 @@ namespace Cardia
 
 	std::shared_ptr<ScriptFile> ScriptFile::FromSource(const std::string& source, const std::string& filename)
 	{
-		const py::module ast = py::globals().contains("ast")
-					       ? py::globals()["ast"]
-					       : py::module::import("ast");
 
 		py::object sourceAst;
 		try {
+			const py::module ast = py::globals().contains("ast")
+				? py::globals()["ast"]
+				: py::module::import("ast");
 			sourceAst = ast.attr("parse")(source);
 		}
 		catch (const std::exception& e) {
 			Log::Error("Error parsing script file: {0}\nPlease fix.", e.what());
 			return nullptr;
 		}
-		const py::module builtins = py::globals().contains("builtins")
-					       ? py::globals()["builtins"]
-					       : py::module::import("builtins");
-
-		const auto& compile = builtins.attr("compile");
-
-		// don't use py::exec because of the support of ast objects
-		const auto& exec = builtins.attr("exec");
 
 		try
 		{
+			const py::module builtins = py::globals().contains("builtins")
+				? py::globals()["builtins"]
+				: py::module::import("builtins");
+
+			const auto& compile = builtins.attr("compile");
+
+			// don't use py::exec because of the support of ast objects
+			const auto& exec = builtins.attr("exec");
+
 			py::dict sourceLocals;
 
 			auto code = compile(sourceAst, filename, "exec");
