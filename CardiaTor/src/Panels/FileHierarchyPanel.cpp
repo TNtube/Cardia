@@ -82,7 +82,7 @@ namespace Cardia::Panel
 
 		for (const auto& entry : m_Folders)
 		{
-			std::string path(entry.path().filename().string());
+			std::string path(entry.filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
@@ -104,7 +104,7 @@ namespace Cardia::Panel
 
 		for (const auto& entry: m_Files)
 		{
-			std::string path(entry.path().filename().string());
+			std::string path(entry.filename().string());
 			ImGui::PushID(path.c_str());
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - button_sz.x / 2);
@@ -148,9 +148,9 @@ namespace Cardia::Panel
 		for (const auto& entry : std::filesystem::directory_iterator(m_CurrentPath))
 		{
 			if (entry.is_directory())
-				m_Folders.insert(entry);
+				m_Folders.insert(std::filesystem::absolute(entry));
 			else if (entry.path().extension() != ".imp")
-				m_Files.insert(entry);
+				m_Files.insert(std::filesystem::absolute(entry));
 		}
 	}
 }

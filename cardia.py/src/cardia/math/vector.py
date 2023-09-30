@@ -40,6 +40,9 @@ class Vector2(_cd.vec2):
     def __len__(self):
         return super().size()
 
+    def __eq__(self, other: 'Vector2'):
+        return super().__eq__(other)
+
     def length(self) -> float:
         pass
 
@@ -152,6 +155,9 @@ class Vector4(_cd.vec4):
 
     def __len__(self):
         return super().size()
+
+    def __eq__(self, other: 'Vector4'):
+        return super().__eq__(other)
 
     def length(self) -> float:
         pass

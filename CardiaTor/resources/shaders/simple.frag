@@ -17,6 +17,9 @@ layout(set = 1, binding = 0) uniform sampler2D texAlbedo;
 layout(set = 1, binding = 1) uniform sampler2D texNormal;
 layout(set = 1, binding = 2) uniform sampler2D texMetallicRoughness;
 layout(set = 1, binding = 3) uniform sampler2D texAmbientOcclusion;
+layout(set = 1, binding = 4) uniform Colors {
+    vec4 albedoColor;
+} colors;
 
 const float PI = 3.14159265359;
 
@@ -92,7 +95,9 @@ void main()
 
     vec3 metallicRoughness = texture(texMetallicRoughness, vertex.textureCoord).rgb;
 
-    vec3 albedo = pow(alphaAlbedo.rgb, vec3(2.2));
+    vec3 albedo = (pow(alphaAlbedo.rgb, vec3(2.2)) * colors.albedoColor.xyz) / 2;
+    fragColor = vec4(albedo, colors.albedoColor.a);
+    return;
     float metallic = metallicRoughness.b;
     float roughness = metallicRoughness.g;
     float ao = texture(texAmbientOcclusion, vertex.textureCoord).r; // ambient occlusion
@@ -155,5 +160,5 @@ void main()
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
 
-    fragColor = vec4(color, alpha);
+    fragColor = vec4(albedo, alpha);
 }

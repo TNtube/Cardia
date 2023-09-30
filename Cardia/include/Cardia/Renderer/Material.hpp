@@ -4,6 +4,7 @@
 #include <any>
 #include "Pipeline.hpp"
 #include "Texture.hpp"
+#include "Buffer.hpp"
 
 
 namespace Cardia
@@ -64,5 +65,6 @@ namespace Cardia
 		const Device& m_Device;
 		MaterialData m_MaterialData;
 		std::unique_ptr<DescriptorSet> m_DescriptorSet;
+		std::unique_ptr<Buffer> m_MaterialBuffer;
 	};
 }

@@ -41,7 +41,7 @@ namespace Cardia
 		builder.SetRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_FRONT_BIT);
 		builder.SetMultisampling();
 		builder.SetDepthStencil(true, false, VK_COMPARE_OP_LESS_OR_EQUAL);
-		builder.SetColorBlend(false, VK_BLEND_OP_ADD, VK_BLEND_OP_ADD, false, VK_LOGIC_OP_COPY);
+		builder.SetColorBlend(true, VK_BLEND_OP_ADD, VK_BLEND_OP_ADD, true, VK_LOGIC_OP_COPY);
 		builder.SetDescriptorSetLayout(static_cast<uint32_t>(sbDescLayouts.size()), sbDescLayouts.data(), 0, nullptr);
 
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);

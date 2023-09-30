@@ -23,8 +23,8 @@ namespace Cardia::Panel
 		std::filesystem::path m_CurrentPath;
 		std::filesystem::path m_PathFromAssets;
 
-		std::set<std::filesystem::directory_entry> m_Folders;
-		std::set<std::filesystem::directory_entry> m_Files;
+		std::set<std::filesystem::path> m_Folders;
+		std::set<std::filesystem::path> m_Files;
 
 		std::shared_ptr<Texture> m_FileIcon;
 		ImTextureID m_FileIconDescriptorSet {};

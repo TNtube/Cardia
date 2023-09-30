@@ -33,6 +33,16 @@ namespace Cardia
 	void Material::CreateDescriptorSet()
 	{
 		auto& renderer = Application::Get().GetRenderer();
+
+		m_MaterialBuffer = std::make_unique<Buffer>(
+			m_Device,
+			sizeof(Vector4f),
+			1,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+		m_MaterialBuffer->UploadData(sizeof(Vector4f), &m_MaterialData.AlbedoColor);
+
 		DescriptorSet::Writer descriptorWriter(renderer.GetDescriptorAllocator(), renderer.GetMaterialDescriptorSetLayout());
 
 		auto& assetsManager = Application::Get().GetAssetsManager();
@@ -41,11 +51,14 @@ namespace Cardia
 		auto metallicRoughnessMap = assetsManager.Load<Texture>(m_MaterialData.MetallicRoughnessMap);
 		auto AOMap = assetsManager.Load<Texture>(m_MaterialData.AOMap);
 
+		auto bufferInfo = m_MaterialBuffer->DescriptorInfo();
+
 		m_DescriptorSet = descriptorWriter
 			.WriteImage(0, albedoMap->GetImageInfo())
 			.WriteImage(1, normalMap->GetImageInfo())
 			.WriteImage(2, metallicRoughnessMap->GetImageInfo())
 			.WriteImage(3, AOMap->GetImageInfo())
+			.WriteBuffer(4, &bufferInfo)
 			.Build();
 	}
 
