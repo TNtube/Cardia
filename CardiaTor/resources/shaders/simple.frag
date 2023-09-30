@@ -108,7 +108,8 @@ void main()
     // reflectance equation
     vec3 Lo = vec3(0.0);
 
-    vec3 lightPosition = vec3(cos(time) * 10, 1, 1);
+    vec3 lightPosition = vec3(20, 50, 1);
+    vec3 lightColor = vec3(255.0f, 255.0f, 255.0f) * 50;
 
 //    for (int i = 0; i < lightPositions.length(); i++) {
         // calculate per-light radiance
@@ -116,7 +117,7 @@ void main()
         vec3 H = normalize(V + L);
         float distance = length(lightPosition - vertex.position);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = vec3(255.0f, 255.0f, 255.0f) * attenuation; // magic value is light color
+        vec3 radiance = lightColor * attenuation; // magic value is light color
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);

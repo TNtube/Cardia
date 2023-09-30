@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <Cardia/ECS/Entity.hpp>
 #include <pybind11/embed.h>
 
@@ -69,14 +70,19 @@ namespace Cardia
 			.def("on_update", &Behavior::on_update)
 			.def_property_readonly("transform", &Behavior::GetTransform, py::return_value_policy::reference)
 			.def_property_readonly("entity", [](Behavior& self){ return self.entity; }, py::return_value_policy::reference)
-			.def("spawn", &Behavior::Spawn);
+			.def("spawn", &Behavior::Spawn, py::arg("path"), py::arg("parent").none(true));
 
 		// entity
 		py::class_<Entity>(m, "Entity")
 			.def(py::init<>())
-			.def_property_readonly("transform", [](Entity& self) {
+			.def_property_readonly("transform", [](Entity& self) -> Component::Transform& {
 				return self.GetComponent<Component::Transform>();
 			}, py::return_value_policy::reference)
+			.def_property("name", [](Entity& self) {
+				return self.GetComponent<Component::Label>().Name;
+			}, [](Entity& self, std::string newName) {
+				return self.GetComponent<Component::Label>().Name = std::move(newName);
+			})
 			.def("get_component", [](Entity& self, py::type& cls) -> py::object {
 				return GetComponent(ScriptableComponents{}, self, cls);
 			}, py::return_value_policy::reference)
@@ -85,7 +91,8 @@ namespace Cardia
 			}, py::return_value_policy::reference)
 			.def("has_component", [](Entity& self, py::type& cls) -> bool {
 				return HasComponent(ScriptableComponents{}, self, cls);
-			}, py::return_value_policy::reference);
+			}, py::return_value_policy::reference)
+			.def("__bool__", &Entity::IsValid);
 
 		// math utilities
 		py::class_<Vector2f>(m, "vec2")
@@ -94,13 +101,13 @@ namespace Cardia
 			.def_readwrite("x", &Vector2f::x, py::return_value_policy::reference)
 			.def_readwrite("y", &Vector2f::y, py::return_value_policy::reference)
 			.def("__add__", [](Vector2f& self, Vector2f& other) { return self + other; })
-			.def("__add__scalar", [](Vector2f& self, float scalar) { return self + scalar; })
+			.def("_add__scalar", [](Vector2f& self, float scalar) { return self + scalar; })
 			.def("__sub__", [](Vector2f& self, Vector2f& other) { return self - other; })
-			.def("__sub__scalar", [](Vector2f& self, float scalar) { return self - scalar; })
+			.def("_sub__scalar", [](Vector2f& self, float scalar) { return self - scalar; })
 			.def("__mul__", [](Vector2f& self, Vector2f& other) { return self * other; })
-			.def("__mul__scalar", [](Vector2f& self, float scalar) { return self * scalar; })
+			.def("_mul__scalar", [](Vector2f& self, float scalar) { return self * scalar; })
 			.def("__truediv__", [](Vector2f& self, Vector2f& other) { return self / other; })
-			.def("__truediv__scalar", [](Vector2f& self, float scalar) { return self / scalar; })
+			.def("_truediv__scalar", [](Vector2f& self, float scalar) { return self / scalar; })
 			.def("length", &Vector2f::Length,py::return_value_policy::reference)
 			.def("size", &Vector2f::Size,py::return_value_policy::reference)
 			.def("lerp", &Vector2f::Lerp, py::return_value_policy::reference);
@@ -112,13 +119,14 @@ namespace Cardia
 			.def_readwrite("y", &Vector3f::y, py::return_value_policy::reference)
 			.def_readwrite("z", &Vector3f::z, py::return_value_policy::reference)
 			.def("__add__", [](Vector3f& self, Vector3f& other) { return self + other; })
-			.def("__add__scalar", [](Vector3f& self, float scalar) { return self + scalar; })
+			.def("_add__scalar", [](Vector3f& self, float scalar) { return self + scalar; })
 			.def("__sub__", [](Vector3f& self, Vector3f& other) { return self - other; })
-			.def("__sub__scalar", [](Vector3f& self, float scalar) { return self - scalar; })
+			.def("_sub__scalar", [](Vector3f& self, float scalar) { return self - scalar; })
 			.def("__mul__", [](Vector3f& self, Vector3f& other) { return self * other; })
-			.def("__mul__scalar", [](Vector3f& self, float scalar) { return self * scalar; })
+			.def("_mul__scalar", [](Vector3f& self, float scalar) { return self * scalar; })
 			.def("__truediv__", [](Vector3f& self, Vector3f& other) { return self / other; })
-			.def("__truediv__scalar", [](Vector3f& self, float scalar) { return self / scalar; })
+			.def("_truediv__scalar", [](Vector3f& self, float scalar) { return self / scalar; })
+			.def("__eq__", [](Vector3f& self, Vector3f& other) { return self == other; })
 			.def("length", &Vector3f::Length,py::return_value_policy::reference)
 			.def("size", &Vector3f::Size,py::return_value_policy::reference)
 			.def("lerp", &Vector3f::Lerp, py::return_value_policy::reference)
@@ -136,7 +144,7 @@ namespace Cardia
 			.def("__sub__", [](Vector4f& self, Vector4f& other) { return self - other; })
 			.def("__sub__scalar", [](Vector4f& self, float scalar) { return self - scalar; })
 			.def("__mul__", [](Vector4f& self, Vector4f& other) { return self * other; })
-			.def("__mul__scalar", [](Vector4f& self, float scalar) { return self * scalar; })
+			.def("_mul__scalar", [](Vector4f& self, float scalar) { return self * scalar; })
 			.def("__truediv__", [](Vector4f& self, Vector4f& other) { return self / other; })
 			.def("__truediv__scalar", [](Vector4f& self, float scalar) { return self / scalar; })
 			.def("length", &Vector4f::Length,py::return_value_policy::reference)

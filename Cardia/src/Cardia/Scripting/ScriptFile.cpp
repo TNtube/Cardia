@@ -76,7 +76,7 @@ namespace Cardia
 				continue;
 
 			auto className = node.attr("name");
-			if (!m_Locals.contains(className) && IsSubclass<Behavior>(m_Locals[className]))
+			if (!m_Locals.contains(className) || !IsSubclass<Behavior>(m_Locals[className]))
 				continue;
 
 			m_BehaviorClassDef = m_Locals[className];
@@ -190,9 +190,8 @@ namespace Cardia
 			}
 			return file;
 		}
-		catch (const py::type_error& e)
+		catch (const std::exception& e)
 		{
-			e.set_error();
 			Log::Error("Error compiling script file: {0}\nPlease fix.", e.what());
 			return nullptr;
 		}

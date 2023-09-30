@@ -61,6 +61,15 @@ namespace Cardia
 
 	void CardiaTor::OnUpdate()
 	{
+		auto view = m_CurrentScene->GetRegistry().view<Cardia::Component::Transform>();
+		for (auto entity : view) {
+			auto& transform = view.get<Cardia::Component::Transform>(entity);
+
+			if (transform.IsDirty())
+			{
+				transform.RecomputeWorld({entity, m_CurrentScene.get()});
+			}
+		}
 
 		if (m_EditorStateUpdated)
 		{
@@ -590,7 +599,9 @@ namespace Cardia
 			{
 				switch (e.getKeyCode())
 				{
-				case Key::O: OpenProject();
+				case Key::O:
+					Project::Load("C:/dev/Ludum230929/Ludum.cdproj");
+					InvalidateProject();
 					break;
 				case Key::S:
 					Log::Info("Saving...");

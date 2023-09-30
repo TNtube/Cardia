@@ -52,9 +52,13 @@ namespace Cardia
 		{
 			auto script = view.get<Component::Script>(entity);
 			if (script.IsLoaded()) {
-				auto behavior = script.GetFile().GetBehavior();
-				if (behavior)
-					behavior->on_create();
+				try {
+					auto behavior = script.GetFile().GetBehavior();
+					if (behavior)
+						behavior->on_create();
+				} catch (const std::exception& e) {
+					Log::Error("On Create : {0}", e.what());
+				}
 			}
 		}
 	}

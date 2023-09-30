@@ -35,8 +35,8 @@ class Behavior(_cd.Behavior):
     def has_component(self, component_type: type[T]) -> bool:
         return self.entity.has_component(component_type)
 
-    def spawn(self, name: str) -> Entity:
-        return _cd.Behavior.spawn(self, name)
+    def spawn(self, name: str, parent: Entity = None) -> Entity:
+        return _cd.Behavior.spawn(self, name, parent)
 
     def on_create(self): ...
     def on_update(self): ...

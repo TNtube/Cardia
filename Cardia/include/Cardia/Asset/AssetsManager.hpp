@@ -69,19 +69,20 @@ namespace Cardia
 		}
 
 		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath) {
-			if (!m_AssetPaths.contains(absolutePath))
-				return m_AssetPaths[absolutePath];
+			auto normalized = std::filesystem::absolute(absolutePath);
+			if (m_AssetPaths.contains(normalized))
+				return m_AssetPaths[normalized];
 
 
-			auto handle = Serializer<AssetHandle>::Deserialize(absolutePath.string() + ".imp");
+			auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
 			if (!handle)
 			{
-				Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", absolutePath.string());
+				Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", normalized.string());
 				return AssetHandle::Invalid();
 			}
 
-			m_AssetPaths[absolutePath] = *handle;
-			return m_AssetPaths[absolutePath];
+			m_AssetPaths[normalized] = *handle;
+			return m_AssetPaths[normalized];
 		}
 
 		AssetHandle AddEntry(const std::filesystem::path& absolutePath);

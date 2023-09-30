@@ -34,6 +34,15 @@ RuntimeApp::~RuntimeApp()
 void RuntimeApp::OnUpdate()
 {
 	Cardia::ScriptEngine::Instance().OnRuntimeUpdate();
+	auto view = m_CurrentScene->GetRegistry().view<Cardia::Component::Transform>();
+	for (auto entity : view) {
+		auto& transform = view.get<Cardia::Component::Transform>(entity);
+
+		if (transform.IsDirty())
+		{
+			transform.RecomputeWorld({entity, m_CurrentScene.get()});
+		}
+	}
 }
 
 void RuntimeApp::OnRender()

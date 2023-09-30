@@ -19,22 +19,22 @@ class Vector2(_cd.vec2):
 
     def __add__(self, other: Union[Number, 'Vector2']):
         if isinstance(other, Number):
-            return super().__add__scalar(other)
+            return _cd.vec2._add__scalar(self, float(other))
         return super().__add__(other)
 
     def __sub__(self, other: Union[Number, 'Vector2']):
         if isinstance(other, Number):
-            return super().__sub__scalar(other)
+            return _cd.vec2._sub__scalar(self, float(other))
         return super().__sub__(other)
 
     def __mul__(self, other: Union[Number, 'Vector2']):
         if isinstance(other, Number):
-            return super().__mul__scalar(other)
+            return _cd.vec2._mul__scalar(self, float(other))
         return super().__mul__(other)
 
     def __truediv__(self, other: Union[Number, 'Vector2']):
         if isinstance(other, Number):
-            return super().__truediv__scalar(other)
+            return _cd.vec2._truediv__scalar(self, float(other))
         return super().__truediv__(other)
 
     def __len__(self):
@@ -56,26 +56,29 @@ class Vector3(_cd.vec3):
 
     def __add__(self, other: Union[Number, 'Vector3']):
         if isinstance(other, Number):
-            return super().__add__scalar(other)
+            return _cd.vec3._add__scalar(self, float(other))
         return super().__add__(other)
 
     def __sub__(self, other: Union[Number, 'Vector3']):
         if isinstance(other, Number):
-            return super().__sub__scalar(other)
+            return _cd.vec3._sub__scalar(self, float(other))
         return super().__sub__(other)
 
     def __mul__(self, other: Union[Number, 'Vector3']):
         if isinstance(other, Number):
-            return super().__mul__scalar(other)
+            return _cd.vec3._mul__scalar(self, float(other))
         return super().__mul__(other)
 
     def __truediv__(self, other: Union[Number, 'Vector3']):
         if isinstance(other, Number):
-            return super().__truediv__scalar(other)
+            return _cd.vec3._truediv__scalar(self, float(other))
         return super().__truediv__(other)
 
     def __len__(self):
         return super().size()
+
+    def __eq__(self, other: 'Vector3'):
+        return super().__eq__(other)
 
     def cross(self, other: 'Vector3'):
         return super().cross(other)
@@ -129,22 +132,22 @@ class Vector4(_cd.vec4):
 
     def __add__(self, other: Union[Number, 'Vector4']):
         if isinstance(other, Number):
-            return super().__add__scalar(other)
+            return _cd.vec4._add__scalar(self, float(other))
         return super().__add__(other)
 
     def __sub__(self, other: Union[Number, 'Vector4']):
         if isinstance(other, Number):
-            return super().__sub__scalar(other)
+            return _cd.vec4._sub__scalar(self, float(other))
         return super().__sub__(other)
 
     def __mul__(self, other: Union[Number, 'Vector4']):
         if isinstance(other, Number):
-            return super().__mul__scalar(other)
+            return _cd.vec4._mul__scalar(self, float(other))
         return super().__mul__(other)
 
     def __truediv__(self, other: Union[Number, 'Vector4']):
         if isinstance(other, Number):
-            return super().__truediv__scalar(other)
+            return _cd.vec4._truediv__scalar(self, float(other))
         return super().__truediv__(other)
 
     def __len__(self):
