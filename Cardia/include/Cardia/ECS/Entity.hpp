@@ -62,6 +62,8 @@ namespace Cardia
 			return m_Entity == entity;
 		}
 
+		void Kill();
+
 		bool IsValid() const { return  m_Scene && m_Scene->GetRegistry().valid(m_Entity); }
 
 		Json::Value SerializeComponents();

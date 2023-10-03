@@ -19,3 +19,6 @@ class Entity(_cd.Entity):
 
     def has_component(self, component_type: type[T]) -> bool:
         return _cd.Entity.has_component(self, component_type)
+
+    def kill(self):
+        return _cd.Entity.kill(self)

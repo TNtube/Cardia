@@ -69,7 +69,8 @@ namespace Cardia
 					mat.EmissiveMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
 
 				std::filesystem::path matFilename = pMaterial->GetName().C_Str();
-				auto absoluteMatPath = GetPathRelativeToMesh(modelPath, matFilename.string() + ".mat");
+				// TODO: temporary filename to avoid conflict. Find a way to merge same materials
+				auto absoluteMatPath = GetPathRelativeToMesh(modelPath, modelPath.filename().string() + matFilename.string() + ".mat");
 
 				Serializer<MaterialData> matSerializer(mat);
 				matSerializer.Serialize(absoluteMatPath);

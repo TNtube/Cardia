@@ -87,6 +87,13 @@ namespace Cardia
 		DeserializeAndAssignAllComponents(SerializableComponents{}, root, dst, entity);
 	}
 
+	void Entity::Kill()
+	{
+		m_Scene->DestroyEntity(*this);
+		m_Scene = nullptr;
+		m_Entity = entt::null;
+	}
+
 	ChildCollection::ChildIterator ChildCollection::begin() const
 	{
 		if (m_Parent.IsValid())

@@ -92,7 +92,8 @@ namespace Cardia
 			.def("has_component", [](Entity& self, py::type& cls) -> bool {
 				return HasComponent(ScriptableComponents{}, self, cls);
 			}, py::return_value_policy::reference)
-			.def("__bool__", &Entity::IsValid);
+			.def("__bool__", &Entity::IsValid)
+			.def("kill", &Entity::Kill, py::return_value_policy::reference);
 
 		// math utilities
 		py::class_<Vector2f>(m, "vec2")
@@ -187,6 +188,8 @@ namespace Cardia
 				&Component::Transform::GetScale,
 				&Component::Transform::SetScale,
 				py::return_value_policy::reference)
+			.def_property_readonly("forward", &Component::Transform::Forward, py::return_value_policy::reference)
+			.def_property_readonly("up", &Component::Transform::Up, py::return_value_policy::reference)
 			.def("translate", &Component::Transform::Translate, py::return_value_policy::reference)
 			.def("rotate", &Component::Transform::Rotate, py::return_value_policy::reference)
 			.def("rotate_around", &Component::Transform::RotateAround, py::return_value_policy::reference)

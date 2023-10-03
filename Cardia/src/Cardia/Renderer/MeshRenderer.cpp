@@ -54,7 +54,9 @@ namespace Cardia
 		auto& assetsManager = Application::Get().GetAssetsManager();
 		for (const auto& material : m_Model.GetMaterialHandles())
 		{
-			m_Materials.emplace_back(assetsManager.Load<Material>(material));
+			auto str = material.ID.ToString();
+			auto mat = assetsManager.Load<Material>(material);
+			m_Materials.emplace_back(mat);
 		}
 
 		for (auto& mesh : m_Model.GetMeshes())

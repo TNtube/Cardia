@@ -10,6 +10,14 @@ class Transform(_cd.Transform):
         self.scale: Vector3 = scale
 
     @property
+    def forward(self):
+        return _cd.Transform.forward.fget(self)
+
+    @property
+    def up(self):
+        return _cd.Transform.up.fget(self)
+
+    @property
     def position(self):
         return _cd.Transform.position.fget(self)
 
