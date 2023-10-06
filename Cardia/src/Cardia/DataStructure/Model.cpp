@@ -35,12 +35,14 @@ namespace Cardia
 				aiColor4D textureColor;
 				ai_real textureFloat;
 
+				auto whiteHandle = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+
 				if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_COLOR_DIFFUSE, &textureColor))
 					mat.AlbedoColor = Vector4f(textureColor.r, textureColor.g, textureColor.b, textureColor.a);
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
 					mat.AlbedoMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.AlbedoMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+					mat.AlbedoMap = whiteHandle;
 
 				if (AI_SUCCESS == aiGetMaterialFloat(pMaterial, AI_MATKEY_METALLIC_FACTOR, &textureFloat))
 					mat.Metallic = textureFloat;
@@ -49,7 +51,7 @@ namespace Cardia
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
 					mat.MetallicRoughnessMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.MetallicRoughnessMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+					mat.MetallicRoughnessMap = whiteHandle;
 
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
 					mat.NormalMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
@@ -59,14 +61,14 @@ namespace Cardia
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath))
 					mat.AOMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.AOMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+					mat.AOMap = whiteHandle;
 
 				if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_EMISSIVE_INTENSITY, &textureColor))
 					mat.EmissiveFactor = Vector3f(textureColor.r, textureColor.g, textureColor.b);
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
 					mat.EmissiveMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.EmissiveMap = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+					mat.EmissiveMap = whiteHandle;
 
 				std::filesystem::path matFilename = pMaterial->GetName().C_Str();
 				// TODO: temporary filename to avoid conflict. Find a way to merge same materials
