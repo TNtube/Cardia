@@ -1,8 +1,10 @@
 import abc
+import typing
 
 import cardia_native as _cd
 from .transform import Transform
-from typing import TypeVar
+from typing import TypeVar, Union
+import asyncio
 
 from ..core.entity import Entity
 
@@ -14,9 +16,6 @@ class Behavior(_cd.Behavior):
     Constructor is declared abstractmethod to not force the user to call it.
     It'll be implicitly called by C++ when instantiated.
     """
-    @abc.abstractmethod
-    def __init__(self):
-        _cd.Behavior.__init__(self)
 
     @property
     def entity(self) -> Entity:
@@ -40,3 +39,8 @@ class Behavior(_cd.Behavior):
 
     def on_create(self): ...
     def on_update(self): ...
+    def on_destroy(self): ...
+
+    def run_coroutine(self, coroutine: Union[typing.Coroutine, typing.Awaitable, typing.Generator]) -> asyncio.Task:
+        return _cd.Behavior.run_coroutine(self, coroutine)
+

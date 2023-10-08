@@ -29,6 +29,7 @@ namespace Cardia
 		static void InvalidateProject();
 
 	private:
+		void UpdateAsyncTasks();
 		static ScriptEngine* s_Instance;
 		Scene* m_CurrentContext;
 

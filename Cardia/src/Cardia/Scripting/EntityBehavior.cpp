@@ -34,4 +34,17 @@ namespace Cardia
 
 		return outEntity;
 	}
+
+	py::object Behavior::RunCoroutine(const py::object &coroutine)
+	{
+		try {
+			auto loop = py::module::import("asyncio").attr("get_event_loop")();
+			auto task = loop.attr("create_task")(coroutine);
+			m_Tasks.append(task);
+			return task;
+		} catch (py::error_already_set& e) {
+			Log::CoreError("Failed to run coroutine : {0}", e.what());
+		}
+		return py::none();
+	}
 }

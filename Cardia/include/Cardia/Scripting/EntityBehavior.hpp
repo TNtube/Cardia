@@ -16,9 +16,26 @@ namespace Cardia
 		virtual void on_update() {};
 		virtual void on_destroy() {};
 
+
+		void OnDestroy()
+		{
+			try {
+				on_destroy();
+				for (auto& task : m_Tasks)
+				{
+					task.attr("cancel")();
+				}
+			} catch (const std::exception& e) {
+				Log::Error("On Destroy : {0}", e.what());
+			}
+		}
+
 		Component::Transform& GetTransform();
 		Entity Spawn(const std::string& name, const Entity* parent = nullptr) const;
+		py::object RunCoroutine(const py::object& coroutine);
 		Entity entity;
+	private:
+		py::list m_Tasks;
 	};
 
 	class PyBehavior : public Behavior

@@ -89,6 +89,11 @@ namespace Cardia
 
 	void Entity::Kill()
 	{
+		if (HasComponent<Component::Script>()) {
+			auto& script = GetComponent<Component::Script>();
+			if (script.GetFile().HasBehavior())
+				script.GetFile().GetBehavior()->OnDestroy();
+		}
 		m_Scene->DestroyEntity(*this);
 		m_Scene = nullptr;
 		m_Entity = entt::null;

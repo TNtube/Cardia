@@ -234,7 +234,7 @@ namespace Cardia
 	void ScriptFile::DestroyBehavior()
 	{
 		if (m_BehaviorPtr)
-			m_BehaviorPtr->on_destroy();
+			m_BehaviorPtr->OnDestroy();
 		m_BehaviorInstance = py::none();
 		m_BehaviorPtr = nullptr;
 	}

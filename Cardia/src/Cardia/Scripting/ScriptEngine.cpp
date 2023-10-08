@@ -26,7 +26,13 @@ namespace Cardia
 
 	void ScriptEngine::OnRuntimeStart(Scene* context)
 	{
-		 m_CurrentContext = context;
+		m_CurrentContext = context;
+
+		auto cardia = py::module::import("cardia");
+		auto eventLoop = cardia.attr("coroutines").attr("CustomEventLoop")(true);
+
+		auto asyncio = py::module::import("asyncio");
+		asyncio.attr("set_event_loop")(eventLoop);
 
 		const auto view = context->GetRegistry().view<Component::Script>();
 
@@ -94,8 +100,9 @@ namespace Cardia
 			if (script.IsLoaded()) {
 				try {
 					auto behavior = script.GetFile().GetBehavior();
-					if (behavior)
+					if (behavior) {
 						behavior->on_update();
+					}
 
 					if (transform.IsDirty())
 						transform.RecomputeWorld({entity, m_CurrentContext});
@@ -104,12 +111,24 @@ namespace Cardia
 				}
 			}
 		}
+		UpdateAsyncTasks();
 	}
 
 	void ScriptEngine::InvalidateProject()
 	{
 		auto sys = py::module::import("sys");
 		sys.attr("path").attr("append")(Project::GetAssetDirectory().string());
+	}
+
+	void ScriptEngine::UpdateAsyncTasks()
+	{
+		try {
+			auto asyncio = py::module::import("asyncio");
+			auto loop = asyncio.attr("get_event_loop")();
+			loop.attr("run_all_once")();
+		} catch (const std::exception& e) {
+			Log::Error("Update Async Tasks : {0}", e.what());
+		}
 	}
 
 

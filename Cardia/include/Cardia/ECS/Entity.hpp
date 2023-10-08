@@ -81,7 +81,7 @@ namespace Cardia
 	{
 		struct ChildIterator
 		{
-			explicit ChildIterator(const Entity firstChild) : m_Entity(firstChild) {}
+			explicit ChildIterator(Entity firstChild) : m_Entity(std::move(firstChild)) {}
 			Entity operator*() const { return m_Entity; }
 			Entity* operator->() { return &m_Entity; }
 			ChildIterator& operator++();
@@ -93,7 +93,7 @@ namespace Cardia
 			Entity m_Entity;
 		};
 
-		explicit ChildCollection(const Entity parent) : m_Parent(parent) {}
+		explicit ChildCollection(Entity parent) : m_Parent(std::move(parent)) {}
 
 		ChildIterator begin() const;
 		ChildIterator end() const;

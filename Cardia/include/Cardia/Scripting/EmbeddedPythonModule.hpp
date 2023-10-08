@@ -70,7 +70,8 @@ namespace Cardia
 			.def("on_update", &Behavior::on_update)
 			.def_property_readonly("transform", &Behavior::GetTransform, py::return_value_policy::reference)
 			.def_property_readonly("entity", [](Behavior& self){ return self.entity; }, py::return_value_policy::reference)
-			.def("spawn", &Behavior::Spawn, py::arg("path"), py::arg("parent").none(true));
+			.def("spawn", &Behavior::Spawn, py::arg("path"), py::arg("parent").none(true))
+			.def("run_coroutine", &Behavior::RunCoroutine, py::return_value_policy::reference);
 
 		// entity
 		py::class_<Entity>(m, "Entity")
