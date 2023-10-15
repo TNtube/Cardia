@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <efsw/efsw.hpp>
 #include "Cardia/Serialization/Serializer.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Renderer/Material.hpp"
@@ -26,65 +27,18 @@ namespace Cardia
 	class AssetsManager
 	{
 	public:
-		explicit AssetsManager(const Renderer& renderer) : m_Renderer(renderer) {
-			PopulateHandleFromResource();
-		}
+		explicit AssetsManager(const Renderer& renderer);
 
-		template<AssetType T>
-		std::shared_ptr<T> Load(const std::filesystem::path& path)
-		{
-			return Load<T>(GetHandleFromAsset(path));
-		}
+		template<AssetType T> std::shared_ptr<T> Load(const std::filesystem::path& path);
+		template<AssetType T> std::shared_ptr<T> Load(const AssetHandle& handle);
+		template<> std::shared_ptr<Texture>      Load(const AssetHandle& handle);
+		template<> std::shared_ptr<MeshRenderer> Load(const AssetHandle& handle);
+		template<> std::shared_ptr<Material>     Load(const AssetHandle& handle);
+		template<> std::shared_ptr<Shader>       Load(const AssetHandle& handle);
 
-		template<AssetType T>
-		std::shared_ptr<T> Load(const AssetHandle& handle)
-		{
-			CdCoreAssert(false, "Asset type not supported");
-		}
-
-		template<>
-		std::shared_ptr<Texture> Load(const AssetHandle& handle);
-
-		template<>
-		std::shared_ptr<MeshRenderer> Load(const AssetHandle& handle);
-
-		template<>
-		std::shared_ptr<Material> Load(const AssetHandle& handle);
-
-		template<>
-		std::shared_ptr<Shader> Load(const AssetHandle& handle) { return nullptr; }
-
-		virtual AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath) {
-
-			if (relativePath.is_relative()) {
-				return GetHandleFromAbsolute(std::filesystem::absolute(relativePath));
-			}
-			return GetHandleFromAbsolute(relativePath);
-		}
-
-		virtual AssetHandle GetHandleFromAsset(const std::filesystem::path& relativePath) {
-
-			auto absolute = m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory / relativePath;
-			return GetHandleFromAbsolute(absolute);
-		}
-
-		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath) {
-			auto normalized = std::filesystem::absolute(absolutePath);
-			if (m_AssetPaths.contains(normalized))
-				return m_AssetPaths[normalized];
-
-
-			auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
-			if (!handle)
-			{
-				Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", normalized.string());
-				return AssetHandle::Invalid();
-			}
-
-			m_AssetPaths[normalized] = *handle;
-			return m_AssetPaths[normalized];
-		}
-
+		AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath);
+		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath);
+		AssetHandle GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath);
 		AssetHandle AddEntry(const std::filesystem::path& absolutePath);
 
 		void PopulateHandleFromProject(const Project& project);
@@ -101,6 +55,30 @@ namespace Cardia
 
 		std::unordered_map<AssetHandle, AssetRefCounter> m_Assets;
 		std::unordered_map<std::filesystem::path, AssetHandle> m_AssetPaths;
+
+
+		// file watcher
+
+		class AssetsListener : public efsw::FileWatchListener
+		{
+		public:
+			explicit AssetsListener(AssetsManager& assetsManager) : m_AssetsManager(assetsManager) {}
+			void handleFileAction(efsw::WatchID watchId, const std::string& dir, const std::string& filename,
+								  efsw::Action action, std::string oldFilename) override;
+		private:
+			void OnFileAdded(efsw::WatchID watchId, const std::string& dir, const std::string& filename);
+			void OnFileRemoved(efsw::WatchID watchId, const std::string& dir, const std::string& filename);
+			void OnFileUpdate(efsw::WatchID watchId, const std::string& dir, const std::string& filename);
+			void OnFileRename(efsw::WatchID watchId, const std::string& dir, const std::string& oldFilename, const std::string& newFilename);
+
+			AssetsManager& m_AssetsManager;
+		};
+
+		AssetsListener m_AssetsListener;
+
+		efsw::FileWatcher m_FileWatcher;
+
+		efsw::WatchID m_WatchID = 0;
 	};
 }
 

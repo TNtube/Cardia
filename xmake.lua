@@ -11,17 +11,14 @@ add_rules("plugin.vsxmake.autoupdate")
 set_languages("c++20")
 set_optimize("fastest")
 
-add_requires("spdlog v1.9.0")
-add_requires("glfw 3.3.8")
-add_requires("imgui v1.89-docking", {configs = {glfw= true, debug = is_mode("debug")}})
-add_requires("entt v3.12.2")
-add_requires("nativefiledialog 1.1.6")
-add_requires("jsoncpp 1.9.5")
-add_requires("assimp v5.2.5")
-add_requires("volk")
-add_requires("catch2 v3.4.0")
+add_requires(
+        "spdlog v1.9.0", "glfw 3.3.8", "entt v3.12.2",
+        "nativefiledialog 1.1.6", "jsoncpp 1.9.5", "assimp v5.2.5",
+        "volk", "catch2 v3.4.0", "python 3.11.3", "pybind11",
+        "efsw 1.3.1")
 
 add_requires("imguizmo 1.89+WIP", {configs = { debug = is_mode("debug")}})
+add_requires("imgui v1.89-docking", {configs = {glfw= true, debug = is_mode("debug")}})
 add_requireconfs("imguizmo.imgui", {override = true, version = "v1.89-docking", configs = {glfw= true, debug = is_mode("debug")}}) -- config sub imgui module
 
 add_requires("python 3.11.3")
@@ -49,15 +46,8 @@ target("Cardia")
     add_includedirs("Cardia/include/", {public = true})
     add_includedirs("Cardia/vendor/", {public = true})
 
-    add_packages("spdlog", { public = true })
-    add_packages("glfw")
-    add_packages("assimp")
-    add_packages("volk", { public = true })
-    add_packages("imgui", { public = true })
-    add_packages("entt", { public = true })
-    add_packages("jsoncpp", { public = true })
-    add_packages("python", { public = true })
-    add_packages("pybind11", { public = true })
+    add_packages("spdlog", "volk", "imgui", "entt", "jsoncpp", "python", "pybind11", "efsw", { public = true })
+    add_packages("glfw", "assimp")
 
     add_defines("VK_NO_PROTOTYPES", { public = true })
 
@@ -86,9 +76,6 @@ target("SandBox")
     add_files("SandBox/src/**.cpp")
     add_includedirs("SandBox/include/", {public = true})
 
-    add_packages("spdlog")
-    add_packages("imgui")
-    add_packages("entt")
     add_deps("Cardia")
 
 
@@ -106,8 +93,7 @@ target("CardiaTor")
     add_includedirs("CardiaTor/include/", {public = true})
     set_rundir("CardiaTor/")
 
-    add_packages("imguizmo")
-    add_packages("nativefiledialog")
+    add_packages("imguizmo", "nativefiledialog")
     add_deps("Cardia")
 
 

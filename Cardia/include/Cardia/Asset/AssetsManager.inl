@@ -2,6 +2,18 @@
 
 namespace Cardia
 {
+	template<AssetType T>
+	inline std::shared_ptr<T> AssetsManager::Load(const std::filesystem::path& path)
+	{
+		return Load<T>(GetHandleFromAsset(path));
+	}
+
+	template<AssetType T>
+	inline std::shared_ptr<T> AssetsManager::Load(const AssetHandle& handle)
+	{
+		CdCoreAssert(false, "Asset type not supported");
+	}
+
 	template<>
 	inline std::shared_ptr<Texture> AssetsManager::Load(const AssetHandle& handle)
 	{
@@ -49,5 +61,11 @@ namespace Cardia
 		m_Assets[handle] = AssetRefCounter(material);
 
 		return material;
+	}
+
+	template<>
+	inline std::shared_ptr<Shader> AssetsManager::Load(const AssetHandle& handle)
+	{
+		return nullptr;
 	}
 }
