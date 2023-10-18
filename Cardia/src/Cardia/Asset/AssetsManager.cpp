@@ -93,11 +93,8 @@ namespace Cardia
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(abs)) {
 			auto path = std::filesystem::absolute(entry.path());
 			if (path.extension() == ".imp") {
-				auto handle = Serializer<AssetHandle>::Deserialize(path);
-				if (handle) {
+				if (LoadHandleFromPath(path))
 					alreadyVisited.insert(path);
-					m_AssetPaths[path.replace_extension()] = *handle;
-				}
 				continue;
 			}
 
@@ -106,11 +103,48 @@ namespace Cardia
 			if (alreadyVisited.contains(impPath) || std::filesystem::exists(impPath))
 				continue;
 
-			AssetHandle handle;
-			m_AssetPaths[std::filesystem::absolute(path)] = handle;
+			RegisterNewHandle(path);
+		}
+	}
 
-			Serializer<AssetHandle> serializer(handle);
-			serializer.Serialize(impPath);
+	bool AssetsManager::LoadHandleFromPath(const std::filesystem::path& abs)
+	{
+		auto path = std::filesystem::absolute(abs);
+		auto handle = Serializer<AssetHandle>::Deserialize(path);
+		if (handle) {
+			m_AssetPaths[path.replace_extension()] = *handle;
+			return true;
+		}
+		return false;
+	}
+
+	void AssetsManager::RegisterNewHandle(const std::filesystem::path& assetPath)
+	{
+		AssetHandle handle;
+		m_AssetPaths[std::filesystem::absolute(assetPath)] = handle;
+
+		Serializer<AssetHandle> serializer(handle);
+		serializer.Serialize(assetPath.string() + ".imp");
+	}
+
+	void AssetsManager::ReloadAssetFromHandle(const AssetHandle& handle)
+	{
+		auto it = m_Assets.find(handle);
+		if (it == m_Assets.end())
+			return;
+
+		auto& asset = it->second;
+		auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+		assetPtr->Reload();
+	}
+
+	void AssetsManager::RemovePathForHandle(const AssetHandle& handle)
+	{
+		for (auto it = m_AssetPaths.begin(); it != m_AssetPaths.end(); ++it) {
+			if (it->second == handle) {
+				m_AssetPaths.erase(it);
+				return;
+			}
 		}
 	}
 
@@ -131,26 +165,54 @@ namespace Cardia
 		}
 	}
 
-	void AssetsManager::AssetsListener::OnFileAdded(efsw::WatchID watchId, const std::string& dir, const std::string& filename)
+	void AssetsManager::AssetsListener::OnFileAdded(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename)
 	{
-		Log::CoreInfo("File added : {}", filename);
+		auto fullpath = dir / filename;
+		if (filename.extension() == ".imp")
+		{
+			m_AssetsManager.LoadHandleFromPath(fullpath);
+			return;
+		}
+
+		auto impPath = fullpath.string() + ".imp";
+
+		if (std::filesystem::exists(impPath))
+			return;
+
+		m_AssetsManager.RegisterNewHandle(fullpath);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRemoved(efsw::WatchID watchId, const std::string& dir, const std::string& filename)
+	void AssetsManager::AssetsListener::OnFileRemoved(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename)
 	{
-		Log::CoreInfo("File removed : {}", filename);
+		auto fullpath = dir / filename;
+		if (filename.extension() == ".imp")
+		{
+			fullpath.replace_extension();
+		}
+
+		// in all case, we need to invalidate the handle
+		auto removedHandle = m_AssetsManager.GetHandleFromAbsolute(fullpath);
+		m_AssetsManager.RemovePathForHandle(removedHandle);
+		m_AssetsManager.ReloadAssetFromHandle(removedHandle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileUpdate(efsw::WatchID watchId, const std::string& dir, const std::string& filename)
+	void AssetsManager::AssetsListener::OnFileUpdate(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename)
 	{
-		Log::CoreInfo("File updated : {}", filename);
+		auto fullpath = dir / filename;
+		if (filename.extension() == ".imp")
+		{
+			fullpath.replace_extension();
+		}
+
+		// in all case, we need to invalidate the handle
+		auto updatedHandle = m_AssetsManager.GetHandleFromAbsolute(fullpath);
+		m_AssetsManager.RemovePathForHandle(updatedHandle);
+		m_AssetsManager.ReloadAssetFromHandle(updatedHandle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRename(efsw::WatchID watchId, const std::string &dir,
-													 const std::string &oldFilename, const std::string &newFilename)
+	void AssetsManager::AssetsListener::OnFileRename(efsw::WatchID watchId, const std::filesystem::path& dir,
+													 const std::filesystem::path& oldFilename, const std::filesystem::path& newFilename)
 	{
-		Log::CoreInfo("File renamed from {} to {}", oldFilename, newFilename);
+		throw std::logic_error("The method or operation is not implemented.");
 	}
-
-
 }

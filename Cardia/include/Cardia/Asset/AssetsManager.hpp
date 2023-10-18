@@ -44,11 +44,17 @@ namespace Cardia
 		void PopulateHandleFromProject(const Project& project);
 		void PopulateHandleFromResource();
 
+		void ReloadAssetFromHandle(const AssetHandle& handle);
+
 		std::filesystem::path RelativePathFromHandle(const AssetHandle& handle) const;
 		std::filesystem::path AbsolutePathFromHandle(const AssetHandle& handle) const;
 
 	private:
 		void PopulateHandleFromPath(const std::filesystem::path& abs);
+		bool LoadHandleFromPath(const std::filesystem::path& abs);
+		void RegisterNewHandle(const std::filesystem::path& abs);
+
+		void RemovePathForHandle(const AssetHandle& handle);
 		const Renderer& m_Renderer;
 
 		Project m_Project;
@@ -66,10 +72,11 @@ namespace Cardia
 			void handleFileAction(efsw::WatchID watchId, const std::string& dir, const std::string& filename,
 								  efsw::Action action, std::string oldFilename) override;
 		private:
-			void OnFileAdded(efsw::WatchID watchId, const std::string& dir, const std::string& filename);
-			void OnFileRemoved(efsw::WatchID watchId, const std::string& dir, const std::string& filename);
-			void OnFileUpdate(efsw::WatchID watchId, const std::string& dir, const std::string& filename);
-			void OnFileRename(efsw::WatchID watchId, const std::string& dir, const std::string& oldFilename, const std::string& newFilename);
+			void OnFileAdded(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename);
+			void OnFileRemoved(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename);
+			void OnFileUpdate(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename);
+			void OnFileRename(efsw::WatchID watchId, const std::filesystem::path& dir,
+			                  const std::filesystem::path& oldFilename, const std::filesystem::path& newFilename);
 
 			AssetsManager& m_AssetsManager;
 		};
