@@ -23,7 +23,7 @@ namespace Cardia
 		VkFormat Format {VK_FORMAT_R8G8B8A8_SRGB};
 		VkImageUsageFlags UsageFlags {VK_IMAGE_USAGE_TRANSFER_DST_BIT};
 		VkImageAspectFlags AspectFlags {VK_IMAGE_ASPECT_COLOR_BIT};
-		TextureMode TextureMode = TextureMode::Texture2D;
+		TextureMode Mode = TextureMode::Texture2D;
 		void* Data = nullptr;
 	};
 
@@ -36,7 +36,7 @@ namespace Cardia
 		public:
 			explicit Builder(const Device& device) : m_Device(device) {}
 			Builder& SetAssetHandle(AssetHandle assetHandle) { m_AssetHandle = std::move(assetHandle); return *this; }
-			Builder& SetTextureMode(TextureMode textureMode) { m_TextureCreateInfo.TextureMode = textureMode; return *this; }
+			Builder& SetTextureMode(TextureMode textureMode) { m_TextureCreateInfo.Mode = textureMode; return *this; }
 			Builder& SetFormat(VkFormat format) { m_TextureCreateInfo.Format = format; return *this; }
 			Builder& SetSize(const VkExtent2D& size) { m_TextureCreateInfo.Size = size; return *this; }
 			Builder& SetUsageFlags(VkImageUsageFlags usageFlags) { m_TextureCreateInfo.UsageFlags = usageFlags; return *this; }

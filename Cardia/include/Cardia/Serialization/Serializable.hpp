@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <json/value.h>
+#include <optional>
 
 namespace Cardia
 {

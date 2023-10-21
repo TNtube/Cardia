@@ -62,7 +62,7 @@ namespace Cardia
 			buffer.UploadData(imageSize, m_CreateInfo.Data);
 
 			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			if (m_CreateInfo.TextureMode == TextureMode::CubeMap) {
+			if (m_CreateInfo.Mode == TextureMode::CubeMap) {
 				device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
 			} else {
 				device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
@@ -105,7 +105,7 @@ namespace Cardia
 			stbi_image_free(pixels);
 
 		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		if (m_CreateInfo.TextureMode == TextureMode::CubeMap) {
+		if (m_CreateInfo.Mode == TextureMode::CubeMap) {
 			m_Device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
 		} else {
 			m_Device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
@@ -126,11 +126,11 @@ namespace Cardia
 	void Texture::CreateImage(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags)
 	{
 		m_CreateInfo.Size.height =
-			m_CreateInfo.TextureMode == TextureMode::CubeMap
+			m_CreateInfo.Mode == TextureMode::CubeMap
 			? m_CreateInfo.Size.width
 			: m_CreateInfo.Size.height;
 
-		m_LayerCount = m_CreateInfo.TextureMode == TextureMode::CubeMap ? 6 : 1;
+		m_LayerCount = m_CreateInfo.Mode == TextureMode::CubeMap ? 6 : 1;
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -145,7 +145,7 @@ namespace Cardia
 		imageInfo.usage = usageFlags | VK_IMAGE_USAGE_SAMPLED_BIT;
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.flags = m_CreateInfo.TextureMode == TextureMode::CubeMap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
+		imageInfo.flags = m_CreateInfo.Mode == TextureMode::CubeMap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
 
 		m_Device.CreateImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_Memory);
 
@@ -229,7 +229,7 @@ namespace Cardia
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = m_Image;
 		viewInfo.viewType =
-			m_CreateInfo.TextureMode == TextureMode::CubeMap
+			m_CreateInfo.Mode == TextureMode::CubeMap
 			? VK_IMAGE_VIEW_TYPE_CUBE
 			: VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = format;

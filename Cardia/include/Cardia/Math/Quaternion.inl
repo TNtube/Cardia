@@ -11,8 +11,16 @@ namespace Cardia
 	{
 		auto halfEuler = euler * static_cast<T>(0.5);
 
-		Vector3<T> c { cos(halfEuler.x), cos(halfEuler.y), cos(halfEuler.z) };
-		Vector3<T> s { sin(halfEuler.x), sin(halfEuler.y), sin(halfEuler.z) };
+		Vector3<T> c {
+			static_cast<T>(cos(halfEuler.x)),
+			static_cast<T>(cos(halfEuler.y)),
+			static_cast<T>(cos(halfEuler.z))
+		};
+		Vector3<T> s {
+			static_cast<T>(sin(halfEuler.x)),
+			static_cast<T>(sin(halfEuler.y)),
+			static_cast<T>(sin(halfEuler.z))
+		};
 
 		this->m_Real = c.x * c.y * c.z + s.x * s.y * s.z;
 		this->m_Imaginary = {

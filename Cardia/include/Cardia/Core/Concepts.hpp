@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <optional>
 
 namespace Cardia
 {

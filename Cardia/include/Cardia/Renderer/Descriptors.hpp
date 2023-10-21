@@ -8,6 +8,7 @@
 
 namespace Cardia {
 	class DescriptorLayoutCache;
+	class DescriptorSet;
 
 	class DescriptorSetLayout
 	{

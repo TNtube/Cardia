@@ -10,6 +10,7 @@
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "CardiaTor.hpp"
+#include "Cardia/Renderer/Descriptors.hpp"
 
 #include "Cardia/ImGui/imgui_impl_vulkan.h"
 

@@ -31,10 +31,6 @@ namespace Cardia
 
 		template<AssetType T> std::shared_ptr<T> Load(const std::filesystem::path& path);
 		template<AssetType T> std::shared_ptr<T> Load(const AssetHandle& handle);
-		template<> std::shared_ptr<Texture>      Load(const AssetHandle& handle);
-		template<> std::shared_ptr<MeshRenderer> Load(const AssetHandle& handle);
-		template<> std::shared_ptr<Material>     Load(const AssetHandle& handle);
-		template<> std::shared_ptr<Shader>       Load(const AssetHandle& handle);
 
 		AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath);
 		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath);

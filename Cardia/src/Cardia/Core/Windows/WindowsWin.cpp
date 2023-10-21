@@ -45,6 +45,7 @@ namespace Cardia
 			properties.Title.c_str(),
 			nullptr, nullptr);
 
+#ifndef __unix__
 		{
 			int texWidth {}, texHeight {}, texChannels {};
 			stbi_uc* pixels = stbi_load(properties.IconPath.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -54,6 +55,7 @@ namespace Cardia
 
 			stbi_image_free(pixels);
 		}
+#endif
 
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
