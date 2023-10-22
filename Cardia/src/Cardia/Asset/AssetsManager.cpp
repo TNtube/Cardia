@@ -148,71 +148,88 @@ namespace Cardia
 		}
 	}
 
+	void AssetsManager::ReloadAllDirty() {
+		for (auto& [handle, asset] : m_Assets) {
+			if (asset.Dirty) {
+				auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+				assetPtr->Reload();
+				asset.Dirty = false;
+			}
+		}
+	}
+
 	void AssetsManager::AssetsListener::handleFileAction(efsw::WatchID watchId, const std::string& dir,
 														 const std::string& filename, efsw::Action action,
 														 std::string oldFilename)
 	{
-		switch (action)
-		{
-			case efsw::Actions::Add: OnFileAdded(watchId, dir, filename);
-				break;
-			case efsw::Actions::Delete: OnFileRemoved(watchId, dir, filename);
-				break;
-			case efsw::Actions::Modified: OnFileUpdate(watchId, dir, filename);
-				break;
-			case efsw::Actions::Moved: OnFileRename(watchId, dir, oldFilename, filename);
-				break;
+		std::lock_guard<std::mutex> lockGuard(m_AssetsManager.m_WatcherMutex);
+
+		FileUpdateInfo info = m_Queue.emplace();
+
+		info.Action = action;
+
+		info.NewPath = dir;
+		info.NewPath /= filename;
+
+		if (!oldFilename.empty()) {
+			info.OldPath = dir;
+			info.OldPath /= oldFilename;
 		}
 	}
 
-	void AssetsManager::AssetsListener::OnFileAdded(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename)
+	void AssetsManager::AssetsListener::WatcherRoutine() {
+		std::lock_guard<std::mutex> lockGuard(m_AssetsManager.m_WatcherMutex);
+
+		while (!m_Queue.empty()) {
+			auto& info = m_Queue.front();
+			ComputeFileInfo(info);
+			m_Queue.pop();
+		}
+
+		m_AssetsManager.ReloadAllDirty();
+	}
+
+	void AssetsManager::AssetsListener::ComputeFileInfo(AssetsManager::FileUpdateInfo &updateInfo) {
+		switch (updateInfo.Action) {
+			case efsw::Actions::Add: OnFileAdded(updateInfo.NewPath);
+				break;
+			case efsw::Actions::Delete:	OnFileRemoved(updateInfo.NewPath);
+				break;
+			case efsw::Actions::Modified: OnFileUpdate(updateInfo.NewPath);
+				break;
+			case efsw::Actions::Moved: OnFileRename(updateInfo.OldPath, updateInfo.NewPath);
+				break;
+		}
+
+	}
+
+	void AssetsManager::AssetsListener::OnFileAdded(const std::filesystem::path &newPath)
 	{
-		auto fullpath = dir / filename;
-		if (filename.extension() == ".imp")
+		if (newPath.extension() == ".imp")
 		{
-			m_AssetsManager.LoadHandleFromPath(fullpath);
+			m_AssetsManager.LoadHandleFromPath(newPath);
 			return;
 		}
 
-		auto impPath = fullpath.string() + ".imp";
+		auto impPath = newPath.string() + ".imp";
 
 		if (std::filesystem::exists(impPath))
 			return;
 
-		m_AssetsManager.RegisterNewHandle(fullpath);
+		m_AssetsManager.RegisterNewHandle(newPath);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRemoved(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename)
+	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path &newPath)
 	{
-		auto fullpath = dir / filename;
-		if (filename.extension() == ".imp")
-		{
-			fullpath.replace_extension();
-		}
 
-		// in all case, we need to invalidate the handle
-		auto removedHandle = m_AssetsManager.GetHandleFromAbsolute(fullpath);
-		m_AssetsManager.RemovePathForHandle(removedHandle);
-		m_AssetsManager.ReloadAssetFromHandle(removedHandle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileUpdate(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename)
-	{
-		auto fullpath = dir / filename;
-		if (filename.extension() == ".imp")
-		{
-			fullpath.replace_extension();
-		}
+	void AssetsManager::AssetsListener::OnFileUpdate(const std::filesystem::path &newPath) {
 
-		// in all case, we need to invalidate the handle
-		auto updatedHandle = m_AssetsManager.GetHandleFromAbsolute(fullpath);
-		m_AssetsManager.RemovePathForHandle(updatedHandle);
-		m_AssetsManager.ReloadAssetFromHandle(updatedHandle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRename(efsw::WatchID watchId, const std::filesystem::path& dir,
-													 const std::filesystem::path& oldFilename, const std::filesystem::path& newFilename)
-	{
-		throw std::logic_error("The method or operation is not implemented.");
+	void AssetsManager::AssetsListener::OnFileRename(const std::filesystem::path &oldPath,
+													 const std::filesystem::path &newPath) {
+
 	}
 }

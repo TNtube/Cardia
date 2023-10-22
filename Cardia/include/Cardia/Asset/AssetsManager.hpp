@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <queue>
 #include <efsw/efsw.hpp>
 #include "Cardia/Serialization/Serializer.hpp"
 #include "Cardia/Project/Project.hpp"
@@ -16,6 +17,7 @@ namespace Cardia {
 		AssetRefCounter() = default;
 		explicit AssetRefCounter(std::shared_ptr<void> resource) : Resource(std::move(resource)) {}
 		std::shared_ptr<void> Resource;
+		bool Dirty = false;
 		uint32_t UnusedCounter = 0;
 	};
 }
@@ -36,6 +38,8 @@ namespace Cardia
 		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath);
 		AssetHandle GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath);
 		AssetHandle AddEntry(const std::filesystem::path& absolutePath);
+
+		void ReloadAllDirty();
 
 		void PopulateHandleFromProject(const Project& project);
 		void PopulateHandleFromResource();
@@ -60,6 +64,11 @@ namespace Cardia
 
 
 		// file watcher
+		struct FileUpdateInfo {
+			std::filesystem::path OldPath;
+			std::filesystem::path NewPath;
+			efsw::Action Action;
+		};
 
 		class AssetsListener : public efsw::FileWatchListener
 		{
@@ -67,17 +76,23 @@ namespace Cardia
 			explicit AssetsListener(AssetsManager& assetsManager) : m_AssetsManager(assetsManager) {}
 			void handleFileAction(efsw::WatchID watchId, const std::string& dir, const std::string& filename,
 								  efsw::Action action, std::string oldFilename) override;
+
+			void WatcherRoutine();
 		private:
-			void OnFileAdded(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename);
-			void OnFileRemoved(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename);
-			void OnFileUpdate(efsw::WatchID watchId, const std::filesystem::path& dir, const std::filesystem::path& filename);
-			void OnFileRename(efsw::WatchID watchId, const std::filesystem::path& dir,
-			                  const std::filesystem::path& oldFilename, const std::filesystem::path& newFilename);
+			void OnFileAdded(const std::filesystem::path& newPath);
+			void OnFileRemoved(const std::filesystem::path& newPath);
+			void OnFileUpdate(const std::filesystem::path& newPath);
+			void OnFileRename(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
+
+			void ComputeFileInfo(FileUpdateInfo& updateInfo);
 
 			AssetsManager& m_AssetsManager;
+			std::queue<FileUpdateInfo> m_Queue;
 		};
 
 		AssetsListener m_AssetsListener;
+
+		std::mutex m_WatcherMutex;
 
 		efsw::FileWatcher m_FileWatcher;
 
