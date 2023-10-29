@@ -67,6 +67,20 @@ namespace Cardia
 		CreateDescriptorSet();
 	}
 
+	bool Material::CheckForDirtyInDependencies()
+	{
+		auto& assetsManager = Application::Get().GetAssetsManager();
+
+		bool isDirty = false;
+		isDirty |= assetsManager.IsDirty(m_MaterialData.AlbedoMap);
+		isDirty |= assetsManager.IsDirty(m_MaterialData.NormalMap);
+		isDirty |= assetsManager.IsDirty(m_MaterialData.MetallicRoughnessMap);
+		isDirty |= assetsManager.IsDirty(m_MaterialData.AOMap);
+		isDirty |= assetsManager.IsDirty(m_MaterialData.EmissiveMap);
+
+		return isDirty;
+	}
+
 	Json::Value MaterialData::Serialize() const
 	{
 		Json::Value output;

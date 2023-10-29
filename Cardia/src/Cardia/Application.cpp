@@ -40,6 +40,8 @@ namespace Cardia
 			OnUpdate();
 
 			OnRender();
+
+			m_AssetsManager.Update();
 		}
 	}
 

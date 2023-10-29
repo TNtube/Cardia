@@ -53,6 +53,7 @@ namespace Cardia
 		void AddShader(ShaderType type, const std::string& path);
 
 		void Reload() override;
+		bool CheckForDirtyInDependencies() override { return false; }
 
 		VkShaderModule GetShaderModule(ShaderType type) const;
 		VkPipelineShaderStageCreateInfo GetShaderStage(ShaderType type) const;

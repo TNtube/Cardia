@@ -16,6 +16,7 @@ namespace Cardia
 		void Draw(const Pipeline& pipeline, VkCommandBuffer commandBuffer) const;
 
 		void Reload() override;
+		bool CheckForDirtyInDependencies() override { return false; }
 	private:
 		const Device& m_Device;
 

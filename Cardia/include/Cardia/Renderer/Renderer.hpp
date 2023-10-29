@@ -62,6 +62,8 @@ namespace Cardia
 		void BeginSwapChainRenderPass() const;
 		void EndRenderPass() const;
 
+		void WaitIdle() const;
+
 		const Device& GetDevice() const { return m_Device; }
 		SwapChain& GetSwapChain() const { return *m_SwapChain; }
 		DescriptorAllocator& GetDescriptorAllocator() const { return *m_DescriptorAllocator; }

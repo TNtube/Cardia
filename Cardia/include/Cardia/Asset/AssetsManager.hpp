@@ -39,6 +39,8 @@ namespace Cardia
 		AssetHandle GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath);
 		AssetHandle AddEntry(const std::filesystem::path& absolutePath);
 
+		void SetDirty(const AssetHandle& handle);
+		bool IsDirty(const AssetHandle& handle) const;
 		void ReloadAllDirty();
 
 		void PopulateHandleFromProject(const Project& project);
@@ -49,12 +51,17 @@ namespace Cardia
 		std::filesystem::path RelativePathFromHandle(const AssetHandle& handle) const;
 		std::filesystem::path AbsolutePathFromHandle(const AssetHandle& handle) const;
 
+		void Update();
+
 	private:
 		void PopulateHandleFromPath(const std::filesystem::path& abs);
 		bool LoadHandleFromPath(const std::filesystem::path& abs);
 		void RegisterNewHandle(const std::filesystem::path& abs);
 
 		void RemovePathForHandle(const AssetHandle& handle);
+
+		void CollectUnusedAssets(bool force = false);
+
 		const Renderer& m_Renderer;
 
 		Project m_Project;
@@ -88,14 +95,12 @@ namespace Cardia
 
 			AssetsManager& m_AssetsManager;
 			std::queue<FileUpdateInfo> m_Queue;
+			std::mutex m_WatcherMutex;
 		};
 
 		AssetsListener m_AssetsListener;
 
-		std::mutex m_WatcherMutex;
-
 		efsw::FileWatcher m_FileWatcher;
-
 		efsw::WatchID m_WatchID = 0;
 	};
 }

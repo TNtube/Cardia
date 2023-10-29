@@ -20,7 +20,7 @@ namespace Cardia
 	struct TextureCreateInfo
 	{
 		VkExtent2D Size {1, 1};
-		VkFormat Format {VK_FORMAT_R8G8B8A8_SRGB};
+		VkFormat Format {VK_FORMAT_R8G8B8A8_UNORM};
 		VkImageUsageFlags UsageFlags {VK_IMAGE_USAGE_TRANSFER_DST_BIT};
 		VkImageAspectFlags AspectFlags {VK_IMAGE_ASPECT_COLOR_BIT};
 		TextureMode Mode = TextureMode::Texture2D;
@@ -51,6 +51,7 @@ namespace Cardia
 
 	public:
 		void Reload() override;
+		bool CheckForDirtyInDependencies() override { return false; }
 
 		Texture(const Texture& other) = delete;
 		Texture& operator=(const Texture& other) = delete;

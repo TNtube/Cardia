@@ -38,6 +38,7 @@ namespace Cardia
 		virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
 		virtual void SetFullscreen(bool state) = 0;
 		virtual bool IsFullscreen() const = 0;
+		virtual bool IsFocused() const = 0;
 		virtual void UpdateFullscreenMode() = 0;
 		virtual void SetVSync(bool state) = 0;
 		virtual bool IsVSync() const = 0;

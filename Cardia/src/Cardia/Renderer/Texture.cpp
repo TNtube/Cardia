@@ -61,13 +61,13 @@ namespace Cardia
 			Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 			buffer.UploadData(imageSize, m_CreateInfo.Data);
 
-			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 			if (m_CreateInfo.Mode == TextureMode::CubeMap) {
 				device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
 			} else {
 				device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
 			}
-			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 			// We are not supposed to use that anymore, it is not managed by the texture
 			m_CreateInfo.Data = nullptr;
@@ -82,6 +82,7 @@ namespace Cardia
 	void Texture::InitFromPath()
 	{
 		auto path = Application::Get().GetAssetsManager().AbsolutePathFromHandle(GetHandle());
+		Log::CoreInfo("Loading texture from path `{0}`", path.string());
 		int texWidth {}, texHeight {}, texChannels {};
 
 		stbi_uc* pixels = stbi_load(path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -96,7 +97,7 @@ namespace Cardia
 			pixels = errorColor;
 		}
 		m_CreateInfo.Size = {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)};
-		CreateImage(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+		CreateImage(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
 
 		const auto imageSize = static_cast<uint32_t>(texWidth * texHeight * 4);
 		Buffer buffer(m_Device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -104,13 +105,13 @@ namespace Cardia
 		if (memcmp(pixels, errorColor, sizeof(errorColor)) != 0)
 			stbi_image_free(pixels);
 
-		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		if (m_CreateInfo.Mode == TextureMode::CubeMap) {
 			m_Device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
 		} else {
 			m_Device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
 		}
-		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	}
 

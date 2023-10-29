@@ -40,6 +40,7 @@ namespace Cardia
 		const AssetHandle& GetHandle() const { return m_Handle; }
 
 		virtual void Reload() = 0;
+		virtual bool CheckForDirtyInDependencies() = 0; // return false if any asset dependency is invalid
 
 	protected:
 		AssetHandle m_Handle;

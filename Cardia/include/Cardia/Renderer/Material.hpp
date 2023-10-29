@@ -59,6 +59,7 @@ namespace Cardia
 		Material(const Device& device, MaterialData materialData, AssetHandle assetHandle);
 		void Bind(const Pipeline& pipeline, VkCommandBuffer commandBuffer) const;
 		void Reload() override;
+		bool CheckForDirtyInDependencies() override;
 
 	private:
 		void CreateDescriptorSet();

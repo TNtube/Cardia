@@ -272,4 +272,9 @@ namespace Cardia
 		}
 		return *m_Skybox;
 	}
+
+	void Renderer::WaitIdle() const
+	{
+		m_Device.WaitIdle();
+	}
 }

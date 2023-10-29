@@ -2,6 +2,7 @@
 
 #include <Cardia/Project/Project.hpp>
 #include <Cardia/Renderer/Renderer.hpp>
+#include <Cardia/Application.hpp>
 #include "Cardia/Asset/AssetsManager.hpp"
 
 constexpr std::chrono::duration<float> GC_COLLECTION_DURATION = std::chrono::duration<float>(2.0f);
@@ -52,7 +53,7 @@ namespace Cardia
 		PopulateHandleFromPath(absoluteAssetsPath);
 
 		m_FileWatcher.removeWatch(m_WatchID);
-		m_WatchID = m_FileWatcher.addWatch(absoluteAssetsPath.string(), &m_AssetsListener, true);
+		m_WatchID = m_FileWatcher.addWatch(absoluteAssetsPath.string(),& m_AssetsListener, true);
 		m_FileWatcher.watch();
 	}
 
@@ -149,6 +150,19 @@ namespace Cardia
 	}
 
 	void AssetsManager::ReloadAllDirty() {
+		if (!std::any_of(m_Assets.begin(), m_Assets.end(), [](const auto& pair) { return pair.second.Dirty; })) {
+			return;
+		}
+		for (auto& [handle, asset] : m_Assets) {
+			auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+			if (asset.Dirty) {
+				assetPtr->Reload();
+				asset.Dirty = false;
+			} else {
+				asset.Dirty = assetPtr->CheckForDirtyInDependencies();
+			}
+		}
+
 		for (auto& [handle, asset] : m_Assets) {
 			if (asset.Dirty) {
 				auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
@@ -158,13 +172,65 @@ namespace Cardia
 		}
 	}
 
+	void AssetsManager::SetDirty(const AssetHandle &handle)
+	{
+		auto it = m_Assets.find(handle);
+		if (it == m_Assets.end())
+			return;
+
+		it->second.Dirty = true;
+	}
+
+	void AssetsManager::Update()
+	{
+		if (!Application::Get().GetWindow().IsFocused()) return;
+
+		m_AssetsListener.WatcherRoutine();
+//		CollectUnusedAssets();
+	}
+
+	void AssetsManager::CollectUnusedAssets(bool force)
+	{
+		static auto lastCollection = std::chrono::steady_clock::now();
+
+		if (!force && std::chrono::steady_clock::now() - lastCollection < GC_COLLECTION_DURATION)
+			return;
+
+		for (auto it = m_Assets.begin(); it != m_Assets.end();) {
+
+			if (it->second.Resource.use_count() == 1) {
+				++it->second.UnusedCounter;
+			}
+
+			if (force || it->second.UnusedCounter > MAX_UNUSED_COUNT) {
+				auto path = AbsolutePathFromHandle(it->first);
+				Log::Info("Unloading asset at {}", path.string());
+				it = m_Assets.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
+		lastCollection = std::chrono::steady_clock::now();
+	}
+
+	bool AssetsManager::IsDirty(const AssetHandle &handle) const
+	{
+		auto it = m_Assets.find(handle);
+		if (it == m_Assets.end())
+			return false;
+
+		return it->second.Dirty;
+	}
+
 	void AssetsManager::AssetsListener::handleFileAction(efsw::WatchID watchId, const std::string& dir,
 														 const std::string& filename, efsw::Action action,
 														 std::string oldFilename)
 	{
-		std::lock_guard<std::mutex> lockGuard(m_AssetsManager.m_WatcherMutex);
+		std::scoped_lock<std::mutex> lock(m_WatcherMutex);
 
-		FileUpdateInfo info = m_Queue.emplace();
+		FileUpdateInfo& info = m_Queue.emplace();
 
 		info.Action = action;
 
@@ -178,18 +244,22 @@ namespace Cardia
 	}
 
 	void AssetsManager::AssetsListener::WatcherRoutine() {
-		std::lock_guard<std::mutex> lockGuard(m_AssetsManager.m_WatcherMutex);
+		{
+			// nested scope to unlock mutex as soon as possible
+			std::scoped_lock<std::mutex> lock(m_WatcherMutex);
 
-		while (!m_Queue.empty()) {
-			auto& info = m_Queue.front();
-			ComputeFileInfo(info);
-			m_Queue.pop();
+			while (!m_Queue.empty()) {
+				auto& info = m_Queue.front();
+				Log::Info("File {} was {}", info.NewPath.string(), info.Action);
+				ComputeFileInfo(info);
+				m_Queue.pop();
+			}
 		}
 
 		m_AssetsManager.ReloadAllDirty();
 	}
 
-	void AssetsManager::AssetsListener::ComputeFileInfo(AssetsManager::FileUpdateInfo &updateInfo) {
+	void AssetsManager::AssetsListener::ComputeFileInfo(AssetsManager::FileUpdateInfo& updateInfo) {
 		switch (updateInfo.Action) {
 			case efsw::Actions::Add: OnFileAdded(updateInfo.NewPath);
 				break;
@@ -203,7 +273,7 @@ namespace Cardia
 
 	}
 
-	void AssetsManager::AssetsListener::OnFileAdded(const std::filesystem::path &newPath)
+	void AssetsManager::AssetsListener::OnFileAdded(const std::filesystem::path& newPath)
 	{
 		if (newPath.extension() == ".imp")
 		{
@@ -219,17 +289,61 @@ namespace Cardia
 		m_AssetsManager.RegisterNewHandle(newPath);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path &newPath)
+	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path& newPath)
 	{
+		auto finalPath = newPath;
 
+		if (finalPath.extension() == ".imp") {
+			finalPath.replace_extension();
+		}
+
+		auto handle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
+
+		m_AssetsManager.SetDirty(handle);
+		m_AssetsManager.RemovePathForHandle(handle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileUpdate(const std::filesystem::path &newPath) {
+	void AssetsManager::AssetsListener::OnFileUpdate(const std::filesystem::path& newPath)
+	{
+		if (newPath.extension() == ".imp") {
+			auto finalPath = newPath;
+			finalPath.replace_extension();
 
+			auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
+
+			m_AssetsManager.SetDirty(oldHandle);
+			m_AssetsManager.RemovePathForHandle(oldHandle);
+
+			m_AssetsManager.LoadHandleFromPath(finalPath);
+			return;
+		}
+
+		auto handle = m_AssetsManager.GetHandleFromAbsolute(newPath);
+		m_AssetsManager.SetDirty(handle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRename(const std::filesystem::path &oldPath,
-													 const std::filesystem::path &newPath) {
+	void AssetsManager::AssetsListener::OnFileRename(const std::filesystem::path& oldPath,
+	                                                 const std::filesystem::path& newPath)
+	{
+		auto finalNewPath = std::filesystem::absolute(newPath);
 
+		if (oldPath.extension() == ".imp") {
+			auto finalOldPath = oldPath;
+			finalOldPath.replace_extension();
+
+			auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalOldPath);
+
+			m_AssetsManager.RemovePathForHandle(oldHandle);
+
+			if (newPath.extension() == ".imp") {
+				finalNewPath.replace_extension();
+				m_AssetsManager.m_AssetPaths[finalNewPath] = oldHandle;
+			}
+			return;
+		}
+
+		auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(oldPath);
+		m_AssetsManager.RemovePathForHandle(oldHandle);
+		m_AssetsManager.m_AssetPaths[finalNewPath] = oldHandle;
 	}
 }

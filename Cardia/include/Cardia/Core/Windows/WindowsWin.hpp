@@ -16,6 +16,7 @@ namespace Cardia
 		bool ShouldInvalidateSwapchain = false;
 		bool ShouldUpdateFullscreenMode = false;
 		bool IsFullscreen = false;
+		bool HasFocus = true;
 
 		std::function<void(Event&)> EventCallback;
 	};
@@ -23,8 +24,8 @@ namespace Cardia
 	class WindowsWin : public Window
 	{
 	public:
-		WindowsWin(const WinProperties& properties);
-		virtual ~WindowsWin() override;
+		explicit WindowsWin(const WinProperties& properties);
+		~WindowsWin() override;
 
 		void OnUpdate() override;
 		inline int GetWidth() const override { return m_Data.Width; }
@@ -41,11 +42,12 @@ namespace Cardia
 		void SetFullscreen(bool state) override;
 		void UpdateFullscreenMode() override;
 		bool IsFullscreen() const override;
+		bool IsFocused() const override;
 
 		void SetVSync(bool state) override;
 		bool IsVSync() const override;
 
-		inline virtual void* GetNativeWindow() const override { return m_Window; }
+		inline void* GetNativeWindow() const override { return m_Window; }
 
 	private:
 		void Init(const WinProperties& properties);

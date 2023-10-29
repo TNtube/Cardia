@@ -162,9 +162,10 @@ namespace Cardia
 
 		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* win, int focused)
 		{
-			const WinData* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
+			auto* data = static_cast<WinData*>(glfwGetWindowUserPointer(win));
 			WindowFocusEvent event(focused);
 			data->EventCallback(event);
+			data->HasFocus = focused;
 		});
 	}
 
@@ -236,6 +237,11 @@ namespace Cardia
 	bool WindowsWin::IsVSync() const
 	{
 		return m_Data.VSync;
+	}
+
+	bool WindowsWin::IsFocused() const
+	{
+		return m_Data.HasFocus;
 	}
 }
 
