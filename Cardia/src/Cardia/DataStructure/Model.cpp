@@ -17,12 +17,13 @@ namespace Cardia
 	namespace {
 		std::filesystem::path GetPathRelativeToMesh(const std::filesystem::path& meshPath, const std::filesystem::path& path)
 		{
-			auto parentPath = meshPath.parent_path();
+			const auto parentPath = meshPath.parent_path();
 			return parentPath / path;
 		}
 
 		std::vector<AssetHandle> ProcessMaterialsFromScene(const std::filesystem::path& modelPath, const aiScene* scene) {
 			auto& assetsManager = Application::Get().GetAssetsManager();
+			const auto& renderer = Application::Get().GetRenderer();
 
 			std::vector<AssetHandle> result;
 
@@ -35,7 +36,7 @@ namespace Cardia
 				aiColor4D textureColor;
 				ai_real textureFloat;
 
-				auto whiteHandle = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+				const auto whiteHandle = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
 
 				if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_COLOR_DIFFUSE, &textureColor))
 					mat.AlbedoColor = Vector4f(textureColor.r, textureColor.g, textureColor.b, textureColor.a);
@@ -70,36 +71,17 @@ namespace Cardia
 				else
 					mat.EmissiveMap = whiteHandle;
 
-				std::filesystem::path matFilename = pMaterial->GetName().C_Str();
-				// TODO: temporary filename to avoid conflict. Find a way to merge same materials
-				auto absoluteMatPath = GetPathRelativeToMesh(modelPath, modelPath.filename().string() + matFilename.string() + ".mat");
-
-				Serializer<MaterialData> matSerializer(mat);
-				matSerializer.Serialize(absoluteMatPath);
-
-				AssetHandle matHandle = assetsManager.AddEntry(absoluteMatPath);
-				Serializer<AssetHandle> handleSerializer(matHandle);
-				handleSerializer.Serialize(absoluteMatPath.string() +  ".imp");
+				AssetHandle matHandle;
+				assetsManager.AddAssetEntry(std::make_shared<Material>(renderer.GetDevice(), mat, matHandle));
 
 				result.push_back(matHandle);
 			}
 
 			return result;
 		}
-
-		std::vector<AssetHandle> ProcessImportedMaterials(const Json::Value& root) {
-			std::vector<AssetHandle> result;
-
-			// process json
-			for (const Json::Value& jsonMat : root["Materials"])
-			{
-				result.emplace_back(*AssetHandle::Deserialize(jsonMat));
-			}
-
-			return result;
-		}
 	}
-	Model Model::FromFile(const std::filesystem::path& absolutePath, bool includeMaterials)
+
+	Model Model::FromFile(const std::filesystem::path& absolutePath)
 	{
 		Model model;
 		Assimp::Importer importer;
@@ -111,27 +93,7 @@ namespace Cardia
 			return {};
 		}
 
-		// Materials
-		if (includeMaterials) {
-			auto impFilePath = absolutePath.string() + ".imp";
-			std::ifstream file(impFilePath);
-			Json::Value root;
-			file >> root;
-			file.close();
-
-
-			if (root.isMember("Materials")) {
-				model.m_MaterialHandles = ProcessImportedMaterials(root);
-			} else {
-				model.m_MaterialHandles = ProcessMaterialsFromScene(absolutePath, scene);
-				for (const auto& mat: model.m_MaterialHandles) {
-					root["Materials"].append(mat.Serialize());
-				}
-				std::ofstream os(impFilePath);
-				os << root;
-				os.close();
-			}
-		}
+		model.m_MaterialHandles = ProcessMaterialsFromScene(absolutePath, scene);
 
 		for (uint32_t ind = 0; ind < scene->mNumMeshes; ind++) {
 			auto& mesh = model.m_Meshes.emplace_back();

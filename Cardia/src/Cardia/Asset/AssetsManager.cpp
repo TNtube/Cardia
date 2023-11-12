@@ -5,6 +5,8 @@
 #include <Cardia/Application.hpp>
 #include "Cardia/Asset/AssetsManager.hpp"
 
+#include <ranges>
+
 constexpr std::chrono::duration<float> GC_COLLECTION_DURATION = std::chrono::duration<float>(2.0f);
 constexpr std::uint32_t MAX_UNUSED_COUNT = 2;
 
@@ -16,11 +18,11 @@ namespace Cardia
 
 	AssetHandle AssetsManager::GetHandleFromAbsolute(const std::filesystem::path& absolutePath)
 	{
-		auto normalized = std::filesystem::absolute(absolutePath);
+		const auto normalized = std::filesystem::absolute(absolutePath);
 		if (m_AssetPaths.contains(normalized))
 			return m_AssetPaths[normalized];
 
-		auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
+		const auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
 		if (!handle)
 		{
 			Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", normalized.string());
@@ -33,7 +35,7 @@ namespace Cardia
 
 	AssetHandle AssetsManager::GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath)
 	{
-		auto absolute = m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory / relativeToAssetsPath;
+		const auto absolute = m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory / relativeToAssetsPath;
 		return GetHandleFromAbsolute(absolute);
 	}
 
@@ -49,7 +51,7 @@ namespace Cardia
 	{
 		m_Project = project;
 		auto& config = m_Project.GetConfig();
-		auto absoluteAssetsPath = m_Project.ProjectPath() / config.AssetDirectory;
+		const auto absoluteAssetsPath = m_Project.ProjectPath() / config.AssetDirectory;
 		PopulateHandleFromPath(absoluteAssetsPath);
 
 		m_FileWatcher.removeWatch(m_WatchID);
@@ -64,7 +66,7 @@ namespace Cardia
 
 	std::filesystem::path AssetsManager::RelativePathFromHandle(const AssetHandle& handle) const
 	{
-		auto path = AbsolutePathFromHandle(handle);
+		const auto path = AbsolutePathFromHandle(handle);
 		if (!path.empty())
 			return std::filesystem::relative(path, m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory);
 
@@ -80,7 +82,7 @@ namespace Cardia
 		return {};
 	}
 
-	AssetHandle AssetsManager::AddEntry(const std::filesystem::path& absolutePath)
+	AssetHandle AssetsManager::AddPathEntry(const std::filesystem::path& absolutePath)
 	{
 		AssetHandle newHandle;
 		m_AssetPaths[std::filesystem::absolute(absolutePath)] = newHandle;
@@ -111,7 +113,7 @@ namespace Cardia
 	bool AssetsManager::LoadHandleFromPath(const std::filesystem::path& abs)
 	{
 		auto path = std::filesystem::absolute(abs);
-		auto handle = Serializer<AssetHandle>::Deserialize(path);
+		const auto handle = Serializer<AssetHandle>::Deserialize(path);
 		if (handle) {
 			m_AssetPaths[path.replace_extension()] = *handle;
 			return true;
@@ -130,12 +132,12 @@ namespace Cardia
 
 	void AssetsManager::ReloadAssetFromHandle(const AssetHandle& handle)
 	{
-		auto it = m_Assets.find(handle);
+		const auto it = m_Assets.find(handle);
 		if (it == m_Assets.end())
 			return;
 
-		auto& asset = it->second;
-		auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+		const auto& asset = it->second;
+		const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
 		assetPtr->Reload();
 	}
 
@@ -150,11 +152,11 @@ namespace Cardia
 	}
 
 	void AssetsManager::ReloadAllDirty() {
-		if (!std::any_of(m_Assets.begin(), m_Assets.end(), [](const auto& pair) { return pair.second.Dirty; })) {
+		if (!std::ranges::any_of(m_Assets, [](const auto& pair) { return pair.second.Dirty; })) {
 			return;
 		}
-		for (auto& [handle, asset] : m_Assets) {
-			auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+		for (auto& asset : m_Assets | std::views::values) {
+			const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
 			if (asset.Dirty) {
 				assetPtr->Reload();
 				asset.Dirty = false;
@@ -163,9 +165,9 @@ namespace Cardia
 			}
 		}
 
-		for (auto& [handle, asset] : m_Assets) {
+		for (auto& asset: m_Assets | std::views::values) {
 			if (asset.Dirty) {
-				auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+				const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
 				assetPtr->Reload();
 				asset.Dirty = false;
 			}
@@ -174,7 +176,7 @@ namespace Cardia
 
 	void AssetsManager::SetDirty(const AssetHandle &handle)
 	{
-		auto it = m_Assets.find(handle);
+		const auto it = m_Assets.find(handle);
 		if (it == m_Assets.end())
 			return;
 
@@ -189,7 +191,7 @@ namespace Cardia
 //		CollectUnusedAssets();
 	}
 
-	void AssetsManager::CollectUnusedAssets(bool force)
+	void AssetsManager::CollectUnusedAssets(const bool force)
 	{
 		static auto lastCollection = std::chrono::steady_clock::now();
 
@@ -217,16 +219,21 @@ namespace Cardia
 
 	bool AssetsManager::IsDirty(const AssetHandle &handle) const
 	{
-		auto it = m_Assets.find(handle);
+		const auto it = m_Assets.find(handle);
 		if (it == m_Assets.end())
 			return false;
 
 		return it->second.Dirty;
 	}
 
+	void AssetsManager::AddAssetEntry(const std::shared_ptr<Asset>& asset)
+	{
+		m_Assets[asset->GetHandle()] = AssetRefCounter(asset);
+	}
+
 	void AssetsManager::AssetsListener::handleFileAction(efsw::WatchID watchId, const std::string& dir,
 														 const std::string& filename, efsw::Action action,
-														 std::string oldFilename)
+														 const std::string oldFilename)
 	{
 		std::scoped_lock<std::mutex> lock(m_WatcherMutex);
 
@@ -250,7 +257,6 @@ namespace Cardia
 
 			while (!m_Queue.empty()) {
 				auto& info = m_Queue.front();
-				Log::Info("File {} was {}", info.NewPath.string(), info.Action);
 				ComputeFileInfo(info);
 				m_Queue.pop();
 			}
@@ -259,7 +265,8 @@ namespace Cardia
 		m_AssetsManager.ReloadAllDirty();
 	}
 
-	void AssetsManager::AssetsListener::ComputeFileInfo(AssetsManager::FileUpdateInfo& updateInfo) {
+	void AssetsManager::AssetsListener::ComputeFileInfo(const AssetsManager::FileUpdateInfo& updateInfo) const
+	{
 		switch (updateInfo.Action) {
 			case efsw::Actions::Add: OnFileAdded(updateInfo.NewPath);
 				break;
@@ -273,7 +280,7 @@ namespace Cardia
 
 	}
 
-	void AssetsManager::AssetsListener::OnFileAdded(const std::filesystem::path& newPath)
+	void AssetsManager::AssetsListener::OnFileAdded(const std::filesystem::path& newPath) const
 	{
 		if (newPath.extension() == ".imp")
 		{
@@ -281,7 +288,7 @@ namespace Cardia
 			return;
 		}
 
-		auto impPath = newPath.string() + ".imp";
+		const auto impPath = newPath.string() + ".imp";
 
 		if (std::filesystem::exists(impPath))
 			return;
@@ -289,7 +296,7 @@ namespace Cardia
 		m_AssetsManager.RegisterNewHandle(newPath);
 	}
 
-	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path& newPath)
+	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path& newPath) const
 	{
 		auto finalPath = newPath;
 
@@ -297,19 +304,19 @@ namespace Cardia
 			finalPath.replace_extension();
 		}
 
-		auto handle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
+		const auto handle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
 
 		m_AssetsManager.SetDirty(handle);
 		m_AssetsManager.RemovePathForHandle(handle);
 	}
 
-	void AssetsManager::AssetsListener::OnFileUpdate(const std::filesystem::path& newPath)
+	void AssetsManager::AssetsListener::OnFileUpdate(const std::filesystem::path& newPath) const
 	{
 		if (newPath.extension() == ".imp") {
 			auto finalPath = newPath;
 			finalPath.replace_extension();
 
-			auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
+			const auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
 
 			m_AssetsManager.SetDirty(oldHandle);
 			m_AssetsManager.RemovePathForHandle(oldHandle);
@@ -318,12 +325,12 @@ namespace Cardia
 			return;
 		}
 
-		auto handle = m_AssetsManager.GetHandleFromAbsolute(newPath);
+		const auto handle = m_AssetsManager.GetHandleFromAbsolute(newPath);
 		m_AssetsManager.SetDirty(handle);
 	}
 
 	void AssetsManager::AssetsListener::OnFileRename(const std::filesystem::path& oldPath,
-	                                                 const std::filesystem::path& newPath)
+	                                                 const std::filesystem::path& newPath) const
 	{
 		auto finalNewPath = std::filesystem::absolute(newPath);
 
@@ -331,7 +338,7 @@ namespace Cardia
 			auto finalOldPath = oldPath;
 			finalOldPath.replace_extension();
 
-			auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalOldPath);
+			const auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalOldPath);
 
 			m_AssetsManager.RemovePathForHandle(oldHandle);
 
@@ -342,7 +349,7 @@ namespace Cardia
 			return;
 		}
 
-		auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(oldPath);
+		const auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(oldPath);
 		m_AssetsManager.RemovePathForHandle(oldHandle);
 		m_AssetsManager.m_AssetPaths[finalNewPath] = oldHandle;
 	}

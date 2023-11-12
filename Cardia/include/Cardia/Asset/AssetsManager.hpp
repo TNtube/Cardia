@@ -8,7 +8,6 @@
 #include "Cardia/Serialization/Serializer.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Renderer/Material.hpp"
-#include "Cardia/Renderer/MeshRenderer.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 
 namespace Cardia {
@@ -37,7 +36,8 @@ namespace Cardia
 		AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath);
 		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath);
 		AssetHandle GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath);
-		AssetHandle AddEntry(const std::filesystem::path& absolutePath);
+		AssetHandle AddPathEntry(const std::filesystem::path& absolutePath);
+		void AddAssetEntry(const std::shared_ptr<Asset>& asset);
 
 		void SetDirty(const AssetHandle& handle);
 		bool IsDirty(const AssetHandle& handle) const;
@@ -86,12 +86,12 @@ namespace Cardia
 
 			void WatcherRoutine();
 		private:
-			void OnFileAdded(const std::filesystem::path& newPath);
-			void OnFileRemoved(const std::filesystem::path& newPath);
-			void OnFileUpdate(const std::filesystem::path& newPath);
-			void OnFileRename(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
+			void OnFileAdded(const std::filesystem::path& newPath) const;
+			void OnFileRemoved(const std::filesystem::path& newPath) const;
+			void OnFileUpdate(const std::filesystem::path& newPath) const;
+			void OnFileRename(const std::filesystem::path& oldPath, const std::filesystem::path& newPath) const;
 
-			void ComputeFileInfo(FileUpdateInfo& updateInfo);
+			void ComputeFileInfo(const FileUpdateInfo& updateInfo) const;
 
 			AssetsManager& m_AssetsManager;
 			std::queue<FileUpdateInfo> m_Queue;

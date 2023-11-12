@@ -15,7 +15,7 @@ namespace Cardia
 		const std::vector<AssetHandle>& GetMaterialHandles() const { return m_MaterialHandles; }
 		std::vector<AssetHandle>& GetMaterialHandles() { return m_MaterialHandles; }
 
-		static Model FromFile(const std::filesystem::path& absolutePath, bool includeMaterials);
+		static Model FromFile(const std::filesystem::path& absolutePath);
 	private:
 		std::vector<AssetHandle> m_MaterialHandles {};
 		std::vector<Mesh> m_Meshes {};

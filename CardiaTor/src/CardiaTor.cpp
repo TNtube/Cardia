@@ -33,19 +33,19 @@ namespace Cardia
 
 		m_CurrentScene = std::make_unique<Scene>(m_Renderer);
 
-		for (auto& panel: m_PanelManager.Panels()) {
+		for (const auto& panel: m_PanelManager.Panels()) {
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
 		// TODO: move to editor assets
-		Texture::Builder builder(Application::Get().GetRenderer().GetDevice());
+		Texture::Builder builder(m_Renderer.GetDevice());
 
-		auto playHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/play.png");
+		const auto playHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/play.png");
 		builder.SetAssetHandle(playHandle);
 		m_IconPlay = builder.Build();
 		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		auto pauseHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/pause.png");
+		const auto pauseHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/pause.png");
 		builder.SetAssetHandle(pauseHandle);
 		m_IconStop = builder.Build();
 		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -593,8 +593,8 @@ namespace Cardia
 		// shortcuts
 		dispatcher.dispatch<KeyDownEvent>([this](const KeyDownEvent& e)
 		{
-			auto ctrl = Input::IsKeyPressed(Key::LeftCtrl) || Input::IsKeyPressed(Key::RightCtrl);
-			auto shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+			const auto ctrl = Input::IsKeyPressed(Key::LeftCtrl) || Input::IsKeyPressed(Key::RightCtrl);
+			const auto shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 			if (ctrl)
 			{
 				switch (e.getKeyCode())
@@ -631,11 +631,11 @@ namespace Cardia
 				if (!m_HoveredEntity.IsValid()) return;
 
 				m_SelectedEntity = m_HoveredEntity;
-				auto inspector = m_PanelManager.GetLastFocused<Panel::InspectorPanel>();
+				const auto inspector = m_PanelManager.GetLastFocused<Panel::InspectorPanel>();
 				if (inspector)
 					inspector->SetSelectedEntity(m_HoveredEntity);
 
-				auto sceneHierarchy = m_PanelManager.GetLastFocused<Panel::SceneHierarchyPanel>();
+				const auto sceneHierarchy = m_PanelManager.GetLastFocused<Panel::SceneHierarchyPanel>();
 				if (sceneHierarchy)
 					sceneHierarchy->SetSelectedEntity(m_HoveredEntity);
 			}

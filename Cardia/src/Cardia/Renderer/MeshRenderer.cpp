@@ -24,7 +24,7 @@ namespace Cardia
 
 		auto materials = m_Model.GetMaterialHandles();
 
-		m_Model = Model::FromFile(path, false);
+		m_Model = Model::FromFile(path);
 
 		m_Model.GetMaterialHandles() = materials;
 

@@ -54,8 +54,8 @@ namespace Cardia
 		if (m_Assets.contains(handle)) {
 			return std::static_pointer_cast<MeshRenderer>(m_Assets.at(handle).Resource);
 		}
-		auto path = AbsolutePathFromHandle(handle);
-		auto materialData = Model::FromFile(path, true);
+		const auto path = AbsolutePathFromHandle(handle);
+		auto materialData = Model::FromFile(path);
 
 		auto material = std::make_shared<MeshRenderer>(m_Renderer.GetDevice(), handle, materialData);
 		m_Assets[handle] = AssetRefCounter(material);
