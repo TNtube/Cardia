@@ -15,7 +15,9 @@ namespace Cardia::Component
 			CameraData = SceneCamera();
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<Camera> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&Camera::CameraData, "CameraData"),
+			property(&Camera::Primary, "Primary")
+		);
 	};
 }

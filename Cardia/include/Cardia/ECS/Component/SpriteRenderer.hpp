@@ -20,9 +20,15 @@ namespace Cardia::Component
 			SpriteTexture = nullptr;
 			TillingFactor = 1.0f;
 			Color = Vector4f(1.0f);
+			ZIndex = 0;
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<SpriteRenderer> Deserialize(const Json::Value& root);
+
+		constexpr static auto properties = std::make_tuple(
+			property(&SpriteRenderer::Color, "Color"),
+			// property(&SpriteRenderer::SpriteTexture, "SpriteTexture"), TODO: review this
+			property(&SpriteRenderer::TillingFactor, "TillingFactor"),
+			property(&SpriteRenderer::ZIndex, "ZIndex")
+		);
 	};
 }

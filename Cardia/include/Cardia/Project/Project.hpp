@@ -4,6 +4,8 @@
 #include <Cardia/Core/Core.hpp>
 #include <json/value.h>
 
+#include "Cardia/Serialization/Serializable.hpp"
+
 namespace Cardia
 {
 	struct ProjectConfig
@@ -11,6 +13,12 @@ namespace Cardia
 		std::string Name = "Untitled";
 		std::filesystem::path StartScene;
 		std::filesystem::path AssetDirectory;
+
+		constexpr static auto properties = std::make_tuple(
+			property(&ProjectConfig::Name, "Name")
+			// property(&ProjectConfig::StartScene, "StartScene"),
+			// property(&ProjectConfig::AssetDirectory, "AssetDirectory")
+		);
 	};
 
 	class Project
@@ -36,14 +44,18 @@ namespace Cardia
 		static std::shared_ptr<Project> New();
 		static std::shared_ptr<Project> Load(const std::filesystem::path& path);
 		static bool SaveActive(const std::filesystem::path& path);
-
-		Json::Value Serialize() const;
-		static std::optional<Project> Deserialize(const Json::Value& root);
 	private:
 
 		ProjectConfig m_Config;
 		std::filesystem::path m_ProjectDirectory;
 		std::filesystem::path m_AssetDirectory;
 		static std::shared_ptr<Project> s_ActiveProject;
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			property(&Project::m_Config, "Config")
+			// property(&Project::m_ProjectDirectory, "ProjectDirectory"),
+			// property(&Project::m_AssetDirectory, "AssetDirectory")
+		);
 	};
 }

@@ -2,7 +2,7 @@
 #include "ScriptInstance.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include <map>
-#include <json/json_features.h>
+#include "Cardia/Serialization/Serializable.hpp"
 
 namespace Cardia
 {
@@ -34,12 +34,16 @@ namespace Cardia
 		bool IsEditable() const;
 		bool IsNone() const;
 
-		Json::Value Serialize() const;
-		static std::optional<ScriptField> Deserialize(const Json::Value& root);
-
 	private:
 		std::string m_Name;
 		py::object m_PyObject = py::none();
 		ScriptFieldType m_Type {ScriptFieldType::UnEditable};
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			property(&ScriptField::m_Name, "Name"),
+			property(&ScriptField::m_Type, "Type")
+			// property(&ScriptField::m_PyObject, "Value") TODO: review this
+		);
 	};
 }

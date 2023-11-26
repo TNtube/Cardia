@@ -1,7 +1,10 @@
 #pragma once
 #include <filesystem>
 #include <utility>
+#include <json/value.h>
+
 #include "Cardia/Core/UUID.hpp"
+#include "Cardia/Serialization/Serializable.hpp"
 
 
 namespace Cardia
@@ -16,17 +19,9 @@ namespace Cardia
 
 		bool operator==(const AssetHandle& other) const { return ID == other.ID; }
 
-		Json::Value Serialize() const {
-			Json::Value value;
-			value["ID"] = ID.ToString();
-
-			return value;
-		}
-		static std::optional<AssetHandle> Deserialize(const Json::Value& value) {
-			if (value["ID"].isNull())
-				return {};
-			return AssetHandle{UUID::FromString(value["ID"].asString())};
-		}
+		constexpr static auto properties = std::make_tuple(
+			property(&AssetHandle::ID, "ID")
+		);
 
 	};
 

@@ -3,6 +3,7 @@
 #include <json/value.h>
 
 #include "Cardia/Core/Concepts.hpp"
+#include "Cardia/Serialization/Serializable.hpp"
 
 
 namespace Cardia
@@ -70,8 +71,11 @@ namespace Cardia
 		constexpr Vector3 Cross(const Vector3& other) const noexcept;
 		constexpr Vector3 Normalize() const noexcept;
 
-		Json::Value Serialize() const;
-		static std::optional<Vector3> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&Vector3::x, "x"),
+			property(&Vector3::y, "y"),
+			property(&Vector3::z, "z")
+		);
 	};
 
 	using Vector3f = Vector3<float>;

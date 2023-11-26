@@ -1,7 +1,7 @@
 ﻿#include "cdpch.hpp"
 
 #include "Cardia/Scripting/ScriptFile.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 
 #include <pybind11/pybind11.h>
 #include <Cardia/Scripting/EntityBehavior.hpp>

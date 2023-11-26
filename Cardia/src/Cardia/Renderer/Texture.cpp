@@ -7,71 +7,38 @@
 #include <Cardia/Application.hpp>
 
 #include "Cardia/Renderer/Buffer.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
 
 namespace
 {
-	bool hasStencilComponent(VkFormat format) {
+	bool hasStencilComponent(const VkFormat format) {
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 }
 
 namespace Cardia
 {
-	void Texture::Reload()
-	{
-		if (!m_Handle.IsValid())
-			return;
-		Release();
-		InitFromPath();
-	}
-
-	Texture &Texture::operator=(Texture &&other) noexcept
-	{
-		std::swap(*this, other);
-		return *this;
-	}
-
-	Texture::Texture(Texture &&other) noexcept
-		: Asset(other.GetHandle()), m_Device(other.m_Device),
-		m_Image(other.m_Image), m_ImageView(other.m_ImageView),
-		m_Memory(other.m_Memory), m_Sampler(other.m_Sampler),
-		m_LayerCount(other.m_LayerCount), m_CreateInfo(std::move(other.m_CreateInfo))
+	Texture::Texture(Texture&& other) noexcept
+		: m_CreateInfo(other.m_CreateInfo),
+		m_Device(other.m_Device), m_Image(other.m_Image),
+		m_Memory(other.m_Memory), m_ImageView(other.m_ImageView),
+		m_Sampler(other.m_Sampler), m_LayerCount(other.m_LayerCount),
+		m_Initialized(other.m_Initialized)
 	{
 		other.m_Image = VK_NULL_HANDLE;
 		other.m_ImageView = VK_NULL_HANDLE;
 		other.m_Memory = VK_NULL_HANDLE;
 		other.m_Sampler = VK_NULL_HANDLE;
 		other.m_LayerCount = 0;
+		other.m_Initialized = false;
 	}
 
-	Texture::Texture(const Device& device, TextureCreateInfo textureCreateInfo, AssetHandle assetHandle)
-		: Asset(std::move(assetHandle)), m_Device(device), m_CreateInfo(textureCreateInfo)
+	Texture::Texture(const Device& device, const TextureCreateInfo createInfo)
+		: m_Device(device), m_CreateInfo(createInfo) {}
+
+	Texture::Texture(const Device& device, const TextureCreateInfo createInfo, const Vector2u size)
+		: m_Device(device), m_Size(size), m_CreateInfo(createInfo)
 	{
-		if (GetHandle().IsValid()) {
-			InitFromPath();
-			return;
-		}
-
 		CreateImage(m_CreateInfo.Format, m_CreateInfo.UsageFlags, m_CreateInfo.AspectFlags);
-
-		if (m_CreateInfo.Data) {
-			const auto imageSize = m_CreateInfo.Size.width * m_CreateInfo.Size.height * 4;
-			Buffer buffer(device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-			buffer.UploadData(imageSize, m_CreateInfo.Data);
-
-			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			if (m_CreateInfo.Mode == TextureMode::CubeMap) {
-				device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
-			} else {
-				device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
-			}
-			TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-			// We are not supposed to use that anymore, it is not managed by the texture
-			m_CreateInfo.Data = nullptr;
-		}
 	}
 
 	Texture::~Texture()
@@ -79,64 +46,73 @@ namespace Cardia
 		Release();
 	}
 
-	void Texture::InitFromPath()
+	Texture::Texture(const Device& device)
+		: Texture(device, {}) {}
+
+	Texture& Texture::operator=(Texture &&other) noexcept
 	{
-		auto path = Application::Get().GetAssetsManager().AbsolutePathFromHandle(GetHandle());
-		Log::CoreInfo("Loading texture from path `{0}`", path.string());
-		int texWidth {}, texHeight {}, texChannels {};
+		std::swap(*this, other);
+		return *this;
+	}
 
-		stbi_uc* pixels = stbi_load(path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	void Texture::SetCreateInfo(const TextureCreateInfo createInfo)
+	{
+		Release();
+		m_CreateInfo = createInfo;
+	}
 
-		unsigned char errorColor[] = {255, 0, 255, 255};
-		if (!pixels)
-		{
-			auto* error = stbi_failure_reason();
-			Log::CoreError("Error: `{0}` at path `{1}`", error, path.string());
-			texWidth = 1;
-			texHeight = 1;
-			pixels = errorColor;
-		}
-		m_CreateInfo.Size = {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)};
-		CreateImage(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+	void Texture::SetData(const std::vector<std::uint8_t>& data, const Vector2u size)
+	{
+		m_Size = size;
+		CreateImage(m_CreateInfo.Format, m_CreateInfo.UsageFlags, m_CreateInfo.AspectFlags);
 
-		const auto imageSize = static_cast<uint32_t>(texWidth * texHeight * 4);
+		const auto imageSize = m_Size.w * m_Size.h * 4;
+
 		Buffer buffer(m_Device, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-		buffer.UploadData(imageSize, pixels);
-		if (memcmp(pixels, errorColor, sizeof(errorColor)) != 0)
-			stbi_image_free(pixels);
+		buffer.UploadData(imageSize, data.data());
 
 		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		if (m_CreateInfo.Mode == TextureMode::CubeMap) {
-			m_Device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
+			m_Device.CopyBufferToImageCubemap(buffer.GetBuffer(), m_Image, m_Size.w, m_Size.h, 1);
 		} else {
-			m_Device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_CreateInfo.Size.width, m_CreateInfo.Size.height, 1);
+			m_Device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_Size.w, m_Size.h, 1);
 		}
 		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
+		m_Initialized = true;
 	}
 
 	void Texture::Release()
 	{
+		if (!m_Initialized) return;
+
 		m_Device.WaitIdle();
 		vkDestroySampler(m_Device.GetDevice(), m_Sampler, nullptr);
 		vkDestroyImageView(m_Device.GetDevice(), m_ImageView, nullptr);
 		vkDestroyImage(m_Device.GetDevice(), m_Image, nullptr);
 		vkFreeMemory(m_Device.GetDevice(), m_Memory, nullptr);
+
+		m_Sampler = VK_NULL_HANDLE;
+		m_ImageView = VK_NULL_HANDLE;
+		m_Image = VK_NULL_HANDLE;
+		m_Memory = VK_NULL_HANDLE;
+
+		m_Initialized = false;
 	}
 
-	void Texture::CreateImage(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags)
+	void Texture::CreateImage(const VkFormat format, const VkImageUsageFlags usageFlags, const VkImageAspectFlags aspectFlags)
 	{
-		m_CreateInfo.Size.height =
-			m_CreateInfo.Mode == TextureMode::CubeMap
-			? m_CreateInfo.Size.width
-			: m_CreateInfo.Size.height;
+		if (m_Image != VK_NULL_HANDLE)
+			Release();
 
+		m_Size.h = m_CreateInfo.Mode == TextureMode::CubeMap ? m_Size.w : m_Size.h;
 		m_LayerCount = m_CreateInfo.Mode == TextureMode::CubeMap ? 6 : 1;
+
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = m_CreateInfo.Size.width;
-		imageInfo.extent.height = m_CreateInfo.Size.height;
+		imageInfo.extent.width = m_Size.w;
+		imageInfo.extent.height = m_Size.h;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
 		imageInfo.arrayLayers = m_LayerCount;
@@ -154,8 +130,8 @@ namespace Cardia
 		CreateTextureSampler();
 	}
 
-	void Texture::TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout,
-	                                    VkImageLayout newLayout) const
+	void Texture::TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
+										VkImageLayout oldLayout, VkImageLayout newLayout) const
 	{
 		VkCommandBuffer commandBuffer = m_Device.BeginSingleTimeCommands();
 
@@ -215,10 +191,9 @@ namespace Cardia
 		vkCmdPipelineBarrier(
 			commandBuffer,
 			sourceStage, destinationStage,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier
+			0,0, nullptr,
+			0, nullptr,1,
+			&barrier
 		);
 
 		m_Device.EndSingleTimeCommands(commandBuffer);
@@ -280,10 +255,5 @@ namespace Cardia
 		imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		return imageBufferInfo;
-	}
-
-	std::unique_ptr<Texture> Texture::Builder::Build() const
-	{
-		return std::make_unique<Texture>(m_Device, m_TextureCreateInfo, m_AssetHandle);
 	}
 }

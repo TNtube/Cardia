@@ -72,7 +72,7 @@ namespace Cardia
 		return *this;
 	}
 
-	void Buffer::UploadData(VkDeviceSize size, const void* data, VkDeviceSize offset)
+	void Buffer::UploadData(const VkDeviceSize size, const void* data, const VkDeviceSize offset)
 	{
 		vkMapMemory(m_Device.GetDevice(), m_BufferMemory, offset, size, 0, &m_MappedMemory);
 		memcpy(m_MappedMemory, data, m_InstanceSize);

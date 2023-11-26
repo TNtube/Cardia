@@ -20,7 +20,7 @@ namespace Cardia
 		const Renderer& m_Renderer;
 
 		std::unique_ptr<Pipeline> m_SkyboxPipeline {};
-		std::unique_ptr<Texture> m_SkyboxTexture {};
+		std::shared_ptr<Texture> m_SkyboxTexture {};
 		std::unique_ptr<DescriptorSet> m_SkyboxTextureDescriptorSet {};
 
 		uint32_t m_VertexCount;

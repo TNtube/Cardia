@@ -24,18 +24,26 @@ namespace Cardia
 		Vector3f EmissiveFactor = Vector3f(0.0f);
 
 
-		Json::Value Serialize() const;
-		static std::optional<MaterialData> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&MaterialData::AlbedoMap, "AlbedoMap"),
+			property(&MaterialData::NormalMap, "NormalMap"),
+			property(&MaterialData::MetallicRoughnessMap, "MetallicRoughnessMap"),
+			property(&MaterialData::AOMap, "AOMap"),
+			property(&MaterialData::EmissiveMap, "EmissiveMap"),
+			property(&MaterialData::AlbedoColor, "AlbedoColor"),
+			property(&MaterialData::Metallic, "Metallic"),
+			property(&MaterialData::Roughness, "Roughness"),
+			property(&MaterialData::EmissiveFactor, "EmissiveFactor")
+		);
 	};
 
 
-	class Material : public Asset
+	class Material
 	{
 	public:
 		class Builder {
 		public:
 			explicit Builder(const Device& device) : m_Device(device) {}
-			Builder& SetAssetHandle(const AssetHandle& handle) { m_Handle = handle; return *this; }
 			Builder& SetAlbedoMap(const AssetHandle& handle) { m_MaterialData.AlbedoMap = handle; return *this; }
 			Builder& SetNormalMap(const AssetHandle& handle) { m_MaterialData.NormalMap = handle; return *this; }
 			Builder& SetMetallicRoughnessMap(const AssetHandle& handle) { m_MaterialData.MetallicRoughnessMap = handle; return *this; }
@@ -52,14 +60,11 @@ namespace Cardia
 		private:
 			const Device& m_Device;
 			MaterialData m_MaterialData;
-			AssetHandle m_Handle = AssetHandle::Invalid();
 		};
 
 	public:
-		Material(const Device& device, MaterialData materialData, AssetHandle assetHandle);
+		Material(const Device& device, MaterialData materialData);
 		void Bind(const Pipeline& pipeline, VkCommandBuffer commandBuffer) const;
-		void Reload() override;
-		bool CheckForDirtyInDependencies() override;
 
 	private:
 		void CreateDescriptorSet();

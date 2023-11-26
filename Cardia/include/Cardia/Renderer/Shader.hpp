@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "Cardia/Asset/Asset.hpp"
+#include "Cardia/Assets/Asset.hpp"
 
 namespace Cardia
 {

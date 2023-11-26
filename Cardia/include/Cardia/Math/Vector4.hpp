@@ -2,6 +2,7 @@
 
 #include <json/value.h>
 
+#include "Cardia/Serialization/Serializable.hpp"
 #include "Cardia/Core/Concepts.hpp"
 #include "Vector3.hpp"
 
@@ -69,8 +70,12 @@ namespace Cardia
 		constexpr Vector4 Lerp(const Vector4& other, float t) noexcept;
 		constexpr Vector4 Normalize() noexcept;
 
-		Json::Value Serialize() const;
-		static std::optional<Vector4> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&Vector4::x, "x"),
+			property(&Vector4::y, "y"),
+			property(&Vector4::z, "z"),
+			property(&Vector4::w, "w")
+		);
 	};
 
 	using Vector4f = Vector4<float>;

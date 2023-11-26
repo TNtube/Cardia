@@ -1,6 +1,8 @@
 #include "cdpch.hpp"
 
 #include "Cardia/Renderer/Skybox.hpp"
+
+#include "Cardia/Application.hpp"
 #include "Cardia/Renderer/Renderer.hpp"
 
 namespace Cardia
@@ -9,10 +11,7 @@ namespace Cardia
 	Skybox::Skybox(const Renderer& renderer, const AssetHandle& assetHandle)
 		: m_Renderer(renderer)
 	{
-		m_SkyboxTexture = Texture::Builder(m_Renderer.GetDevice())
-			.SetAssetHandle(assetHandle)
-			.SetTextureMode(TextureMode::CubeMap)
-			.Build();
+		m_SkyboxTexture = Application::Get().GetAssetsManager().Load<Texture>(assetHandle);
 
 		Shader skyboxShader(m_Renderer.GetDevice());
 
@@ -56,9 +55,10 @@ namespace Cardia
 		attributeDescriptions[0].offset = 0;
 
 		m_SkyboxPipeline = builder.BuildGraphics(swapChain.GetRenderPass(), bindingDescriptions, attributeDescriptions);
-		m_SkyboxTextureDescriptorSet = DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), *skyboxDescriptorLayout)
-			.WriteImage(0, m_SkyboxTexture->GetImageInfo())
-			.Build();
+		if (m_SkyboxTexture)
+			m_SkyboxTextureDescriptorSet = DescriptorSet::Writer(m_Renderer.GetDescriptorAllocator(), *skyboxDescriptorLayout)
+				.WriteImage(0, m_SkyboxTexture->GetImageInfo())
+				.Build();
 
 		std::vector<Vector3f> vertices = {
 			{-1, -1, -1},
@@ -111,6 +111,7 @@ namespace Cardia
 
 	void Skybox::Draw(VkCommandBuffer commandBuffer) const
 	{
+		if (!m_SkyboxTexture) return;
 		vkCmdBindDescriptorSets(
 			commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,

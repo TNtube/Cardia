@@ -25,12 +25,14 @@ namespace Cardia::Component
 			m_File.reset();
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<Script> Deserialize(const Json::Value& root);
-
 	private:
 		void ReloadFile();
 		std::string m_Path;
 		std::shared_ptr<ScriptFile> m_File;
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			// TODO: review this
+		);
 	};
 }

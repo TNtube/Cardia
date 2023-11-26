@@ -48,10 +48,6 @@ namespace Cardia::Component
 			m_Dirty = true;
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<Transform> Deserialize(const Json::Value& root);
-
-
 	private:
 		bool m_Dirty { true };
 
@@ -64,5 +60,12 @@ namespace Cardia::Component
 		Vector3f m_WorldPosition { 0.0f };
 		Quatf m_WorldRotation = Quatf::Identity();
 		Vector3f m_WorldScale { 1.0f };
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			property(&Transform::m_Position, "Position"),
+			property(&Transform::m_Rotation, "Rotation"),
+			property(&Transform::m_Scale, "Scale")
+		);
 	};
 }

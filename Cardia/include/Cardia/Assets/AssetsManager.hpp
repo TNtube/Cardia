@@ -9,35 +9,36 @@
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Renderer/Material.hpp"
 #include "Cardia/Renderer/Texture.hpp"
+#include "Importers/Importer.hpp"
 
 namespace Cardia {
-	struct AssetRefCounter
+	struct AssetData
 	{
-		AssetRefCounter() = default;
-		explicit AssetRefCounter(std::shared_ptr<void> resource) : Resource(std::move(resource)) {}
+		AssetData() = default;
+		explicit AssetData(std::shared_ptr<void> resource) : Resource(std::move(resource)) {}
+		std::shared_ptr<Importer> Importer;
 		std::shared_ptr<void> Resource;
-		bool Dirty = false;
 		uint32_t UnusedCounter = 0;
 	};
 }
 
 namespace Cardia
 {
-	template <typename T> concept AssetType = std::is_base_of_v<Asset, T>;
+	template <typename T> concept IsAsset = std::is_base_of_v<Asset, T>;
 
 	class AssetsManager
 	{
 	public:
 		explicit AssetsManager(const Renderer& renderer);
 
-		template<AssetType T> std::shared_ptr<T> Load(const std::filesystem::path& path);
-		template<AssetType T> std::shared_ptr<T> Load(const AssetHandle& handle);
+		template<typename T> std::shared_ptr<T> Load(const std::filesystem::path& path);
+		template<typename T> std::shared_ptr<T> Load(const AssetHandle& handle);
 
 		AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath);
 		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath);
 		AssetHandle GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath);
 		AssetHandle AddPathEntry(const std::filesystem::path& absolutePath);
-		void AddAssetEntry(const std::shared_ptr<Asset>& asset);
+		AssetHandle AddAssetEntry(const std::shared_ptr<void>& asset);
 
 		void SetDirty(const AssetHandle& handle);
 		bool IsDirty(const AssetHandle& handle) const;
@@ -66,7 +67,7 @@ namespace Cardia
 
 		Project m_Project;
 
-		std::unordered_map<AssetHandle, AssetRefCounter> m_Assets;
+		std::unordered_map<AssetHandle, AssetData> m_Assets;
 		std::unordered_map<std::filesystem::path, AssetHandle> m_AssetPaths;
 
 
@@ -77,7 +78,7 @@ namespace Cardia
 			efsw::Action Action;
 		};
 
-		class AssetsListener : public efsw::FileWatchListener
+		class AssetsListener final : public efsw::FileWatchListener
 		{
 		public:
 			explicit AssetsListener(AssetsManager& assetsManager) : m_AssetsManager(assetsManager) {}
@@ -105,4 +106,4 @@ namespace Cardia
 	};
 }
 
-#include "Cardia/Asset/AssetsManager.inl"
+#include "Cardia/Assets/AssetsManager.inl"

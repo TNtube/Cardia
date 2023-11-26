@@ -6,7 +6,7 @@
 
 #include "Cardia/Core/Log.hpp"
 #include "Cardia/Application.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "CardiaTor.hpp"
@@ -20,20 +20,17 @@ namespace Cardia::Panel
 	FileHierarchyPanel::FileHierarchyPanel(PanelManager* manager) : IPanel(manager, m_LastWindowId++)
 	{
 		auto& app = Application::Get();
-		Texture::Builder builder(app.GetRenderer().GetDevice());
 
-		auto folderHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/folder.png");
-		builder.SetAssetHandle(folderHandle);
-		m_FolderIcon = builder.Build();
+		const auto folderHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/folder.png");
+		m_FolderIcon = app.GetAssetsManager().Load<Texture>(folderHandle);
 
-		auto fileHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/file.png");
-		builder.SetAssetHandle(fileHandle);
-		m_FileIcon = builder.Build();
+		const auto fileHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/file.png");
+		m_FileIcon = app.GetAssetsManager().Load<Texture>(fileHandle);
 	}
 
 	void FileHierarchyPanel::OnImGuiRender(CardiaTor* appContext)
 	{
-		if (!m_FolderIconDescriptorSet && !m_FileIconDescriptorSet)
+		if (!m_FolderIconDescriptorSet && !m_FileIconDescriptorSet && m_FileIcon && m_FolderIcon)
 		{
 			m_FileIconDescriptorSet = ImGui_ImplVulkan_AddTexture(m_FileIcon->GetSampler(), m_FileIcon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			m_FolderIconDescriptorSet = ImGui_ImplVulkan_AddTexture(m_FolderIcon->GetSampler(), m_FolderIcon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

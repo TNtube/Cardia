@@ -14,9 +14,8 @@ namespace Cardia::Component
 			Renderer = nullptr;
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<ModelRenderer> Deserialize(const Json::Value& root);
-
-	private:
+		constexpr static auto properties = std::make_tuple(
+			// TODO: review this
+		);
 	};
 }

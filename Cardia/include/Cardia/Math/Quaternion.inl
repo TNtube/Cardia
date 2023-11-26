@@ -332,30 +332,4 @@ namespace Cardia
 		return Vector3<T>(pitch(), yaw(), roll());
 	}
 
-	template<floating_point T>
-	Json::Value Quaternion<T>::Serialize() const
-	{
-		Json::Value root;
-		root["x"] = m_Imaginary.x;
-		root["y"] = m_Imaginary.y;
-		root["z"] = m_Imaginary.z;
-		root["w"] = m_Real;
-		return root;
-	}
-
-	template<floating_point T>
-	std::optional<Quaternion<T>> Quaternion<T>::Deserialize(const Json::Value& root)
-	{
-		if (!root.isMember("x") || !root.isMember("y") || !root.isMember("z") || !root.isMember("w"))
-			return std::nullopt;
-
-		Quaternion temp;
-		temp.m_Imaginary.x = root["x"].asFloat();
-		temp.m_Imaginary.y = root["y"].asFloat();
-		temp.m_Imaginary.z = root["z"].asFloat();
-		temp.m_Real = root["w"].asFloat();
-
-		return temp;
-	}
-
 }

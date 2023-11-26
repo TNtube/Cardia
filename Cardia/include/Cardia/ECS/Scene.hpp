@@ -43,8 +43,6 @@ namespace Cardia
 		std::filesystem::path& GetPath() { return m_Path; }
 		void Clear();
 
-		Json::Value Serialize() const;
-		static std::optional<Scene> Deserialize(const Json::Value& root);
 
 	private:
 		void PopulateDefaultEntity(Entity& entity, std::string name = "Entity", UUID uuid = UUID(), entt::entity parent = entt::null);
@@ -53,6 +51,26 @@ namespace Cardia
 		std::filesystem::path m_Path;
 		std::string m_Name;
 		entt::registry m_Registry;
+
+		Json::Value Serialize() const;
+		static Scene Deserialize(const Json::Value& root);
+
 		friend class Entity;
+		friend Scene Serialization::FromJson<Scene>(const Json::Value& data);
+		friend Json::Value Serialization::ToJson<Scene>(const Scene& object);
 	};
+
+
+	template<>
+	inline Json::Value Serialization::ToJson(const Scene& object)
+	{
+		return object.Serialize();
+	}
+
+
+	template<>
+	inline Scene Serialization::FromJson(const Json::Value& data)
+	{
+		return Scene::Deserialize(data);
+	}
 }

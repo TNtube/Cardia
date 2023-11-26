@@ -15,7 +15,7 @@ namespace Cardia
 {
 #define CD_BIND_EVENT_FN(x) [this](auto && PH1) { return (x)(PH1); }
 
-#if defined(__cpp_consteval) && !defined(NDEBUG) // Trick because CLion can't find std::source_location
+#if !defined(NDEBUG)
 	template <typename T>
 	constexpr void CdAssert(T x, const std::string& message = "invalid", const std::source_location location = std::source_location::current())
 	{

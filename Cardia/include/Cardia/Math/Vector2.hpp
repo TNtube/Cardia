@@ -15,8 +15,8 @@ namespace Cardia
 	template<arithmetic T>
 	struct Vector2
 	{
-		union { T x, r; };
-		union { T y, g; };
+		union { T x, r, w; };
+		union { T y, g, h; };
 
 		Vector2() = default;
 
@@ -73,8 +73,10 @@ namespace Cardia
 
 		static constexpr Vector2 Zero() noexcept;
 
-		Json::Value Serialize() const;
-		static std::optional<Vector2> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&Vector2::x, "x"),
+			property(&Vector2::y, "y")
+		);
 	};
 
 	using Vector2f = Vector2<float>;

@@ -9,7 +9,7 @@
 #include "EditorUI/DragData.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Cardia/Application.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/ImGui/imgui_impl_vulkan.h"
 

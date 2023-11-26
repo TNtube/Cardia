@@ -9,12 +9,11 @@ namespace Cardia
 {
 	Material Material::Builder::Build()
 	{
-		CdCoreAssert(m_Handle.IsValid(), "Invalid handle for material");
-		return { m_Device, m_MaterialData, m_Handle };
+		return { m_Device, m_MaterialData };
 	}
 
-	Material::Material(const Device &device, MaterialData materialData, AssetHandle assetHandle)
-		: Asset(std::move(assetHandle)), m_Device(device), m_MaterialData(std::move(materialData))
+	Material::Material(const Device &device, MaterialData materialData)
+		: m_Device(device), m_MaterialData(std::move(materialData))
 	{
 		CreateDescriptorSet();
 	}
@@ -46,12 +45,12 @@ namespace Cardia
 		DescriptorSet::Writer descriptorWriter(renderer.GetDescriptorAllocator(), renderer.GetMaterialDescriptorSetLayout());
 
 		auto& assetsManager = Application::Get().GetAssetsManager();
-		auto albedoMap = assetsManager.Load<Texture>(m_MaterialData.AlbedoMap);
-		auto normalMap = assetsManager.Load<Texture>(m_MaterialData.NormalMap);
-		auto metallicRoughnessMap = assetsManager.Load<Texture>(m_MaterialData.MetallicRoughnessMap);
-		auto AOMap = assetsManager.Load<Texture>(m_MaterialData.AOMap);
+		const auto albedoMap = assetsManager.Load<Texture>(m_MaterialData.AlbedoMap);
+		const auto normalMap = assetsManager.Load<Texture>(m_MaterialData.NormalMap);
+		const auto metallicRoughnessMap = assetsManager.Load<Texture>(m_MaterialData.MetallicRoughnessMap);
+		const auto AOMap = assetsManager.Load<Texture>(m_MaterialData.AOMap);
 
-		auto bufferInfo = m_MaterialBuffer->DescriptorInfo();
+		const auto bufferInfo = m_MaterialBuffer->DescriptorInfo();
 
 		m_DescriptorSet = descriptorWriter
 			.WriteImage(0, albedoMap->GetImageInfo())
@@ -60,76 +59,5 @@ namespace Cardia
 			.WriteImage(3, AOMap->GetImageInfo())
 			.WriteBuffer(4, &bufferInfo)
 			.Build();
-	}
-
-	void Material::Reload()
-	{
-		CreateDescriptorSet();
-	}
-
-	bool Material::CheckForDirtyInDependencies()
-	{
-		auto& assetsManager = Application::Get().GetAssetsManager();
-
-		bool isDirty = false;
-		isDirty |= assetsManager.IsDirty(m_MaterialData.AlbedoMap);
-		isDirty |= assetsManager.IsDirty(m_MaterialData.NormalMap);
-		isDirty |= assetsManager.IsDirty(m_MaterialData.MetallicRoughnessMap);
-		isDirty |= assetsManager.IsDirty(m_MaterialData.AOMap);
-		isDirty |= assetsManager.IsDirty(m_MaterialData.EmissiveMap);
-
-		return isDirty;
-	}
-
-	Json::Value MaterialData::Serialize() const
-	{
-		Json::Value output;
-
-		output["AlbedoMap"] = AlbedoMap.ID.ToString();
-		output["NormalMap"] = NormalMap.ID.ToString();
-		output["MetallicRoughnessMap"] = MetallicRoughnessMap.ID.ToString();
-		output["AOMap"] = AOMap.ID.ToString();
-		output["EmissiveMap"] = EmissiveMap.ID.ToString();
-		output["AlbedoColor"] = AlbedoColor.Serialize();
-		output["MetallicFactor"] = Metallic;
-		output["RoughnessFactor"] = Roughness;
-		output["EmissiveFactor"] = EmissiveFactor.Serialize();
-
-		return output;
-	}
-
-	std::optional<MaterialData> MaterialData::Deserialize(const Json::Value& root)
-	{
-		MaterialData data;
-
-		if (root.isMember("AlbedoMap")) {
-			data.AlbedoMap = AssetHandle(UUID::FromString(root["AlbedoMap"].asString()));
-		}
-		if (root.isMember("NormalMap")) {
-			data.NormalMap = AssetHandle(UUID::FromString(root["NormalMap"].asString()));
-		}
-		if (root.isMember("MetallicRoughnessMap")) {
-			data.MetallicRoughnessMap = AssetHandle(UUID::FromString(root["MetallicRoughnessMap"].asString()));
-		}
-		if (root.isMember("AOMap")) {
-			data.AOMap = AssetHandle(UUID::FromString(root["AOMap"].asString()));
-		}
-		if (root.isMember("EmissiveMap")) {
-			data.EmissiveMap = AssetHandle(UUID::FromString(root["EmissiveMap"].asString()));
-		}
-		if (root.isMember("AlbedoColor")) {
-			data.AlbedoColor = *Vector4f::Deserialize(root["AlbedoColor"]);
-		}
-		if (root.isMember("MetallicFactor")) {
-			data.Metallic = root["MetallicFactor"].asFloat();
-		}
-		if (root.isMember("RoughnessFactor")) {
-			data.Roughness = root["RoughnessFactor"].asFloat();
-		}
-		if (root.isMember("EmissiveFactor")) {
-			data.EmissiveFactor = *Vector3f::Deserialize(root["EmissiveFactor"]);
-		}
-
-		return data;
 	}
 }

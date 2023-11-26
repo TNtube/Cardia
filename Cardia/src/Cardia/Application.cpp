@@ -4,7 +4,7 @@
 #include "Cardia/Scripting/ScriptEngine.hpp"
 
 #include <GLFW/glfw3.h>
-#include <Cardia/Asset/AssetsManager.hpp>
+#include <Cardia/Assets/AssetsManager.hpp>
 
 namespace Cardia
 {

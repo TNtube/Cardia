@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Cardia/Math/Vector3.hpp"
+#include "Cardia/Serialization/Serializable.hpp"
 
 namespace Cardia::Component
 {
@@ -28,7 +29,12 @@ namespace Cardia::Component
 			Smoothness = 1;
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<Light> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&Light::LightType, "LightType"),
+			property(&Light::Color, "Color"),
+			property(&Light::Range, "Range"),
+			property(&Light::Angle, "Angle"),
+			property(&Light::Smoothness, "Smoothness")
+		);
 	};
 }

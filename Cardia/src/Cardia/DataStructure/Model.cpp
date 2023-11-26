@@ -6,7 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <Cardia/Core/Log.hpp>
-#include <Cardia/Asset/AssetsManager.hpp>
+#include <Cardia/Assets/AssetsManager.hpp>
 #include <Cardia/DataStructure/Vertex.hpp>
 
 #include "Cardia/Math/Vector4.hpp"
@@ -71,8 +71,7 @@ namespace Cardia
 				else
 					mat.EmissiveMap = whiteHandle;
 
-				AssetHandle matHandle;
-				assetsManager.AddAssetEntry(std::make_shared<Material>(renderer.GetDevice(), mat, matHandle));
+				AssetHandle matHandle = assetsManager.AddAssetEntry(std::make_shared<Material>(renderer.GetDevice(), mat));
 
 				result.push_back(matHandle);
 			}

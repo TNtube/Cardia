@@ -4,10 +4,19 @@
 
 namespace Cardia
 {
-	template<typename T>
-	concept Serializable = requires(T t, const Json::Value& root)
-	{
-		{ t.Serialize() } -> std::same_as<Json::Value>;
-		{ T::Deserialize(root) } -> std::same_as<std::optional<T>>;
+
+	template<typename Class, typename T>
+	struct PropertyImpl {
+		constexpr PropertyImpl(T Class::*aMember, const char* aName) : member{aMember}, name{aName} {}
+
+		using Type = T;
+
+		T Class::*member;
+		const char* name;
 	};
+
+	template<typename Class, typename T>
+	constexpr auto property(T Class::*member, const char* name) {
+		return PropertyImpl<Class, T>{member, name};
+	}
 }

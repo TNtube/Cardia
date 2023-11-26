@@ -256,28 +256,4 @@ namespace Cardia
 
 		return temp;
 	}
-
-	template<arithmetic T>
-	Json::Value Vector3<T>::Serialize() const
-	{
-		Json::Value root;
-		root["x"] = x;
-		root["y"] = y;
-		root["z"] = z;
-		return root;
-	}
-
-	template<arithmetic T>
-	std::optional<Vector3<T>> Vector3<T>::Deserialize(const Json::Value& root)
-	{
-		if (!root.isMember("x") || !root.isMember("y") || !root.isMember("z"))
-			return std::nullopt;
-
-		Vector3 temp;
-		temp.x = root["x"].asFloat();
-		temp.y = root["y"].asFloat();
-		temp.z = root["z"].asFloat();
-
-		return temp;
-	}
 }

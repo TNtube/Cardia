@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Matrix4.hpp"
+#include "Cardia/Serialization/Serializable.hpp"
 #include "Cardia/Core/Concepts.hpp"
 #include "Vector3.hpp"
 #include "Vector2.hpp"
@@ -73,7 +74,6 @@ namespace Cardia
 		constexpr Quaternion& operator/=(U scalar) noexcept requires std::convertible_to<U, T>;
 		template<typename U>
 		constexpr Quaternion operator/(U scalar) const noexcept requires std::convertible_to<U, T>;
-
 		constexpr T Length() const noexcept;
 		constexpr T Dot(const Quaternion& other) const noexcept;
 		constexpr Quaternion Conjugate() const noexcept;
@@ -83,12 +83,16 @@ namespace Cardia
 		constexpr Matrix4<T> ToMatrix() const noexcept;
 		constexpr Vector3<T> ToEuler() const noexcept;
 
-		Json::Value Serialize() const;
-		static std::optional<Quaternion> Deserialize(const Json::Value& root);
 	private:
 		T m_Real;
 		Vector3<T> m_Imaginary;
-		
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			property(&Quaternion::m_Real, "Real"),
+			property(&Quaternion::m_Imaginary, "Imaginary")
+		);
+
 	};
 
 	using Quatf = Quaternion<float>;

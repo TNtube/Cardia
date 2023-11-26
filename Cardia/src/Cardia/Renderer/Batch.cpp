@@ -2,7 +2,7 @@
 #include "Cardia/Renderer/Batch.hpp"
 
 #include <numeric>
-#include <Cardia/Asset/AssetsManager.hpp>
+#include <Cardia/Assets/AssetsManager.hpp>
 
 
 namespace Cardia

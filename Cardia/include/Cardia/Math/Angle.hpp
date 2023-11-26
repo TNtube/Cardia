@@ -2,6 +2,8 @@
 
 #include <Cardia/Core/Concepts.hpp>
 
+#include "Cardia/Serialization/Serializer.hpp"
+
 namespace Cardia
 {
 
@@ -64,6 +66,11 @@ namespace Cardia
 
 	private:
 		T m_Value {};
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			property(&Radian::m_Value, "Value")
+		);
 	};
 
 
@@ -123,6 +130,11 @@ namespace Cardia
 
 	private:
 		T m_Value {};
+
+	public:
+		constexpr static auto properties = std::make_tuple(
+			property(&Degree::m_Value, "Value")
+		);
 	};
 
 	using Radianf = Radian<float>;

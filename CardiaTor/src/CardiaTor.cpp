@@ -6,7 +6,7 @@
 
 #include <Cardia.hpp>
 #include <Cardia/Project/Project.hpp>
-#include <Cardia/Asset/AssetsManager.hpp>
+#include <Cardia/Assets/AssetsManager.hpp>
 
 #include "Cardia/Serialization/Serializer.hpp"
 #include "Panels/SceneHierarchyPanel.hpp"
@@ -37,18 +37,16 @@ namespace Cardia
 			panel->OnSceneLoad(m_CurrentScene.get());
 		}
 
-		// TODO: move to editor assets
-		Texture::Builder builder(m_Renderer.GetDevice());
 
 		const auto playHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/play.png");
-		builder.SetAssetHandle(playHandle);
-		m_IconPlay = builder.Build();
-		m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		m_IconPlay = m_AssetsManager.Load<Texture>(playHandle);
+		if (m_IconPlay)
+			m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		const auto pauseHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/pause.png");
-		builder.SetAssetHandle(pauseHandle);
-		m_IconStop = builder.Build();
-		m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		m_IconStop = m_AssetsManager.Load<Texture>(pauseHandle);
+		if (m_IconStop)
+			m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		ImGuiIO &io = ImGui::GetIO();
 		io.IniFilename = "resources/editorconfig.ini";
@@ -61,7 +59,7 @@ namespace Cardia
 
 	void CardiaTor::OnUpdate()
 	{
-		auto view = m_CurrentScene->GetRegistry().view<Cardia::Component::Transform>();
+		const auto view = m_CurrentScene->GetRegistry().view<Cardia::Component::Transform>();
 		for (auto entity : view) {
 			auto& transform = view.get<Cardia::Component::Transform>(entity);
 
@@ -213,19 +211,17 @@ namespace Cardia
 		RenderPass renderPass(m_Renderer.GetDevice(), specification);
 
 		TextureCreateInfo colorCreateInfo {};
-		colorCreateInfo.Size = extent;
 		colorCreateInfo.Format = imageFormat;
 		colorCreateInfo.UsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		colorCreateInfo.AspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
 
-		Texture colorTexture{ m_Renderer.GetDevice(), colorCreateInfo};
+		Texture colorTexture{ m_Renderer.GetDevice(), colorCreateInfo, {extent.width, extent.height} };
 
 		TextureCreateInfo depthCreateInfo {};
-		depthCreateInfo.Size = extent;
 		depthCreateInfo.Format = depthFormat;
 		depthCreateInfo.UsageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		depthCreateInfo.AspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
-		Texture depthTexture{ m_Renderer.GetDevice(), depthCreateInfo};
+		Texture depthTexture{ m_Renderer.GetDevice(), depthCreateInfo, {extent.width, extent.height} };
 
 		const std::vector attachments = {colorTexture.GetView(), depthTexture.GetView()};
 		const FramebufferSpecification framebufferSpecification {
@@ -412,14 +408,16 @@ namespace Cardia
 
 	void CardiaTor::OpenScene(const AssetHandle& handle)
 	{
-		auto scenePath = m_AssetsManager.AbsolutePathFromHandle(handle);
-		if (const auto scene = Serializer<Scene>::Deserialize(scenePath))
-		{
-			m_CurrentScene = std::make_unique<Scene>(*scene);
-		} else
-		{
-			Log::CoreWarn("Unable to load {0}", scenePath.string());
+		const auto scenePath = m_AssetsManager.AbsolutePathFromHandle(handle);
+
+		try {
+			auto scene = Serializer<Scene>::Deserialize(scenePath);
+			m_CurrentScene = std::make_unique<Scene>(scene);
+		} catch (std::exception& e) {
+			Log::Error("Failed to load scene: {0}", e.what());
+			return;
 		}
+
 		InvalidateScene();
 	}
 

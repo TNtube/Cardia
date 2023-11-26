@@ -10,7 +10,7 @@
 #include "Cardia/Renderer/RenderPass.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Command/Commands.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 
 
 namespace Cardia

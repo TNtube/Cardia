@@ -18,7 +18,9 @@ namespace Cardia::Component
 			Color = Vector4f(1.0f);
 		}
 
-		Json::Value Serialize() const;
-		static std::optional<Label> Deserialize(const Json::Value& root);
+		constexpr static auto properties = std::make_tuple(
+			property(&Label::Name, "Name"),
+			property(&Label::Color, "Color")
+		);
 	};
 }

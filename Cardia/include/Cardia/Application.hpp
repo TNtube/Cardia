@@ -7,7 +7,7 @@
 #include "Cardia/ImGui/ImGuiLayer.hpp"
 #include "Cardia/Scripting/ScriptEngine.hpp"
 #include "Renderer/Renderer.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 
 
 namespace Cardia

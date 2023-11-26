@@ -87,18 +87,15 @@ namespace Cardia
 				.Build();
 		}
 
-		uint32_t whiteColor = 0xffffffff;
-		uint32_t normalColor = 0x8080ffff;
-		constexpr VkExtent2D size {1, 1};
+		std::uint8_t whiteColor = 0xffffffff;
+		std::uint8_t normalColor = 0x8080ffff;
+		constexpr Vector2u size {1, 1};
 
-		auto textureBuilder = Texture::Builder(m_Device)
-			.SetSize(size)
-			.SetData(&whiteColor);
-		m_WhiteTexture = textureBuilder.Build();
+		m_WhiteTexture = std::make_unique<Texture>(m_Device);
+		m_WhiteTexture->SetData({whiteColor}, size);
 
-		textureBuilder.SetData(&normalColor);
-		m_NormalTexture = textureBuilder.Build();
-
+		m_NormalTexture = std::make_unique<Texture>(m_Device);
+		m_NormalTexture->SetData({normalColor}, size);
 	}
 
 	Renderer::~Renderer()

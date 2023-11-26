@@ -1,7 +1,7 @@
 #include "RuntimeApp.hpp"
 #include "Cardia/Project/Project.hpp"
 #include "Cardia/Serialization/Serializer.hpp"
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 
 #include <Cardia.hpp>
 
@@ -12,16 +12,18 @@ RuntimeApp::RuntimeApp()
 	m_AssetsManager.PopulateHandleFromProject(*project);
 	auto& config = project->GetConfig();
 
-	auto sceneHandle = m_AssetsManager.GetHandleFromAsset(config.StartScene);
-	if (const auto scene = Cardia::Serializer<Cardia::Scene>::Deserialize(m_AssetsManager.AbsolutePathFromHandle(sceneHandle)))
+	const auto sceneHandle = m_AssetsManager.GetHandleFromAsset(config.StartScene);
+	try
 	{
-		m_CurrentScene = std::make_unique<Cardia::Scene>(*scene);
-	} else
+		auto scene = Cardia::Serializer<Cardia::Scene>::Deserialize(m_AssetsManager.AbsolutePathFromHandle(sceneHandle));
+		m_CurrentScene = std::make_unique<Cardia::Scene>(std::move(scene));
+	} catch (std::exception& e)
 	{
-		Cardia::Log::CoreWarn("Unable to load {0}", config.StartScene.string());
+		Cardia::Log::CoreWarn("Unable to load {0}. Reason: {1}", config.StartScene.string(), e.what());
+		return;
 	}
 
-	auto& window = RuntimeApp::GetWindow();
+	const auto& window = GetWindow();
 	m_CurrentScene->OnViewportResize(static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight()));
 
 	m_CurrentScene->OnRuntimeStart();

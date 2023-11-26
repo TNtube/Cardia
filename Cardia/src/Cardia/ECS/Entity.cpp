@@ -4,6 +4,7 @@
 #include "Cardia/ECS/Component/Relationship.hpp"
 #include "Cardia/ECS/Components.hpp"
 #include "Cardia/Serialization/Serializable.hpp"
+#include "Cardia/Serialization/Serializer.hpp"
 
 namespace Cardia
 {
@@ -29,32 +30,33 @@ namespace Cardia
 	}
 
 
-	template <Serializable Cpn>
+	template <typename Cpn>
 	void SerializeOneComponent(const entt::registry& src, Json::Value& root, entt::entity entity)
 	{
 		if (src.all_of<Cpn>(entity))
 		{
-			MergeJson(root, src.get<Cpn>(entity).Serialize());
+			MergeJson(root, Serialization::ToJson(src.get<Cpn>(entity)));
 		}
 	}
 
-	template <Serializable... Cpn>
+	template <typename... Cpn>
 	void SerializeAllComponents(ComponentGroup<Cpn...>, const entt::registry& src, Json::Value& root, entt::entity entity)
 	{
 		(SerializeOneComponent<Cpn>(src, root, entity), ...);
 	}
 
-	template <Serializable Cpn>
+	template <typename Cpn>
 	void DeserializeAndAssignOneComponent(const Json::Value& root, entt::registry& dst, entt::entity entity)
 	{
-		std::optional<Cpn> cpn = Cpn::Deserialize(root);
-		if (cpn.has_value())
-		{
-			dst.emplace_or_replace<Cpn>(entity, *cpn);
+		try {
+			auto cpn = Serialization::FromJson<Cpn>(root);
+			dst.emplace_or_replace<Cpn>(entity, cpn);
+		} catch (std::exception &e) {
+			Log::Error("Failed to deserialize component: {0}", e.what());
 		}
 	}
 
-	template <Serializable... Cpn>
+	template <typename... Cpn>
 	void DeserializeAndAssignAllComponents(ComponentGroup<Cpn...>, const Json::Value& root, entt::registry& dst, entt::entity entity)
 	{
 		(DeserializeAndAssignOneComponent<Cpn>(root, dst, entity), ...);
@@ -90,7 +92,7 @@ namespace Cardia
 	void Entity::Kill()
 	{
 		if (HasComponent<Component::Script>()) {
-			auto& script = GetComponent<Component::Script>();
+			const auto& script = GetComponent<Component::Script>();
 			if (script.GetFile().HasBehavior())
 				script.GetFile().GetBehavior()->OnDestroy();
 		}

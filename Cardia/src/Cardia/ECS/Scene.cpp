@@ -258,28 +258,25 @@ namespace Cardia
 
 	}
 
-	std::optional<Scene> Scene::Deserialize(const Json::Value& root)
+	Scene Scene::Deserialize(const Json::Value& root)
 	{
+		Scene scene(Application::Get().GetRenderer(), std::string("Deserialized Scene"));
 		if (!root.isMember("Entities"))
-			return std::nullopt;
-
-		std::optional<Scene> scene({Application::Get().GetRenderer(), std::string("Deserialized Scene")});
+			return scene;
 
 		// Deserialize all serializable components
 		for (auto& entityNode : root["Entities"])
 		{
-			const auto entity = scene->m_Registry.create();
-			Entity::DeserializeAndAssignComponents(entityNode, scene->m_Registry, entity);
+			const auto entity = scene.m_Registry.create();
+			Entity::DeserializeAndAssignComponents(entityNode, scene.m_Registry, entity);
 		}
 
 		// Second pass to deserialize things that need scene context
 		for (auto& entityNode : root["Entities"])
 		{
-			std::optional<Component::ID> id;
-			if (!((id = Component::ID::Deserialize(entityNode))))
-				continue;
+			auto id = Serialization::FromJson<Component::ID>(entityNode);
 
-			auto entity = scene->GetEntityByUUID(id->Uuid);
+			auto entity = scene.GetEntityByUUID(id.Uuid);
 
 			auto& relationship = entity.AddComponent<Component::Relationship>();
 
@@ -289,21 +286,21 @@ namespace Cardia
 			auto& relationshipNode = entityNode["Relationship"];
 			relationship.ChildCount = relationshipNode["ChildCount"].asInt();
 			if (relationshipNode.isMember("Parent"))
-				relationship.Parent = scene->GetEntityByUUID(UUID::FromString(relationshipNode["Parent"].asString())).Handle();
+				relationship.Parent = scene.GetEntityByUUID(UUID::FromString(relationshipNode["Parent"].asString())).Handle();
 			if (relationshipNode.isMember("FirstChild"))
-				relationship.FirstChild = scene->GetEntityByUUID(UUID::FromString(relationshipNode["FirstChild"].asString())).Handle();
+				relationship.FirstChild = scene.GetEntityByUUID(UUID::FromString(relationshipNode["FirstChild"].asString())).Handle();
 			if (relationshipNode.isMember("PreviousSibling"))
-				relationship.PreviousSibling = scene->GetEntityByUUID(UUID::FromString(relationshipNode["PreviousSibling"].asString())).Handle();
+				relationship.PreviousSibling = scene.GetEntityByUUID(UUID::FromString(relationshipNode["PreviousSibling"].asString())).Handle();
 			if (relationshipNode.isMember("NextSibling"))
-				relationship.NextSibling = scene->GetEntityByUUID(UUID::FromString(relationshipNode["NextSibling"].asString())).Handle();
+				relationship.NextSibling = scene.GetEntityByUUID(UUID::FromString(relationshipNode["NextSibling"].asString())).Handle();
 		}
 
 		// Finally, compute world transforms
-		const auto view = scene->m_Registry.view<Component::Transform>();
+		const auto view = scene.m_Registry.view<Component::Transform>();
 		for (const auto entity : view)
 		{
-			auto& transform = scene->m_Registry.get<Component::Transform>(entity);
-			transform.RecomputeWorld({entity, &(*scene)});
+			auto& transform = scene.m_Registry.get<Component::Transform>(entity);
+			transform.RecomputeWorld({entity, &scene});
 		}
 
 		return scene;

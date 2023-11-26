@@ -3,7 +3,7 @@
 #include <Cardia/Project/Project.hpp>
 #include <Cardia/Renderer/Renderer.hpp>
 #include <Cardia/Application.hpp>
-#include "Cardia/Asset/AssetsManager.hpp"
+#include "Cardia/Assets/AssetsManager.hpp"
 
 #include <ranges>
 
@@ -22,15 +22,16 @@ namespace Cardia
 		if (m_AssetPaths.contains(normalized))
 			return m_AssetPaths[normalized];
 
-		const auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
-		if (!handle)
+		try
+		{
+			const auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
+			m_AssetPaths[normalized] = handle;
+			return m_AssetPaths[normalized];
+		}catch (std::exception& /* e */)
 		{
 			Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", normalized.string());
 			return AssetHandle::Invalid();
 		}
-
-		m_AssetPaths[normalized] = *handle;
-		return m_AssetPaths[normalized];
 	}
 
 	AssetHandle AssetsManager::GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath)
@@ -113,12 +114,16 @@ namespace Cardia
 	bool AssetsManager::LoadHandleFromPath(const std::filesystem::path& abs)
 	{
 		auto path = std::filesystem::absolute(abs);
-		const auto handle = Serializer<AssetHandle>::Deserialize(path);
-		if (handle) {
-			m_AssetPaths[path.replace_extension()] = *handle;
+		try
+		{
+			const auto handle = Serializer<AssetHandle>::Deserialize(path);
+			m_AssetPaths[path.replace_extension()] = handle;
 			return true;
 		}
-		return false;
+		catch (std::exception& /* e */)
+		{
+			return false;
+		}
 	}
 
 	void AssetsManager::RegisterNewHandle(const std::filesystem::path& assetPath)
@@ -126,7 +131,7 @@ namespace Cardia
 		AssetHandle handle;
 		m_AssetPaths[std::filesystem::absolute(assetPath)] = handle;
 
-		Serializer<AssetHandle> serializer(handle);
+		Serializer serializer(handle);
 		serializer.Serialize(assetPath.string() + ".imp");
 	}
 
@@ -152,35 +157,20 @@ namespace Cardia
 	}
 
 	void AssetsManager::ReloadAllDirty() {
-		if (!std::ranges::any_of(m_Assets, [](const auto& pair) { return pair.second.Dirty; })) {
-			return;
-		}
 		for (auto& asset : m_Assets | std::views::values) {
-			const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
-			if (asset.Dirty) {
-				assetPtr->Reload();
-				asset.Dirty = false;
-			} else {
-				asset.Dirty = assetPtr->CheckForDirtyInDependencies();
-			}
-		}
-
-		for (auto& asset: m_Assets | std::views::values) {
-			if (asset.Dirty) {
-				const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
-				assetPtr->Reload();
-				asset.Dirty = false;
+			if (asset.Importer->IsDirty()) {
+				asset.Importer->Import(asset.Resource);
 			}
 		}
 	}
 
-	void AssetsManager::SetDirty(const AssetHandle &handle)
+	void AssetsManager::SetDirty(const AssetHandle& handle)
 	{
 		const auto it = m_Assets.find(handle);
 		if (it == m_Assets.end())
 			return;
 
-		it->second.Dirty = true;
+		it->second.Importer->SetDirty();
 	}
 
 	void AssetsManager::Update()
@@ -223,12 +213,14 @@ namespace Cardia
 		if (it == m_Assets.end())
 			return false;
 
-		return it->second.Dirty;
+		return it->second.Importer->IsDirty();
 	}
 
-	void AssetsManager::AddAssetEntry(const std::shared_ptr<Asset>& asset)
+	AssetHandle AssetsManager::AddAssetEntry(const std::shared_ptr<void>& asset)
 	{
-		m_Assets[asset->GetHandle()] = AssetRefCounter(asset);
+		AssetHandle newHandle;
+		m_Assets[newHandle] = AssetData(asset);
+		return newHandle;
 	}
 
 	void AssetsManager::AssetsListener::handleFileAction(efsw::WatchID watchId, const std::string& dir,

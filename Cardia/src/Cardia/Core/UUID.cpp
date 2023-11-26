@@ -10,11 +10,12 @@ namespace Cardia
 	static uuids::uuid_random_generator uuidRandomGenerator(gen);
 
 	UUID::UUID() {
-		m_UUID = uuidRandomGenerator();
+		m_UUID = uuids::to_string(uuidRandomGenerator());
 	}
 
 	UUID::UUID(const uuids::uuid & uuid) {
-		m_UUID = uuid;
+		m_UUID = uuids::to_string(uuid);
+		this->append(uuids::to_string(uuid));
 	}
 
 	UUID::UUID(UUID&& other) noexcept
