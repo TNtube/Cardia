@@ -5,7 +5,6 @@
 #include "ScriptClass.hpp"
 #include "EntityBehavior.hpp"
 #include "ScriptUtils.hpp"
-#include "Cardia/ECS/Component/Id.hpp"
 
 namespace py = pybind11;
 
@@ -41,7 +40,7 @@ namespace Cardia
 				GetScriptField(name)->SetValue(py::cast(value));
 		}
 
-		std::optional<Component::ID> GetBehaviorAttribute(const std::string& name);
+		std::optional<UUID> GetBehaviorAttribute(const std::string& name);
 		void SetBehaviorAttribute(const std::string& name, Entity entity);
 
 		bool HasBehavior() const { return IsSubclass<Behavior>(m_BehaviorClassDef); }

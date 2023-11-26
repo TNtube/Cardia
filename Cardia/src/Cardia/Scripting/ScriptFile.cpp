@@ -277,7 +277,7 @@ namespace Cardia
 				continue;
 
 			try {
-				auto refEntity = scene.GetEntityByUUID(field.GetValue<Component::ID>().Uuid);
+				auto refEntity = scene.GetEntityByUUID(field.GetValue<UUID>());
 				if (refEntity.IsValid() && refEntity.HasComponent<Component::Script>())
 				{
 					auto& refScript = refEntity.GetComponent<Component::Script>();
@@ -291,7 +291,7 @@ namespace Cardia
 		}
 	}
 
-	std::optional<Component::ID> ScriptFile::GetBehaviorAttribute(const std::string &name)
+	std::optional<UUID> ScriptFile::GetBehaviorAttribute(const std::string &name)
 	{
 		if (!HasBehavior())
 			return std::nullopt;
@@ -305,10 +305,10 @@ namespace Cardia
 			auto value = m_BehaviorInstance.attr(name.c_str());
 			auto* behaviorRef = value.cast<Behavior*>();
 			if (behaviorRef)
-				return behaviorRef->entity.GetComponent<Component::ID>();
+				return behaviorRef->entity.GetComponent<UUID>();
 		}
 
-		return GetScriptField(name)->GetValue<Component::ID>();
+		return GetScriptField(name)->GetValue<UUID>();
 	}
 
 	void ScriptFile::SetBehaviorAttribute(const std::string &name, Entity entity)
@@ -325,7 +325,7 @@ namespace Cardia
 			return;
 		}
 
-		GetScriptField(name)->SetValue(py::cast(entity.GetComponent<Component::ID>()), false);
+		GetScriptField(name)->SetValue(py::cast(entity.GetComponent<UUID>()), false);
 
 	}
 }

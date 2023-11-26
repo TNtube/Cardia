@@ -1,5 +1,4 @@
 ﻿#include <Cardia/Scripting/ScriptUtils.hpp>
-#include <Cardia/ECS/Component/Id.hpp>
 #include "cdpch.hpp"
 #include "Cardia/Scripting/EntityBehavior.hpp"
 #include "Cardia/Scripting/ScriptClass.hpp"
@@ -55,7 +54,7 @@ namespace Cardia
 			switch (type)
 			{
 				case ScriptFieldType::PyBehavior:
-					m_PyObject = py::cast(Component::ID{});
+					m_PyObject = py::cast(UUID{});
 					break;
 				case ScriptFieldType::UnEditable:
 					break;

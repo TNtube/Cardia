@@ -36,7 +36,7 @@ namespace Cardia::Panel
 			m_FolderIconDescriptorSet = ImGui_ImplVulkan_AddTexture(m_FolderIcon->GetSampler(), m_FolderIcon->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 		char buff[64];
-		sprintf(buff, "Files##%i", m_WindowId);
+		sprintf_s(buff, "Files##%i", m_WindowId);
 		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 		if (!ImGui::Begin(buff, &m_IsOpen)) {
 			ImGui::End();
@@ -65,10 +65,10 @@ namespace Cardia::Panel
 				CurrentPathUpdated();
 			}
 		}
-		const ImVec2 button_sz(100, 100);
+		constexpr ImVec2 button_sz(100, 100);
 
 		constexpr float paddingSize = 16.0f;
-		const float cellSize = button_sz.x + paddingSize;
+		constexpr float cellSize = button_sz.x + paddingSize;
 
 
 		const float panelWidth = ImGui::GetContentRegionAvail().x;

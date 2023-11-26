@@ -187,11 +187,11 @@ namespace Cardia
 
 	Entity Scene::GetEntityByUUID(const UUID& uuid)
 	{
-		const auto view = m_Registry.view<Component::ID>();
+		const auto view = m_Registry.view<UUID>();
 		for (const auto entity : view)
 		{
-			auto& idComponent = view.get<Component::ID>(entity);
-			if (idComponent.Uuid == uuid) {
+			auto& idComponent = view.get<UUID>(entity);
+			if (idComponent == uuid) {
 				return {entity, this};
 			}
 		}
@@ -242,13 +242,13 @@ namespace Cardia
 			auto& relationshipNode = toMerge["Relationship"];
 			relationshipNode["ChildCount"] = relationship.ChildCount;
 			if (m_Registry.valid(relationship.Parent))
-				relationshipNode["Parent"] = m_Registry.get<Component::ID>(relationship.Parent).Uuid.ToString();
+				relationshipNode["Parent"] = m_Registry.get<UUID>(relationship.Parent).ToString();
 			if (m_Registry.valid(relationship.FirstChild))
-				relationshipNode["FirstChild"] = m_Registry.get<Component::ID>(relationship.FirstChild).Uuid.ToString();
+				relationshipNode["FirstChild"] = m_Registry.get<UUID>(relationship.FirstChild).ToString();
 			if (m_Registry.valid(relationship.PreviousSibling))
-				relationshipNode["PreviousSibling"] = m_Registry.get<Component::ID>(relationship.PreviousSibling).Uuid.ToString();
+				relationshipNode["PreviousSibling"] = m_Registry.get<UUID>(relationship.PreviousSibling).ToString();
 			if (m_Registry.valid(relationship.NextSibling))
-				relationshipNode["NextSibling"] = m_Registry.get<Component::ID>(relationship.NextSibling).Uuid.ToString();
+				relationshipNode["NextSibling"] = m_Registry.get<UUID>(relationship.NextSibling).ToString();
 
 			MergeJson(currentEntityNode, toMerge);
 			entitiesNode.append(currentEntityNode);
@@ -274,9 +274,9 @@ namespace Cardia
 		// Second pass to deserialize things that need scene context
 		for (auto& entityNode : root["Entities"])
 		{
-			auto id = Serialization::FromJson<Component::ID>(entityNode);
+			auto id = Serialization::FromJson<UUID>(entityNode);
 
-			auto entity = scene.GetEntityByUUID(id.Uuid);
+			auto entity = scene.GetEntityByUUID(id);
 
 			auto& relationship = entity.AddComponent<Component::Relationship>();
 
@@ -311,7 +311,7 @@ namespace Cardia
 		if (!m_Registry.valid(entity.Handle()))
 			return;
 		auto& transform = entity.AddComponent<Component::Transform>();
-		entity.AddComponent<Component::ID>(uuid);
+		entity.AddComponent<UUID>(uuid);
 		entity.AddComponent<Component::Label>(name);
 		auto& relationship = entity.AddComponent<Component::Relationship>();
 		relationship.Parent = parent;

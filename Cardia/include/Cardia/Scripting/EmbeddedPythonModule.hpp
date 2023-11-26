@@ -165,10 +165,6 @@ namespace Cardia
 
 		// Components
 
-		py::class_<Component::ID>(m, "ID")
-			.def(py::init<>())
-			.def_readwrite("uuid", &Component::ID::Uuid, py::return_value_policy::reference);
-
 		py::class_<Component::Label>(m, "Label")
 			.def(py::init<>())
 			.def_readwrite("name", &Component::Label::Name, py::return_value_policy::reference)

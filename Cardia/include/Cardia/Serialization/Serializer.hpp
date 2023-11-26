@@ -24,18 +24,50 @@ namespace Cardia
 
 	namespace Serialization
 	{
+		template <typename T> T convert_to (const std::string &str)
+		{
+			std::istringstream ss(str);
+			T num;
+			ss >> num;
+			return num;
+		}
+
 		template<typename T>
 		Json::Value ToJson(const T& object)
 		{
 			Json::Value data;
 
-			if constexpr (!has_properties<T>()) {
+			if constexpr (is_map_v<T>)
+			{
+				data = Json::Value(Json::objectValue);
+				for (const auto& [key, value] : object)
+					data[std::to_string(key)] = ToJson(value);
+				return data;
+			}
+			else if constexpr (is_std_array_v<T>)
+			{
+				data = Json::Value(Json::arrayValue);
+				for (std::size_t i = 0; i < object.size(); ++i)
+					data.append(ToJson(object[i]));
+				return data;
+			}
+			else if constexpr (std::input_or_output_iterator<T>)
+			{
+				data = Json::Value(Json::arrayValue);
+				for (const auto& value : object)
+					data.append(ToJson(value));
+				return data;
+			}
+			else if constexpr (!has_properties<T>())
+			{
 				if constexpr (std::is_enum_v<T>)
 					data = static_cast<std::underlying_type_t<T>>(object);
 				else
 					data = object;
 				return data;
-			} else {
+			}
+			else
+			{
 				constexpr auto nbProperties = std::tuple_size_v<decltype(T::properties)>;
 				for_sequence(std::make_index_sequence<nbProperties>{}, [&](auto i){
 					constexpr auto property = std::get<i>(T::properties);
@@ -43,18 +75,49 @@ namespace Cardia
 					using Type = typename decltype(property)::Type;
 					data[property.name] = ToJson<Type>(object.*(property.member));
 				});
-			}
 
-			return data;
+				return data;
+			}
 		}
 
 		template<typename T>
 		T FromJson(const Json::Value& data)
 		{
-			if constexpr (!has_properties<T>()) {
-				return data.as<T>();
-			} else {
+			if constexpr (is_map_v<T>)
+			{
 				T object;
+				for (const auto& key : data.getMemberNames())
+					object[convert_to<typename T::key_type>(key)] = FromJson<typename T::mapped_type>(data[key]);
+				return object;
+			}
+			else if constexpr (is_std_array_v<T>)
+			{
+				T object;
+				for (std::size_t i = 0; i < object.size(); ++i)
+					object[i] = FromJson<typename T::value_type>(data.get(i, Json::Value::null));
+				return object;
+			}
+			else if constexpr (std::input_or_output_iterator<T>)
+			{
+				T object;
+				for (const auto& value : data)
+					object.push_back(FromJson<typename T::value_type>(value));
+				return object;
+			}
+			else if constexpr (std::is_integral_v<T>)
+			{
+				return static_cast<T>(data.as<std::int64_t>());
+			}
+			else if constexpr (!has_properties<T>()) {
+				if constexpr (std::is_enum_v<T>)
+					return static_cast<T>(data.as<std::underlying_type_t<T>>());
+				else
+					return data.as<T>();
+			}
+			else
+			{
+				T object;
+
 				constexpr auto nbProperties = std::tuple_size_v<decltype(T::properties)>;
 				for_sequence(std::make_index_sequence<nbProperties>{}, [&](auto i){
 					constexpr auto property = std::get<i>(T::properties);

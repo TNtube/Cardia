@@ -7,12 +7,15 @@ namespace Cardia
 
 	template<typename Class, typename T>
 	struct PropertyImpl {
-		constexpr PropertyImpl(T Class::*aMember, const char* aName) : member{aMember}, name{aName} {}
+		constexpr PropertyImpl(T Class::* aMember, const char* aName)
+			: member{aMember}, name{aName} {}
 
 		using Type = T;
 
-		T Class::*member;
-		const char* name;
+		T Class::*member = nullptr;
+		const char* name = nullptr;
+
+		const bool isGetSet = false;
 	};
 
 	template<typename Class, typename T>

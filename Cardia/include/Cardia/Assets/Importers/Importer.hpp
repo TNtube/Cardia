@@ -19,7 +19,7 @@ namespace Cardia
 
 	inline AssetType ExtensionToAssetType(const std::string& extension)
 	{
-		if (extension == "png" || extension == "jpg" || extension == "jpeg")
+		if (extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "tga")
 			return AssetType::Texture;
 
 		if (extension == "obj" || extension == "fbx" || extension == "gltf")

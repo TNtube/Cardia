@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Component/Camera.hpp"
-#include "Component/Id.hpp"
 #include "Component/Label.hpp"
 #include "Component/Light.hpp"
 #include "Component/ModelRenderer.hpp"
@@ -15,18 +14,18 @@ namespace Cardia {
 	struct ComponentGroup {};
 
 	using AllComponents = ComponentGroup<
-		Component::Relationship, Component::Label, Component::ID,
+		Component::Relationship, Component::Label,
 		Component::Transform, Component::SpriteRenderer, Component::ModelRenderer,
 		Component::Camera, Component::Light, Component::Script
 	>;
 
 	using SerializableComponents = ComponentGroup<
-		Component::Label, Component::ID, Component::Transform,
+		Component::Label, Component::Transform,
 		Component::SpriteRenderer, Component::ModelRenderer, Component::Camera,
 		Component::Light, Component::Script
 	>;
 
 	using ScriptableComponents = ComponentGroup<
-		Component::Label, Component::ID, Component::Transform,
+		Component::Label, Component::Transform,
 		Component::Camera, Component::Light>;
 }

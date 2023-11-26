@@ -568,7 +568,7 @@ namespace Cardia
 			// 	if (isUsing) {
 			// 		isUsing = false;
 			// 		Log::Info("{}, {}, {}", position.x, position.y, position.z);
-			// 		auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
+			// 		auto& uuid = m_SelectedEntity.GetComponent<UUID>();
 			// 		AddCommand(std::make_unique<UpdateTransformPositionCommand>(uuid.Uuid, position));
 			// 		position = transformComponent.m_Position;
 			// 	}

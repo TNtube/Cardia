@@ -1,3 +1,4 @@
+#pragma once
 #include "Cardia/Renderer/Renderer.hpp"
 
 namespace Cardia

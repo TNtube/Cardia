@@ -79,14 +79,14 @@ namespace Cardia :: Panel
 		}
 
 		const auto& label = entity.GetComponent<Component::Label>();
-		const auto& uuid = entity.GetComponent<Component::ID>();
+		const auto& uuid = entity.GetComponent<UUID>();
 
 		// Push label color
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{label.Color.x, label.Color.y, label.Color.z, label.Color.w});
 
 
 		// If node opened
-		if (ImGui::TreeNodeEx(uuid.Uuid.ToString().c_str(), node_flags, "%s", label.Name.c_str())) {
+		if (ImGui::TreeNodeEx(uuid.ToString().c_str(), node_flags, "%s", label.Name.c_str())) {
 			ImGui::PopStyleColor();
 			if (ImGui::BeginPopupContextItem())
 			{

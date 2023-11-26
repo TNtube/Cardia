@@ -51,7 +51,7 @@ namespace Cardia::Panel
 
 		auto& assetsManager = appContext->GetAssetsManager();
 
-		const auto& uuid = m_SelectedEntity.GetComponent<Component::ID>();
+		const auto& uuid = m_SelectedEntity.GetComponent<UUID>();
 
 		// Label Component
 		DrawInspectorComponent<Component::Label>("Label", [this](Component::Label& label)
@@ -405,7 +405,7 @@ namespace Cardia::Panel
 			case ScriptFieldType::PyBehavior:
 			{
 				auto field = file.GetBehaviorAttribute(fieldName);
-				auto entityTarget = field.has_value() ? m_CurrentScene->GetEntityByUUID(field->Uuid) : Entity();
+				auto entityTarget = field.has_value() ? m_CurrentScene->GetEntityByUUID(*field) : Entity();
 
 				std::string name = entityTarget.IsValid() ? entityTarget.GetComponent<Component::Label>().Name : "None";
 
