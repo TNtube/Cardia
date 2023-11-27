@@ -73,7 +73,10 @@ namespace Cardia
 					constexpr auto property = std::get<i>(T::properties);
 
 					using Type = typename decltype(property)::Type;
-					data[property.name] = ToJson<Type>(object.*(property.member));
+					data[property.name] =
+						property.isGetSet
+						? ToJson<Type>((object.*(property.getter))())
+						: ToJson<Type>(object.*(property.member));
 				});
 
 				return data;
@@ -124,10 +127,16 @@ namespace Cardia
 
 					using Type = typename decltype(property)::Type;
 
+					Type member;
 					if constexpr (std::is_enum_v<Type>)
-						object.*(property.member) = static_cast<Type>(FromJson<std::underlying_type_t<Type>>(data[property.name]));
+						member = static_cast<Type>(FromJson<std::underlying_type_t<Type>>(data[property.name]));
 					else
-						object.*(property.member) = FromJson<Type>(data[property.name]);
+						member = std::move(FromJson<Type>(data[property.name]));
+
+					if constexpr (property.isGetSet)
+						(object.*(property.setter))(std::move(member));
+					else
+						object.*(property.member) = std::move(member);
 				});
 
 				return object;

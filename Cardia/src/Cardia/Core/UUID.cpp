@@ -30,11 +30,9 @@ namespace Cardia
 	}
 
 	UUID UUID::FromString(const std::string &uuid) {
-		auto id = uuids::uuid::from_string(uuid);
-		if (!id.has_value()) {
-			throw std::invalid_argument("UUID : " + uuid + " is not a valid id");
-		}
-		return UUID(id.value());
+		UUID _uuid;
+		_uuid.InternalFromString(uuid);
+		return _uuid;
 	}
 
 	bool UUID::IsValid() const
@@ -44,5 +42,16 @@ namespace Cardia
 			if (i != 0) return false;
 		}
 		return true;
+	}
+
+	void UUID::InternalFromString(const std::string& strUuid)
+	{
+		const auto id = uuids::uuid::from_string(strUuid);
+		if (!id.has_value()) {
+			throw std::invalid_argument("UUID : " + strUuid + " is not a valid id");
+		}
+		const auto span = id->as_bytes();
+		const auto begin = reinterpret_cast<const uint8_t*>(span.data());
+		std::copy_n(begin, span.size(), m_UUID.begin());
 	}
 }

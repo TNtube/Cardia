@@ -27,12 +27,13 @@ namespace Cardia {
 
 		inline bool operator==(const UUID& rhs) const { return this->m_UUID == rhs.m_UUID; }
 	private:
+		void InternalFromString(const std::string& strUuid);
 		std::array<uint8_t, 16> m_UUID{};
 		friend std::hash<UUID>;
 
 	public:
 		constexpr static auto properties = std::make_tuple(
-			property(&UUID::m_UUID, "uuid")
+			property(&UUID::ToString, &UUID::InternalFromString, "uuid")
 		);
 	};
 
