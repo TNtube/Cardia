@@ -1,9 +1,13 @@
 #pragma once
 #include <string>
-#include <uuid.h>
 
 #include "Cardia/Serialization/Serializer.hpp"
 #include <json/value.h>
+
+namespace uuids
+{
+	class uuid;
+}
 
 namespace Cardia {
 
@@ -17,13 +21,13 @@ namespace Cardia {
 		UUID(const UUID&) = default;
 		UUID& operator=(const UUID&) = default;
 
-		static UUID Default() { ;return UUID(uuids::uuid()); };
+		static UUID Default();
 		static UUID FromString(const std::string& strUuid);
-		std::string ToString() const { return uuids::to_string(m_UUID); }
+		std::string ToString() const;
 
 		bool IsValid() const;
 
-		std::size_t Hash() const { return std::hash<uuids::uuid>{}(m_UUID); }
+		std::size_t Hash() const;
 
 		inline bool operator==(const UUID& rhs) const { return this->m_UUID == rhs.m_UUID; }
 	private:
@@ -44,7 +48,6 @@ struct std::hash<Cardia::UUID>
 {
 	std::size_t operator()(const Cardia::UUID& uuid) const noexcept
 	{
-		static auto h = std::hash<uuids::uuid>{};
-		return h(uuid.m_UUID);
+		return uuid.Hash();
 	}
 };

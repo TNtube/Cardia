@@ -1,6 +1,7 @@
 #include "cdpch.hpp"
 #include "Cardia/Core/UUID.hpp"
 #include <algorithm>
+#include <uuid.h>
 
 namespace Cardia
 {
@@ -29,10 +30,20 @@ namespace Cardia
 		return *this;
 	}
 
+	UUID UUID::Default()
+	{
+		return UUID(uuids::uuid());
+	}
+
 	UUID UUID::FromString(const std::string &uuid) {
 		UUID _uuid;
 		_uuid.InternalFromString(uuid);
 		return _uuid;
+	}
+
+	std::string UUID::ToString() const
+	{
+		return uuids::to_string(m_UUID);
 	}
 
 	bool UUID::IsValid() const
@@ -42,6 +53,12 @@ namespace Cardia
 			if (i != 0) return false;
 		}
 		return true;
+	}
+
+	std::size_t UUID::Hash() const
+	{
+		static auto h = std::hash<uuids::uuid>{};
+		return h(m_UUID);
 	}
 
 	void UUID::InternalFromString(const std::string& strUuid)
