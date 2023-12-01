@@ -5,13 +5,14 @@
 #include "Texture.hpp"
 #include "Descriptors.hpp"
 #include "Buffer.hpp"
+#include "Cardia/Core/UUID.hpp"
 
 namespace Cardia
 {
 	class Skybox
 	{
 	public:
-		Skybox(const Renderer& device, const AssetHandle& assetHandle);
+		Skybox(const Renderer& device, const UUID& id);
 
 		Pipeline& GetPipeline() const { return *m_SkyboxPipeline; }
 

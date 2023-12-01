@@ -14,6 +14,6 @@ namespace Cardia::Component
 	{
 		if (m_Path.empty()) return;
 		auto& am = Application::Get().GetAssetsManager();
-		m_File = ScriptFile::FromPath(am.AbsolutePathFromHandle(am.GetHandleFromAsset(m_Path)));
+		m_File = ScriptFile::FromPath(am.AbsolutePathFromUUID(am.GetUUIDFromAsset(m_Path)));
 	}
 }

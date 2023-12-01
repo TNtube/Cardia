@@ -264,8 +264,8 @@ namespace Cardia
 
 			auto& am = Application::Get().GetAssetsManager();
 
-			auto handle = am.GetHandleFromRelative("resources/textures/skybox/lilienstein_skybox.tga");
-			m_Skybox = std::make_unique<Skybox>(*this, handle);
+			auto id = am.GetUUIDFromRelative("resources/textures/skybox/lilienstein_skybox.tga");
+			m_Skybox = std::make_unique<Skybox>(*this, id);
 		}
 		return *m_Skybox;
 	}

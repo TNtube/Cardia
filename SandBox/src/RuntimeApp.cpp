@@ -9,13 +9,13 @@ RuntimeApp::RuntimeApp()
 {
 	auto project = Cardia::Project::Load("resources/build.cdproj");
 	Cardia::ScriptEngine::InvalidateProject();
-	m_AssetsManager.PopulateHandleFromProject(*project);
+	m_AssetsManager.WalkAssetsFromProject(*project);
 	auto& config = project->GetConfig();
 
-	const auto sceneHandle = m_AssetsManager.GetHandleFromAsset(config.StartScene);
+	const auto sceneHandle = m_AssetsManager.GetUUIDFromAsset(config.StartScene);
 	try
 	{
-		auto scene = Cardia::Serializer<Cardia::Scene>::Deserialize(m_AssetsManager.AbsolutePathFromHandle(sceneHandle));
+		auto scene = Cardia::Serializer<Cardia::Scene>::Deserialize(m_AssetsManager.AbsolutePathFromUUID(sceneHandle));
 		m_CurrentScene = std::make_unique<Cardia::Scene>(std::move(scene));
 	} catch (std::exception& e)
 	{

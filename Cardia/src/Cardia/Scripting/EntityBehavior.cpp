@@ -13,11 +13,11 @@ namespace Cardia
 	Entity Behavior::Spawn(const std::string& path, const Entity* parent) const
 	{
 		auto& am = Application::Get().GetAssetsManager();
-		auto prefabHandle = am.GetHandleFromAsset(path);
-		if (!prefabHandle.IsValid())
+		const auto prefabUuid = am.GetUUIDFromAsset(path);
+		if (!prefabUuid.IsValid())
 			return {};
 
-		auto absPath = am.AbsolutePathFromHandle(prefabHandle);
+		const auto absPath = am.AbsolutePathFromUUID(prefabUuid);
 		std::ifstream file(absPath);
 		if (!file.is_open())
 			return {};
@@ -26,9 +26,9 @@ namespace Cardia
 		file >> root;
 		file.close();
 
-		auto name = absPath.filename().replace_extension().string();
+		const auto name = absPath.filename().replace_extension().string();
 
-		auto outEntity = entity.GetScene()->CreateEntity(name, parent ? parent->Handle() : entt::null);
+		const auto outEntity = entity.GetScene()->CreateEntity(name, parent ? parent->Handle() : entt::null);
 
 		Entity::DeserializeAndAssignComponents(root, entity.GetScene()->GetRegistry(), outEntity.Handle());
 
@@ -38,7 +38,7 @@ namespace Cardia
 	py::object Behavior::RunCoroutine(const py::object &coroutine)
 	{
 		try {
-			auto loop = py::module::import("asyncio").attr("get_event_loop")();
+			const auto loop = py::module::import("asyncio").attr("get_event_loop")();
 			auto task = loop.attr("create_task")(coroutine);
 			m_Tasks.append(task);
 			return task;

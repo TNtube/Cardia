@@ -13,10 +13,10 @@ constexpr std::uint32_t MAX_UNUSED_COUNT = 2;
 namespace Cardia
 {
 	AssetsManager::AssetsManager(const Renderer& renderer) : m_Renderer(renderer), m_AssetsListener(*this) {
-		PopulateHandleFromResource();
+		WalkAssetsFromResource();
 	}
 
-	AssetHandle AssetsManager::GetHandleFromAbsolute(const std::filesystem::path& absolutePath)
+	UUID AssetsManager::GetUUIDFromAbsolute(const std::filesystem::path& absolutePath)
 	{
 		const auto normalized = std::filesystem::absolute(absolutePath);
 		if (m_AssetPaths.contains(normalized))
@@ -24,80 +24,80 @@ namespace Cardia
 
 		try
 		{
-			const auto handle = Serializer<AssetHandle>::Deserialize(normalized.string() + ".imp");
-			m_AssetPaths[normalized] = handle;
+			const auto id = Serializer<UUID>::Deserialize(normalized.string() + ".imp");
+			m_AssetPaths[normalized] = id;
 			return m_AssetPaths[normalized];
 		}catch (std::exception& /* e */)
 		{
 			Log::Error("Failed to load asset at {} : .imp file missing or invalid.\nPlease reimport it.", normalized.string());
-			return AssetHandle::Invalid();
+			return UUID::Default();
 		}
 	}
 
-	AssetHandle AssetsManager::GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath)
+	UUID AssetsManager::GetUUIDFromAsset(const std::filesystem::path& relativeToAssetsPath)
 	{
 		const auto absolute = m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory / relativeToAssetsPath;
-		return GetHandleFromAbsolute(absolute);
+		return GetUUIDFromAbsolute(absolute);
 	}
 
-	AssetHandle AssetsManager::GetHandleFromRelative(const std::filesystem::path& relativePath)
+	UUID AssetsManager::GetUUIDFromRelative(const std::filesystem::path& relativePath)
 	{
 		if (relativePath.is_relative()) {
-			return GetHandleFromAbsolute(std::filesystem::absolute(relativePath));
+			return GetUUIDFromAbsolute(std::filesystem::absolute(relativePath));
 		}
-		return GetHandleFromAbsolute(relativePath);
+		return GetUUIDFromAbsolute(relativePath);
 	}
 
-	void AssetsManager::PopulateHandleFromProject(const Project& project)
+	void AssetsManager::WalkAssetsFromProject(const Project& project)
 	{
 		m_Project = project;
 		auto& config = m_Project.GetConfig();
 		const auto absoluteAssetsPath = m_Project.ProjectPath() / config.AssetDirectory;
-		PopulateHandleFromPath(absoluteAssetsPath);
+		WalkAssetsFromPath(absoluteAssetsPath);
 
 		m_FileWatcher.removeWatch(m_WatchID);
 		m_WatchID = m_FileWatcher.addWatch(absoluteAssetsPath.string(),& m_AssetsListener, true);
 		m_FileWatcher.watch();
 	}
 
-	void AssetsManager::PopulateHandleFromResource()
+	void AssetsManager::WalkAssetsFromResource()
 	{
-		PopulateHandleFromPath("resources");
+		WalkAssetsFromPath("resources");
 	}
 
-	std::filesystem::path AssetsManager::RelativePathFromHandle(const AssetHandle& handle) const
+	std::filesystem::path AssetsManager::RelativePathFromUUID(const UUID& id) const
 	{
-		const auto path = AbsolutePathFromHandle(handle);
+		const auto path = AbsolutePathFromUUID(id);
 		if (!path.empty())
 			return std::filesystem::relative(path, m_Project.ProjectPath() / m_Project.GetConfig().AssetDirectory);
 
 		return {};
 	}
 
-	std::filesystem::path AssetsManager::AbsolutePathFromHandle(const AssetHandle& handle) const
+	std::filesystem::path AssetsManager::AbsolutePathFromUUID(const UUID& id) const
 	{
 		for (const auto& [path, h] : m_AssetPaths) {
-			if (h == handle)
+			if (h == id)
 				return path;
 		}
 		return {};
 	}
 
-	AssetHandle AssetsManager::AddPathEntry(const std::filesystem::path& absolutePath)
+	UUID AssetsManager::AddPathEntry(const std::filesystem::path& absolutePath)
 	{
-		AssetHandle newHandle;
-		m_AssetPaths[std::filesystem::absolute(absolutePath)] = newHandle;
-		return newHandle;
+		UUID newUuid;
+		m_AssetPaths[std::filesystem::absolute(absolutePath)] = newUuid;
+		return newUuid;
 	}
 
-	void AssetsManager::PopulateHandleFromPath(const std::filesystem::path& abs)
+	void AssetsManager::WalkAssetsFromPath(const std::filesystem::path& abs)
 	{
 		std::unordered_set<std::filesystem::path> alreadyVisited;
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(abs)) {
 			auto path = std::filesystem::absolute(entry.path());
 			if (path.extension() == ".imp") {
-				if (LoadHandleFromPath(path))
+				if (LoadAssetUUIDFromPath(path))
 					alreadyVisited.insert(path);
 				continue;
 			}
@@ -107,17 +107,17 @@ namespace Cardia
 			if (alreadyVisited.contains(impPath) || std::filesystem::exists(impPath))
 				continue;
 
-			RegisterNewHandle(path);
+			RegisterNewAssetsUUID(path);
 		}
 	}
 
-	bool AssetsManager::LoadHandleFromPath(const std::filesystem::path& abs)
+	bool AssetsManager::LoadAssetUUIDFromPath(const std::filesystem::path& abs)
 	{
 		auto path = std::filesystem::absolute(abs);
 		try
 		{
-			const auto handle = Serializer<AssetHandle>::Deserialize(path);
-			m_AssetPaths[path.replace_extension()] = handle;
+			const auto id = Serializer<UUID>::Deserialize(path);
+			m_AssetPaths[path.replace_extension()] = id;
 			return true;
 		}
 		catch (std::exception& /* e */)
@@ -126,30 +126,31 @@ namespace Cardia
 		}
 	}
 
-	void AssetsManager::RegisterNewHandle(const std::filesystem::path& assetPath)
+	void AssetsManager::RegisterNewAssetsUUID(const std::filesystem::path& assetPath)
 	{
-		AssetHandle handle;
-		m_AssetPaths[std::filesystem::absolute(assetPath)] = handle;
+		UUID id;
+		m_AssetPaths[std::filesystem::absolute(assetPath)] = id;
 
-		Serializer serializer(handle);
+		Serializer serializer(id);
 		serializer.Serialize(assetPath.string() + ".imp");
 	}
 
-	void AssetsManager::ReloadAssetFromHandle(const AssetHandle& handle)
+	void AssetsManager::ReloadAssetFromUUID(const UUID& id)
 	{
-		const auto it = m_Assets.find(handle);
+		const auto it = m_Assets.find(id);
 		if (it == m_Assets.end())
 			return;
 
 		const auto& asset = it->second;
-		const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
-		assetPtr->Reload();
+		// nuh uh
+		// const auto assetPtr = std::static_pointer_cast<Asset>(asset.Resource);
+		// assetPtr->Reload();
 	}
 
-	void AssetsManager::RemovePathForHandle(const AssetHandle& handle)
+	void AssetsManager::RemovePathForUUID(const UUID& id)
 	{
 		for (auto it = m_AssetPaths.begin(); it != m_AssetPaths.end(); ++it) {
-			if (it->second == handle) {
+			if (it->second == id) {
 				m_AssetPaths.erase(it);
 				return;
 			}
@@ -164,9 +165,9 @@ namespace Cardia
 		}
 	}
 
-	void AssetsManager::SetDirty(const AssetHandle& handle)
+	void AssetsManager::SetDirty(const UUID& id)
 	{
-		const auto it = m_Assets.find(handle);
+		const auto it = m_Assets.find(id);
 		if (it == m_Assets.end())
 			return;
 
@@ -195,7 +196,7 @@ namespace Cardia
 			}
 
 			if (force || it->second.UnusedCounter > MAX_UNUSED_COUNT) {
-				auto path = AbsolutePathFromHandle(it->first);
+				auto path = AbsolutePathFromUUID(it->first);
 				Log::Info("Unloading asset at {}", path.string());
 				it = m_Assets.erase(it);
 			}
@@ -207,20 +208,20 @@ namespace Cardia
 		lastCollection = std::chrono::steady_clock::now();
 	}
 
-	bool AssetsManager::IsDirty(const AssetHandle &handle) const
+	bool AssetsManager::IsDirty(const UUID &id) const
 	{
-		const auto it = m_Assets.find(handle);
+		const auto it = m_Assets.find(id);
 		if (it == m_Assets.end())
 			return false;
 
 		return it->second.Importer->IsDirty();
 	}
 
-	AssetHandle AssetsManager::AddAssetEntry(const std::shared_ptr<void>& asset)
+	UUID AssetsManager::AddAssetEntry(const std::shared_ptr<void>& asset)
 	{
-		AssetHandle newHandle;
-		m_Assets[newHandle] = AssetData(asset);
-		return newHandle;
+		UUID newUuid;
+		m_Assets[newUuid] = AssetData(asset);
+		return newUuid;
 	}
 
 	void AssetsManager::AssetsListener::handleFileAction(efsw::WatchID watchId, const std::string& dir,
@@ -276,7 +277,7 @@ namespace Cardia
 	{
 		if (newPath.extension() == ".imp")
 		{
-			m_AssetsManager.LoadHandleFromPath(newPath);
+			m_AssetsManager.LoadAssetUUIDFromPath(newPath);
 			return;
 		}
 
@@ -285,7 +286,7 @@ namespace Cardia
 		if (std::filesystem::exists(impPath))
 			return;
 
-		m_AssetsManager.RegisterNewHandle(newPath);
+		m_AssetsManager.RegisterNewAssetsUUID(newPath);
 	}
 
 	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path& newPath) const
@@ -296,10 +297,10 @@ namespace Cardia
 			finalPath.replace_extension();
 		}
 
-		const auto handle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
+		const auto id = m_AssetsManager.GetUUIDFromAbsolute(finalPath);
 
-		m_AssetsManager.SetDirty(handle);
-		m_AssetsManager.RemovePathForHandle(handle);
+		m_AssetsManager.SetDirty(id);
+		m_AssetsManager.RemovePathForUUID(id);
 	}
 
 	void AssetsManager::AssetsListener::OnFileUpdate(const std::filesystem::path& newPath) const
@@ -308,17 +309,17 @@ namespace Cardia
 			auto finalPath = newPath;
 			finalPath.replace_extension();
 
-			const auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalPath);
+			const auto oldUuid = m_AssetsManager.GetUUIDFromAbsolute(finalPath);
 
-			m_AssetsManager.SetDirty(oldHandle);
-			m_AssetsManager.RemovePathForHandle(oldHandle);
+			m_AssetsManager.SetDirty(oldUuid);
+			m_AssetsManager.RemovePathForUUID(oldUuid);
 
-			m_AssetsManager.LoadHandleFromPath(finalPath);
+			m_AssetsManager.LoadAssetUUIDFromPath(finalPath);
 			return;
 		}
 
-		const auto handle = m_AssetsManager.GetHandleFromAbsolute(newPath);
-		m_AssetsManager.SetDirty(handle);
+		const auto id = m_AssetsManager.GetUUIDFromAbsolute(newPath);
+		m_AssetsManager.SetDirty(id);
 	}
 
 	void AssetsManager::AssetsListener::OnFileRename(const std::filesystem::path& oldPath,
@@ -330,19 +331,19 @@ namespace Cardia
 			auto finalOldPath = oldPath;
 			finalOldPath.replace_extension();
 
-			const auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(finalOldPath);
+			const auto oldUuid = m_AssetsManager.GetUUIDFromAbsolute(finalOldPath);
 
-			m_AssetsManager.RemovePathForHandle(oldHandle);
+			m_AssetsManager.RemovePathForUUID(oldUuid);
 
 			if (newPath.extension() == ".imp") {
 				finalNewPath.replace_extension();
-				m_AssetsManager.m_AssetPaths[finalNewPath] = oldHandle;
+				m_AssetsManager.m_AssetPaths[finalNewPath] = oldUuid;
 			}
 			return;
 		}
 
-		const auto oldHandle = m_AssetsManager.GetHandleFromAbsolute(oldPath);
-		m_AssetsManager.RemovePathForHandle(oldHandle);
-		m_AssetsManager.m_AssetPaths[finalNewPath] = oldHandle;
+		const auto oldUuid = m_AssetsManager.GetUUIDFromAbsolute(oldPath);
+		m_AssetsManager.RemovePathForUUID(oldUuid);
+		m_AssetsManager.m_AssetPaths[finalNewPath] = oldUuid;
 	}
 }

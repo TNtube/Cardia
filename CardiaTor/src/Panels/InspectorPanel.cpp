@@ -103,10 +103,10 @@ namespace Cardia::Panel
 //			ImGui::Image(texID, {15, 15});
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_UUID"))
 				{
-					auto pHandle = static_cast<AssetHandle*>(payload->Data);
-					if (auto tex = appContext->GetAssetsManager().Load<Texture>(*pHandle))
+					auto pUuid = static_cast<UUID*>(payload->Data);
+					if (auto tex = appContext->GetAssetsManager().Load<Texture>(*pUuid))
 					{
 						sprite.SpriteTexture = std::move(tex);
 					}
@@ -124,15 +124,15 @@ namespace Cardia::Panel
 		DrawInspectorComponent<Component::ModelRenderer>("Model Renderer", [&assetsManager, appContext, this](Component::ModelRenderer& meshRendererC) {
 			std::string name;
 			if (meshRendererC.Renderer)
-				name = assetsManager.RelativePathFromHandle(meshRendererC.Renderer->GetHandle()).filename().string();
+				// name = assetsManager.RelativePathFromUUID(meshRendererC.Renderer->GetHandle()).filename().string();
 
 			EditorUI::InputText("Model path", &name, Vector4f(1), ImGuiInputTextFlags_ReadOnly);
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_UUID"))
 				{
-					auto pHandle = static_cast<AssetHandle*>(payload->Data);
-					auto mesh = appContext->GetAssetsManager().Load<MeshRenderer>(*pHandle);
+					auto pUuid = static_cast<UUID*>(payload->Data);
+					auto mesh = appContext->GetAssetsManager().Load<MeshRenderer>(*pUuid);
 					
 					meshRendererC.Renderer = mesh;
 				}
@@ -147,7 +147,7 @@ namespace Cardia::Panel
 				ImGui::Image(m_WhiteTextureSet, {15, 15});
 //				if (ImGui::BeginDragDropTarget())
 //				{
-//					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
+//					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_UUID"))
 //					{
 //						const auto* cStrPath = static_cast<const char*>(payload->Data);
 //
@@ -160,7 +160,7 @@ namespace Cardia::Panel
 //					ImGui::EndDragDropTarget();
 //				}
 				ImGui::SameLine();
-				auto txt = assetsManager.RelativePathFromHandle(material).filename().string();
+				auto txt = assetsManager.RelativePathFromUUID(material).filename().string();
 				ImGui::Text("%s", txt.c_str());
 			}
 			const auto textWidth = ImGui::CalcTextSize("  +  ").x;
@@ -244,9 +244,9 @@ namespace Cardia::Panel
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_UUID"))
 				{
-					auto behaviorPath = assetsManager.AbsolutePathFromHandle(*static_cast<AssetHandle*>(payload->Data));
+					auto behaviorPath = assetsManager.AbsolutePathFromUUID(*static_cast<UUID*>(payload->Data));
 					if (behaviorPath.extension() == ".py")
 					{
 						scriptComponent.SetPath(behaviorPath.string());

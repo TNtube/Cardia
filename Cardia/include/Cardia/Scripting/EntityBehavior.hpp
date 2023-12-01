@@ -31,7 +31,7 @@ namespace Cardia
 		}
 
 		Component::Transform& GetTransform();
-		Entity Spawn(const std::string& name, const Entity* parent = nullptr) const;
+		Entity Spawn(const std::string& path, const Entity* parent = nullptr) const;
 		py::object RunCoroutine(const py::object& coroutine);
 		Entity entity;
 	private:

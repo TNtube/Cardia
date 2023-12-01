@@ -9,9 +9,9 @@ namespace Cardia
 	class TextureImporter : public Importer
 	{
 	public:
-		explicit TextureImporter(AssetHandle handle)
+		explicit TextureImporter(UUID id)
 		{
-			m_Handle = std::move(handle);
+			m_Uuid = std::move(id);
 		}
 		void Import(std::shared_ptr<void>& asset) override;
 		AssetType GetType() override;
@@ -22,6 +22,7 @@ namespace Cardia
 
 	public:
 		constexpr static auto properties = std::make_tuple(
+			property(&TextureImporter::m_Uuid, "UUID"),
 			property(&TextureImporter::m_CreateInfo, "CreateInfo")
 		);
 	};

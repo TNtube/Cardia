@@ -5,18 +5,19 @@
 #include "Pipeline.hpp"
 #include "Texture.hpp"
 #include "Buffer.hpp"
+#include "Cardia/Core/UUID.hpp"
 
 
 namespace Cardia
 {
 	struct MaterialData
 	{
-		AssetHandle AlbedoMap = AssetHandle::Invalid();
-		AssetHandle NormalMap = AssetHandle::Invalid();
+		UUID AlbedoMap = UUID::Default();
+		UUID NormalMap = UUID::Default();
 
-		AssetHandle MetallicRoughnessMap = AssetHandle::Invalid();
-		AssetHandle AOMap = AssetHandle::Invalid();
-		AssetHandle EmissiveMap = AssetHandle::Invalid();
+		UUID MetallicRoughnessMap = UUID::Default();
+		UUID AOMap = UUID::Default();
+		UUID EmissiveMap = UUID::Default();
 
 		Vector4f AlbedoColor = Vector4f(1.0f);
 		float Metallic = 0.0f;
@@ -44,11 +45,11 @@ namespace Cardia
 		class Builder {
 		public:
 			explicit Builder(const Device& device) : m_Device(device) {}
-			Builder& SetAlbedoMap(const AssetHandle& handle) { m_MaterialData.AlbedoMap = handle; return *this; }
-			Builder& SetNormalMap(const AssetHandle& handle) { m_MaterialData.NormalMap = handle; return *this; }
-			Builder& SetMetallicRoughnessMap(const AssetHandle& handle) { m_MaterialData.MetallicRoughnessMap = handle; return *this; }
-			Builder& SetAOMap(const AssetHandle& handle) { m_MaterialData.AOMap = handle; return *this; }
-			Builder& SetEmissiveMap(const AssetHandle& handle) { m_MaterialData.EmissiveMap = handle; return *this; }
+			Builder& SetAlbedoMap(const UUID& id) { m_MaterialData.AlbedoMap = id; return *this; }
+			Builder& SetNormalMap(const UUID& id) { m_MaterialData.NormalMap = id; return *this; }
+			Builder& SetMetallicRoughnessMap(const UUID& id) { m_MaterialData.MetallicRoughnessMap = id; return *this; }
+			Builder& SetAOMap(const UUID& id) { m_MaterialData.AOMap = id; return *this; }
+			Builder& SetEmissiveMap(const UUID& id) { m_MaterialData.EmissiveMap = id; return *this; }
 
 			Builder& SetAlbedoColor(const Vector4f& color) { m_MaterialData.AlbedoColor = color; return *this; }
 			Builder& SetMetallicFactor(float metallic) { m_MaterialData.Metallic = metallic; return *this; }

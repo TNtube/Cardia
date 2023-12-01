@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <json/value.h>
-
 #include "Cardia/Serialization/Serializable.hpp"
 #include "Cardia/Core/Concepts.hpp"
 #include "Vector3.hpp"

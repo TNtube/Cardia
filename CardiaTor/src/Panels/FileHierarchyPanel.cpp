@@ -21,10 +21,10 @@ namespace Cardia::Panel
 	{
 		auto& app = Application::Get();
 
-		const auto folderHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/folder.png");
+		const auto folderHandle = app.GetAssetsManager().GetUUIDFromRelative("resources/icons/folder.png");
 		m_FolderIcon = app.GetAssetsManager().Load<Texture>(folderHandle);
 
-		const auto fileHandle = app.GetAssetsManager().GetHandleFromRelative("resources/icons/file.png");
+		const auto fileHandle = app.GetAssetsManager().GetUUIDFromRelative("resources/icons/file.png");
 		m_FileIcon = app.GetAssetsManager().Load<Texture>(fileHandle);
 	}
 
@@ -111,8 +111,8 @@ namespace Cardia::Panel
 
 			if (ImGui::BeginDragDropSource())
 			{
-				auto handle = appContext->GetAssetsManager().GetHandleFromAbsolute(entry);
-				ImGui::SetDragDropPayload("ASSET_HANDLE", &handle, sizeof(handle));
+				auto handle = appContext->GetAssetsManager().GetUUIDFromAbsolute(entry);
+				ImGui::SetDragDropPayload("ASSET_UUID", &handle, sizeof(handle));
 				ImGui::EndDragDropSource();
 			}
 

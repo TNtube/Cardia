@@ -65,7 +65,7 @@ namespace Cardia
 		void InvalidateProject();
 		void InvalidateScene();
 		void SaveScene() const;
-		void OpenScene(const AssetHandle& handle);
+		void OpenScene(const UUID& id);
 		void ReloadScene();
 		void UndoCommand();
 		void RedoCommand();

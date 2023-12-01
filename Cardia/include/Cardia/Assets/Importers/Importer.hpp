@@ -1,5 +1,4 @@
 #pragma once
-#include "Cardia/Assets/Asset.hpp"
 #include "Cardia/Renderer/Material.hpp"
 #include "Cardia/Renderer/Texture.hpp"
 
@@ -62,7 +61,7 @@ namespace Cardia
 		}
 
 	protected:
-		AssetHandle m_Handle = AssetHandle::Invalid();
+		UUID m_Uuid = UUID::Default();
 		bool m_Dirty = false;
 	};
 }

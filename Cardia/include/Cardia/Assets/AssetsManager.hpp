@@ -24,42 +24,40 @@ namespace Cardia {
 
 namespace Cardia
 {
-	template <typename T> concept IsAsset = std::is_base_of_v<Asset, T>;
-
 	class AssetsManager
 	{
 	public:
 		explicit AssetsManager(const Renderer& renderer);
 
 		template<typename T> std::shared_ptr<T> Load(const std::filesystem::path& path);
-		template<typename T> std::shared_ptr<T> Load(const AssetHandle& handle);
+		template<typename T> std::shared_ptr<T> Load(const UUID& id);
 
-		AssetHandle GetHandleFromRelative(const std::filesystem::path& relativePath);
-		AssetHandle GetHandleFromAbsolute(const std::filesystem::path& absolutePath);
-		AssetHandle GetHandleFromAsset(const std::filesystem::path& relativeToAssetsPath);
-		AssetHandle AddPathEntry(const std::filesystem::path& absolutePath);
-		AssetHandle AddAssetEntry(const std::shared_ptr<void>& asset);
+		UUID GetUUIDFromRelative(const std::filesystem::path& relativePath);
+		UUID GetUUIDFromAbsolute(const std::filesystem::path& absolutePath);
+		UUID GetUUIDFromAsset(const std::filesystem::path& relativeToAssetsPath);
+		UUID AddPathEntry(const std::filesystem::path& absolutePath);
+		UUID AddAssetEntry(const std::shared_ptr<void>& asset);
 
-		void SetDirty(const AssetHandle& handle);
-		bool IsDirty(const AssetHandle& handle) const;
+		void SetDirty(const UUID& id);
+		bool IsDirty(const UUID& id) const;
 		void ReloadAllDirty();
 
-		void PopulateHandleFromProject(const Project& project);
-		void PopulateHandleFromResource();
+		void WalkAssetsFromProject(const Project& project);
+		void WalkAssetsFromResource();
 
-		void ReloadAssetFromHandle(const AssetHandle& handle);
+		void ReloadAssetFromUUID(const UUID& id);
 
-		std::filesystem::path RelativePathFromHandle(const AssetHandle& handle) const;
-		std::filesystem::path AbsolutePathFromHandle(const AssetHandle& handle) const;
+		std::filesystem::path RelativePathFromUUID(const UUID& id) const;
+		std::filesystem::path AbsolutePathFromUUID(const UUID& id) const;
 
 		void Update();
 
 	private:
-		void PopulateHandleFromPath(const std::filesystem::path& abs);
-		bool LoadHandleFromPath(const std::filesystem::path& abs);
-		void RegisterNewHandle(const std::filesystem::path& abs);
+		void WalkAssetsFromPath(const std::filesystem::path& abs);
+		bool LoadAssetUUIDFromPath(const std::filesystem::path& abs);
+		void RegisterNewAssetsUUID(const std::filesystem::path& abs);
 
-		void RemovePathForHandle(const AssetHandle& handle);
+		void RemovePathForUUID(const UUID& id);
 
 		void CollectUnusedAssets(bool force = false);
 
@@ -67,8 +65,8 @@ namespace Cardia
 
 		Project m_Project;
 
-		std::unordered_map<AssetHandle, AssetData> m_Assets;
-		std::unordered_map<std::filesystem::path, AssetHandle> m_AssetPaths;
+		std::unordered_map<UUID, AssetData> m_Assets;
+		std::unordered_map<std::filesystem::path, UUID> m_AssetPaths;
 
 
 		// file watcher

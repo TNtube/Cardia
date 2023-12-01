@@ -8,10 +8,10 @@
 namespace Cardia
 {
 
-	Skybox::Skybox(const Renderer& renderer, const AssetHandle& assetHandle)
+	Skybox::Skybox(const Renderer& renderer, const UUID& id)
 		: m_Renderer(renderer)
 	{
-		m_SkyboxTexture = Application::Get().GetAssetsManager().Load<Texture>(assetHandle);
+		m_SkyboxTexture = Application::Get().GetAssetsManager().Load<Texture>(id);
 
 		Shader skyboxShader(m_Renderer.GetDevice());
 

@@ -1,12 +1,7 @@
 #pragma once
-
-#include <memory>
-#include <string>
 #include <utility>
 
 #include "Device.hpp"
-#include "Descriptors.hpp"
-#include "Cardia/Assets/Asset.hpp"
 
 
 namespace Cardia

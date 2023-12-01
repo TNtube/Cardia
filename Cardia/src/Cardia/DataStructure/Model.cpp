@@ -21,11 +21,11 @@ namespace Cardia
 			return parentPath / path;
 		}
 
-		std::vector<AssetHandle> ProcessMaterialsFromScene(const std::filesystem::path& modelPath, const aiScene* scene) {
+		std::vector<UUID> ProcessMaterialsFromScene(const std::filesystem::path& modelPath, const aiScene* scene) {
 			auto& assetsManager = Application::Get().GetAssetsManager();
 			const auto& renderer = Application::Get().GetRenderer();
 
-			std::vector<AssetHandle> result;
+			std::vector<UUID> result;
 
 			for (uint32_t i = 0; i < scene->mNumMaterials; i++)
 			{
@@ -36,44 +36,44 @@ namespace Cardia
 				aiColor4D textureColor;
 				ai_real textureFloat;
 
-				const auto whiteHandle = assetsManager.GetHandleFromRelative("resources/textures/white.jpg");
+				const auto whiteUuid = assetsManager.GetUUIDFromRelative("resources/textures/white.jpg");
 
 				if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_COLOR_DIFFUSE, &textureColor))
 					mat.AlbedoColor = Vector4f(textureColor.r, textureColor.g, textureColor.b, textureColor.a);
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
-					mat.AlbedoMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
+					mat.AlbedoMap = assetsManager.GetUUIDFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.AlbedoMap = whiteHandle;
+					mat.AlbedoMap = whiteUuid;
 
 				if (AI_SUCCESS == aiGetMaterialFloat(pMaterial, AI_MATKEY_METALLIC_FACTOR, &textureFloat))
 					mat.Metallic = textureFloat;
 				if (AI_SUCCESS == aiGetMaterialFloat(pMaterial, AI_MATKEY_ROUGHNESS_FACTOR, &textureFloat))
 					mat.Roughness = textureFloat;
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
-					mat.MetallicRoughnessMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
+					mat.MetallicRoughnessMap = assetsManager.GetUUIDFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.MetallicRoughnessMap = whiteHandle;
+					mat.MetallicRoughnessMap = whiteUuid;
 
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
-					mat.NormalMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
+					mat.NormalMap = assetsManager.GetUUIDFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.NormalMap = assetsManager.GetHandleFromRelative("resources/textures/normal.jpg");
+					mat.NormalMap = assetsManager.GetUUIDFromRelative("resources/textures/normal.jpg");
 
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath))
-					mat.AOMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
+					mat.AOMap = assetsManager.GetUUIDFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.AOMap = whiteHandle;
+					mat.AOMap = whiteUuid;
 
 				if (AI_SUCCESS == aiGetMaterialColor(pMaterial, AI_MATKEY_EMISSIVE_INTENSITY, &textureColor))
 					mat.EmissiveFactor = Vector3f(textureColor.r, textureColor.g, textureColor.b);
 				if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
-					mat.EmissiveMap = assetsManager.GetHandleFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
+					mat.EmissiveMap = assetsManager.GetUUIDFromAbsolute(GetPathRelativeToMesh(modelPath, texturePath.C_Str()));
 				else
-					mat.EmissiveMap = whiteHandle;
+					mat.EmissiveMap = whiteUuid;
 
-				AssetHandle matHandle = assetsManager.AddAssetEntry(std::make_shared<Material>(renderer.GetDevice(), mat));
+				UUID matUuid = assetsManager.AddAssetEntry(std::make_shared<Material>(renderer.GetDevice(), mat));
 
-				result.push_back(matHandle);
+				result.push_back(matUuid);
 			}
 
 			return result;
@@ -92,7 +92,7 @@ namespace Cardia
 			return {};
 		}
 
-		model.m_MaterialHandles = ProcessMaterialsFromScene(absolutePath, scene);
+		model.m_MaterialUuids = ProcessMaterialsFromScene(absolutePath, scene);
 
 		for (uint32_t ind = 0; ind < scene->mNumMeshes; ind++) {
 			auto& mesh = model.m_Meshes.emplace_back();

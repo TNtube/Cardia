@@ -38,12 +38,12 @@ namespace Cardia
 		}
 
 
-		const auto playHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/play.png");
+		const auto playHandle = m_AssetsManager.GetUUIDFromRelative("resources/icons/play.png");
 		m_IconPlay = m_AssetsManager.Load<Texture>(playHandle);
 		if (m_IconPlay)
 			m_IconPlayDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconPlay->GetSampler(), m_IconPlay->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		const auto pauseHandle = m_AssetsManager.GetHandleFromRelative("resources/icons/pause.png");
+		const auto pauseHandle = m_AssetsManager.GetUUIDFromRelative("resources/icons/pause.png");
 		m_IconStop = m_AssetsManager.Load<Texture>(pauseHandle);
 		if (m_IconStop)
 			m_IconStopDescriptorSet = ImGui_ImplVulkan_AddTexture(m_IconStop->GetSampler(), m_IconStop->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -369,9 +369,9 @@ namespace Cardia
 		const auto activeProject = Project::GetActive();
 		const auto& config = activeProject->GetConfig();
 
-		m_AssetsManager.PopulateHandleFromProject(*activeProject);
+		m_AssetsManager.WalkAssetsFromProject(*activeProject);
 
-		OpenScene(m_AssetsManager.GetHandleFromAsset(config.StartScene));
+		OpenScene(m_AssetsManager.GetUUIDFromAsset(config.StartScene));
 	}
 
 	void CardiaTor::InvalidateScene()
@@ -406,9 +406,9 @@ namespace Cardia
 		serializer.Serialize(path);
 	}
 
-	void CardiaTor::OpenScene(const AssetHandle& handle)
+	void CardiaTor::OpenScene(const UUID& id)
 	{
-		const auto scenePath = m_AssetsManager.AbsolutePathFromHandle(handle);
+		const auto scenePath = m_AssetsManager.AbsolutePathFromUUID(id);
 
 		try {
 			auto scene = Serializer<Scene>::Deserialize(scenePath);
@@ -475,10 +475,10 @@ namespace Cardia
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_HANDLE"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_UUID"))
 			{
-				const auto* path = static_cast<AssetHandle*>(payload->Data);
-				OpenScene(*path);
+				const auto* sceneId = static_cast<UUID*>(payload->Data);
+				OpenScene(*sceneId);
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -678,11 +678,11 @@ namespace Cardia
 	}
 
 	OffscreenFrameData::OffscreenFrameData(const Renderer &renderer, RenderPass renderPass, Texture colorTexture, Texture depthTexture, Framebuffer framebuffer)
-		: m_Renderer(renderer),
-		  CurrentRenderPass{std::move(renderPass)},
+		: CurrentRenderPass{std::move(renderPass)},
 		  ColorTexture{std::move(colorTexture)},
 		  DepthTexture{std::move(depthTexture)},
-		  CurrentFrameBuffer{std::move(framebuffer)}
+		  CurrentFrameBuffer{std::move(framebuffer)},
+		  m_Renderer(renderer)
 	{
 		auto textureLayout = DescriptorSetLayout::Builder(m_Renderer.GetDescriptorLayoutCache())
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)

@@ -2,7 +2,6 @@
 #include <string>
 
 #include "Cardia/Serialization/Serializer.hpp"
-#include <json/value.h>
 
 namespace uuids
 {

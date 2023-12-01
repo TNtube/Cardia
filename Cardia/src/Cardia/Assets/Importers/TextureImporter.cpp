@@ -16,7 +16,7 @@ namespace Cardia
 		if (!asset)
 			asset = std::make_shared<Texture>(app.GetRenderer().GetDevice(), m_CreateInfo);
 
-		std::string strPath = app.GetAssetsManager().AbsolutePathFromHandle(m_Handle).string();
+		std::string strPath = app.GetAssetsManager().AbsolutePathFromUUID(m_Uuid).string();
 		int texWidth {}, texHeight {}, texChannels {};
 
 		stbi_uc* pixels = stbi_load(strPath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);

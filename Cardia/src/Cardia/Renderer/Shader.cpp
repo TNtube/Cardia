@@ -106,16 +106,6 @@ namespace Cardia
 		m_ShaderModules[type] = ShaderModule(m_Device, type, path);
 	}
 
-	void Shader::Reload()
-	{
-		auto it = m_ShaderModules.begin();
-		while (it != m_ShaderModules.end())
-		{
-			it->second.Reload();
-			++it;
-		}
-	}
-
 	VkShaderModule Shader::GetShaderModule(ShaderType type) const
 	{
 		return m_ShaderModules.at(type).GetShaderModule();

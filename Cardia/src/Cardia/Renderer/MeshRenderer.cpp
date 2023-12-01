@@ -7,30 +7,9 @@
 namespace Cardia
 {
 
-	MeshRenderer::MeshRenderer(const Device &device, AssetHandle handle, Model model)
-		: Asset(std::move(handle)), m_Device(device), m_Model(std::move(model))
+	MeshRenderer::MeshRenderer(const Device &device, UUID id, Model model)
+		: m_Device(device), m_Model(std::move(model))
 	{
-		Init();
-	}
-
-	void MeshRenderer::Reload()
-	{
-		if (!m_Handle.IsValid())
-			return;
-
-		auto& assetsManager = Application::Get().GetAssetsManager();
-
-		auto path = assetsManager.AbsolutePathFromHandle(GetHandle());
-
-		auto materials = m_Model.GetMaterialHandles();
-
-		m_Model = Model::FromFile(path);
-
-		m_Model.GetMaterialHandles() = materials;
-
-		m_SubMeshRenderers.clear();
-		m_Materials.clear();
-
 		Init();
 	}
 
@@ -54,7 +33,6 @@ namespace Cardia
 		auto& assetsManager = Application::Get().GetAssetsManager();
 		for (const auto& material : m_Model.GetMaterialHandles())
 		{
-			auto str = material.ID.ToString();
 			auto mat = assetsManager.Load<Material>(material);
 			m_Materials.emplace_back(mat);
 		}

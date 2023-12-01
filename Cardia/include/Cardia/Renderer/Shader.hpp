@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "Cardia/Assets/Asset.hpp"
 
 namespace Cardia
 {
@@ -46,14 +45,11 @@ namespace Cardia
 		VkPipelineShaderStageCreateInfo m_ShaderInfo {};
 	};
 
-	class Shader final : public Asset
+	class Shader final
 	{
 	public:
 		explicit Shader(const Device& device) : m_Device(device) {}
 		void AddShader(ShaderType type, const std::string& path);
-
-		void Reload() override;
-		bool CheckForDirtyInDependencies() override { return false; }
 
 		VkShaderModule GetShaderModule(ShaderType type) const;
 		VkPipelineShaderStageCreateInfo GetShaderStage(ShaderType type) const;
