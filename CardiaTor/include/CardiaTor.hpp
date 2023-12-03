@@ -10,7 +10,6 @@
 #include "Cardia/Renderer/RenderPass.hpp"
 #include "Panels/PanelManager.hpp"
 #include "Command/Commands.hpp"
-#include "Cardia/Assets/AssetsManager.hpp"
 
 
 namespace Cardia
@@ -35,7 +34,7 @@ namespace Cardia
 	};
 
 
-	class CardiaTor : public Application
+	class CardiaTor final : public Application
 	{
 	public:
 		CardiaTor(const CardiaTor& other) = delete;
@@ -54,7 +53,6 @@ namespace Cardia
 		void SetSelectedEntity(Entity entity);
 
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
-		AssetsManager& GetAssetsManager() { return m_AssetsManager; }
 
 		Scene* GetCurrentScene() override { return m_CurrentScene.get(); }
 

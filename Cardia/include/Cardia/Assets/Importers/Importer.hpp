@@ -18,19 +18,19 @@ namespace Cardia
 
 	inline AssetType ExtensionToAssetType(const std::string& extension)
 	{
-		if (extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "tga")
+		if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".tga")
 			return AssetType::Texture;
 
-		if (extension == "obj" || extension == "fbx" || extension == "gltf")
+		if (extension == ".obj" || extension == ".fbx" || extension == ".gltf")
 			return AssetType::Model;
 
-		if (extension == "mat")
+		if (extension == ".mat")
 			return AssetType::Material;
 
-		if (extension == "py")
+		if (extension == ".py")
 			return AssetType::Script;
 
-		if (extension == "cardia")
+		if (extension == ".cardia")
 			return AssetType::Scene;
 
 		return AssetType::Invalid;
@@ -43,8 +43,13 @@ namespace Cardia
 		virtual ~Importer() = default;
 		virtual AssetType GetType() = 0;
 		virtual void Import(std::shared_ptr<void>& asset) = 0;
+		UUID GetUUID() const { return m_Uuid; }
 		bool IsDirty() const { return m_Dirty; }
 		void SetDirty() { m_Dirty = true; }
+		virtual void Serialize(const std::filesystem::path& path) = 0;
+
+		static std::shared_ptr<Importer> LoadFromPath(const std::filesystem::path& path);
+		static std::shared_ptr<Importer> Instantiate(const std::filesystem::path& extension);
 
 		template <typename T>
 		bool IsTypeValid()
@@ -61,7 +66,22 @@ namespace Cardia
 		}
 
 	protected:
-		UUID m_Uuid = UUID::Default();
-		bool m_Dirty = false;
+		UUID m_Uuid {};
+		bool m_Dirty = true;
+	};
+
+
+	class DefaultImporter final : public Importer
+	{
+	public:
+		DefaultImporter() = default;
+		void Import(std::shared_ptr<void>& asset) override {}
+		AssetType GetType() override { return AssetType::Invalid; }
+		void Serialize(const std::filesystem::path& path) override;
+
+
+		constexpr static auto properties = std::make_tuple(
+			property(&DefaultImporter::m_Uuid, "UUID")
+		);
 	};
 }

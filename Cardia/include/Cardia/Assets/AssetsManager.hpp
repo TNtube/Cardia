@@ -15,7 +15,7 @@ namespace Cardia {
 	struct AssetData
 	{
 		AssetData() = default;
-		explicit AssetData(std::shared_ptr<void> resource) : Resource(std::move(resource)) {}
+		explicit AssetData(std::shared_ptr<Importer> importer) : Importer(std::move(importer)) {}
 		std::shared_ptr<Importer> Importer;
 		std::shared_ptr<void> Resource;
 		uint32_t UnusedCounter = 0;
@@ -54,8 +54,8 @@ namespace Cardia
 
 	private:
 		void WalkAssetsFromPath(const std::filesystem::path& abs);
-		bool LoadAssetUUIDFromPath(const std::filesystem::path& abs);
-		void RegisterNewAssetsUUID(const std::filesystem::path& abs);
+		bool LoadAssetDataFromPath(const std::filesystem::path& abs);
+		void RegisterNewAsset(const std::filesystem::path& abs);
 
 		void RemovePathForUUID(const UUID& id);
 

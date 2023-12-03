@@ -6,15 +6,13 @@
 namespace Cardia
 {
 	class AssetsManager;
-	class TextureImporter : public Importer
+	class TextureImporter final : public Importer
 	{
 	public:
-		explicit TextureImporter(UUID id)
-		{
-			m_Uuid = std::move(id);
-		}
+		TextureImporter() = default;
 		void Import(std::shared_ptr<void>& asset) override;
 		AssetType GetType() override;
+		void Serialize(const std::filesystem::path& path) override;
 
 	private:
 		TextureCreateInfo m_CreateInfo;

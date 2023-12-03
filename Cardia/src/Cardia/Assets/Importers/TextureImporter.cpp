@@ -29,6 +29,7 @@ namespace Cardia
 			Log::CoreError("Error: `{0}` at path `{1}`", error, strPath);
 			texWidth = 1;
 			texHeight = 1;
+			texChannels = 4;
 			pixels = errorColor;
 
 			m_BadImport = true;
@@ -50,5 +51,11 @@ namespace Cardia
 	AssetType TextureImporter::GetType()
 	{
 		return AssetType::Texture;
+	}
+
+	void TextureImporter::Serialize(const std::filesystem::path& path)
+	{
+		Serializer serializer(*this);
+		serializer.Serialize(path);
 	}
 }

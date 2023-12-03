@@ -18,7 +18,7 @@ namespace Cardia
 
 	UUID AssetsManager::GetUUIDFromAbsolute(const std::filesystem::path& absolutePath)
 	{
-		const auto normalized = std::filesystem::absolute(absolutePath);
+		const auto normalized = std::filesystem::absolute(absolutePath.string());
 		if (m_AssetPaths.contains(normalized))
 			return m_AssetPaths[normalized];
 
@@ -97,7 +97,7 @@ namespace Cardia
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(abs)) {
 			auto path = std::filesystem::absolute(entry.path());
 			if (path.extension() == ".imp") {
-				if (LoadAssetUUIDFromPath(path))
+				if (LoadAssetDataFromPath(path))
 					alreadyVisited.insert(path);
 				continue;
 			}
@@ -107,17 +107,23 @@ namespace Cardia
 			if (alreadyVisited.contains(impPath) || std::filesystem::exists(impPath))
 				continue;
 
-			RegisterNewAssetsUUID(path);
+			RegisterNewAsset(path);
 		}
 	}
 
-	bool AssetsManager::LoadAssetUUIDFromPath(const std::filesystem::path& abs)
+	bool AssetsManager::LoadAssetDataFromPath(const std::filesystem::path& abs)
 	{
-		auto path = std::filesystem::absolute(abs);
+		const auto impPath = std::filesystem::absolute(abs);
 		try
 		{
-			const auto id = Serializer<UUID>::Deserialize(path);
-			m_AssetPaths[path.replace_extension()] = id;
+			const auto importer = Importer::LoadFromPath(impPath);
+			if (!importer) return false;
+
+			auto path = impPath;
+			path.replace_extension();
+
+			m_AssetPaths[path] = importer->GetUUID();
+			m_Assets[importer->GetUUID()] = AssetData(importer);
 			return true;
 		}
 		catch (std::exception& /* e */)
@@ -126,13 +132,12 @@ namespace Cardia
 		}
 	}
 
-	void AssetsManager::RegisterNewAssetsUUID(const std::filesystem::path& assetPath)
+	void AssetsManager::RegisterNewAsset(const std::filesystem::path& abs)
 	{
-		UUID id;
-		m_AssetPaths[std::filesystem::absolute(assetPath)] = id;
+		const auto importer = Importer::Instantiate(abs.extension());
+		m_AssetPaths[std::filesystem::absolute(abs)] = importer->GetUUID();
 
-		Serializer serializer(id);
-		serializer.Serialize(assetPath.string() + ".imp");
+		importer->Serialize(abs.string() + ".imp");
 	}
 
 	void AssetsManager::ReloadAssetFromUUID(const UUID& id)
@@ -158,11 +163,11 @@ namespace Cardia
 	}
 
 	void AssetsManager::ReloadAllDirty() {
-		for (auto& asset : m_Assets | std::views::values) {
-			if (asset.Importer->IsDirty()) {
-				asset.Importer->Import(asset.Resource);
-			}
-		}
+		// for (auto& asset : m_Assets | std::views::values) {
+		// 	if (asset.Importer->IsDirty()) {
+		// 		asset.Importer->Import(asset.Resource);
+		// 	}
+		// }
 	}
 
 	void AssetsManager::SetDirty(const UUID& id)
@@ -220,7 +225,7 @@ namespace Cardia
 	UUID AssetsManager::AddAssetEntry(const std::shared_ptr<void>& asset)
 	{
 		UUID newUuid;
-		m_Assets[newUuid] = AssetData(asset);
+		// m_Assets[newUuid] = AssetData(asset);
 		return newUuid;
 	}
 
@@ -258,7 +263,7 @@ namespace Cardia
 		m_AssetsManager.ReloadAllDirty();
 	}
 
-	void AssetsManager::AssetsListener::ComputeFileInfo(const AssetsManager::FileUpdateInfo& updateInfo) const
+	void AssetsManager::AssetsListener::ComputeFileInfo(const FileUpdateInfo& updateInfo) const
 	{
 		switch (updateInfo.Action) {
 			case efsw::Actions::Add: OnFileAdded(updateInfo.NewPath);
@@ -277,7 +282,7 @@ namespace Cardia
 	{
 		if (newPath.extension() == ".imp")
 		{
-			m_AssetsManager.LoadAssetUUIDFromPath(newPath);
+			m_AssetsManager.LoadAssetDataFromPath(newPath);
 			return;
 		}
 
@@ -286,7 +291,7 @@ namespace Cardia
 		if (std::filesystem::exists(impPath))
 			return;
 
-		m_AssetsManager.RegisterNewAssetsUUID(newPath);
+		m_AssetsManager.RegisterNewAsset(newPath);
 	}
 
 	void AssetsManager::AssetsListener::OnFileRemoved(const std::filesystem::path& newPath) const
@@ -314,7 +319,7 @@ namespace Cardia
 			m_AssetsManager.SetDirty(oldUuid);
 			m_AssetsManager.RemovePathForUUID(oldUuid);
 
-			m_AssetsManager.LoadAssetUUIDFromPath(finalPath);
+			m_AssetsManager.LoadAssetDataFromPath(finalPath);
 			return;
 		}
 

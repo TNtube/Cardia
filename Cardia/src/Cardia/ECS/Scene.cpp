@@ -127,7 +127,7 @@ namespace Cardia
 		skyboxUboData.Model[3] = Vector4f(0, 0, 0, 1);
 		frame.SkyboxUboBuffer->UploadData(sizeof(SkyboxUboData), &skyboxUboData);
 
-		skybox.Draw(commandBuffer);
+		// skybox.Draw(commandBuffer);
 
 		// Render Meshes
 		m_Renderer.GetMainPipeline().Bind(commandBuffer);
