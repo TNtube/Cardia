@@ -78,8 +78,6 @@ namespace Cardia
 			m_Device.CopyBufferToImage(buffer.GetBuffer(), m_Image, m_Size.w, m_Size.h, 1);
 		}
 		TransitionImageLayout(m_Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		m_Initialized = true;
 	}
 
 	void Texture::Release()
@@ -102,7 +100,7 @@ namespace Cardia
 
 	void Texture::CreateImage(const VkFormat format, const VkImageUsageFlags usageFlags, const VkImageAspectFlags aspectFlags)
 	{
-		if (m_Image != VK_NULL_HANDLE)
+		if (m_Initialized)
 			Release();
 
 		m_Size.h = m_CreateInfo.Mode == TextureMode::CubeMap ? m_Size.w : m_Size.h;
@@ -128,6 +126,8 @@ namespace Cardia
 
 		CreateImageView(format, aspectFlags);
 		CreateTextureSampler();
+
+		m_Initialized = true;
 	}
 
 	void Texture::TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
